@@ -12,6 +12,7 @@ test("authoritative evidence coverage indexes every local source class used by p
     "archived-player-bundle",
     "player-browser-profile",
     "legacy-worktree",
+    "posture-delta-frame-corpus",
   ]);
   assert.equal(coverage.contactBinding.originReferences > 0, true);
   assert.equal(coverage.contactBinding.originDefinitions, 0);
@@ -24,6 +25,8 @@ test("coverage distinguishes standing producers from missing posture producers",
   assert.deepEqual(coverage.postureShapeProducer.backendPostureAdjacentShapeWrites, []);
   assert.deepEqual(coverage.postureShapeProducer.legacyPlayerShapeWrites, []);
   assert.equal(coverage.postureShapeProducer.publicFrameCount, 0);
+  assert.equal(coverage.postureShapeProducer.clientToServerBinaryFrames, 1864);
+  assert.equal(coverage.postureShapeProducer.frameCorpusStatus, "not-found-in-safe-local-frame-corpus");
   assert.equal(coverage.postureShapeProducer.status, "not-found-in-indexed-local-evidence");
 });
 

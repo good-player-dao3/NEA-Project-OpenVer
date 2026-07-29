@@ -1,6 +1,6 @@
 # NEA Runtime Compatibility Phase 5 Audit
 
-Generated: 2026-07-29T07:15:48.623Z
+Generated: 2026-07-29T07:32:19.249Z
 Overall status: **partial**
 
 ## Requirements
@@ -32,7 +32,8 @@ Crouch/fly state encoding and client motor behavior are recovered, but historica
 
 - runtime-compat/abi/physics-player-posture.json: {"crouching":{"stateStatus":"confirmed","confirmedClientEffects":["crouch-speed","crouch-acceleration","edge-occupancy-limiting"],"clientShapeMutation":"absent","authoritativeShape":"unresolved"},"flying":{"stateStatus":"confirmed","confirmedClientEffects":["gravity-flag","collision-flag","vertical-motor-force"],"clientShapeMutation":"absent","authoritativeShape":"unresolved"},"captureEvidence":"The explicit captures, inspected Player profile stores, and legacy worktree contain no historical binary server-to-client PUBLIC body frame."}
 - runtime-compat/generated/legacy-worktree-posture-inventory.json: {"clientShapeWrites":[],"legacyProducer":"local-reproduction-not-historical-evidence","authoritativeStatus":"unresolved"}
-- runtime-compat/generated/authoritative-runtime-evidence-coverage.json: {"indexedSourceSets":["origin-server-runtime","lokibox-runtime-adapters","local-player-backend","archived-player-bundle","player-browser-profile","legacy-worktree"],"producerStatus":"not-found-in-indexed-local-evidence","contactBindingStatus":"reference-only"}
+- runtime-compat/generated/posture-delta-corpus-inventory.json: {"captures":9,"clientToServerBinaryFrames":1864,"serverToClientBinaryFrames":0,"resourceArchives":3,"rawReplayPayloadAvailable":false,"status":"not-found-in-safe-local-frame-corpus"}
+- runtime-compat/generated/authoritative-runtime-evidence-coverage.json: {"indexedSourceSets":["origin-server-runtime","lokibox-runtime-adapters","local-player-backend","archived-player-bundle","player-browser-profile","legacy-worktree","posture-delta-frame-corpus"],"producerStatus":"not-found-in-indexed-local-evidence","contactBindingStatus":"reference-only"}
 - Remaining: Recover or decode a historical server-to-client PUBLIC body delta containing crouch or flying rx/ry/rz and hsx/hsy/hsz changes.
 
 ### terrain-contact-rules: complete

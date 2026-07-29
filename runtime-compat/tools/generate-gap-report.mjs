@@ -53,6 +53,9 @@ const report = {
     playerPostureShapes: {
       status: evidenceCoverage.postureShapeProducer.status,
       indexedSourceSets: evidenceCoverage.indexedSourceSets.map(source => source.id),
+      frameCorpusStatus: evidenceCoverage.postureShapeProducer.frameCorpusStatus,
+      clientToServerBinaryFrames: evidenceCoverage.postureShapeProducer.clientToServerBinaryFrames,
+      serverToClientBinaryFrames: evidenceCoverage.postureShapeProducer.publicFrameCount,
       requiredEvidence: "historical server-to-client PUBLIC body delta or equivalent authoritative posture producer",
     },
     contactBinding: {
@@ -119,6 +122,8 @@ function renderMarkdown(value) {
     "## Evidence Gaps",
     "",
     `- Player posture producer: ${value.evidenceGaps.playerPostureShapes.status}`,
+    `- Posture frame corpus: ${value.evidenceGaps.playerPostureShapes.frameCorpusStatus}`,
+    `- Captured binary traffic: ${value.evidenceGaps.playerPostureShapes.clientToServerBinaryFrames} client-to-server; ${value.evidenceGaps.playerPostureShapes.serverToClientBinaryFrames} server-to-client`,
     `- Indexed source sets: ${value.evidenceGaps.playerPostureShapes.indexedSourceSets.join(", ")}`,
     `- ContactBinding: ${value.evidenceGaps.contactBinding.status}`,
     `- Per-contact force: ${value.evidenceGaps.contactBinding.perContactForceProduction}`,

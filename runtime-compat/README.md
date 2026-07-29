@@ -17,6 +17,7 @@ npm test
 - `generated/local-server-runtime-analysis.json` and `abi/server-adapter-map.json` from the local Server Runtime, with exact versus partial canonical mappings kept separate.
 - `abi/protocols.json` from the recovered Player and ScriptShell MuDB schemas, including conformance metadata where available.
 - `generated/api-abi-completeness.json` validates every documented kind-qualified signature, runtime-catalog propagation, compatibility-matrix entry, and explicit direction-qualified MuDB message record.
+- `generated/posture-delta-corpus-inventory.json` safely inventories local captures, resource ZIP directories, decoded replay data and WebSocket discovery metadata without publishing payloads, URLs or session identifiers.
 - `abi/current-runtime.json` from executable Player and local Server Runtime analysis instead of a hand-maintained subset.
 - `abi/runtime-contracts.json` with the five runtime layers, versioned contracts, side-qualified capabilities and resolved Demo bindings.
 - `abi/client-runtime.json` and `abi/server-runtime.json` by merging declarations, recovered symbols and current implementation evidence.

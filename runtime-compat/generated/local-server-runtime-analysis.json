@@ -1,7 +1,7 @@
 {
   "format": "nea-local-server-runtime-analysis",
   "version": 1,
-  "generatedAt": "2026-07-29T07:15:44.744Z",
+  "generatedAt": "2026-07-29T07:32:15.194Z",
   "source": {
     "path": "demo-map/src/runtime/script-runtime.mjs",
     "bytes": 20552,

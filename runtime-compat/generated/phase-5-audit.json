@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-compatibility-phase-audit",
   "version": 1,
-  "generatedAt": "2026-07-29T07:15:48.623Z",
+  "generatedAt": "2026-07-29T07:32:19.249Z",
   "phase": 5,
   "overallStatus": "partial",
   "requirements": [
@@ -158,6 +158,17 @@
           }
         },
         {
+          "path": "runtime-compat/generated/posture-delta-corpus-inventory.json",
+          "finding": {
+            "captures": 9,
+            "clientToServerBinaryFrames": 1864,
+            "serverToClientBinaryFrames": 0,
+            "resourceArchives": 3,
+            "rawReplayPayloadAvailable": false,
+            "status": "not-found-in-safe-local-frame-corpus"
+          }
+        },
+        {
           "path": "runtime-compat/generated/authoritative-runtime-evidence-coverage.json",
           "finding": {
             "indexedSourceSets": [
@@ -166,7 +177,8 @@
               "local-player-backend",
               "archived-player-bundle",
               "player-browser-profile",
-              "legacy-worktree"
+              "legacy-worktree",
+              "posture-delta-frame-corpus"
             ],
             "producerStatus": "not-found-in-indexed-local-evidence",
             "contactBindingStatus": "reference-only"

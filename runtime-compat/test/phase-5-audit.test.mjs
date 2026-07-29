@@ -26,5 +26,9 @@ test("audit does not claim completion without authoritative posture deltas", () 
   const posture = audit.requirements.find(requirement => requirement.id === "player-posture-shapes");
   assert.equal(posture.status, "partial");
   assert.match(posture.remaining[0], /PUBLIC body delta/);
+  const corpus = posture.evidence.find(item => item.path === "runtime-compat/generated/posture-delta-corpus-inventory.json");
+  assert.equal(corpus.finding.clientToServerBinaryFrames, 1864);
+  assert.equal(corpus.finding.serverToClientBinaryFrames, 0);
+  assert.equal(corpus.finding.status, "not-found-in-safe-local-frame-corpus");
   assert.match(audit.policy, /no substitute values/);
 });

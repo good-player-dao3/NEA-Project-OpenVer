@@ -18,6 +18,7 @@ const physics = await readJson("generated/player-physics-bundle-analysis.json");
 const networkBody = await readJson("generated/player-network-body-analysis.json");
 const profile = await readJson("generated/player-profile-network-inventory.json");
 const legacy = await readJson("generated/legacy-worktree-posture-inventory.json");
+const postureCorpus = await readJson("generated/posture-delta-corpus-inventory.json");
 const contactForce = await readJson("generated/contact-force-production-analysis.json");
 
 const originContactBindingReferences = count(originText, /\bContactBinding\b/g);
@@ -44,6 +45,7 @@ const coverage = {
     { id: "archived-player-bundle", path: contactForce.source.path, files: 1, sha256: contactForce.source.sha256 },
     { id: "player-browser-profile", path: profile.source.path, files: profile.serviceWorkerCache.parsedEntries },
     { id: "legacy-worktree", path: "sibling-local-worktree", files: Object.keys(legacy.sources).length },
+    { id: "posture-delta-frame-corpus", path: "runtime-compat/generated/posture-delta-corpus-inventory.json", files: postureCorpus.sourceSets.reduce((total, source) => total + source.files, 0) },
   ],
   contactBinding: {
     originReferences: originContactBindingReferences,
@@ -60,11 +62,14 @@ const coverage = {
     backendPostureAdjacentShapeWrites: backendPostureShapeWrites,
     legacyPlayerShapeWrites: legacy.legacyPublicProducer.playerBodyWrites,
     cachedPlayRoutes: playRoutes,
-    publicFrameCount: profile.publicFrameEvidence.serverToClientBinaryFrames + legacy.localArtifacts.serverToClientPublicFrameCount,
+    publicFrameCount: postureCorpus.authoritativePostureDelta.candidateServerToClientBinaryFrames,
+    clientToServerBinaryFrames: postureCorpus.captures.traffic.clientToServerBinaryFrames,
+    frameCorpusStatus: postureCorpus.authoritativePostureDelta.status,
+    frameCorpusSourceSets: postureCorpus.sourceSets.map(source => source.id),
     authoritativeDeltaStatus: legacy.authoritativePostureDelta.status,
     unresolved: networkBody.unresolved,
     status: "not-found-in-indexed-local-evidence",
-    conclusion: "Indexed local sources contain standing-profile producers and client-side posture consumers, but no crouch/fly-conditioned authoritative write to rx/ry/rz or hsx/hsy/hsz.",
+    conclusion: "Indexed local sources contain standing-profile producers, client-side posture consumers and client-to-server input captures, but no server-to-client crouch/fly-conditioned write to rx/ry/rz or hsx/hsy/hsz.",
   },
   cacheClassification: {
     canonicalStreams: profile.serviceWorkerCache.parsedEntries,

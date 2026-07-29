@@ -1,7 +1,7 @@
 {
   "format": "nea-player-client-script-runtime-analysis",
   "version": 1,
-  "generatedAt": "2026-07-29T07:15:44.652Z",
+  "generatedAt": "2026-07-29T07:32:15.097Z",
   "source": {
     "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/474.c17d0cc8a4489c84.js",
     "bytes": 40625,

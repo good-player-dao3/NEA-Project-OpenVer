@@ -11,6 +11,7 @@ const posture = await readJson("abi/physics-player-posture.json");
 const contact = await readJson("abi/contact-event-model.json");
 const legacyPosture = await readJson("generated/legacy-worktree-posture-inventory.json");
 const evidenceCoverage = await readJson("generated/authoritative-runtime-evidence-coverage.json");
+const postureCorpus = await readJson("generated/posture-delta-corpus-inventory.json");
 const apiAbiCompleteness = await readJson("generated/api-abi-completeness.json");
 const gap = await readJson("generated/gap-report.json");
 const apiAbiStatus = apiAbiCompleteness.status === "complete" ? "complete" : "partial";
@@ -39,6 +40,14 @@ const requirements = [
       clientShapeWrites: legacyPosture.archivedPlayerMotor.bodyShapeWrites,
       legacyProducer: legacyPosture.legacyPublicProducer.classification,
       authoritativeStatus: legacyPosture.authoritativePostureDelta.status,
+    }),
+    proof("runtime-compat/generated/posture-delta-corpus-inventory.json", {
+      captures: postureCorpus.captures.count,
+      clientToServerBinaryFrames: postureCorpus.captures.traffic.clientToServerBinaryFrames,
+      serverToClientBinaryFrames: postureCorpus.captures.traffic.serverToClientBinaryFrames,
+      resourceArchives: postureCorpus.resourceArchives.count,
+      rawReplayPayloadAvailable: postureCorpus.staticReplay.rawPayloadAvailable,
+      status: postureCorpus.authoritativePostureDelta.status,
     }),
     proof("runtime-compat/generated/authoritative-runtime-evidence-coverage.json", {
       indexedSourceSets: evidenceCoverage.indexedSourceSets.map(source => source.id),

@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-gap-report",
   "version": 1,
-  "generatedAt": "2026-07-29T07:15:48.056Z",
+  "generatedAt": "2026-07-29T07:32:18.640Z",
   "summary": {
     "documentedDeclarations": 599,
     "currentContractEntries": 205,
@@ -62,8 +62,12 @@
         "local-player-backend",
         "archived-player-bundle",
         "player-browser-profile",
-        "legacy-worktree"
+        "legacy-worktree",
+        "posture-delta-frame-corpus"
       ],
+      "frameCorpusStatus": "not-found-in-safe-local-frame-corpus",
+      "clientToServerBinaryFrames": 1864,
+      "serverToClientBinaryFrames": 0,
       "requiredEvidence": "historical server-to-client PUBLIC body delta or equivalent authoritative posture producer"
     },
     "contactBinding": {

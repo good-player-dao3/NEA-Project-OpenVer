@@ -1,7 +1,7 @@
 {
   "format": "nea-authoritative-runtime-evidence-coverage",
   "version": 1,
-  "generatedAt": "2026-07-29T07:15:46.588Z",
+  "generatedAt": "2026-07-29T07:32:17.262Z",
   "indexedSourceSets": [
     {
       "id": "origin-server-runtime",
@@ -35,6 +35,11 @@
       "id": "legacy-worktree",
       "path": "sibling-local-worktree",
       "files": 8
+    },
+    {
+      "id": "posture-delta-frame-corpus",
+      "path": "runtime-compat/generated/posture-delta-corpus-inventory.json",
+      "files": 416
     }
   ],
   "contactBinding": {
@@ -185,13 +190,24 @@
       }
     ],
     "publicFrameCount": 0,
+    "clientToServerBinaryFrames": 1864,
+    "frameCorpusStatus": "not-found-in-safe-local-frame-corpus",
+    "frameCorpusSourceSets": [
+      "box-go-captures",
+      "box-go-resource-archives",
+      "local-player-bootstrap",
+      "local-player-websocket-discovery-cache",
+      "legacy-static-replay",
+      "player-browser-profile",
+      "legacy-binary-candidates"
+    ],
     "authoritativeDeltaStatus": "unresolved",
     "unresolved": [
       "server-authoritative crouch shape mutation",
       "server-authoritative flying shape mutation"
     ],
     "status": "not-found-in-indexed-local-evidence",
-    "conclusion": "Indexed local sources contain standing-profile producers and client-side posture consumers, but no crouch/fly-conditioned authoritative write to rx/ry/rz or hsx/hsy/hsz."
+    "conclusion": "Indexed local sources contain standing-profile producers, client-side posture consumers and client-to-server input captures, but no server-to-client crouch/fly-conditioned write to rx/ry/rz or hsx/hsy/hsz."
   },
   "cacheClassification": {
     "canonicalStreams": 400,

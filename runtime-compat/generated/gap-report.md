@@ -1,6 +1,6 @@
 # Runtime Compatibility Gap Report
 
-Generated: 2026-07-29T07:15:48.056Z
+Generated: 2026-07-29T07:32:18.640Z
 
 ## Summary
 
@@ -40,7 +40,9 @@ Generated: 2026-07-29T07:15:48.056Z
 ## Evidence Gaps
 
 - Player posture producer: not-found-in-indexed-local-evidence
-- Indexed source sets: origin-server-runtime, lokibox-runtime-adapters, local-player-backend, archived-player-bundle, player-browser-profile, legacy-worktree
+- Posture frame corpus: not-found-in-safe-local-frame-corpus
+- Captured binary traffic: 1864 client-to-server; 0 server-to-client
+- Indexed source sets: origin-server-runtime, lokibox-runtime-adapters, local-player-backend, archived-player-bundle, player-browser-profile, legacy-worktree, posture-delta-frame-corpus
 - ContactBinding: reference-only
 - Per-contact force: confirmed-historical-production-local-missing
 - Aggregate contactForce: unresolved

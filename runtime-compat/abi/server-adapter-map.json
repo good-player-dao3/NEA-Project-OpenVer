@@ -1,7 +1,7 @@
 {
   "format": "nea-server-adapter-map",
   "version": 1,
-  "generatedAt": "2026-07-29T07:15:44.744Z",
+  "generatedAt": "2026-07-29T07:32:15.194Z",
   "contract": "nea-server-runtime/v1",
   "adapters": [
     {
