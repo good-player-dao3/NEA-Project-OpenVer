@@ -1,0 +1,1236 @@
+{
+  "format": "nea-local-server-runtime-analysis",
+  "version": 1,
+  "generatedAt": "2026-07-29T06:40:05.893Z",
+  "source": {
+    "path": "demo-map/src/runtime/script-runtime.mjs",
+    "bytes": 20552,
+    "sha256": "9792ed92c2ad822fca9f8ec675113ef8ab667e2437c540176ae6475d23c16237"
+  },
+  "eventTokenSource": {
+    "path": "demo-map/src/runtime/event-signal.mjs",
+    "bytes": 1253,
+    "sha256": "6d08bd5f88c4cdfecaccb468f45b203e8cb2fa33aa65f43493dcc84613ed45c2"
+  },
+  "contract": "nea-server-runtime/v1",
+  "entries": [
+    {
+      "id": "server.object.GameEventHandlerToken",
+      "side": "server",
+      "kind": "object",
+      "owner": null,
+      "name": "GameEventHandlerToken",
+      "signature": {
+        "methods": [
+          "cancel(): void",
+          "resume(): void",
+          "active(): boolean"
+        ]
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "notes": [
+        "The local structural token now preserves duplicate subscriptions plus cancel, resume and active lifecycle semantics."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/event-signal.mjs",
+          "symbol": "EventSignal.on",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.currentTick",
+      "side": "server",
+      "kind": "property",
+      "owner": "world",
+      "name": "currentTick",
+      "signature": {
+        "type": "number",
+        "readonly": true
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameWorld.currentTick"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.onTick",
+      "side": "server",
+      "kind": "event",
+      "owner": "world",
+      "name": "onTick",
+      "signature": {
+        "parameters": [
+          {
+            "name": "handler",
+            "type": "({tick,prevTick,elapsedTimeMS,skip,deltaTime})=>void"
+          }
+        ],
+        "returns": "listener-token"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.onPlayerJoin",
+      "side": "server",
+      "kind": "event",
+      "owner": "world",
+      "name": "onPlayerJoin",
+      "signature": {
+        "parameters": [
+          {
+            "name": "handler",
+            "type": "({tick,entity,player})=>void"
+          }
+        ],
+        "returns": "listener-token"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.onPlayerLeave",
+      "side": "server",
+      "kind": "event",
+      "owner": "world",
+      "name": "onPlayerLeave",
+      "signature": {
+        "parameters": [
+          {
+            "name": "handler",
+            "type": "({tick,entity,player})=>void"
+          }
+        ],
+        "returns": "listener-token"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.onVoxelContact",
+      "side": "server",
+      "kind": "event",
+      "owner": "world",
+      "name": "onVoxelContact",
+      "signature": {
+        "parameters": [
+          {
+            "name": "handler",
+            "type": "({tick,entity,x,y,z,voxel,axis,force,player,collider,normal,compatibility})=>void"
+          }
+        ],
+        "returns": "listener-token"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.onVoxelSeparate",
+      "side": "server",
+      "kind": "event",
+      "owner": "world",
+      "name": "onVoxelSeparate",
+      "signature": {
+        "parameters": [
+          {
+            "name": "handler",
+            "type": "({tick,entity,x,y,z,voxel,axis,force,player,collider,normal,compatibility})=>void"
+          }
+        ],
+        "returns": "listener-token"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.onContact",
+      "side": "server",
+      "kind": "event",
+      "owner": "world",
+      "name": "onContact",
+      "signature": {
+        "parameters": [
+          {
+            "name": "handler",
+            "type": "({tick,entity,other,axis,force,player,collider,normal,compatibility})=>void"
+          }
+        ],
+        "returns": "listener-token"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.onContactSeparate",
+      "side": "server",
+      "kind": "event",
+      "owner": "world",
+      "name": "onContactSeparate",
+      "signature": {
+        "parameters": [
+          {
+            "name": "handler",
+            "type": "({tick,entity,other,axis,force,player,collider,normal,compatibility})=>void"
+          }
+        ],
+        "returns": "listener-token"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.onTriggerEnter",
+      "side": "server",
+      "kind": "event",
+      "owner": "world",
+      "name": "onTriggerEnter",
+      "signature": {
+        "parameters": [
+          {
+            "name": "handler",
+            "type": "({player,trigger})=>void"
+          }
+        ],
+        "returns": "listener-token"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.onTriggerLeave",
+      "side": "server",
+      "kind": "event",
+      "owner": "world",
+      "name": "onTriggerLeave",
+      "signature": {
+        "parameters": [
+          {
+            "name": "handler",
+            "type": "({player,trigger})=>void"
+          }
+        ],
+        "returns": "listener-token"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.nextTick",
+      "side": "server",
+      "kind": "event",
+      "owner": "world",
+      "name": "nextTick",
+      "signature": {
+        "parameters": [],
+        "returns": "Promise<{tick,deltaTime}>"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.nextPlayerJoin",
+      "side": "server",
+      "kind": "event",
+      "owner": "world",
+      "name": "nextPlayerJoin",
+      "signature": {
+        "parameters": [],
+        "returns": "Promise<{player}>"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.say",
+      "side": "server",
+      "kind": "method",
+      "owner": "world",
+      "name": "say",
+      "signature": {
+        "parameters": [
+          {
+            "name": "message",
+            "type": "unknown"
+          }
+        ],
+        "returns": "void"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.world.chat",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.createEntity",
+      "side": "server",
+      "kind": "method",
+      "owner": "world",
+      "name": "createEntity",
+      "signature": {
+        "parameters": [
+          {
+            "name": "spec",
+            "type": "LocalEntitySpec"
+          }
+        ],
+        "returns": "RuntimeEntity"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.querySelector",
+      "side": "server",
+      "kind": "method",
+      "owner": "world",
+      "name": "querySelector",
+      "signature": {
+        "parameters": [
+          {
+            "name": "selector",
+            "type": "string"
+          }
+        ],
+        "returns": "RuntimeEntity|null"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.querySelectorAll",
+      "side": "server",
+      "kind": "method",
+      "owner": "world",
+      "name": "querySelectorAll",
+      "signature": {
+        "parameters": [
+          {
+            "name": "selector",
+            "type": "string"
+          }
+        ],
+        "returns": "readonly RuntimeEntity[]"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.object.RuntimeEntity",
+      "side": "server",
+      "kind": "object",
+      "owner": null,
+      "name": "RuntimeEntity",
+      "signature": {
+        "properties": [
+          "id",
+          "kind",
+          "position",
+          "tags"
+        ],
+        "methods": [
+          "snapshot"
+        ]
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.id",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "id",
+      "signature": {
+        "type": "string",
+        "readonly": true
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.kind",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "kind",
+      "signature": {
+        "type": "string",
+        "readonly": true
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.position",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "position",
+      "signature": {
+        "type": "Vector3",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.tags",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "tags",
+      "signature": {
+        "type": "Set<string>",
+        "readonly": true
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.snapshot",
+      "side": "server",
+      "kind": "method",
+      "owner": "RuntimeEntity",
+      "name": "snapshot",
+      "signature": {
+        "parameters": [],
+        "returns": "RuntimeEntitySnapshot"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.object.RuntimePlayer",
+      "side": "server",
+      "kind": "object",
+      "owner": null,
+      "name": "RuntimePlayer",
+      "signature": {
+        "properties": [
+          "id",
+          "name",
+          "position",
+          "velocity",
+          "grounded",
+          "health"
+        ],
+        "methods": [
+          "applyImpulse",
+          "damage",
+          "sendMessage",
+          "snapshot"
+        ]
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.player",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.id",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "id",
+      "signature": {
+        "type": "string",
+        "readonly": true
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.player",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.name",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "name",
+      "signature": {
+        "type": "string",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.player.write",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.position",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "position",
+      "signature": {
+        "type": "Vector3",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.player.write",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.velocity",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "velocity",
+      "signature": {
+        "type": "Vector3",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.player.write",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.grounded",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "grounded",
+      "signature": {
+        "type": "boolean",
+        "readonly": true
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.player",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.health",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "health",
+      "signature": {
+        "type": "number",
+        "readonly": true
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.player",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.applyImpulse",
+      "side": "server",
+      "kind": "method",
+      "owner": "RuntimePlayer",
+      "name": "applyImpulse",
+      "signature": {
+        "parameters": [
+          {
+            "name": "impulse",
+            "type": "Vector3Like"
+          }
+        ],
+        "returns": "void"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.player.write",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.damage",
+      "side": "server",
+      "kind": "method",
+      "owner": "RuntimePlayer",
+      "name": "damage",
+      "signature": {
+        "parameters": [
+          {
+            "name": "amount",
+            "type": "number"
+          }
+        ],
+        "returns": "number"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.player.write",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.sendMessage",
+      "side": "server",
+      "kind": "method",
+      "owner": "RuntimePlayer",
+      "name": "sendMessage",
+      "signature": {
+        "parameters": [
+          {
+            "name": "message",
+            "type": "unknown"
+          }
+        ],
+        "returns": "void"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.world.chat",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.snapshot",
+      "side": "server",
+      "kind": "method",
+      "owner": "RuntimePlayer",
+      "name": "snapshot",
+      "signature": {
+        "parameters": [],
+        "returns": "RuntimePlayerSnapshot"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "server.player",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.remoteChannel.onClientEvent",
+      "side": "server",
+      "kind": "event",
+      "owner": "remoteChannel",
+      "name": "onClientEvent",
+      "signature": {
+        "parameters": [
+          {
+            "name": "handler",
+            "type": "({player,event})=>void"
+          }
+        ],
+        "returns": "listener-token"
+      },
+      "availability": "confirmed",
+      "compatibility": "bridged",
+      "capability": "server.remote-channel",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.remoteChannel.nextClientEvent",
+      "side": "server",
+      "kind": "event",
+      "owner": "remoteChannel",
+      "name": "nextClientEvent",
+      "signature": {
+        "parameters": [],
+        "returns": "Promise<{player,event}>"
+      },
+      "availability": "confirmed",
+      "compatibility": "bridged",
+      "capability": "server.remote-channel",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.remoteChannel.sendClientEvent",
+      "side": "server",
+      "kind": "method",
+      "owner": "remoteChannel",
+      "name": "sendClientEvent",
+      "signature": {
+        "parameters": [
+          {
+            "name": "player",
+            "type": "RuntimePlayer"
+          },
+          {
+            "name": "event",
+            "type": "any"
+          }
+        ],
+        "returns": "void"
+      },
+      "availability": "confirmed",
+      "compatibility": "bridged",
+      "capability": "server.remote-channel",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    }
+  ],
+  "adapters": [
+    {
+      "localId": "server.world.currentTick",
+      "canonicalId": "server.GameWorld.currentTick",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.world.onTick",
+      "canonicalId": "server.GameWorld.onTick",
+      "status": "partial",
+      "gaps": [
+        "Local elapsedTimeMS uses the configured fixed interval instead of the historical wall-clock measurement.",
+        "Historical skip calculation and delayed-tick behavior are not yet reproduced."
+      ]
+    },
+    {
+      "localId": "server.world.onPlayerJoin",
+      "canonicalId": "server.GameWorld.onPlayerJoin",
+      "status": "partial",
+      "gaps": [
+        "Event fields now match GameEntityEvent, but RuntimePlayer is still only a subset of GamePlayerEntity."
+      ]
+    },
+    {
+      "localId": "server.world.onPlayerLeave",
+      "canonicalId": "server.GameWorld.onPlayerLeave",
+      "status": "partial",
+      "gaps": [
+        "Event fields now match GameEntityEvent, but RuntimePlayer is still only a subset of GamePlayerEntity."
+      ]
+    },
+    {
+      "localId": "server.world.onVoxelContact",
+      "canonicalId": "server.GameWorld.onVoxelContact",
+      "status": "partial",
+      "gaps": [
+        "GameVoxelContactEvent force remains null because historical fx/fy/fz production semantics are unresolved.",
+        "RuntimePlayer is still only a subset of GamePlayerEntity."
+      ]
+    },
+    {
+      "localId": "server.world.onVoxelSeparate",
+      "canonicalId": "server.GameWorld.onVoxelSeparate",
+      "status": "partial",
+      "gaps": [
+        "GameVoxelContactEvent force remains null because historical fx/fy/fz production semantics are unresolved.",
+        "RuntimePlayer is still only a subset of GamePlayerEntity."
+      ]
+    },
+    {
+      "localId": "server.world.onContact",
+      "canonicalId": "server.GameWorld.onEntityContact",
+      "status": "partial",
+      "gaps": [
+        "Local collider abstraction is not a historical GameEntityContactEvent."
+      ]
+    },
+    {
+      "localId": "server.world.onContactSeparate",
+      "canonicalId": "server.GameWorld.onEntitySeparate",
+      "status": "partial",
+      "gaps": [
+        "Local collider abstraction is not a historical GameEntityContactEvent."
+      ]
+    },
+    {
+      "localId": "server.world.nextTick",
+      "canonicalId": "server.GameWorld.nextTick",
+      "status": "partial",
+      "gaps": [
+        "Historical nextTick accepts an optional filter and resolves a GameTickEvent."
+      ]
+    },
+    {
+      "localId": "server.world.nextPlayerJoin",
+      "canonicalId": "server.GameWorld.nextPlayerJoin",
+      "status": "partial",
+      "gaps": [
+        "Historical nextPlayerJoin accepts an optional filter and resolves a GameEntityEvent."
+      ]
+    },
+    {
+      "localId": "server.world.say",
+      "canonicalId": "server.GameWorld.say",
+      "status": "partial",
+      "gaps": [
+        "Local implementation records/logs messages but does not yet prove historical broadcast delivery and limits."
+      ]
+    },
+    {
+      "localId": "server.world.createEntity",
+      "canonicalId": "server.GameWorld.createEntity",
+      "status": "partial",
+      "gaps": [
+        "Local entity spec and returned wrapper expose only a small subset of GameEntity."
+      ]
+    },
+    {
+      "localId": "server.world.querySelector",
+      "canonicalId": "server.GameWorld.querySelector",
+      "status": "partial",
+      "gaps": [
+        "Local selector grammar supports only id, tag and kind subsets."
+      ]
+    },
+    {
+      "localId": "server.world.querySelectorAll",
+      "canonicalId": "server.GameWorld.querySelectorAll",
+      "status": "partial",
+      "gaps": [
+        "Local selector grammar supports only id, tag and kind subsets."
+      ]
+    },
+    {
+      "localId": "server.remoteChannel.onClientEvent",
+      "canonicalId": "server.remoteChannel.onServerEvent",
+      "status": "partial",
+      "gaps": [
+        "Local payload is {player,event}; historical ServerEvent is {tick,entity,args}."
+      ]
+    },
+    {
+      "localId": "server.remoteChannel.sendClientEvent",
+      "canonicalId": "server.remoteChannel.sendClientEvent",
+      "status": "partial",
+      "gaps": [
+        "Local method accepts one RuntimePlayer; historical API accepts one or many GamePlayerEntity targets and empty arrays."
+      ]
+    }
+  ],
+  "summary": {
+    "localEntries": 37,
+    "compatibleAdapters": 1,
+    "partialAdapters": 15,
+    "extensions": 21
+  }
+}

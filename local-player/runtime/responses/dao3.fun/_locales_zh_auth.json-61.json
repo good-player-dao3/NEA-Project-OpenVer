@@ -1,0 +1,22 @@
+{
+  "third_party_auth_title": "应用授权请求",
+  "third_party_auth_desc": "想要访问您的 Box3 账户",
+  "third_party_auth_permission_scope": "权限范围: {{scope}}",
+  "third_party_auth_approve": "允许",
+  "third_party_auth_deny": "拒绝",
+  "third_party_auth_loading": "正在加载授权信息...",
+  "third_party_auth_error_title": "授权错误",
+  "third_party_auth_error_missing_params": "授权请求缺少必要的参数 (response_type, client_id, state, redirect_uri, scope)。",
+  "third_party_auth_error_invalid_client_id": "无效的客户端 ID",
+  "third_party_auth_error_invalid_redirect_uri": "无效的重定向 URI",
+  "auth_operation": "授权操作",
+  "permissions_requested": "请求的权限",
+  "callback_address_heading": "回调地址",
+  "callback_address_desc": "授权后您将被重定向到此地址。",
+  "third_party_auth_error_unsupported_response_type": "不支持的响应类型: response_type 必须是 'code'",
+  "third_party_auth_error_invalid_scope": "无效的权限范围",
+  "third_party_auth_error_failed_to_authorize": "授权失败，请重试。",
+  "third_party_auth_error_missing_public_key": "客户端公钥未找到。",
+  "third_party_auth_error_user_not_logged_in": "用户未登录，即将跳转至登录页面...",
+  "third_party_auth_warning_all_scope": "警告：此权限将允许应用访问您的所有个人信息（包括用户头像，昵称，Token等），并可能代表您执行操作。请仅对您完全信任的应用授权。"
+} 

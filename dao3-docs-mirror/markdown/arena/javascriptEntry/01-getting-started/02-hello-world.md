@@ -1,0 +1,27 @@
+---
+title: "Hello, World!"
+source: "https://docs.dao3.fun/arena/javascriptEntry/01-getting-started/02-hello-world.html"
+---
+
+# Hello, World!
+
+在学习任何新的编程语言时，传统的第一步都是编写一个“Hello, World!”程序。这个简单的程序会在屏幕上显示“Hello, World!”，以验证你的环境已正确设置。
+
+在神岛中，你可以使用`console.log(...)`函数在控制台中打印消息。这是一个非常有用的工具，可以帮助你调试代码和理解程序的执行流程。
+
+## 示例代码
+
+javascript
+
+```
+// 这是一个简单的 "Hello, World!" 程序
+console.log("Hello, World!");
+```
+
+### 代码解释
+
+- `console.log(...)`：这是一个函数，用于在控制台中显示括号内的内容。
+- `"Hello, World!"`：这是一个字符串，即你想要显示的文本。字符串需要用双引号（`"`）或单引号（`'`）括起来。
+- `;`：分号表示语句的结束。虽然在某些情况下可以省略，但我们建议你始终使用分号，以保持代码的清晰和一致性。
+
+现在，你可以尝试在神岛的代码编辑器中输入以上代码，并查看控制台的输出。

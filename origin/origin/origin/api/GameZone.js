@@ -1,0 +1,50 @@
+class GameZone {
+    constructor(entities, onEnter, nextEnter, onLeave, nextLeave, remove){
+        this.entities = entities;
+        this.onEnter = onEnter;
+        this.nextEnter = nextEnter;
+        this.onLeave = onLeave;
+        this.nextLeave = nextLeave;
+        this.remove = remove;
+        this.bounds = new GameBounds3(new GameVector3(0, 0, 0), new GameVector3(0, 0, 0));
+        this.selector = '*';
+        this.massScale = 0;
+        this.force = new GameVector3(0, 0, 0);
+        this.fogEnabled = false;
+        this.fogColor = new GameRGBColor(1, 1, 1);
+        this.fogStartDistance = 0;
+        this.fogHeightOffset = -8;
+        this.fogHeightFalloff = 0.8;
+        this.fogDensity = 0;
+        this.fogMax = 1;
+        this.snowEnabled = false;
+        this.snowDensity = 1;
+        this.snowSizeLo = 0.1;
+        this.snowSizeHi = 1;
+        this.snowFallSpeed = 1;
+        this.snowSpinSpeed = 0;
+        this.snowColor = new GameRGBAColor(1, 1, 1, 1);
+        this.snowTexture = 'snow/snow2.part';
+        this.rainEnabled = false;
+        this.rainDensity = 1;
+        this.rainDirection = new GameVector3(0, 1, 0);
+        this.rainSpeed = 1;
+        this.rainSizeLo = 0.5;
+        this.rainSizeHi = 0.5;
+        this.rainInterference = 0;
+        this.rainColor = new GameRGBAColor(1, 1, 1, 1);
+        this.skyEnabled = false;
+        this.skyMode = 'natural';
+        this.skySunPhase = 4 / 24;
+        this.skySunFrequency = 0;
+        this.skyLunarPhase = 0;
+        this.skySunDirection = new GameVector3(0, -1, 0);
+        this.skySunLight = new GameRGBColor(1000, 1000, 1000);
+        this.skyLeftLight = new GameRGBColor(0, 0, 0);
+        this.skyRightLight = new GameRGBColor(0, 0, 0);
+        this.skyBottomLight = new GameRGBColor(0, 0, 0);
+        this.skyTopLight = new GameRGBColor(0, 0, 0);
+        this.skyFrontLight = new GameRGBColor(0, 0, 0);
+        this.skyBackLight = new GameRGBColor(0, 0, 0);
+    }
+}

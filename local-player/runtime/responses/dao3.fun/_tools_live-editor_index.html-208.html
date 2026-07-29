@@ -1,0 +1,2550 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>神岛电竞直播可视化编辑器（内部）</title>
+    <meta name="description" content="Visual editor for LiveInfo (Game) mock data" />
+    <link rel="icon" href="/favicon.ico" />
+    <!-- Tailwind via CDN for quick styling (pure static usage) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SheetJS for Excel import/export -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+      :root { color-scheme: dark; }
+      body { background: #0b1220; }
+      .card { background: rgba(17, 24, 39, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; }
+      .match-card { background: rgba(17, 24, 39, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; }
+      .team-card { background: rgba(17, 24, 39, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 0.75rem; }
+      .player-card { background: rgba(17, 24, 39, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 0.5rem 0.75rem; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+      .player-card > * { min-width: 0; }
+      .player-card select { flex: 0 1 200px; min-width: 160px; }
+      .player-card input[type="text"] { flex: 1 1 220px; min-width: 140px; }
+      .player-card .add-btn, .player-card .remove-btn { flex: 0 0 auto; }
+      .add-btn { padding: 0.25rem 0.75rem; border-radius: 0.375rem; background: rgb(8 145 178); color: white; font-size: 0.875rem; line-height: 1.25rem; }
+      .add-btn:hover { background: rgb(14 165 233); }
+      .remove-btn { padding: 0.25rem 0.75rem; border-radius: 0.375rem; background: rgba(220, 38, 38, 0.8); color: white; font-size: 0.875rem; line-height: 1.25rem; }
+      .remove-btn:hover { background: rgb(239 68 68); }
+      textarea { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+      .hint { color: rgb(203 213 225); font-size: 12px; }
+    </style>
+  </head>
+  <body class="min-h-screen text-white">
+    <header class="sticky top-0 z-20 backdrop-blur bg-black/30 border-b border-white/10">
+        <div class="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
+          <h1 class="text-lg md:text-xl font-bold">
+              神岛电竞直播可视化编辑器（内部）
+          </h1>
+          <div class="flex items-center gap-3">
+            <div class="text-sm text-slate-300">读取文件：https://assets.box3.fun/u226/1/liveInfo.json</div>
+            <button id="copy-json" type="button" class="add-btn whitespace-nowrap">复制 JSON</button>
+            <button id="upload-btn-header" type="button" class="add-btn whitespace-nowrap">上传 JSON</button>
+          </div>
+        </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-4 py-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- 左侧：表单编辑区 -->
+      <section class="space-y-4">
+        <div class="card p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-lg font-semibold">基础信息</h2>
+         
+          </div>
+          <div id="basic-body">
+          <form id="editor-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="col-span-1 md:col-span-2">
+              <label class="block text-sm text-slate-300 mb-1" for="title">标题</label>
+              <input id="title" type="text" placeholder="SEL神岛精英联赛季训练赛" class="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-500" />
+            </div>
+            <div class="col-span-1 md:col-span-2">
+              <label class="block text-sm text-slate-300 mb-1" for="description">直播介绍</label>
+              <textarea id="description" placeholder="介绍一下本次直播..." class="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-500" rows="3"></textarea>
+            </div>
+            <div>
+              <label class="block text-sm text-slate-300 mb-1" for="env">环境</label>
+              <select id="env" class="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                <option value="production">生产环境 (production)</option>
+                <option value="staging">预发环境 (staging)</option>
+                <option value="development">开发环境 (development)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm text-slate-300 mb-1" for="type">直播类型</label>
+              <select id="type" class="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                <option value="Game">游戏直播 (Game)</option>
+                <option value="Live">普通直播 (Live)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm text-slate-300 mb-1" for="roomId">B站房间ID</label>
+              <input id="roomId" type="number" placeholder="32721631" class="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-500" />
+            </div>
+            <div>
+              <label class="block text-sm text-slate-300 mb-1" for="gameLogo">游戏Logo URL</label>
+              <input id="gameLogo" type="text" placeholder="https://.../logo.png" class="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-500" />
+              <div class="mt-2">
+                <img id="logo-preview" src="" alt="Logo 预览" class="h-12 w-auto rounded border border-white/10 hidden" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm text-slate-300 mb-1" for="gameKeyId">KeyId（游戏内关键ID）</label>
+              <input id="gameKeyId" type="text" placeholder="例如：sel-2025-s1" class="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-500" />
+              <p class="hint mt-1">用于在客户端或服务端按 keyId 识别该场次配置</p>
+            </div>
+            <div>
+              <label class="block text-sm text-slate-300 mb-1" for="startTime">开始时间(秒级时间戳)</label>
+              <input id="startTime" type="number" placeholder="1710000000" class="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-500" />
+              <input id="startTimeHuman" type="datetime-local" class="mt-2 w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-500" />
+              <p class="hint mt-1">两者联动：修改任意一个会同步另一个</p>
+            </div>
+            <div>
+              <label class="block text-sm text-slate-300 mb-1" for="endTime">结束时间(秒级时间戳)</label>
+              <input id="endTime" type="number" placeholder="1710003600" class="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-500" />
+              <input id="endTimeHuman" type="datetime-local" class="mt-2 w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-500" />
+            </div>
+            <div class="col-span-1 md:col-span-2">
+              <label class="block text-sm text-slate-300 mb-1" for="cover">封面URL</label>
+              <input id="cover" type="text" placeholder="https://.../cover.png" class="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-500" />
+              <p class="hint mt-1">建议16:9，展示在背景与预览卡片中</p>
+              <div class="mt-2">
+                <img id="cover-preview" src="" alt="封面预览" class="max-h-40 w-auto rounded border border-white/10 hidden" />
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Personnel Card -->
+      <div id="personnel-card" class="card p-4">
+        <h2 class="text-lg font-semibold mb-3">导播配置</h2>
+        <div class="space-y-4">
+            <!-- Mini Player Size Section -->
+            <div>
+              <label class="block text-sm text-slate-300 mb-1">小窗播放器尺寸（像素）</label>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs text-slate-400 mb-1" for="miniPlayerWidth">宽度</label>
+                  <input id="miniPlayerWidth" type="number" placeholder="460" class="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-500" />
+                </div>
+                <div>
+                  <label class="block text-xs text-slate-400 mb-1" for="miniPlayerHeight">高度</label>
+                  <input id="miniPlayerHeight" type="number" placeholder="305" class="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-500" />
+                </div>
+              </div>
+              <p class="hint mt-1">用于页面右上角“小窗直播（live_mini）”iframe 容器尺寸</p>
+            </div>
+            <!-- Commentators Section -->
+            <div>
+              <label class="block text-sm text-slate-300 mb-1">解说员ID</label>
+              <div class="flex gap-2">
+                <input id="commentator-id-input" type="number" placeholder="输入ID后点击添加" class="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-500" />
+                <button id="add-commentator-btn" type="button" class="add-btn whitespace-nowrap">添加解说</button>
+              </div>
+              <div id="commentators-container" class="mt-2 flex flex-wrap gap-2">
+                <!-- commentator IDs will be injected here -->
+              </div>
+            </div>
+
+            <!-- Operators Section -->
+            <div>
+              <label class="block text-sm text-slate-300 mb-1">中控员ID</label>
+              <div class="flex gap-2">
+                <input id="operator-id-input" type="number" placeholder="输入ID后点击添加" class="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-500" />
+                <button id="add-operator-btn" type="button" class="add-btn whitespace-nowrap">添加中控</button>
+              </div>
+              <div id="operators-container" class="mt-2 flex flex-wrap gap-2">
+                <!-- operator IDs will be injected here -->
+              </div>
+            </div>
+        </div>
+          </div>
+        </div>
+
+        <!-- Match Map (single) Section -->
+        <div id="matchmap-card" class="card p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-lg font-semibold">本场比赛地图</h2>
+          </div>
+          <div id="matchmap-body">
+            <div id="matchmap-container" class="space-y-3"></div>
+          </div>
+        </div>
+
+        <div id="matches-card" class="card p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-lg font-semibold">比赛列表</h2>
+            <div class="flex items-center gap-2">
+  
+              <button id="add-match" type="button" class="add-btn">新增比赛</button>
+            </div>
+          </div>
+          <div id="matches-body">
+            <div id="matches-container" class="space-y-4"></div>
+          </div>
+        </div>
+
+        <!-- Bracket (晋级图) Section -->
+        <div id="bracket-card" class="card p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-lg font-semibold">晋级图</h2>
+            <div class="flex items-center gap-2">
+              <button id="add-bracket-round" type="button" class="add-btn">新增轮次</button>
+            </div>
+          </div>
+          <div id="bracket-body" class="space-y-4">
+            <div>
+              <label class="block text-sm text-slate-300 mb-1" for="bracket-stages-input">阶段（每行一个）</label>
+              <textarea id="bracket-stages-input" placeholder="海选赛\n初赛\n晋级赛\n决赛\n总决赛" rows="4" class="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-500"></textarea>
+              <p class="hint mt-1">示例：每行填写一个阶段，自动按顺序展示</p>
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="font-semibold">淘汰轮次</h3>
+              </div>
+              <div id="bracket-rounds-container" class="space-y-3"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="teams-card" class="card p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-lg font-semibold">队伍库</h2>
+            <div class="flex items-center gap-2">
+              <button id="add-team" type="button" class="add-btn">新增队伍</button>
+              <button id="export-teams" type="button" class="add-btn">导出Excel</button>
+              <button id="import-teams" type="button" class="add-btn">导入Excel</button>
+              <input id="import-teams-file" type="file" accept=".xlsx,.xls" class="hidden" />
+            </div>
+          </div>
+          <div id="teams-body">
+            <div id="teams-container" class="space-y-4"></div>
+          </div>
+        </div>
+
+        <!-- History Section -->
+        <div id="history-card" class="card p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-lg font-semibold">历史回顾</h2>
+            <button id="add-history" type="button" class="add-btn">新增历史视频</button>
+          </div>
+          <div id="history-container" class="space-y-4">
+            <!-- History cards will be injected here -->
+          </div>
+        </div>
+
+        <!-- Upcoming Section -->
+        <div id="upcoming-card" class="card p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-lg font-semibold">直播预告</h2>
+            <button id="add-upcoming" type="button" class="add-btn">新增预告</button>
+          </div>
+          <div id="upcoming-container" class="space-y-4">
+            <!-- Upcoming cards will be injected here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 右侧：JSON 预览与动作 -->
+      <section class="space-y-4">
+        <div class="card p-4">
+          <div class="flex items-center gap-2 flex-wrap">
+            <button id="load-mock" type="button" class="add-btn">加载示例数据</button>
+            <button id="apply-json" type="button" class="add-btn">应用 JSON 到表单</button>
+            <button id="clear-storage" type="button" class="remove-btn">清空本地存档</button>
+            <button id="json-zoom-in" type="button" class="add-btn">放大</button>
+            <button id="json-zoom-out" type="button" class="add-btn">缩小</button>
+            <button id="json-fullscreen" type="button" class="btn-secondary">全屏</button>
+            <button id="sync-cloud" type="button" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg text-base transform transition-transform duration-150 hover:scale-105">同步云端数据</button>
+            <span id="json-error" class="text-red-400 text-sm hidden"></span>
+          </div>
+          <p class="hint mt-3">JSON 可编辑；点击“应用 JSON 到表单”实现 JSON → 表单 反向同步。</p>
+          <textarea id="json-output" class="w-full h-[560px] bg-gray-900/80 border border-gray-700 rounded-md p-3 mt-3 resize" spellcheck="false" style="font-size: 13px; line-height: 1.5;"></textarea>
+        </div>
+
+        <!-- 文件上传（带 Authorization） -->
+        <div id="uploader-card" class="card p-4">
+          <h3 class="font-semibold mb-3">文件上传（带 Authorization）</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div class="md:col-span-2">
+              <label class="block text-sm text-slate-300 mb-1" for="upload-auth">Authorization</label>
+              <input id="upload-auth" type="text" placeholder="在此粘贴 Authorization（例如 Bearer xxx）" class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-base" />
+              <p class="hint mt-1">仅保存在本地浏览器，不会上传</p>
+            </div>
+            <div class="hidden">
+              <label class="block text-sm text-slate-300 mb-1" for="upload-path">path</label>
+              <input id="upload-path" type="text" value="u226/1" class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-base" />
+            </div>
+            <div class="hidden">
+              <label class="block text-sm text-slate-300 mb-1" for="upload-bucketType">bucketType</label>
+              <input id="upload-bucketType" type="number" value="0" class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-base" />
+            </div>
+            <div class="hidden">
+              <label class="block text-sm text-slate-300 mb-1" for="upload-acl">acl</label>
+              <input id="upload-acl" type="text" value="public-read" class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-base" />
+            </div>
+            <div class="flex items-center gap-2 hidden">
+              <input id="upload-genFileName" type="checkbox" class="h-4 w-4" />
+              <label for="upload-genFileName" class="text-sm text-slate-300">genFileName（勾选为 true，默认 false）</label>
+            </div>
+            <div class="md:col-span-2 hidden">
+              <label class="block text-sm text-slate-300 mb-1" for="upload-filename">文件名（将把右侧 JSON 内容作为文件上传）</label>
+              <input id="upload-filename" type="text" value="liveInfo.json" class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-base" />
+              <p class="hint mt-1">如果编辑区 JSON 无效，将尝试使用当前表单生成的 JSON</p>
+            </div>
+          </div>
+          <div class="mt-3 flex items-center gap-2 hidden">
+            <button id="upload-btn" type="button" class="add-btn">上传</button>
+            <span id="upload-status" class="text-sm text-slate-300"></span>
+          </div>
+          <pre id="upload-result" class="mt-3 text-xs bg-gray-900/70 border border-white/10 rounded p-2 overflow-auto max-h-60 hidden"></pre>
+        </div>
+
+        <div class="card p-4">
+          <h3 class="font-semibold mb-2">字段说明</h3>
+          <ul class="list-disc pl-5 space-y-1 text-slate-300 text-sm">
+            <li>type 固定为 "Game"</li>
+            <li>description 直播介绍</li>
+            <li>roomId B站直播房间ID</li>
+            <li>startTime / endTime 秒级时间戳</li>
+            <li>gameCfg.logo 游戏Logo，用于比分栏中间</li>
+            <li>matches[].teamA / teamB: name, logo, score, players[]</li>
+            <li>players[]: { id: 用户ID, kda: "KDA:K/D/A" }</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <!-- Logic -->
+    <script >
+
+      "use strict";
+// --- DOM Elements ---
+const editorForm = document.getElementById('editor-form');
+const matchesContainer = document.getElementById('matches-container');
+const jsonOutput = document.getElementById('json-output');
+const addMatchBtn = document.getElementById('add-match');
+const copyJsonBtn = document.getElementById('copy-json');
+const loadMockBtn = document.getElementById('load-mock');
+const applyJsonBtn = document.getElementById('apply-json');
+const jsonErrorEl = document.getElementById('json-error');
+const startTimeHumanInput = document.getElementById('startTimeHuman');
+const endTimeHumanInput = document.getElementById('endTimeHuman');
+const logoPreview = document.getElementById('logo-preview');
+const coverPreview = document.getElementById('cover-preview');
+// History and Upcoming DOM
+const historyContainer = document.getElementById('history-container');
+const addHistoryBtn = document.getElementById('add-history');
+const upcomingContainer = document.getElementById('upcoming-container');
+const addUpcomingBtn = document.getElementById('add-upcoming');
+// Team library DOM
+const teamsContainer = document.getElementById('teams-container');
+const addTeamBtn = document.getElementById('add-team');
+// Commentator and Operator DOM
+const commentatorIdInput = document.getElementById('commentator-id-input');
+const addCommentatorBtn = document.getElementById('add-commentator-btn');
+const commentatorsContainer = document.getElementById('commentators-container');
+const operatorIdInput = document.getElementById('operator-id-input');
+const addOperatorBtn = document.getElementById('add-operator-btn');
+const operatorsContainer = document.getElementById('operators-container');
+// Bracket DOM
+const bracketStagesInput = document.getElementById('bracket-stages-input');
+const bracketRoundsContainer = document.getElementById('bracket-rounds-container');
+const addBracketRoundBtn = document.getElementById('add-bracket-round');
+// JSON editor controls
+const jsonZoomInBtn = document.getElementById('json-zoom-in');
+const jsonZoomOutBtn = document.getElementById('json-zoom-out');
+const jsonFullscreenBtn = document.getElementById('json-fullscreen');
+
+// Uploader DOM
+const uploadAuth = document.getElementById('upload-auth');
+const uploadPath = document.getElementById('upload-path');
+const uploadBucketType = document.getElementById('upload-bucketType');
+const uploadAcl = document.getElementById('upload-acl');
+const uploadGenFileName = document.getElementById('upload-genFileName');
+const uploadFilename = document.getElementById('upload-filename');
+const uploadBtn = document.getElementById('upload-btn');
+const uploadStatus = document.getElementById('upload-status');
+const uploadResult = document.getElementById('upload-result');
+const uploadBtnHeader = document.getElementById('upload-btn-header');
+
+// --- Uploader Logic ---
+(() => {
+    if (!uploadAuth) return;
+    const AUTH_KEY = 'live-editor:uploader:auth:v1';
+
+    // Restore Authorization
+    try { uploadAuth.value = localStorage.getItem(AUTH_KEY) || ''; } catch (_e) {}
+    uploadAuth.addEventListener('input', () => {
+        try { localStorage.setItem(AUTH_KEY, uploadAuth.value.trim()); } catch (_e) {}
+    });
+
+    const setBusy = (busy) => {
+        if (uploadBtn) {
+            uploadBtn.disabled = !!busy;
+            uploadBtn.textContent = busy ? '上传中…' : '上传';
+        }
+        if (uploadBtnHeader) {
+            uploadBtnHeader.disabled = !!busy;
+            uploadBtnHeader.textContent = busy ? '上传中…' : '上传 JSON';
+        }
+    };
+
+    const pretty = (v) => {
+        try { return JSON.stringify(v, null, 2); } catch (_e) { return String(v); }
+    };
+
+    const performUpload = async () => {
+        if (!jsonOutput) return;
+        uploadStatus.textContent = '';
+        uploadResult.textContent = '';
+
+        const auth = (uploadAuth.value || '').trim();
+        if (!auth) {
+            uploadStatus.textContent = '请先填写 Authorization';
+            return;
+        }
+        // Build JSON content from editor or from current form state
+        let jsonText = (jsonOutput.value || '').trim();
+        let dataForFile;
+        if (jsonText) {
+            try { dataForFile = JSON.parse(jsonText); } catch (_e) { /* fall back later */ }
+        }
+        if (!dataForFile) {
+            try { dataForFile = liveInfo; } catch (_e) { dataForFile = {}; }
+        }
+        try { jsonText = JSON.stringify(dataForFile, null, 2); } catch (_e) { jsonText = '{}'; }
+        const name = 'liveInfo.json';
+        const fileObj = new File([new Blob([jsonText], { type: 'application/json' })], name, { type: 'application/json' });
+
+        const fd = new FormData();
+        fd.append('acl', 'public-read');
+        fd.append('genFileName', 'false');
+        fd.append('path', 'u226/1');
+        fd.append('bucketType', '0');
+        fd.append('file', fileObj);
+
+        setBusy(true);
+        uploadStatus.textContent = '正在上传…';
+        try {
+            const res = await fetch('https://createra-backstage-api.dao3.fun/file/uploadObjects', {
+                method: 'POST',
+                headers: { 'Authorization': auth },
+                body: fd,
+                // credentials not included by default; enable if server requires cookies:
+                // credentials: 'include',
+            });
+            const text = await res.text();
+            let data;
+            try { data = JSON.parse(text); } catch (_e) { data = text; }
+            uploadResult.textContent = pretty(data);
+            const unauthorized = (res.status === 401) || (
+                data && typeof data === 'object' && (data.code === 401 || String(data.msg).toUpperCase() === 'UNAUTHORIZED')
+            );
+            const success = (data && typeof data === 'object' && Number(data.code) === 200);
+            if (unauthorized) {
+                alert('未授权，请检查 Authorization');
+            } else if (success) {
+          
+            } else if (!res.ok) {
+                alert(`上传失败（HTTP ${res.status}）`);
+            } else {
+                const msg = (data && typeof data === 'object' && (data.msg || data.message)) || '服务器返回非成功状态';
+                alert(`上传失败：${msg}`);
+            }
+        } catch (err) {
+            alert('上传异常，请检查网络或跨域配置');
+            uploadResult.textContent = String(err);
+        } finally {
+            setBusy(false);
+        }
+    };
+
+    if (uploadBtn) uploadBtn.onclick = performUpload;
+    if (uploadBtnHeader) uploadBtnHeader.onclick = performUpload;
+})();
+
+// Bind basic bracket events early (safe; elements may be null before DOM ready)
+if (bracketStagesInput) {
+    bracketStagesInput.oninput = () => {
+        if (!liveInfo.gameCfg) liveInfo.gameCfg = { logo: '', keyId: '', matches: [], teams: [], matchMaps: [], bracket: { stages: [], rounds: [] } };
+        if (!liveInfo.gameCfg.bracket) liveInfo.gameCfg.bracket = { stages: [], rounds: [] };
+        const raw = bracketStagesInput.value || '';
+        const arr = raw.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+        liveInfo.gameCfg.bracket.stages = arr;
+        updateJsonOutput();
+    };
+}
+if (addBracketRoundBtn) {
+    addBracketRoundBtn.onclick = () => {
+        if (!liveInfo.gameCfg) liveInfo.gameCfg = { logo: '', matches: [], teams: [], matchMaps: [], bracket: { stages: [], rounds: [] } };
+        if (!liveInfo.gameCfg.bracket) liveInfo.gameCfg.bracket = { stages: [], rounds: [] };
+        if (!Array.isArray(liveInfo.gameCfg.bracket.rounds)) liveInfo.gameCfg.bracket.rounds = [];
+        liveInfo.gameCfg.bracket.rounds.push({ title: '', teams: [] });
+        renderBracket();
+    };
+}
+
+// --- Helpers ---
+// Human datetime fields - format using LOCAL timezone for datetime-local input
+const toLocal = (sec) => {
+    if (!sec) return '';
+    try {
+        const d = new Date(sec * 1000);
+        const pad = (n) => String(n).padStart(2, '0');
+        const y = d.getFullYear();
+        const m = pad(d.getMonth() + 1);
+        const day = pad(d.getDate());
+        const h = pad(d.getHours());
+        const min = pad(d.getMinutes());
+        return `${y}-${m}-${day}T${h}:${min}`;
+    }
+    catch (_b) {
+        return '';
+    }
+};
+// Match map DOM
+const matchMapContainer = document.getElementById('matchmap-container');
+let jsonFontSize = 13;
+// Left pane toggle buttons
+const toggleBasicBtn = document.getElementById('toggle-basic');
+const toggleTeamsBtn = document.getElementById('toggle-teams');
+const toggleMatchesBtn = document.getElementById('toggle-matches');
+// Storage helpers
+const clearStorageBtn = document.getElementById('clear-storage');
+const STORAGE_KEY = 'live-editor:liveInfo:v1';
+const COLLAPSE_KEY = 'live-editor:collapseState:v1';
+// Profile cache to avoid repeated network requests
+const profileCache = new Map();
+async function fetchUserProfile(userId) {
+    const id = Number(userId);
+    if (!Number.isFinite(id) || id <= 0) return null;
+    if (profileCache.has(id)) return profileCache.get(id);
+    try {
+        const res = await fetch(`https://code-api-pc.dao3.fun/user/profile/${id}`);
+        if (!res.ok) throw new Error('network');
+        const json = await res.json();
+        const data = (json && json.data) || null;
+        profileCache.set(id, data);
+        return data;
+    } catch (_e) {
+        profileCache.set(id, null);
+        return null;
+    }
+}
+let liveInfo = {
+    type: 'Game',
+    env: 'production',
+    title: '',
+    description: '',
+    roomId: 0,
+    startTime: 0,
+    endTime: 0,
+    cover: '',
+    gameCfg: {
+        logo: '',
+        keyId: '',
+        matches: [],
+        teams: [],
+        matchMaps: [],
+        bracket: { stages: [], rounds: [] },
+        miniPlayer: { width: 460, height: 305 },
+    },
+    history: [],
+    upcoming: [],
+};
+// --- MOCK DATA --- (To be loaded on button click)
+const gameMockData = {
+    type: 'Game',
+    env: 'staging',
+    title: 'SEL神岛精英联赛季训练赛',
+    description: '这是一场精彩的SEL神岛精英联赛季训练赛，汇集了顶尖选手，为您带来无与伦比的视觉盛宴。',
+    roomId: 31294630,
+    startTime: Math.floor(Date.now() / 1000) + 60,
+    endTime: Math.floor(Date.now() / 1000) + 3600,
+    cover: 'https://assets.box3.fun/u226/fSCOnz8B1lEt/L077BqorkdkJ0oiclPJ_C4M-wUUwlGYtZOolX4DBFJQ.png',
+    gameCfg: {
+        logo: 'https://assets.box3.fun/u226/6a9Eik483R2n/KcL67ffbRPubZAshh3Ui4aWH7I6icdpb6iXifJQnHM0.png',
+        teams: [
+            {
+                id: 1001,
+                name: '禾枳战队',
+                logo: 'https://assets.box3.fun/u226/6a9Eik483R2n/LzXlVxu-Vuwl2YkdGqXmfPcZGs7rOLiw7Sg1sFAL4Vw.png',
+                players: [
+                    { id: 13391002 },
+                    { id: 648 },
+                    { id: 83354 },
+                    { id: 455 },
+                    { id: 19 },
+                ],
+            },
+            {
+                id: 1002,
+                name: '成都JM超会玩',
+                logo: 'https://assets.box3.fun/u226/6a9Eik483R2n/WGJMrotsacI9prymafSICQjbaxqm1jTQAboPnsanBSs.jpg',
+                players: [
+                    { id: 3686650 },
+                    { id: 13162330 },
+                    { id: 13556361 },
+                    { id: 13527138 },
+                    { id: 3615314 },
+                ],
+            },
+        ],
+        matches: [
+            {
+                startTime: Math.floor(Date.now() / 1000) - 3600,
+                teamA: {
+                    name: '禾枳战队',
+                    logo: 'https://assets.box3.fun/u226/6a9Eik483R2n/LzXlVxu-Vuwl2YkdGqXmfPcZGs7rOLiw7Sg1sFAL4Vw.png',
+                    score: 8,
+                    players: [
+                        { id: 13391002, kda: '10/5/15' },
+                        { id: 648, kda: '3/5/4' },
+                        { id: 83354, kda: '6/55/6' },
+                        { id: 455, kda: '5/5/3' },
+                        { id: 19, kda: '1/5/2' },
+                    ],
+                },
+                teamB: {
+                    name: '成都JM超会玩',
+                    logo: 'https://assets.box3.fun/u226/6a9Eik483R2n/WGJMrotsacI9prymafSICQjbaxqm1jTQAboPnsanBSs.jpg',
+                    score: 5,
+                    players: [
+                        { id: 3686650, kda: '10/5/15' },
+                        { id: 13162330, kda: '3/5/4' },
+                        { id: 13556361, kda: '6/55/6' },
+                        { id: 13527138, kda: '5/5/3' },
+                        { id: 3615314, kda: '1/5/2' },
+                    ],
+                },
+            },
+        ],
+        matchMaps: [
+            {
+                contentId: 100502201,
+                name: '示例比赛地图',
+                preview: 'https://assets.box3.fun/u226/fSCOnz8B1lEt/L077BqorkdkJ0oiclPJ_C4M-wUUwlGYtZOolX4DBFJQ.png',
+            },
+        ],
+    },
+    history: [
+        {
+            title: '历史回顾视频1：精彩瞬间',
+            cover: 'https://assets.box3.fun/u226/fSCOnz8B1lEt/L077BqorkdkJ0oiclPJ_C4M-wUUwlGYtZOolX4DBFJQ.png',
+            startTime: Math.floor(Date.now() / 1000) - 86400,
+            url: 'https://www.bilibili.com/video/BV1bK421L7bS',
+        },
+    ],
+    upcoming: [
+        {
+            title: '预告1：总决赛即将打响',
+            cover: 'https://assets.box3.fun/u226/fSCOnz8B1lEt/L077BqorkdkJ0oiclPJ_C4M-wUUwlGYtZOolX4DBFJQ.png',
+            startTime: Math.floor(Date.now() / 1000) + 86400,
+            url: '',
+        },
+    ],
+};
+// --- Utils ---
+function deepClone(obj) {
+    return JSON.parse(JSON.stringify(obj));
+}
+function genTeamId() {
+    return Math.floor(Date.now() + Math.random() * 1000);
+}
+// Collect IDs that appear 2+ times in the team library
+function computeDuplicateIdsInLibrary() {
+    try {
+        const map = new Map();
+        const teams = (liveInfo.gameCfg && Array.isArray(liveInfo.gameCfg.teams)) ? liveInfo.gameCfg.teams : [];
+        for (const t of teams) {
+            if (!t || !Array.isArray(t.players)) continue;
+            for (const m of t.players) {
+                const id = Number(m && m.id);
+                if (!Number.isFinite(id) || id <= 0) continue;
+                map.set(id, (map.get(id) || 0) + 1);
+            }
+        }
+        const dup = new Set();
+        for (const [id, cnt] of map.entries()) {
+            if (cnt >= 2) dup.add(id);
+        }
+        return dup;
+    } catch (_e) { return new Set(); }
+}
+// --- UI Creation Functions ---
+function createPlayerInput(player, team, matchIndex, teamLetter) {
+    const playerCard = document.createElement('div');
+    playerCard.className = 'player-card flex flex-wrap items-center gap-4 p-2 rounded-md bg-gray-800/60 border border-white/10 hover:border-cyan-400/40 transition-colors w-full';
+    // Wrap input to anchor the floating dropdown
+    const idWrap = document.createElement('div');
+    idWrap.className = 'relative grow min-w-[120px]';
+    const idInput = document.createElement('input');
+    // Use text to maximize compatibility with helper dropdown; enforce numeric via parsing
+    idInput.type = 'text';
+    idInput.placeholder = '玩家ID（可从队伍库选择）';
+    idInput.value = player.id.toString();
+    idInput.className = 'w-full bg-gray-700/80 border-gray-500 rounded-md text-white ring-1 ring-white/10 focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 shadow-inner px-3 py-2.5 text-base placeholder:text-white/50';
+    try { idInput.inputMode = 'numeric'; } catch (_e) {}
+    // Inline hint for validation result
+    const idHint = document.createElement('div');
+    idHint.className = 'mt-1 text-xs text-red-400 hidden';
+    // Validation function
+    const validateId = () => {
+        const raw = (idInput.value || '').trim();
+        const vid = parseInt(raw, 10);
+        const lib = (liveInfo.gameCfg && Array.isArray(liveInfo.gameCfg.teams)) ? liveInfo.gameCfg.teams : [];
+        const allIds = new Set();
+        for (const t of lib) {
+            if (t && Array.isArray(t.players)) {
+                for (const pp of t.players) {
+                    if (pp && typeof pp.id !== 'undefined') allIds.add(Number(pp.id));
+                }
+            }
+        }
+        // Preferred team scope if available
+        const teamIds = new Set();
+        if (libTeam && Array.isArray(libTeam.players)) {
+            for (const pp of libTeam.players) {
+                if (pp && typeof pp.id !== 'undefined') teamIds.add(Number(pp.id));
+            }
+        }
+        // Reset styles
+        idInput.classList.remove('ring-red-500','border-red-500');
+        idHint.classList.add('hidden');
+        if (!raw) return; // empty -> no validation message
+        if (!Number.isFinite(vid)) return; // non-numeric silently ignore
+        const inAll = allIds.has(vid);
+        const inTeam = teamIds.size ? teamIds.has(vid) : inAll; // if team known, must be in team
+        if (!inAll) {
+            idHint.textContent = '该ID未在队伍库中，可能输入有误';
+            idHint.className = 'mt-1 text-xs text-red-400';
+            idInput.classList.add('ring-red-500','border-red-500');
+        } else if (!inTeam) {
+            idHint.textContent = '该ID不在当前队伍库中';
+            idHint.className = 'mt-1 text-xs text-amber-300';
+        }
+    };
+    idInput.oninput = () => {
+        const next = parseInt(idInput.value, 10) || 0;
+        // Global duplicate check across library teams and all match teams
+        try {
+            let duplicated = false;
+            const seenIn = [];
+            // Library teams
+            const libTeams = (liveInfo.gameCfg && Array.isArray(liveInfo.gameCfg.teams)) ? liveInfo.gameCfg.teams : [];
+            for (const t of libTeams) {
+                if (!t || !Array.isArray(t.players)) continue;
+                for (const m of t.players) {
+                    if (m === player) continue;
+                    if (Number(m && m.id) === next && next > 0) { duplicated = true; seenIn.push(`队伍库:${t.name||t.id}`); break; }
+                }
+                if (duplicated) break;
+            }
+            // Match teams
+            if (!duplicated && liveInfo.gameCfg && Array.isArray(liveInfo.gameCfg.matches)) {
+                for (const match of liveInfo.gameCfg.matches) {
+                    const sides = [match && match.teamA, match && match.teamB];
+                    for (const side of sides) {
+                        if (!side || !Array.isArray(side.players)) continue;
+                        for (const m of side.players) {
+                            if (m === player) continue;
+                            if (Number(m && m.id) === next && next > 0) { duplicated = true; seenIn.push(`比赛:${match && match.teamA && match.teamA.name || 'A'} vs ${match && match.teamB && match.teamB.name || 'B'}`); break; }
+                        }
+                        if (duplicated) break;
+                    }
+                    if (duplicated) break;
+                }
+            }
+            if (duplicated) {
+                idHint.textContent = '该ID已在其他队伍中存在，一个人只能属于一个队伍';
+                idHint.className = 'mt-1 text-xs text-red-400';
+                idHint.classList.remove('hidden');
+                idInput.classList.add('ring-red-500','border-red-500');
+            } else {
+                idHint.classList.add('hidden');
+                idInput.classList.remove('ring-red-500','border-red-500');
+            }
+        } catch (_e) {}
+        player.id = next;
+        updateJsonOutput();
+        validateId();
+    };
+    // Styled floating dropdown menu sourcing IDs from the matched team in team library
+    const idMenu = document.createElement('div');
+    idMenu.className = 'absolute z-20 mt-1 w-56 max-h-56 overflow-auto bg-gray-900/95 border border-white/10 rounded-md shadow-2xl backdrop-blur hidden';
+    // Build options from library team (match by __refTeamId or team name)
+    const libTeams = (liveInfo.gameCfg && Array.isArray(liveInfo.gameCfg.teams)) ? liveInfo.gameCfg.teams : [];
+    let libTeam = null;
+    try {
+        const refId = team && team.__refTeamId;
+        if (refId) libTeam = libTeams.find(t => t.id === refId) || null;
+        if (!libTeam && team && team.name) libTeam = libTeams.find(t => t.name === team.name) || null;
+    } catch (_e) {}
+    const buildIdMenu = () => {
+        // Reset
+        idMenu.innerHTML = '';
+        const header = document.createElement('div');
+        header.className = 'px-3 py-2 text-xs text-slate-300 border-b border-white/10 sticky top-0 bg-gray-900/95';
+        header.textContent = '从队伍库选择ID';
+        idMenu.appendChild(header);
+        if (libTeam && Array.isArray(libTeam.players) && libTeam.players.length) {
+            libTeam.players.forEach((p, idx) => {
+                const pid = (p && typeof p.id !== 'undefined') ? p.id : '';
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'w-full text-left px-3 py-2 text-sm hover:bg-cyan-500/20 focus:bg-cyan-500/30 focus:outline-none flex items-center gap-2';
+                // avatar + label container
+                const avatar = document.createElement('img');
+                avatar.className = 'h-5 w-5 rounded-full border border-white/10 object-cover';
+                avatar.alt = '';
+                avatar.loading = 'lazy';
+                avatar.style.display = 'none';
+                const label = document.createElement('span');
+                label.textContent = String(pid);
+                btn.append(avatar, label);
+                btn.dataset.index = String(idx);
+                btn.onmousedown = (e) => { e.preventDefault(); };
+                btn.onclick = () => {
+                    if (pid !== '') {
+                        idInput.value = String(pid);
+                        // Trigger normal input flow to run duplicate + library validations
+                        idInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                    // Clear transient styles will be handled by validation
+                    hideMenu();
+                };
+                // Enrich with profile lazily (on hover/focus)
+                const enrich = async () => {
+                    const data = await fetchUserProfile(pid);
+                    if (data && typeof data === 'object') {
+                        if (data.avatar) {
+                            avatar.src = data.avatar;
+                            avatar.style.display = '';
+                        }
+                        const nn = data.nickname ? String(data.nickname) : '';
+                        if (nn) label.textContent = `${nn}（${pid}）`;
+                    }
+                };
+                // Track enrichment state on element
+                btn.__enriched = false;
+                btn.__enrich = () => { if (!btn.__enriched) { btn.__enriched = true; enrich(); } };
+                // First hover triggers fetch
+                btn.addEventListener('mouseenter', () => { btn.__enrich(); });
+                idMenu.appendChild(btn);
+            });
+        } else {
+            const empty = document.createElement('div');
+            empty.className = 'px-3 py-2 text-sm text-slate-400';
+            empty.textContent = '未匹配到队伍库或无可用ID';
+            idMenu.appendChild(empty);
+        }
+    };
+    buildIdMenu();
+    const showMenu = () => {
+      idMenu.classList.remove('hidden');
+      // Eagerly enrich all items when menu opens
+      const items = Array.from(idMenu.querySelectorAll('button[data-index]'));
+      items.forEach((btn) => { if (btn && btn.__enrich) btn.__enrich(); });
+    };
+    const hideMenu = () => { idMenu.classList.add('hidden'); };
+    idInput.addEventListener('focus', () => { if (idMenu.childElementCount > 0) showMenu(); });
+    idInput.addEventListener('click', () => { if (idMenu.childElementCount > 0) showMenu(); });
+    idInput.addEventListener('blur', () => { validateId(); setTimeout(hideMenu, 120); });
+    // Click outside to close
+    document.addEventListener('click', (e) => {
+        if (!idWrap.contains(e.target)) hideMenu();
+    });
+    // Keyboard navigation
+    let activeIdx = -1;
+    const focusItem = (idx) => {
+        const items = Array.from(idMenu.querySelectorAll('button[data-index]'));
+        items.forEach((el, i) => {
+            if (i === idx) el.classList.add('bg-cyan-500/30'); else el.classList.remove('bg-cyan-500/30');
+        });
+    };
+    idInput.addEventListener('keydown', (e) => {
+        const items = Array.from(idMenu.querySelectorAll('button[data-index]'));
+        if (!items.length) return;
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            activeIdx = (activeIdx + 1) % items.length;
+            showMenu();
+            focusItem(activeIdx);
+            const btn = items[activeIdx];
+            if (btn && btn.__enrich) btn.__enrich();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            activeIdx = (activeIdx - 1 + items.length) % items.length;
+            showMenu();
+            focusItem(activeIdx);
+            const btn = items[activeIdx];
+            if (btn && btn.__enrich) btn.__enrich();
+        } else if (e.key === 'Enter') {
+            if (activeIdx >= 0 && activeIdx < items.length) {
+                e.preventDefault();
+                items[activeIdx].click();
+            }
+        } else if (e.key === 'Escape') {
+            hideMenu();
+        }
+    });
+    idWrap.appendChild(idInput);
+    idWrap.appendChild(idMenu);
+    idWrap.appendChild(idHint);
+    const kdaInput = document.createElement('input');
+    kdaInput.type = 'text';
+    kdaInput.placeholder = 'K/D/A (如 10/2/5)';
+    kdaInput.value = player.kda || '';
+    kdaInput.className = 'grow min-w-[160px] bg-gray-700/80 border-gray-500 rounded-md text-white ring-1 ring-white/10 focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 shadow-inner px-3 py-2.5 text-base font-mono tracking-wider placeholder:italic placeholder:text-white/50';
+    kdaInput.title = '输入格式：K/D/A，例如 10/2/5';
+    try { kdaInput.pattern = '^\\d+\\/\\d+\\/\\d+$'; } catch (_e) {}
+    try { kdaInput.inputMode = 'numeric'; } catch (_e) {}
+    kdaInput.oninput = () => {
+        player.kda = kdaInput.value;
+        updateJsonOutput();
+    };
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = 'Remove';
+    removeBtn.className = 'remove-btn text-base px-3 py-2';
+    removeBtn.onclick = () => {
+        const playerIndex = team.players.indexOf(player);
+        if (playerIndex > -1) {
+            team.players.splice(playerIndex, 1);
+            renderMatches();
+        }
+    };
+    playerCard.append(idWrap, kdaInput, removeBtn);
+    return playerCard;
+}
+function createTeamInput(team, matchIndex, teamLetter) {
+    const teamCard = document.createElement('div');
+    teamCard.className = 'team-card space-y-3 p-3 rounded-md bg-gray-800/50 border border-white/10';
+    // Library selector
+    const selectorRow = document.createElement('div');
+    selectorRow.className = 'flex items-center gap-2';
+    const select = document.createElement('select');
+    select.className = 'bg-gray-700/80 border-gray-600 rounded-md text-white ring-1 ring-white/10 focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 shadow-inner px-3 py-2 text-sm';
+    const defaultOpt = document.createElement('option');
+    defaultOpt.value = '';
+    defaultOpt.textContent = '从队伍库选择（可选）';
+    select.appendChild(defaultOpt);
+    const lib = (liveInfo.gameCfg && liveInfo.gameCfg.teams) || [];
+    if (liveInfo.type) {
+        const typeInput = document.getElementById('type');
+        if (typeInput) typeInput.value = liveInfo.type;
+        // Toggle visibility based on the loaded type
+        toggleGameCards(liveInfo.type === 'Game');
+    }
+    lib.forEach((t) => {
+        const opt = document.createElement('option');
+        opt.value = String(t.id);
+        opt.textContent = `${t.name}`;
+        select.appendChild(opt);
+    });
+    const applyBtn = document.createElement('button');
+    applyBtn.textContent = '应用所选队伍';
+    applyBtn.className = 'add-btn';
+    applyBtn.onclick = () => {
+        const id = parseInt(select.value, 10);
+        if (!id) return;
+        const picked = lib.find((x) => x.id === id);
+        if (!picked) return;
+        team.name = picked.name || '';
+        team.logo = picked.logo || '';
+        // keep current score; copy players
+        team.players = deepClone(picked.players || []);
+        // link to library team for name sync (non-enumerable to avoid JSON pollution)
+        try {
+            Object.defineProperty(team, '__refTeamId', { value: picked.id, writable: true, configurable: true, enumerable: false });
+        } catch (_e) { try { team.__refTeamId = picked.id; } catch (_e2) {} }
+        renderMatches();
+    };
+    selectorRow.append(select, applyBtn);
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.placeholder = 'Team Name';
+    nameInput.value = team.name;
+    nameInput.className = 'w-full bg-gray-700/80 border-gray-600 rounded-md text-white ring-1 ring-white/10 focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 shadow-inner px-3 py-2.5 text-base placeholder:text-white/50';
+    nameInput.oninput = () => {
+        team.name = nameInput.value;
+        // if linked to library, sync back the name
+        const refId = team && team.__refTeamId;
+        if (refId && liveInfo.gameCfg && Array.isArray(liveInfo.gameCfg.teams)) {
+            const libTeam = liveInfo.gameCfg.teams.find(t => t.id === refId);
+            if (libTeam) libTeam.name = team.name;
+        }
+        updateJsonOutput();
+        renderTeams();
+        renderMatches();
+    };
+    const logoInput = document.createElement('input');
+    logoInput.type = 'text';
+    logoInput.placeholder = 'Team Logo URL';
+    logoInput.value = team.logo;
+    logoInput.className = 'w-full bg-gray-700/80 border-gray-600 rounded-md text-white ring-1 ring-white/10 focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 shadow-inner px-3 py-2.5 text-base placeholder:text-white/50';
+    logoInput.oninput = () => { team.logo = logoInput.value; updateJsonOutput(); };
+    const logoPrev = document.createElement('img');
+    logoPrev.src = team.logo || '';
+    logoPrev.alt = '队徽预览';
+    logoPrev.className = `h-10 w-10 object-cover rounded border border-white/10 shadow-md ${team.logo ? '' : 'hidden'}`;
+    logoInput.addEventListener('input', () => {
+        logoPrev.src = logoInput.value || '';
+        logoPrev.classList.toggle('hidden', !logoInput.value);
+    });
+    const scoreInput = document.createElement('input');
+    scoreInput.type = 'number';
+    scoreInput.placeholder = 'Score';
+    scoreInput.value = team.score.toString();
+    scoreInput.className = 'w-full bg-gray-700/80 border-gray-600 rounded-md text-white ring-1 ring-white/10 focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 shadow-inner px-3 py-2.5 text-base';
+    scoreInput.oninput = () => { team.score = parseInt(scoreInput.value, 10) || 0; updateJsonOutput(); };
+    const playersContainer = document.createElement('div');
+    playersContainer.className = 'space-y-2';
+    team.players.forEach(p => playersContainer.appendChild(createPlayerInput(p, team, matchIndex, teamLetter)));
+    const addPlayerBtn = document.createElement('button');
+    addPlayerBtn.textContent = 'Add Player';
+    addPlayerBtn.className = 'add-btn';
+    addPlayerBtn.onclick = () => {
+        team.players.push({ id: 0, kda: '' });
+        renderMatches();
+    };
+    teamCard.append(selectorRow, nameInput, logoInput, logoPrev, scoreInput, playersContainer, addPlayerBtn);
+    return teamCard;
+}
+// --- History/Upcoming UI --- 
+function createStreamItemCard(item, index, type) {
+    const card = document.createElement('div');
+    card.className = 'match-card p-3 space-y-2';
+
+    // Default missing fields to prevent runtime errors with legacy data
+    if (item == null || typeof item !== 'object') {
+        item = { title: '', cover: '', startTime: 0, url: '' };
+    }
+    if (typeof item.title !== 'string') item.title = item.title != null ? String(item.title) : '';
+    if (typeof item.cover !== 'string') item.cover = item.cover != null ? String(item.cover) : '';
+    if (typeof item.url !== 'string') item.url = item.url != null ? String(item.url) : '';
+    const startVal = Number.isFinite(item.startTime) ? item.startTime : (item.startTime ? parseInt(item.startTime, 10) : 0);
+    if (!Number.isFinite(startVal)) item.startTime = 0; else item.startTime = startVal;
+
+    const titleInput = document.createElement('input');
+    titleInput.type = 'text';
+    titleInput.placeholder = '标题';
+    titleInput.value = item.title;
+    titleInput.className = 'w-full bg-gray-700/80 border-gray-600 rounded-md text-white ring-1 ring-white/10 focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 shadow-inner px-3 py-2 text-base';
+    titleInput.oninput = () => { item.title = titleInput.value; updateJsonOutput(); };
+
+    const urlInput = document.createElement('input');
+    urlInput.type = 'text';
+    urlInput.placeholder = 'URL (例如B站视频链接)';
+    urlInput.value = item.url || '';
+    urlInput.className = 'w-full bg-gray-700/80 border-gray-600 rounded-md text-white ring-1 ring-white/10 focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 shadow-inner px-3 py-2 text-base';
+    urlInput.oninput = () => { item.url = urlInput.value; updateJsonOutput(); };
+
+    const coverInput = document.createElement('input');
+    coverInput.type = 'text';
+    coverInput.placeholder = '封面 URL';
+    coverInput.value = item.cover;
+    coverInput.className = 'w-full bg-gray-700/80 border-gray-600 rounded-md text-white ring-1 ring-white/10 focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 shadow-inner px-3 py-2 text-base';
+    coverInput.oninput = () => { item.cover = coverInput.value; updateJsonOutput(); };
+
+    const startTimeInput = document.createElement('input');
+    startTimeInput.type = 'number';
+    startTimeInput.placeholder = '开始时间（秒级时间戳）';
+    startTimeInput.value = String(item.startTime || 0);
+    startTimeInput.className = 'w-full bg-gray-700/80 border-gray-600 rounded-md text-white ring-1 ring-white/10 focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 shadow-inner px-3 py-2 text-base';
+
+    const startTimeHuman = document.createElement('input');
+    startTimeHuman.type = 'datetime-local';
+    startTimeHuman.placeholder = '开始时间（可视化）';
+    startTimeHuman.className = 'w-full bg-gray-700/80 border-gray-600 rounded-md text-white ring-1 ring-white/10 focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 shadow-inner px-3 py-2 text-base';
+    try { startTimeHuman.step = '60'; } catch (_e) {}
+    try { startTimeHuman.value = toLocal(item.startTime); } catch (_e) { startTimeHuman.value = ''; }
+
+    startTimeInput.oninput = () => {
+        item.startTime = parseInt(startTimeInput.value, 10) || 0;
+        try { startTimeHuman.value = toLocal(item.startTime); } catch (_e) {}
+        updateJsonOutput();
+    };
+    startTimeHuman.oninput = () => {
+        const v = startTimeHuman.value;
+        const ms = Date.parse(v);
+        if (!Number.isNaN(ms)) {
+            const sec = Math.floor(ms / 1000);
+            item.startTime = sec;
+            startTimeInput.value = String(sec);
+            updateJsonOutput();
+        }
+    };
+
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = '删除';
+    removeBtn.className = 'remove-btn';
+    removeBtn.onclick = () => {
+        if (type === 'history') {
+            liveInfo.history.splice(index, 1);
+            renderHistory();
+        } else {
+            liveInfo.upcoming.splice(index, 1);
+            renderUpcoming();
+        }
+    };
+
+    card.append(titleInput, urlInput, coverInput, startTimeHuman, startTimeInput, removeBtn);
+    return card;
+}
+
+function createMatchInput(match, index) {
+    const matchCard = document.createElement('div');
+    matchCard.className = 'match-card rounded-lg bg-gray-900/60 border border-white/10 p-4 hover:border-cyan-400/40 transition-colors';
+    matchCard.setAttribute('data-index', String(index));
+    matchCard.draggable = true;
+    const header = document.createElement('div');
+    header.className = 'flex justify-between items-center mb-4';
+    const title = document.createElement('h4');
+    const aName = (match.teamA && match.teamA.name) || 'Team A';
+    const bName = (match.teamB && match.teamB.name) || 'Team B';
+    title.textContent = `${aName} vs ${bName}`;
+    title.className = 'text-xl font-bold tracking-wide';
+    const toggleBtn = document.createElement('button');
+    toggleBtn.textContent = '折叠';
+    toggleBtn.className = 'add-btn';
+    const upBtn = document.createElement('button');
+    upBtn.textContent = '上移';
+    upBtn.className = 'add-btn';
+    upBtn.onclick = () => {
+        if (!liveInfo.gameCfg) return;
+        const arr = liveInfo.gameCfg.matches;
+        if (index <= 0) return;
+        const [item] = arr.splice(index, 1);
+        arr.splice(index - 1, 0, item);
+        renderMatches();
+    };
+    const downBtn = document.createElement('button');
+    downBtn.textContent = '下移';
+    downBtn.className = 'add-btn';
+    downBtn.onclick = () => {
+        if (!liveInfo.gameCfg) return;
+        const arr = liveInfo.gameCfg.matches;
+        if (index >= arr.length - 1) return;
+        const [item] = arr.splice(index, 1);
+        arr.splice(index + 1, 0, item);
+        renderMatches();
+    };
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = 'Remove Match';
+    removeBtn.className = 'remove-btn';
+    removeBtn.onclick = () => {
+        var _a;
+        (_a = liveInfo.gameCfg) === null || _a === void 0 ? void 0 : _a.matches.splice(index, 1);
+        renderMatches();
+    };
+    const ctrlWrap = document.createElement('div');
+    ctrlWrap.className = 'flex items-center gap-2';
+    ctrlWrap.append(toggleBtn, upBtn, downBtn, removeBtn);
+    header.append(title, ctrlWrap);
+    // Match start time: both epoch (number) and human-friendly (datetime-local)
+    const startTimeRow = document.createElement('div');
+    startTimeRow.className = 'grid grid-cols-1 md:grid-cols-2 gap-3 mb-4';
+    const startTimeInput = document.createElement('input');
+    startTimeInput.type = 'number';
+    startTimeInput.placeholder = '开始时间（秒）';
+    startTimeInput.value = match.startTime.toString();
+    startTimeInput.className = 'w-full bg-gray-700/80 border-gray-600 rounded-md text-white ring-1 ring-white/10 focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 shadow-inner px-3 py-2.5';
+    const startTimeHuman = document.createElement('input');
+    startTimeHuman.type = 'datetime-local';
+    startTimeHuman.placeholder = '开始时间（本地）';
+    startTimeHuman.className = 'w-full bg-gray-700/80 border-gray-600 rounded-md text-white ring-1 ring-white/10 focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 shadow-inner px-3 py-2.5';
+    const toLocal = (sec) => {
+        if (!sec) return '';
+        try {
+            const d = new Date(sec * 1000);
+            const pad = (n) => String(n).padStart(2, '0');
+            const y = d.getFullYear();
+            const m = pad(d.getMonth() + 1);
+            const day = pad(d.getDate());
+            const h = pad(d.getHours());
+            const min = pad(d.getMinutes());
+            return `${y}-${m}-${day}T${h}:${min}`;
+        } catch (_e) { return ''; }
+    };
+    const toEpoch = (val) => {
+        if (!val) return 0;
+        const t = new Date(val).getTime();
+        return Number.isFinite(t) ? Math.floor(t / 1000) : 0;
+    };
+    startTimeHuman.value = toLocal(match.startTime);
+    // sync: epoch -> human
+    startTimeInput.addEventListener('input', () => {
+        match.startTime = parseInt(startTimeInput.value, 10) || 0;
+        startTimeHuman.value = toLocal(match.startTime);
+        updateJsonOutput();
+    });
+    // sync: human -> epoch
+    startTimeHuman.addEventListener('input', () => {
+        match.startTime = toEpoch(startTimeHuman.value);
+        startTimeInput.value = match.startTime ? String(match.startTime) : '';
+        updateJsonOutput();
+    });
+    startTimeRow.append(startTimeInput, startTimeHuman);
+    const bodyWrap = document.createElement('div');
+    const teamsGrid = document.createElement('div');
+    teamsGrid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
+    teamsGrid.appendChild(createTeamInput(match.teamA, index, 'A'));
+    teamsGrid.appendChild(createTeamInput(match.teamB, index, 'B'));
+    bodyWrap.append(startTimeRow, teamsGrid);
+    // initialize collapse state from non-enumerable flag on match object
+    if (match.__collapsed === true) {
+        bodyWrap.classList.add('hidden');
+        toggleBtn.textContent = '展开';
+    }
+    toggleBtn.onclick = () => {
+        const hidden = bodyWrap.classList.toggle('hidden');
+        // persist collapse state on the match object without affecting JSON output
+        try {
+            Object.defineProperty(match, '__collapsed', { value: hidden, writable: true, configurable: true, enumerable: false });
+        } catch (_e) {
+            // fallback if already defined
+            try { match.__collapsed = hidden; } catch (_e2) {}
+        }
+        toggleBtn.textContent = hidden ? '展开' : '折叠';
+    };
+    // Drag & Drop handlers
+    matchCard.addEventListener('dragstart', (ev) => {
+        matchCard.classList.add('opacity-60');
+        ev.dataTransfer && ev.dataTransfer.setData('text/plain', String(index));
+        ev.dataTransfer && (ev.dataTransfer.effectAllowed = 'move');
+    });
+    matchCard.addEventListener('dragend', () => {
+        matchCard.classList.remove('opacity-60');
+    });
+    matchCard.addEventListener('dragover', (ev) => {
+        ev.preventDefault();
+        ev.dataTransfer && (ev.dataTransfer.dropEffect = 'move');
+        matchCard.classList.add('ring-2', 'ring-cyan-500');
+    });
+    matchCard.addEventListener('dragleave', () => {
+        matchCard.classList.remove('ring-2', 'ring-cyan-500');
+    });
+    matchCard.addEventListener('drop', (ev) => {
+        ev.preventDefault();
+        matchCard.classList.remove('ring-2', 'ring-cyan-500');
+        if (!liveInfo.gameCfg) return;
+        const fromStr = ev.dataTransfer && ev.dataTransfer.getData('text/plain');
+        if (fromStr == null || fromStr === '') return;
+        const from = parseInt(fromStr, 10);
+        const to = index;
+        if (Number.isNaN(from) || Number.isNaN(to) || from === to) return;
+        const arr = liveInfo.gameCfg.matches;
+        if (from < 0 || from >= arr.length || to < 0 || to >= arr.length) return;
+        const [item] = arr.splice(from, 1);
+        arr.splice(to, 0, item);
+        renderMatches();
+    });
+    matchCard.append(header, bodyWrap);
+    return matchCard;
+}
+// --- Render Functions ---
+function renderHistory() {
+    if (!historyContainer) return;
+    historyContainer.innerHTML = '';
+    (liveInfo.history || []).forEach((item, index) => {
+        historyContainer.appendChild(createStreamItemCard(item, index, 'history'));
+    });
+    updateJsonOutput();
+}
+
+function renderUpcoming() {
+    if (!upcomingContainer) return;
+    upcomingContainer.innerHTML = '';
+    (liveInfo.upcoming || []).forEach((item, index) => {
+        upcomingContainer.appendChild(createStreamItemCard(item, index, 'upcoming'));
+    });
+    updateJsonOutput();
+}
+
+// --- Bracket (晋级图) UI ---
+// Helpers for bracket validation
+function __normTeamKey(name) {
+    return (name || '').toString().trim().toLowerCase();
+}
+function __getPrevRoundTeamKeys(roundIndex) {
+    try {
+        const rounds = (liveInfo.gameCfg && liveInfo.gameCfg.bracket && Array.isArray(liveInfo.gameCfg.bracket.rounds))
+            ? liveInfo.gameCfg.bracket.rounds
+            : [];
+        const prev = rounds[roundIndex - 1];
+        if (!prev || !Array.isArray(prev.teams)) return new Set();
+        const keys = new Set();
+        prev.teams.forEach(t => {
+            const k = __normTeamKey(t && t.name);
+            if (k) keys.add(k);
+        });
+        return keys;
+    } catch (_e) { return new Set(); }
+}
+function __ensureTeamInPrevRoundOrError(roundIndex, teamName) {
+    // Round 0 (first) has no restriction; also allow empty names during editing
+    if (!Number.isFinite(roundIndex) || roundIndex <= 0) return true;
+    const key = __normTeamKey(teamName);
+    if (!key) return true;
+    const allowed = __getPrevRoundTeamKeys(roundIndex);
+    if (!allowed.has(key)) {
+        try { alert('无效的晋级配置：从第2轮起，队伍必须来源于上一轮。请先在上一轮中包含该队伍。'); } catch (_e) {}
+        return false;
+    }
+    return true;
+}
+function createBracketTeamRow(team, round, rIndex, tIndex, options) {
+    const row = document.createElement('div');
+    row.className = 'player-card w-full';
+
+    // normalize
+    if (!team || typeof team !== 'object') team = { name: '', logo: '' };
+    if (typeof team.name !== 'string') team.name = team.name != null ? String(team.name) : '';
+    if (typeof team.logo !== 'string') team.logo = team.logo != null ? String(team.logo) : '';
+
+    // Library selector
+    const selectorRow = document.createElement('div');
+    selectorRow.className = 'flex items-center gap-2';
+    const select = document.createElement('select');
+    select.className = 'bg-gray-700/80 border-gray-600 rounded-md text-white ring-1 ring-white/10 focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 shadow-inner px-3 py-2 text-sm';
+    const lib = (liveInfo.gameCfg && Array.isArray(liveInfo.gameCfg.teams)) ? liveInfo.gameCfg.teams : [];
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = '从队伍库选择';
+    select.appendChild(placeholder);
+    lib.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = String(t.id || '');
+        opt.textContent = t.name || `#${t.id || ''}`;
+        // preselect if linked
+        try {
+            if (team.__refTeamId && t.id === team.__refTeamId) opt.selected = true;
+        } catch (_e) {}
+        select.appendChild(opt);
+    });
+    const applyBtn = document.createElement('button');
+    applyBtn.textContent = '应用';
+    applyBtn.className = 'add-btn !px-2 !py-1 text-xs';
+    applyBtn.onclick = () => {
+        const id = parseInt(select.value, 10);
+        if (!id) return;
+        const picked = lib.find((x) => x.id === id);
+        if (!picked) return;
+        // Validate against previous round from round 2 onwards
+        if (!__ensureTeamInPrevRoundOrError(rIndex, picked.name)) {
+            return;
+        }
+        team.name = picked.name || '';
+        team.logo = picked.logo || '';
+        // link to library team for potential sync (non-enumerable)
+        try {
+            Object.defineProperty(team, '__refTeamId', { value: picked.id, writable: true, configurable: true, enumerable: false });
+        } catch (_e) { try { team.__refTeamId = picked.id; } catch (_e2) {} }
+        renderBracket();
+    };
+    selectorRow.append(select, applyBtn);
+
+    // Current values (still editable if needed)
+    const name = document.createElement('input');
+    name.type = 'text';
+    name.placeholder = '队伍名';
+    name.className = 'w-40 bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm';
+    name.value = team.name;
+    name.oninput = () => {
+        const next = name.value;
+        const prev = team.name;
+        if (!__ensureTeamInPrevRoundOrError(rIndex, next)) {
+            // revert UI to previous valid value
+            name.value = prev || '';
+            return;
+        }
+        team.name = next;
+        updateJsonOutput();
+    };
+
+    const logo = document.createElement('input');
+    logo.type = 'text';
+    logo.placeholder = 'Logo URL';
+    logo.className = 'flex-1 bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm';
+    logo.value = team.logo;
+    logo.oninput = () => { team.logo = logo.value; updateJsonOutput(); };
+
+    const del = document.createElement('button');
+    del.className = 'remove-btn text-xs !px-2 !py-1';
+    del.textContent = '删除';
+    del.onclick = () => {
+        round.teams.splice(tIndex, 1);
+        renderBracket();
+    };
+
+    const hideDelete = options && options.hideDelete;
+    if (hideDelete) {
+        row.append(selectorRow, name, logo);
+    } else {
+        row.append(selectorRow, name, logo, del);
+    }
+    return row;
+}
+
+function createBracketRoundCard(round, index) {
+    const card = document.createElement('div');
+    card.className = 'match-card p-3 space-y-2';
+
+    if (!round || typeof round !== 'object') round = { title: '', teams: [] };
+    if (typeof round.title !== 'string') round = Object.assign(round, { title: round.title != null ? String(round.title) : '' });
+    if (!Array.isArray(round.teams)) round.teams = [];
+
+    const header = document.createElement('div');
+    header.className = 'flex items-center justify-between';
+    const title = document.createElement('input');
+    title.type = 'text';
+    title.placeholder = '轮次标题 如 8进4';
+    title.className = 'bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm flex-1 mr-2';
+    title.value = round.title || '';
+    title.oninput = () => { round.title = title.value; updateJsonOutput(); };
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-btn';
+    removeBtn.textContent = '删除轮次';
+    removeBtn.onclick = () => {
+        if (!liveInfo.gameCfg || !liveInfo.gameCfg.bracket) return;
+        liveInfo.gameCfg.bracket.rounds.splice(index, 1);
+        renderBracket();
+    };
+    header.append(title, removeBtn);
+
+    const teamsBox = document.createElement('div');
+    teamsBox.className = 'space-y-3';
+
+    // Determine if this is the final round
+    const roundsArr = (liveInfo.gameCfg && liveInfo.gameCfg.bracket && Array.isArray(liveInfo.gameCfg.bracket.rounds))
+        ? liveInfo.gameCfg.bracket.rounds
+        : [];
+    const isFinalRound = index === roundsArr.length - 1;
+
+    // Ensure even number for non-final rounds; allow single-team in final round (champion)
+    if (!isFinalRound && round.teams.length % 2 === 1) {
+        round.teams.push({ name: '', logo: '' });
+    }
+    // Render pairs: two teams per group (final round may have single champion)
+    for (let i = 0; i < round.teams.length; i += 2) {
+        const pairWrap = document.createElement('div');
+        pairWrap.className = 'rounded-md border border-white/10 bg-gray-800/40 p-3 space-y-2';
+
+        const grid = document.createElement('div');
+        grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-3';
+        const hasSecond = typeof round.teams[i + 1] !== 'undefined';
+        grid.appendChild(createBracketTeamRow(round.teams[i], round, index, i, { hideDelete: true }));
+        if (hasSecond) {
+            grid.appendChild(createBracketTeamRow(round.teams[i + 1], round, index, i + 1, { hideDelete: true }));
+        } else {
+            // Placeholder for visual alignment when only champion exists
+            const placeholder = document.createElement('div');
+            placeholder.className = 'rounded-md border border-dashed border-white/10 bg-transparent p-3 text-center text-white/40 text-sm';
+            placeholder.textContent = '冠军（单队）';
+            grid.appendChild(placeholder);
+        }
+
+        // --- Validation: check pair integrity and advancement uniqueness ---
+        let showWarning = false;
+        let warnText = '';
+        try {
+            const aName = __normTeamKey(round.teams[i] && round.teams[i].name);
+            const bName = __normTeamKey(hasSecond && round.teams[i + 1] && round.teams[i + 1].name);
+            // Duplicate in the same pair
+            if (hasSecond && aName && bName && aName === bName) {
+                showWarning = true;
+                warnText = '同一对阵中出现重复队伍，请更正（会导致无法判定胜/败）';
+            }
+            // Ambiguous advancement: next round must include exactly one of the pair
+            const next = roundsArr[index + 1];
+            if (!warnText && hasSecond && next && Array.isArray(next.teams)) {
+                const nextNames = next.teams.map(t => __normTeamKey(t && t.name)).filter(Boolean);
+                const aIn = aName && nextNames.includes(aName);
+                const bIn = bName && nextNames.includes(bName);
+                if ((aIn && bIn) || (!aIn && !bIn)) {
+                    showWarning = true;
+                    warnText = '下一轮未能唯一包含本对阵中的一支队伍，胜/败将无法显示';
+                }
+            }
+        } catch (_e) {
+            // no-op
+        }
+
+        if (showWarning) {
+            pairWrap.className += ' border-red-500';
+            const warn = document.createElement('div');
+            warn.className = 'text-red-500 text-sm';
+            warn.textContent = warnText;
+            pairWrap.appendChild(warn);
+        }
+
+        const ctrl = document.createElement('div');
+        ctrl.className = 'flex items-center gap-2';
+
+        if (hasSecond) {
+            const swapBtn = document.createElement('button');
+            swapBtn.type = 'button';
+            swapBtn.className = 'add-btn !px-2 !py-1 text-xs';
+            swapBtn.textContent = '交换 A/B';
+            swapBtn.onclick = () => {
+                const a = round.teams[i];
+                const b = round.teams[i + 1];
+                round.teams[i] = b;
+                round.teams[i + 1] = a;
+                renderBracket();
+            };
+            ctrl.appendChild(swapBtn);
+        }
+
+        const delPairBtn = document.createElement('button');
+        delPairBtn.type = 'button';
+        delPairBtn.className = 'remove-btn !px-2 !py-1 text-xs';
+        delPairBtn.textContent = '删除该对';
+        delPairBtn.onclick = () => {
+            // remove two items if exists, otherwise remove single (champion)
+            const deleteCount = hasSecond ? 2 : 1;
+            round.teams.splice(i, deleteCount);
+            renderBracket();
+        };
+        ctrl.append(delPairBtn);
+        pairWrap.append(grid, ctrl);
+        teamsBox.appendChild(pairWrap);
+    }
+
+    const actionsRow = document.createElement('div');
+    actionsRow.className = 'flex items-center gap-2';
+
+    const addPair = document.createElement('button');
+    addPair.type = 'button';
+    addPair.className = 'add-btn';
+    addPair.textContent = '新增对阵（2支队伍）';
+    addPair.onclick = () => {
+        round.teams.push({ name: '', logo: '' }, { name: '', logo: '' });
+        renderBracket();
+    };
+    actionsRow.appendChild(addPair);
+
+    if (isFinalRound) {
+        const addChampion = document.createElement('button');
+        addChampion.type = 'button';
+        addChampion.className = 'add-btn';
+        addChampion.textContent = '新增冠军（单队）';
+        addChampion.onclick = () => {
+            round.teams.push({ name: '', logo: '' });
+            renderBracket();
+        };
+        actionsRow.appendChild(addChampion);
+    }
+
+    card.append(header, teamsBox, actionsRow);
+    return card;
+}
+
+function renderBracket() {
+    if (!bracketRoundsContainer) return;
+    if (!liveInfo.gameCfg) liveInfo.gameCfg = { logo: '', teams: [], matches: [], matchMaps: [], bracket: { stages: [], rounds: [] } };
+    if (!liveInfo.gameCfg) liveInfo.gameCfg = { logo: '', matches: [], teams: [], matchMaps: [], bracket: { stages: [], rounds: [] } };
+    if (!liveInfo.gameCfg.bracket) liveInfo.gameCfg.bracket = { stages: [], rounds: [] };
+    if (!Array.isArray(liveInfo.gameCfg.bracket.stages)) liveInfo.gameCfg.bracket.stages = [];
+    if (!Array.isArray(liveInfo.gameCfg.bracket.rounds)) liveInfo.gameCfg.bracket.rounds = [];
+
+    // Sync stages input value from state if input exists
+    if (bracketStagesInput && document.activeElement !== bracketStagesInput) {
+        bracketStagesInput.value = (liveInfo.gameCfg.bracket.stages || []).join('\n');
+    }
+
+    bracketRoundsContainer.innerHTML = '';
+    liveInfo.gameCfg.bracket.rounds.forEach((r, i) => {
+        bracketRoundsContainer.appendChild(createBracketRoundCard(r, i));
+    });
+    updateJsonOutput();
+}
+
+// --- Match Map (single) UI ---
+function createMatchMapCard(map) {
+    const card = document.createElement('div');
+    card.className = 'match-card p-3 space-y-3';
+
+    // normalize structure
+    if (!map || typeof map !== 'object') map = {};
+    // sanitize deprecated fields to keep only contentId, name, preview
+    if ('author' in map) delete map.author;
+    if ('description' in map) delete map.description;
+
+    const idInput = document.createElement('input');
+    idInput.type = 'number';
+    idInput.placeholder = '地图ID';
+    idInput.value = String(map.contentId || 0);
+    idInput.className = 'w-full bg-gray-700/80 border-gray-600 rounded-md text-white px-3 py-2 text-base';
+    idInput.oninput = () => { map.contentId = parseInt(idInput.value, 10) || 0; updateJsonOutput(); };
+
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.placeholder = '地图名称';
+    nameInput.value = map.name || '';
+    nameInput.className = 'w-full bg-gray-700/80 border-gray-600 rounded-md text-white px-3 py-2 text-base';
+    nameInput.oninput = () => { map.name = nameInput.value; updateJsonOutput(); };
+
+    const previewInput = document.createElement('input');
+    previewInput.type = 'text';
+    previewInput.placeholder = '预览图 URL';
+    previewInput.value = map.preview || '';
+    previewInput.className = 'w-full bg-gray-700/80 border-gray-600 rounded-md text-white px-3 py-2 text-base';
+    previewInput.oninput = () => { map.preview = previewInput.value; updateJsonOutput(); };
+
+    const previewImg = document.createElement('img');
+    previewImg.src = map.preview || '';
+    previewImg.alt = '地图预览';
+    previewImg.className = `max-h-32 w-auto rounded border border-white/10 ${map.preview ? '' : 'hidden'}`;
+    previewInput.addEventListener('input', () => {
+        previewImg.src = previewInput.value || '';
+        previewImg.classList.toggle('hidden', !previewInput.value);
+    });
+
+    const clearBtn = document.createElement('button');
+    clearBtn.type = 'button';
+    clearBtn.textContent = '清空地图';
+    clearBtn.className = 'remove-btn';
+    clearBtn.onclick = () => {
+        if (!liveInfo.gameCfg) liveInfo.gameCfg = { logo: '', teams: [], matches: [], matchMaps: [] };
+        liveInfo.gameCfg.matchMaps = [];
+        renderMatchMap();
+    };
+
+    card.append(idInput, nameInput, previewInput, previewImg, clearBtn);
+    return card;
+}
+
+function renderMatchMap() {
+    if (!matchMapContainer) return;
+    matchMapContainer.innerHTML = '';
+    if (!liveInfo.gameCfg) liveInfo.gameCfg = { logo: '', teams: [], matches: [], matchMaps: [] };
+    if (!Array.isArray(liveInfo.gameCfg.matchMaps)) liveInfo.gameCfg.matchMaps = [];
+    // Ensure at most one
+    if (liveInfo.gameCfg.matchMaps.length > 1) liveInfo.gameCfg.matchMaps = [liveInfo.gameCfg.matchMaps[0]];
+    // Auto-create empty object for convenience
+    if (liveInfo.gameCfg.matchMaps.length === 0) liveInfo.gameCfg.matchMaps.push({ contentId: 0, name: '', preview: '' });
+    // sanitize existing item
+    const m = liveInfo.gameCfg.matchMaps[0] || {};
+    if ('author' in m) delete m.author;
+    if ('description' in m) delete m.description;
+    matchMapContainer.appendChild(createMatchMapCard(liveInfo.gameCfg.matchMaps[0]));
+    updateJsonOutput();
+}
+
+function renderMatches() {
+    var _a;
+    matchesContainer.innerHTML = '';
+    (_a = liveInfo.gameCfg) === null || _a === void 0 ? void 0 : _a.matches.forEach((match, index) => {
+        matchesContainer.appendChild(createMatchInput(match, index));
+    });
+    updateJsonOutput();
+}
+function createTeamLibraryCard(team, index, dupSet) {
+    const card = document.createElement('div');
+    card.className = 'team-card space-y-3';
+    const hdr = document.createElement('div');
+    hdr.className = 'flex items-center justify-between';
+    const title = document.createElement('div');
+    title.className = 'font-semibold';
+    title.textContent = team.name && team.name.trim() ? team.name : `队伍 #${index + 1}`;
+    const toggle = document.createElement('button');
+    toggle.className = 'add-btn';
+    toggle.textContent = '折叠';
+    const remove = document.createElement('button');
+    remove.className = 'remove-btn';
+    remove.textContent = '删除队伍';
+    remove.onclick = () => {
+        var _a;
+        (_a = liveInfo.gameCfg) === null || _a === void 0 ? void 0 : _a.teams.splice(index, 1);
+        renderTeams();
+        renderMatches();
+    };
+    hdr.append(title, toggle, remove);
+    const name = document.createElement('input');
+    name.type = 'text';
+    name.placeholder = '队伍名称';
+    name.value = team.name || '';
+    name.className = 'w-full bg-gray-700 border-gray-600 rounded-md text-white px-3 py-2 text-base';
+    name.oninput = () => {
+        team.name = name.value;
+        // 更新卡片标题为队伍名（空则回退到 序号）
+        title.textContent = team.name && team.name.trim() ? team.name : `队伍 #${index + 1}`;
+        updateJsonOutput();
+    };
+    // Sync library team name -> all linked match teams
+    name.addEventListener('input', () => {
+        try {
+            if (!liveInfo.gameCfg || !Array.isArray(liveInfo.gameCfg.matches)) return;
+            const refId = team.id;
+            liveInfo.gameCfg.matches.forEach(m => {
+                if (m && m.teamA && m.teamA.__refTeamId === refId) {
+                    m.teamA.name = team.name || '';
+                }
+                if (m && m.teamB && m.teamB.__refTeamId === refId) {
+                    m.teamB.name = team.name || '';
+                }
+            });
+            renderMatches();
+        } catch (_e) {}
+    });
+    const logo = document.createElement('input');
+    logo.type = 'text';
+    logo.placeholder = '队伍 Logo URL';
+    logo.value = team.logo || '';
+    logo.className = 'w-full bg-gray-700 border-gray-600 rounded-md text-white px-3 py-2 text-base';
+    logo.oninput = () => { team.logo = logo.value; updateJsonOutput(); };
+    const logoPrev = document.createElement('img');
+    logoPrev.src = team.logo || '';
+    logoPrev.alt = '队徽预览';
+    logoPrev.className = `h-10 w-10 object-cover rounded border border-white/10 ${team.logo ? '' : 'hidden'}`;
+    logo.addEventListener('input', () => {
+        logoPrev.src = logo.value || '';
+        logoPrev.classList.toggle('hidden', !logo.value);
+    });
+    const playersBox = document.createElement('div');
+    playersBox.className = 'space-y-2';
+    (team.players || []).forEach((p) => {
+        const row = document.createElement('div');
+        row.className = 'player-card';
+        const id = document.createElement('input');
+        id.type = 'number';
+        id.placeholder = 'Player ID';
+        id.value = String(p.id || 0);
+        id.className = 'w-1/2 bg-gray-600 border-gray-500 rounded-md text-white px-2 py-2 text-sm';
+        // Duplicate warning hint
+        const dupWarn = document.createElement('div');
+        dupWarn.className = 'text-xs text-red-400 hidden';
+
+        // Profile preview (avatar + nickname)
+        const profile = document.createElement('div');
+        profile.className = 'flex items-center gap-2 text-sm text-slate-300';
+        const avatar = document.createElement('img');
+        avatar.className = 'h-5 w-5 rounded-full border border-white/10 object-cover hidden';
+        avatar.alt = '';
+        avatar.loading = 'lazy';
+        const label = document.createElement('span');
+        label.className = 'opacity-80';
+        profile.append(avatar, label);
+
+        const clearProfile = () => {
+            avatar.src = '';
+            avatar.classList.add('hidden');
+            label.textContent = '';
+        };
+        const enrich = async (userId) => {
+            const idNum = Number(userId);
+            if (!Number.isFinite(idNum) || idNum <= 0) { clearProfile(); return; }
+            const data = await fetchUserProfile(idNum);
+            if (data && typeof data === 'object') {
+                if (data.avatar) {
+                    avatar.src = data.avatar;
+                    avatar.classList.remove('hidden');
+                } else {
+                    avatar.src = '';
+                    avatar.classList.add('hidden');
+                }
+                const nn = data.nickname ? String(data.nickname) : '';
+                label.textContent = nn ? `${nn}（${idNum}）` : `ID：${idNum}`;
+            } else {
+                clearProfile();
+            }
+        };
+
+        // Build owners list (team names) for a given ID within the team library
+        const getOwnersInLibrary = (idVal) => {
+            const owners = [];
+            try {
+                const teams = (liveInfo.gameCfg && Array.isArray(liveInfo.gameCfg.teams)) ? liveInfo.gameCfg.teams : [];
+                for (const t of teams) {
+                    if (!t || !Array.isArray(t.players)) continue;
+                    const has = t.players.some(mem => mem !== p && Number(mem && mem.id) === idVal && idVal > 0);
+                    if (has) owners.push(t.name || `ID:${t.id}`);
+                }
+            } catch (_e) {}
+            return owners;
+        };
+        const applyDupStyles = (owners) => {
+            if (owners && owners.length) {
+                const list = owners.join(', ');
+                dupWarn.textContent = `该ID已存在于：${list}`;
+                dupWarn.classList.remove('hidden');
+                id.classList.add('ring-2','ring-red-500','border-red-500');
+            } else {
+                dupWarn.classList.add('hidden');
+                id.classList.remove('ring-2','ring-red-500','border-red-500');
+            }
+        };
+        // Initial duplicate styling based on global dupSet
+        try {
+            const initVal = parseInt(id.value, 10) || 0;
+            const owners = getOwnersInLibrary(initVal);
+            applyDupStyles(owners);
+        } catch (_e) {}
+        id.oninput = () => {
+            const next = parseInt(id.value, 10) || 0;
+            // Check duplicates across team library and collect owners
+            let owners = [];
+            try {
+                owners = getOwnersInLibrary(next);
+            } catch (_e) { owners = []; }
+            applyDupStyles(owners);
+            p.id = next;
+            updateJsonOutput();
+            enrich(p.id);
+        };
+
+        // initial enrichment
+        if (p && p.id) { enrich(p.id); }
+
+        const del = document.createElement('button');
+        del.className = 'remove-btn';
+        del.textContent = '移除';
+        del.onclick = () => {
+            const idx = team.players.indexOf(p);
+            if (idx > -1) team.players.splice(idx, 1);
+            renderTeams();
+        };
+        row.append(id, dupWarn, profile, del);
+        playersBox.appendChild(row);
+    });
+    const addPlayer = document.createElement('button');
+    addPlayer.className = 'add-btn';
+    addPlayer.textContent = '新增队员';
+    addPlayer.onclick = () => {
+        team.players.push({ id: 0 });
+        renderTeams();
+    };
+    const body = document.createElement('div');
+    body.append(name, logo, logoPrev, playersBox, addPlayer);
+    toggle.onclick = () => {
+        const hidden = body.classList.toggle('hidden');
+        toggle.textContent = hidden ? '展开' : '折叠';
+    };
+    card.append(hdr, body);
+    return card;
+}
+function renderTeams() {
+    var _a;
+    if (!teamsContainer) return;
+    teamsContainer.innerHTML = '';
+    const dupSet = computeDuplicateIdsInLibrary();
+    ((_a = liveInfo.gameCfg) === null || _a === void 0 ? void 0 : _a.teams || []).forEach((t, i) => {
+        teamsContainer.appendChild(createTeamLibraryCard(t, i, dupSet));
+    });
+    updateJsonOutput();
+}
+function renderForm() {
+    var _a;
+    document.getElementById('title').value = liveInfo.title;
+    document.getElementById('description').value = liveInfo.description || '';
+    document.getElementById('env').value = liveInfo.env || 'production';
+    document.getElementById('roomId').value = liveInfo.roomId.toString();
+    document.getElementById('startTime').value = liveInfo.startTime.toString();
+    document.getElementById('endTime').value = liveInfo.endTime.toString();
+    document.getElementById('cover').value = liveInfo.cover;
+    document.getElementById('gameLogo').value = ((_a = liveInfo.gameCfg) === null || _a === void 0 ? void 0 : _a.logo) || '';
+    const gameKeyIdEl = document.getElementById('gameKeyId');
+    if (gameKeyIdEl) gameKeyIdEl.value = (liveInfo.gameCfg && liveInfo.gameCfg.keyId) || '';
+
+    // Ensure miniPlayer object exists
+    if (!liveInfo.gameCfg) liveInfo.gameCfg = { logo: '', matches: [], teams: [], matchMaps: [], bracket: { stages: [], rounds: [] } };
+    if (!liveInfo.gameCfg.miniPlayer) liveInfo.gameCfg.miniPlayer = { width: 460, height: 305 };
+    const mpwEl = document.getElementById('miniPlayerWidth');
+    const mphEl = document.getElementById('miniPlayerHeight');
+    if (mpwEl) mpwEl.value = String(liveInfo.gameCfg.miniPlayer.width || 460);
+    if (mphEl) mphEl.value = String(liveInfo.gameCfg.miniPlayer.height || 305);
+
+    const typeInput = document.getElementById('type');
+    if (typeInput) {
+        typeInput.value = liveInfo.type || 'Game';
+        toggleGameCards(typeInput.value === 'Game');
+    }
+    // Human datetime fields - format using LOCAL timezone for datetime-local input
+    const toLocal = (sec) => {
+        if (!sec) return '';
+        try {
+            const d = new Date(sec * 1000);
+            const pad = (n) => String(n).padStart(2, '0');
+            const y = d.getFullYear();
+            const m = pad(d.getMonth() + 1);
+            const day = pad(d.getDate());
+            const h = pad(d.getHours());
+            const min = pad(d.getMinutes());
+            return `${y}-${m}-${day}T${h}:${min}`;
+        }
+        catch (_b) {
+            return '';
+        }
+    };
+    if (startTimeHumanInput)
+        startTimeHumanInput.value = toLocal(liveInfo.startTime);
+    if (endTimeHumanInput)
+        endTimeHumanInput.value = toLocal(liveInfo.endTime);
+    // Previews
+    if (logoPreview) {
+        const logo = (liveInfo.gameCfg && liveInfo.gameCfg.logo) || '';
+        logoPreview.src = logo || '';
+        logoPreview.classList.toggle('hidden', !logo);
+    }
+    if (coverPreview) {
+        coverPreview.src = liveInfo.cover || '';
+        coverPreview.classList.toggle('hidden', !liveInfo.cover);
+    }
+    // Bracket stages input
+    if (!liveInfo.gameCfg) liveInfo.gameCfg = { logo: '', matches: [], teams: [], matchMaps: [], bracket: { stages: [], rounds: [] } };
+    if (!liveInfo.gameCfg.bracket) liveInfo.gameCfg.bracket = { stages: [], rounds: [] };
+    if (!Array.isArray(liveInfo.gameCfg.bracket.stages)) liveInfo.gameCfg.bracket.stages = [];
+    if (!Array.isArray(liveInfo.gameCfg.bracket.rounds)) liveInfo.gameCfg.bracket.rounds = [];
+    if (bracketStagesInput) {
+        bracketStagesInput.value = (liveInfo.gameCfg.bracket.stages || []).join('\n');
+    }
+    renderTeams();
+    renderMatchMap();
+    renderMatches();
+    renderHistory();
+    renderUpcoming();
+    renderBracket();
+    renderIdList(commentatorsContainer, liveInfo.gameCfg.commentators, 'commentators');
+    renderIdList(operatorsContainer, liveInfo.gameCfg.operators, 'operators');
+}
+/**
+ * Renders a list of IDs (for commentators/operators) in a given container.
+ * Each ID has a remove button.
+ * @param {HTMLElement} container - The container to render into.
+ * @param {string[]} ids - The array of IDs from liveInfo.gameCfg.
+ * @param {'commentators' | 'operators'} key - The key in liveInfo.gameCfg.
+ */
+function renderIdList(container, ids, key) {
+    if (!container) return;
+    container.innerHTML = '';
+    if (!ids || !Array.isArray(ids)) {
+        return;
+    }
+
+    ids.forEach((id, index) => {
+        const idEl = document.createElement('div');
+        idEl.className = 'player-card'; // Re-using style
+        idEl.innerHTML = `
+            <span>${id}</span>
+            <button type="button" class="remove-btn text-xs !px-2 !py-1" data-index="${index}" data-key="${key}">X</button>
+        `;
+        container.appendChild(idEl);
+    });
+}
+
+// --- Update and Event Handlers ---
+function updateJsonOutput() {
+    jsonOutput.value = JSON.stringify(liveInfo, null, 2);
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(liveInfo));
+    }
+    catch (e) {
+        // ignore quota or access errors
+    }
+}
+
+function loadSavedLiveInfo() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        const obj = JSON.parse(raw);
+        // Minimal shape guard
+        if (!obj || typeof obj !== 'object') return null;
+        if (obj.description === undefined) obj.description = '';
+        if (!obj.gameCfg) obj.gameCfg = { logo: '', matches: [], teams: [] };
+        if (!Array.isArray(obj.gameCfg.matches)) obj.gameCfg.matches = [];
+        if (!Array.isArray(obj.gameCfg.teams)) obj.gameCfg.teams = [];
+        // bracket shape
+        if (!obj.gameCfg.bracket || typeof obj.gameCfg.bracket !== 'object') {
+            obj.gameCfg.bracket = { stages: [], rounds: [] };
+        }
+        if (!Array.isArray(obj.gameCfg.bracket.stages)) obj.gameCfg.bracket.stages = [];
+        if (!Array.isArray(obj.gameCfg.bracket.rounds)) obj.gameCfg.bracket.rounds = [];
+        if (!obj.gameCfg.miniPlayer || typeof obj.gameCfg.miniPlayer !== 'object') {
+            obj.gameCfg.miniPlayer = { width: 460, height: 305 };
+        } else {
+            if (typeof obj.gameCfg.miniPlayer.width !== 'number') obj.gameCfg.miniPlayer.width = 460;
+            if (typeof obj.gameCfg.miniPlayer.height !== 'number') obj.gameCfg.miniPlayer.height = 305;
+        }
+        if (!Array.isArray(obj.history)) obj.history = [];
+        if (!Array.isArray(obj.upcoming)) obj.upcoming = [];
+        return obj;
+    }
+    catch (_e) { return null; }
+}
+
+function saveCollapseState(next) {
+    try {
+        const curr = loadCollapseState();
+        localStorage.setItem(COLLAPSE_KEY, JSON.stringify(Object.assign(curr, next)));
+    }
+    catch (_e) { }
+}
+
+function loadCollapseState() {
+    try {
+        const raw = localStorage.getItem(COLLAPSE_KEY);
+        return raw ? JSON.parse(raw) : {};
+    }
+    catch (_e) { return {}; }
+}
+function setupEventListeners() {
+    // Re-query DOM (handles cases where script loads before DOM is ready)
+    const basicBtn = document.getElementById('toggle-basic');
+    const teamsBtn = document.getElementById('toggle-teams');
+    const matchesBtn = document.getElementById('toggle-matches');
+    const clearBtn = document.getElementById('clear-storage');
+    const exportTeamsBtn = document.getElementById('export-teams');
+    const importTeamsBtn = document.getElementById('import-teams');
+    const importTeamsFile = document.getElementById('import-teams-file');
+    // Top-level time inputs
+    const startInput = document.getElementById('startTime');
+    const endInput = document.getElementById('endTime');
+    // Mini player size inputs (outside the main form)
+    const miniPlayerWidthInput = document.getElementById('miniPlayerWidth');
+    const miniPlayerHeightInput = document.getElementById('miniPlayerHeight');
+
+    // Two-way sync: numeric -> human (start)
+    if (startInput) {
+        startInput.addEventListener('input', () => {
+            const v = parseInt(startInput.value, 10) || 0;
+            liveInfo.startTime = v;
+            if (startTimeHumanInput) startTimeHumanInput.value = toLocal(liveInfo.startTime);
+            updateJsonOutput();
+        });
+    }
+    // Two-way sync: human -> numeric (start)
+    if (startTimeHumanInput) {
+        startTimeHumanInput.addEventListener('input', () => {
+            const v = startTimeHumanInput.value;
+            const ms = Date.parse(v);
+            if (!Number.isNaN(ms)) {
+                const sec = Math.floor(ms / 1000);
+                liveInfo.startTime = sec;
+                if (startInput) startInput.value = String(sec);
+                updateJsonOutput();
+            }
+        });
+    }
+    // Two-way sync: numeric -> human (end)
+    if (endInput) {
+        endInput.addEventListener('input', () => {
+            const v = parseInt(endInput.value, 10) || 0;
+            liveInfo.endTime = v;
+            if (endTimeHumanInput) endTimeHumanInput.value = toLocal(liveInfo.endTime);
+            updateJsonOutput();
+        });
+    }
+    // Two-way sync: human -> numeric (end)
+    if (endTimeHumanInput) {
+        endTimeHumanInput.addEventListener('input', () => {
+            const v = endTimeHumanInput.value;
+            const ms = Date.parse(v);
+            if (!Number.isNaN(ms)) {
+                const sec = Math.floor(ms / 1000);
+                liveInfo.endTime = sec;
+                if (endInput) endInput.value = String(sec);
+                updateJsonOutput();
+            }
+        });
+    }
+
+    // Mini player input handlers
+    if (miniPlayerWidthInput) {
+        miniPlayerWidthInput.addEventListener('input', () => {
+            if (!liveInfo.gameCfg) liveInfo.gameCfg = {};
+            if (!liveInfo.gameCfg.miniPlayer) liveInfo.gameCfg.miniPlayer = { width: 460, height: 305 };
+            liveInfo.gameCfg.miniPlayer.width = parseInt(miniPlayerWidthInput.value, 10) || 0;
+            updateJsonOutput();
+        });
+    }
+    if (miniPlayerHeightInput) {
+        miniPlayerHeightInput.addEventListener('input', () => {
+            if (!liveInfo.gameCfg) liveInfo.gameCfg = {};
+            if (!liveInfo.gameCfg.miniPlayer) liveInfo.gameCfg.miniPlayer = { width: 460, height: 305 };
+            liveInfo.gameCfg.miniPlayer.height = parseInt(miniPlayerHeightInput.value, 10) || 0;
+            updateJsonOutput();
+        });
+    }
+
+    // Handle adding commentator IDs
+    if (addCommentatorBtn) {
+        addCommentatorBtn.addEventListener('click', () => {
+            const idStr = commentatorIdInput.value.trim();
+            if (idStr) {
+                const id = parseInt(idStr, 10);
+                if (isNaN(id)) {
+                    commentatorIdInput.value = '';
+                    return;
+                }
+
+                if (!liveInfo.gameCfg) liveInfo.gameCfg = {};
+                if (!liveInfo.gameCfg.commentators) liveInfo.gameCfg.commentators = [];
+
+                if (!liveInfo.gameCfg.commentators.includes(id)) {
+                    liveInfo.gameCfg.commentators.push(id);
+                    renderIdList(commentatorsContainer, liveInfo.gameCfg.commentators, 'commentators');
+                    updateJsonOutput();
+                }
+                commentatorIdInput.value = '';
+            }
+        });
+    }
+
+    // Handle adding operator IDs
+    if (addOperatorBtn) {
+        addOperatorBtn.addEventListener('click', () => {
+            const idStr = operatorIdInput.value.trim();
+            if (idStr) {
+                const id = parseInt(idStr, 10);
+                if (isNaN(id)) {
+                    operatorIdInput.value = '';
+                    return;
+                }
+
+                if (!liveInfo.gameCfg) liveInfo.gameCfg = {};
+                if (!liveInfo.gameCfg.operators) liveInfo.gameCfg.operators = [];
+
+                if (!liveInfo.gameCfg.operators.includes(id)) {
+                    liveInfo.gameCfg.operators.push(id);
+                    renderIdList(operatorsContainer, liveInfo.gameCfg.operators, 'operators');
+                    updateJsonOutput();
+                }
+                operatorIdInput.value = '';
+            }
+        });
+    }
+
+    // Global click listener for remove buttons
+    document.addEventListener('click', (e) => {
+        // Handle removing a commentator or operator ID
+        if (e.target.matches('button[data-key="commentators"]') || e.target.matches('button[data-key="operators"]')) {
+            const key = e.target.dataset.key;
+            const index = parseInt(e.target.dataset.index, 10);
+
+            if (liveInfo.gameCfg[key] && liveInfo.gameCfg[key].length > index) {
+                liveInfo.gameCfg[key].splice(index, 1);
+                const container = key === 'commentators' ? commentatorsContainer : operatorsContainer;
+                renderIdList(container, liveInfo.gameCfg[key], key);
+                updateJsonOutput();
+            }
+            return; // Stop further processing to avoid conflicts
+        }
+    });
+
+    editorForm.addEventListener('input', (e) => {
+        const target = e.target;
+        const id = target.id;
+        if (id === 'title')
+            liveInfo.title = target.value;
+        if (id === 'description')
+            liveInfo.description = target.value;
+                if (id === 'env')
+            liveInfo.env = target.value;
+        if (id === 'type') {
+            liveInfo.type = target.value;
+            toggleGameCards(liveInfo.type === 'Game');
+        }
+        if (id === 'roomId')
+            liveInfo.roomId = parseInt(target.value, 10) || 0;
+        if (id === 'startTime')
+            liveInfo.startTime = parseInt(target.value, 10) || 0;
+        if (id === 'endTime')
+            liveInfo.endTime = parseInt(target.value, 10) || 0;
+        if (id === 'cover')
+            liveInfo.cover = target.value;
+        if (id === 'gameLogo' && liveInfo.gameCfg)
+            liveInfo.gameCfg.logo = target.value;
+        if (id === 'gameKeyId') {
+            if (!liveInfo.gameCfg) liveInfo.gameCfg = {};
+            liveInfo.gameCfg.keyId = target.value;
+        }
+        if (id === 'miniPlayerWidth') {
+            if (!liveInfo.gameCfg) liveInfo.gameCfg = {};
+            if (!liveInfo.gameCfg.miniPlayer) liveInfo.gameCfg.miniPlayer = { width: 460, height: 305 };
+            liveInfo.gameCfg.miniPlayer.width = parseInt(target.value, 10) || 0;
+        }
+        if (id === 'miniPlayerHeight') {
+            if (!liveInfo.gameCfg) liveInfo.gameCfg = {};
+            if (!liveInfo.gameCfg.miniPlayer) liveInfo.gameCfg.miniPlayer = { width: 460, height: 305 };
+            liveInfo.gameCfg.miniPlayer.height = parseInt(target.value, 10) || 0;
+        }
+        // sync human-readable fields when epoch fields change
+        if (id === 'startTime' && startTimeHumanInput) {
+            const sec = parseInt(target.value, 10) || 0;
+            startTimeHumanInput.value = sec ? new Date(sec * 1000).toISOString().slice(0, 16) : '';
+        }
+        if (id === 'endTime' && endTimeHumanInput) {
+            const sec = parseInt(target.value, 10) || 0;
+            endTimeHumanInput.value = sec ? new Date(sec * 1000).toISOString().slice(0, 16) : '';
+        }
+        // previews
+        if (id === 'gameLogo' && logoPreview) {
+            logoPreview.src = target.value || '';
+            logoPreview.classList.toggle('hidden', !target.value);
+        }
+        if (id === 'cover' && coverPreview) {
+            coverPreview.src = target.value || '';
+            coverPreview.classList.toggle('hidden', !target.value);
+        }
+        updateJsonOutput();
+    });
+    // human-readable datetime inputs -> epoch sync
+    if (startTimeHumanInput) {
+        startTimeHumanInput.addEventListener('input', () => {
+            const v = startTimeHumanInput.value;
+            const ms = Date.parse(v);
+            if (!Number.isNaN(ms)) {
+                const sec = Math.floor(ms / 1000);
+                liveInfo.startTime = sec;
+                document.getElementById('startTime').value = String(sec || '');
+                updateJsonOutput();
+            }
+        });
+    }
+    if (endTimeHumanInput) {
+        endTimeHumanInput.addEventListener('input', () => {
+            const v = endTimeHumanInput.value;
+            const ms = Date.parse(v);
+            if (!Number.isNaN(ms)) {
+                const sec = Math.floor(ms / 1000);
+                liveInfo.endTime = sec;
+                document.getElementById('endTime').value = String(sec || '');
+                updateJsonOutput();
+            }
+        });
+    }
+    addMatchBtn.addEventListener('click', () => {
+        var _a;
+        (_a = liveInfo.gameCfg) === null || _a === void 0 ? void 0 : _a.matches.push({
+            startTime: Math.floor(Date.now() / 1000),
+            teamA: { name: 'Team A', logo: '', score: 0, players: [] },
+            teamB: { name: 'Team B', logo: '', score: 0, players: [] },
+        });
+        renderMatches();
+    });
+
+    if (addHistoryBtn) {
+        addHistoryBtn.addEventListener('click', () => {
+            if (!liveInfo.history) liveInfo.history = [];
+            liveInfo.history.push({ title: '', cover: '', startTime: 0, url: '' });
+            renderHistory();
+        });
+    }
+
+    if (addUpcomingBtn) {
+        addUpcomingBtn.addEventListener('click', () => {
+            if (!liveInfo.upcoming) liveInfo.upcoming = [];
+            liveInfo.upcoming.push({ title: '', cover: '', startTime: Math.floor(Date.now() / 1000), url: '' });
+            renderUpcoming();
+        });
+    }
+    // Team library add button
+    if (addTeamBtn) {
+        addTeamBtn.addEventListener('click', () => {
+            if (!liveInfo.gameCfg) liveInfo.gameCfg = { logo: '', matches: [], teams: [] };
+            if (!Array.isArray(liveInfo.gameCfg.teams)) liveInfo.gameCfg.teams = [];
+            liveInfo.gameCfg.teams.push({ id: genTeamId(), name: '新队伍', logo: '', players: [] });
+            renderTeams();
+        });
+    }
+    // JSON editor zoom & fullscreen
+    const applyFontSize = () => {
+        if (jsonOutput) jsonOutput.style.fontSize = `${jsonFontSize}px`;
+    };
+    if (jsonZoomInBtn) jsonZoomInBtn.addEventListener('click', () => { jsonFontSize = Math.min(jsonFontSize + 1, 24); applyFontSize(); });
+    if (jsonZoomOutBtn) jsonZoomOutBtn.addEventListener('click', () => { jsonFontSize = Math.max(jsonFontSize - 1, 10); applyFontSize(); });
+    if (jsonFullscreenBtn) {
+        jsonFullscreenBtn.addEventListener('click', () => {
+            const card = jsonOutput && jsonOutput.closest('.card');
+            if (!card) return;
+            const isFs = card.classList.contains('fixed');
+            if (!isFs) {
+                card.classList.add('fixed', 'inset-0', 'z-50', 'rounded-none');
+                card.style.margin = '0';
+                card.style.padding = '1rem';
+                jsonFullscreenBtn.textContent = '退出全屏';
+                if (jsonOutput) {
+                    jsonOutput.style.height = 'calc(100vh - 120px)';
+                }
+            }
+            else {
+                card.classList.remove('fixed', 'inset-0', 'z-50', 'rounded-none');
+                card.style.margin = '';
+                card.style.padding = '';
+                jsonFullscreenBtn.textContent = '全屏';
+                if (jsonOutput) {
+                    jsonOutput.style.height = '';
+                }
+            }
+        });
+    }
+    copyJsonBtn.addEventListener('click', () => {
+        try {
+            jsonErrorEl && jsonErrorEl.classList.add('hidden');
+            const text = jsonOutput.value || '';
+            // Validate JSON format
+            JSON.parse(text);
+            // Copy on success
+            const setCopied = () => {
+                copyJsonBtn.textContent = '已复制!';
+                setTimeout(() => { copyJsonBtn.textContent = '复制 JSON'; }, 2000);
+            };
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(setCopied).catch(() => {
+                    jsonOutput.select();
+                    document.execCommand('copy');
+                    setCopied();
+                });
+            }
+            else {
+                jsonOutput.select();
+                document.execCommand('copy');
+                setCopied();
+            }
+        }
+        catch (err) {
+            if (jsonErrorEl) {
+                jsonErrorEl.textContent = 'JSON 格式错误：' + (err && err.message ? err.message : String(err));
+                jsonErrorEl.classList.remove('hidden');
+            }
+            copyJsonBtn.textContent = '格式错误';
+            setTimeout(() => { copyJsonBtn.textContent = '复制 JSON'; }, 2000);
+        }
+    });
+    loadMockBtn.addEventListener('click', () => {
+        // Deep copy to avoid modifying the original mock data object
+        liveInfo = JSON.parse(JSON.stringify(gameMockData));
+        renderForm();
+    });
+    if (applyJsonBtn) {
+        applyJsonBtn.addEventListener('click', () => {
+            try {
+                jsonErrorEl && jsonErrorEl.classList.add('hidden');
+                const parsed = JSON.parse(jsonOutput.value || '{}');
+                // minimal validation
+                if (!parsed || typeof parsed !== 'object')
+                    throw new Error('JSON 不是对象');
+                if (parsed.type !== 'Game')
+                    throw new Error('type 必须为 "Game"');
+                if (parsed.description === undefined) parsed.description = '';
+                if (!parsed.gameCfg)
+                    parsed.gameCfg = { logo: '', matches: [], teams: [] };
+                if (!Array.isArray(parsed.gameCfg.matches))
+                    parsed.gameCfg.matches = [];
+                if (!Array.isArray(parsed.gameCfg.teams))
+                    parsed.gameCfg.teams = [];
+                if (!Array.isArray(parsed.history)) parsed.history = [];
+                if (!Array.isArray(parsed.upcoming)) parsed.upcoming = [];
+                if (!parsed.gameCfg.miniPlayer || typeof parsed.gameCfg.miniPlayer !== 'object') {
+                    parsed.gameCfg.miniPlayer = { width: 460, height: 305 };
+                } else {
+                    if (typeof parsed.gameCfg.miniPlayer.width !== 'number') parsed.gameCfg.miniPlayer.width = 460;
+                    if (typeof parsed.gameCfg.miniPlayer.height !== 'number') parsed.gameCfg.miniPlayer.height = 305;
+                }
+                liveInfo = parsed;
+                renderForm();
+            }
+            catch (err) {
+                if (jsonErrorEl) {
+                    jsonErrorEl.textContent = 'JSON 解析失败: ' + (err && err.message ? err.message : String(err));
+                    jsonErrorEl.classList.remove('hidden');
+                }
+            }
+        });
+    }
+    // Clear saved storage and reset form
+    if (clearBtn) {
+        clearBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            // double confirm
+            const c1 = window.confirm('确定要清空所有数据吗？此操作将删除本地存档并重置表单。');
+            if (!c1) return;
+            const c2 = window.confirm('再次确认：此操作不可撤销，是否继续？');
+            if (!c2) return;
+            try {
+                localStorage.removeItem(STORAGE_KEY);
+                localStorage.removeItem(COLLAPSE_KEY);
+            }
+            catch (_e) { }
+            // reset in-memory state
+            liveInfo = {
+                type: 'Game',
+                env: 'production',
+                title: '',
+                description: '',
+                roomId: 0,
+                startTime: 0,
+                endTime: 0,
+                cover: '',
+                gameCfg: { logo: '', matches: [], teams: [], matchMaps: [], bracket: { stages: [], rounds: [] }, miniPlayer: { width: 460, height: 305 } },
+                history: [],
+                upcoming: [],
+            };
+            renderForm();
+            const prev = clearBtn.textContent;
+            clearBtn.textContent = '已清空!';
+            setTimeout(() => { clearBtn.textContent = prev || '清空本地存档'; }, 1600);
+        });
+    }
+    // Teams Excel Export
+    if (exportTeamsBtn) {
+        exportTeamsBtn.addEventListener('click', () => {
+            try {
+                if (typeof XLSX === 'undefined') {
+                    alert('未加载 Excel 库，请检查网络或刷新页面后重试');
+                    return;
+                }
+                const teams = (liveInfo.gameCfg && Array.isArray(liveInfo.gameCfg.teams)) ? liveInfo.gameCfg.teams : [];
+                const rows = teams.map(t => ({
+                    id: t.id || '',
+                    name: t.name || '',
+                    logo: t.logo || '',
+                    players: Array.isArray(t.players) ? t.players.map(p => p.id).join(',') : ''
+                }));
+                const ws = XLSX.utils.json_to_sheet(rows);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Teams');
+                XLSX.writeFile(wb, 'teams.xlsx');
+            }
+            catch (err) {
+                alert('导出失败: ' + (err && err.message ? err.message : String(err)));
+            }
+        });
+    }
+    // Teams Excel Import
+    const syncCloudBtn = document.getElementById('sync-cloud');
+
+    if (syncCloudBtn) {
+        syncCloudBtn.addEventListener('click', async () => {
+            const url = 'https://assets.box3.fun/u226/1/liveInfo.json';
+            const originalText = syncCloudBtn.textContent;
+            try {
+                syncCloudBtn.disabled = true;
+                syncCloudBtn.textContent = '同步中...';
+
+                const response = await fetch(url, { cache: 'no-store' });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+
+                if (!data || typeof data !== 'object') {
+                    throw new Error('Fetched data is not a valid object.');
+                }
+                if (data.description === undefined) data.description = '';
+                if (!data.gameCfg) data.gameCfg = { logo: '', matches: [], teams: [], matchMaps: [] };
+                if (!Array.isArray(data.gameCfg.matches)) data.gameCfg.matches = [];
+                if (!Array.isArray(data.gameCfg.teams)) data.gameCfg.teams = [];
+                if (!Array.isArray(data.history)) data.history = [];
+                if (!Array.isArray(data.upcoming)) data.upcoming = [];
+                if (!data.gameCfg.miniPlayer || typeof data.gameCfg.miniPlayer !== 'object') {
+                    data.gameCfg.miniPlayer = { width: 460, height: 305 };
+                } else {
+                    if (typeof data.gameCfg.miniPlayer.width !== 'number') data.gameCfg.miniPlayer.width = 460;
+                    if (typeof data.gameCfg.miniPlayer.height !== 'number') data.gameCfg.miniPlayer.height = 305;
+                }
+
+                liveInfo = data;
+                renderForm();
+                updateJsonOutput();
+
+                syncCloudBtn.textContent = '同步成功!';
+                setTimeout(() => { syncCloudBtn.textContent = originalText; }, 2000);
+
+            } catch (err) {
+                alert('从云端同步数据失败: ' + (err.message || String(err)));
+                syncCloudBtn.textContent = '同步失败';
+                setTimeout(() => { syncCloudBtn.textContent = originalText; }, 2000);
+            } finally {
+                syncCloudBtn.disabled = false;
+            }
+        });
+    }
+
+    if (importTeamsBtn && importTeamsFile) {
+        importTeamsBtn.addEventListener('click', () => {
+            importTeamsFile.value = '';
+            importTeamsFile.click();
+        });
+        importTeamsFile.addEventListener('change', () => {
+            var _a;
+            try {
+                if (typeof XLSX === 'undefined') {
+                    alert('未加载 Excel 库，请检查网络或刷新页面后重试');
+                    return;
+                }
+                const file = (_a = importTeamsFile.files) === null || _a === void 0 ? void 0 : _a[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    try {
+                        const data = new Uint8Array(evt.target.result);
+                        const wb = XLSX.read(data, { type: 'array' });
+                        const wsName = wb.SheetNames[0];
+                        const ws = wb.Sheets[wsName];
+                        const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+                        const teams = rows.map((r) => {
+                            const rawId = r.id;
+                            const id = parseInt(String(rawId), 10);
+                            const name = String(r.name || '').trim();
+                            const logo = String(r.logo || '').trim();
+                            const playersStr = String(r.players || '').trim();
+                            const players = playersStr
+                                ? playersStr.split(/[，,;\s]+/).map(s => parseInt(s, 10)).filter(n => !isNaN(n)).map(n => ({ id: n }))
+                                : [];
+                            return {
+                                id: Number.isFinite(id) ? id : genTeamId(),
+                                name,
+                                logo,
+                                players,
+                            };
+                        });
+                        if (!liveInfo.gameCfg) liveInfo.gameCfg = { logo: '', matches: [], teams: [] };
+                        liveInfo.gameCfg.teams = teams;
+                        renderTeams();
+                        renderMatches();
+                    }
+                    catch (err) {
+                        alert('导入失败: ' + (err && err.message ? err.message : String(err)));
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }
+            catch (err) {
+                alert('导入失败: ' + (err && err.message ? err.message : String(err)));
+            }
+        });
+    }
+}
+/**
+ * Shows or hides game-specific cards based on the live type.
+ * @param {boolean} isGame - True if the type is 'Game'.
+ */
+function toggleGameCards(isGame) {
+    const cardIds = ['personnel-card', 'matchmap-card', 'matches-card', 'bracket-card', 'teams-card', 'history-card', 'upcoming-card'];
+    cardIds.forEach(id => {
+        const card = document.getElementById(id);
+        if (card) {
+            card.style.display = isGame ? '' : 'none';
+        }
+    });
+}
+
+// --- Initial Load ---
+function init() {
+    const saved = loadSavedLiveInfo();
+    if (saved) {
+        liveInfo = saved;
+    }
+    renderForm();
+    setupEventListeners();
+}
+init();
+
+    </script>
+  </body>
+</html>

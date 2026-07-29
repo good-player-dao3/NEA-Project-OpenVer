@@ -1,0 +1,23 @@
+{
+  "formatVersion": "nea-terrain/v1",
+  "boxes": [
+    { "from": [0, 0, 0], "to": [63, 1, 63], "blockId": 129 },
+    { "from": [20, 2, 20], "to": [43, 3, 43], "blockId": 147 },
+    { "from": [29, 4, 0], "to": [34, 4, 63], "blockId": 95 },
+    { "from": [0, 4, 29], "to": [63, 4, 34], "blockId": 95 },
+    { "from": [29, 5, 29], "to": [34, 7, 34], "blockId": 151 },
+    { "from": [8, 2, 8], "to": [14, 8, 14], "blockId": 105, "rotation": 3 },
+    { "from": [49, 2, 8], "to": [55, 8, 14], "blockId": 89, "rotation": 1 },
+    { "from": [8, 2, 49], "to": [14, 8, 55], "blockId": 99, "rotation": 2 },
+    { "from": [49, 2, 49], "to": [55, 8, 55], "blockId": 119 },
+    { "from": [31, 4, 37], "to": [33, 4, 39], "blockId": 631 },
+    { "from": [24, 4, 36], "to": [27, 4, 39], "blockId": 99 },
+    { "from": [40, 4, 36], "to": [43, 4, 39], "blockId": 105 }
+  ],
+  "voxels": [
+    { "position": [31, 8, 31], "blockId": 157 },
+    { "position": [32, 8, 31], "blockId": 157 },
+    { "position": [31, 8, 32], "blockId": 157 },
+    { "position": [32, 8, 32], "blockId": 157 }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "appRoot": "https://createra.fun/",
+  "apiRoot": "https://code-api-pc.createra.fun/",
+  "gameRoot": "https://view.createra.fun/",
+  "voxaRoot": "https://voxa.createra.fun/",
+  "codemaoRoot": "https://box3.codemao.cn/",
+  "edu": {
+    "arenaRoot": "/",
+    "voxaRoot": "/"
+  },
+  "wp": {
+    "arenaRoot": "/",
+    "voxaRoot": "/"
+  },
+  "sensorsTrackerUrl": "https://api.collection.createra.fun/sa?project=default",
+  "cdnRoot": "https://static.createra.fun/block/",
+  "awsRoot": "https://assets.createra.fun",
+  "venlyID": "Testaccount",
+  "metaPixelId": "928806384761982",
+  "googleTagId": "AW-11019589730",
+  "connectedChain": {
+    "chainName": "Polygon Mainnet",
+    "chainId": 137,
+    "nativeCurrency": {
+      "name": "Matic",
+      "symbol": "MATIC",
+      "decimals": 18
+    },
+    "rpcUrls": [
+      "https://polygon-mainnet.infura.io/v3/991ce0ecbe254e4eba85139fcc477d46",
+      "https://polygon-rpc.com"
+    ],
+    "blockExplorerUrls": ["https://polygonscan.com/"],
+    "iconUrls": [ "https://res.cloudinary.com/polygontech/image/upload/f_auto,q_auto,dpr_2,w_48,h_48/Polygon_Po_S_d1987f7e1e" ]
+  },
+  "testChain": {
+    "chainName": "Goerli",
+    "chainId": 5,
+    "nativeCurrency": {
+      "name": "Goerli ETH",
+      "symbol": "ETH",
+      "decimals": 18
+    },
+    "rpcUrls": [
+      "https://rpc.ankr.com/eth_goerli",
+      "https://endpoints.omniatech.io/v1/eth/goerli/public"
+    ],
+    "blockExplorerUrls": ["https://goerli.etherscan.io/"],
+    "iconUrls": [ "" ]
+  },
+  "swappedTokenList": [
+    {
+      "name": "Tether USD",
+      "address": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+      "symbol": "USDT",
+      "decimals": 6,
+      "chainId": 137,
+      "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png"
+    }
+  ],
+  "mint": [
+    {
+      "name": "CreateraGenesisLand",
+      "address": "0x47967c68DD8A12e8a035d1785B63D48C383c8eE3",
+      "symbol": "CGL"
+    }
+  ],
+  "staking": {
+    "name": "CreateraStaking",
+    "address": "0x37663fB6d19c1Eb0A33242B43ab72431066D03CB"
+  },
+  "genesis": {
+    "name": "CreateraGenesis",
+    "address": "0xcc7478017d1BEF1c19B141A1D48E565d87ce9aaf"
+  },
+  "mintOpenSeaUrl": "https://opensea.io/collection/justformytest",
+  "mintConnectedChain": {
+    "chainName": "Polygon Mainnet",
+    "chainId": 137,
+    "nativeCurrency": {
+      "name": "Matic",
+      "symbol": "MATIC",
+      "decimals": 18
+    },
+    "rpcUrls": [
+      "https://polygon-mainnet.infura.io/v3/991ce0ecbe254e4eba85139fcc477d46",
+      "https://polygon-rpc.com"
+    ],
+    "blockExplorerUrls": ["https://polygonscan.com/"],
+    "iconUrls": [ "https://res.cloudinary.com/polygontech/image/upload/f_auto,q_auto,dpr_2,w_48,h_48/Polygon_Po_S_d1987f7e1e" ]
+  },
+  "createraWallet": "0xa7A8f47f2e1A493F586651a274489509cbC972C9",
+  "chatSignKey": "6E85A499B5FB49639E484BC47402E0B2"
+}

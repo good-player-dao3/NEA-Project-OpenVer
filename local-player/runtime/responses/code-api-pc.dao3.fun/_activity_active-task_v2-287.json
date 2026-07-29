@@ -1,0 +1,1 @@
+{"code":200,"msg":"success","data":{"taskList":[{"task":1,"progress":"0","demand":"3","status":1,"reward":1},{"task":2,"progress":"0","demand":"3","status":1,"reward":2},{"task":3,"progress":"0","demand":"5","status":1,"reward":3}],"claimable":false},"traceId":"2f93be211fa649a886b4bfb41c02d55f"}

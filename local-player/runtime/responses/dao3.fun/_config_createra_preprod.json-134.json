@@ -1,0 +1,47 @@
+{
+  "appRoot": "https://preprod.createra.fun/",
+  "apiRoot": "https://preprod-code-api-pc.createra.fun/",
+  "gameRoot": "https://preprod-view.createra.fun/",
+  "voxaRoot": "https://preprod-voxa.createra.fun/",
+  "codemaoRoot": "https://preprod.box3.codemao.cn/",
+  "venlyID": "Createra",
+  "mint": [
+    {
+      "name": "CreateraGenesisLand",
+      "address": "0x62Cf49Fc266e4d7F11f8C2c28B249414F58f0665",
+      "symbol": "CGL"
+    }
+  ],
+  "mintOpenSeaUrl": "https://opensea.io/collection/justformytest",
+  "mintConnectedChain": {
+    "chainName": "Polygon Mainnet",
+    "chainId": 137,
+    "nativeCurrency": {
+      "name": "Matic",
+      "symbol": "MATIC",
+      "decimals": 18
+    },
+    "rpcUrls": [
+      "https://polygon-mainnet.infura.io/v3/991ce0ecbe254e4eba85139fcc477d46",
+      "https://polygon-rpc.com"
+    ],
+    "blockExplorerUrls": ["https://polygonscan.com/"],
+    "iconUrls": [ "https://res.cloudinary.com/polygontech/image/upload/f_auto,q_auto,dpr_2,w_48,h_48/Polygon_Po_S_d1987f7e1e" ]
+  },
+  "connectedChain": {
+    "chainName": "Polygon Mainnet",
+    "chainId": 137,
+    "nativeCurrency": {
+      "name": "Matic",
+      "symbol": "MATIC",
+      "decimals": 18
+    },
+    "rpcUrls": [
+      "https://polygon-mainnet.infura.io/v3/991ce0ecbe254e4eba85139fcc477d46",
+      "https://polygon-rpc.com"
+    ],
+    "blockExplorerUrls": ["https://polygonscan.com/"],
+    "iconUrls": [ "https://res.cloudinary.com/polygontech/image/upload/f_auto,q_auto,dpr_2,w_48,h_48/Polygon_Po_S_d1987f7e1e" ]
+  },
+  "chatSignKey": "6E85A499B5FB49639E484BC47402E0B2"
+}

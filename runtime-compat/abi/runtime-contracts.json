@@ -1,0 +1,757 @@
+{
+  "format": "nea-runtime-architecture-contract",
+  "version": 1,
+  "generatedAt": "2026-07-29T06:40:07.883Z",
+  "apiVersion": "0.1.0",
+  "compatibilityLevel": "experimental",
+  "layers": [
+    {
+      "id": "project-package",
+      "category": "data",
+      "responsibility": "Loads exported world data, assets, scripts, requested contracts and capabilities without granting implementation access directly.",
+      "contracts": [
+        "dao3-project/v1"
+      ],
+      "evidence": [
+        "demo-map/project/nea.map.json",
+        "demo-map/src/import-project.mjs"
+      ]
+    },
+    {
+      "id": "client-script-runtime",
+      "category": "execution",
+      "responsibility": "Runs clientIndex.js in the archived Player SES Compartment with client-only globals.",
+      "contracts": [
+        "dao3-client-runtime/v1"
+      ],
+      "evidence": [
+        "runtime-compat/generated/player-client-script-runtime-analysis.json"
+      ]
+    },
+    {
+      "id": "server-script-runtime",
+      "category": "execution",
+      "responsibility": "Runs the authoritative map script in an isolated VM and gates every implemented mutation or event API by server capability.",
+      "contracts": [
+        "nea-server-runtime/v1"
+      ],
+      "evidence": [
+        "demo-map/src/runtime/script-runtime.mjs",
+        "runtime-compat/generated/local-server-runtime-analysis.json",
+        "runtime-compat/abi/server-object-model.json",
+        "runtime-compat/abi/runtime-entity-adapter-map.json",
+        "runtime-compat/abi/runtime-player-adapter-map.json"
+      ]
+    },
+    {
+      "id": "mudb-transport",
+      "category": "transport",
+      "responsibility": "Serializes recovered protocol envelopes and preserves message direction without interpreting map payloads.",
+      "contracts": [
+        "mudb-transport/v1",
+        "nea-protocol-abi/v1"
+      ],
+      "evidence": [
+        "runtime-compat/abi/protocols.json"
+      ]
+    },
+    {
+      "id": "authoritative-game-runtime",
+      "category": "state",
+      "responsibility": "Owns ticks, players, rigid bodies and accepted state transitions used to produce PUBLIC network state.",
+      "contracts": [
+        "nea-authoritative-runtime/v1"
+      ],
+      "evidence": [
+        "local-player/backend/box3-server.cjs",
+        "runtime-compat/generated/player-network-body-analysis.json"
+      ]
+    }
+  ],
+  "contracts": [
+    {
+      "id": "dao3-client-runtime/v1",
+      "side": "client",
+      "apiVersion": "0.1.0",
+      "provider": "historical-player-ses",
+      "compatibilityLevel": "native",
+      "capabilities": [
+        {
+          "id": "client.core",
+          "availability": "confirmed",
+          "compatibility": "native",
+          "entries": [
+            "client.global.http",
+            "client.global.input",
+            "client.global.media",
+            "client.global.navigator",
+            "client.global.screen",
+            "client.global.screenHeight",
+            "client.global.screenWidth",
+            "client.global.world"
+          ]
+        },
+        {
+          "id": "client.http",
+          "availability": "confirmed",
+          "compatibility": "native",
+          "entries": [
+            "client.ClientHttp.fetch",
+            "client.object.ClientHttp"
+          ]
+        },
+        {
+          "id": "client.media",
+          "availability": "confirmed",
+          "compatibility": "native",
+          "entries": [
+            "client.Audio.Audio",
+            "client.Audio.ended",
+            "client.Audio.error",
+            "client.Audio.load",
+            "client.Audio.loadeddata",
+            "client.Audio.pause",
+            "client.Audio.play",
+            "client.Audio.src",
+            "client.Audio.volume",
+            "client.ClientMedia.playAudio",
+            "client.ClientMedia.startRecording",
+            "client.ClientMedia.stopPlayAudio",
+            "client.ClientMedia.stopRecording",
+            "client.MediaError.MediaError",
+            "client.MediaError.code",
+            "client.MediaError.message",
+            "client.object.ClientMedia"
+          ]
+        },
+        {
+          "id": "client.navigator",
+          "availability": "confirmed",
+          "compatibility": "native",
+          "entries": [
+            "client.ClientNavigator.getDeviceInfo",
+            "client.ClientNavigator.language",
+            "client.ClientNavigator.userAgent",
+            "client.object.ClientNavigator"
+          ]
+        },
+        {
+          "id": "client.remote-channel",
+          "availability": "confirmed",
+          "compatibility": "native",
+          "entries": [
+            "client.global.remoteChannel",
+            "client.remoteChannel.onClientEvent",
+            "client.remoteChannel.sendServerEvent"
+          ]
+        },
+        {
+          "id": "client.script",
+          "availability": "confirmed",
+          "compatibility": "native",
+          "entries": [
+            "client.object.ClientRemoteChannel",
+            "client.runtime.moduleDelivery",
+            "client.runtime.moduleEntry",
+            "client.runtime.sandbox"
+          ]
+        },
+        {
+          "id": "client.ui",
+          "availability": "confirmed",
+          "compatibility": "native",
+          "entries": [
+            "client.ClientScreen.resize",
+            "client.Coord2.create",
+            "client.Coord2.offset",
+            "client.Coord2.scale",
+            "client.EventEmitter.add",
+            "client.EventEmitter.emit",
+            "client.EventEmitter.off",
+            "client.EventEmitter.on",
+            "client.EventEmitter.once",
+            "client.EventEmitter.remove",
+            "client.EventEmitter.removeAll",
+            "client.UiBox.create",
+            "client.UiImage.complete",
+            "client.UiImage.create",
+            "client.UiImage.image",
+            "client.UiImage.imageDisplayMode",
+            "client.UiImage.imageOpacity",
+            "client.UiImage.load",
+            "client.UiInput.blur",
+            "client.UiInput.create",
+            "client.UiInput.focus",
+            "client.UiInput.isFocus",
+            "client.UiInput.placeholder",
+            "client.UiInput.placeholderColor",
+            "client.UiNode.children",
+            "client.UiNode.clone",
+            "client.UiNode.events",
+            "client.UiNode.findChildByName",
+            "client.UiNode.name",
+            "client.UiNode.parent",
+            "client.UiNode.uiScale",
+            "client.UiRenderable.anchor",
+            "client.UiRenderable.autoResize",
+            "client.UiRenderable.backgroundColor",
+            "client.UiRenderable.backgroundOpacity",
+            "client.UiRenderable.pointerEventBehavior",
+            "client.UiRenderable.position",
+            "client.UiRenderable.rotation",
+            "client.UiRenderable.size",
+            "client.UiRenderable.visible",
+            "client.UiRenderable.zIndex",
+            "client.UiScale.create",
+            "client.UiScale.scale",
+            "client.UiScreen.create",
+            "client.UiScreen.getAllScreen",
+            "client.UiScreen.visible",
+            "client.UiScreen.zIndex",
+            "client.UiScrollBox.create",
+            "client.UiScrollBox.scrollPosition",
+            "client.UiText.autoWordWrap",
+            "client.UiText.create",
+            "client.UiText.richText",
+            "client.UiText.textColor",
+            "client.UiText.textContent",
+            "client.UiText.textFontFamily",
+            "client.UiText.textFontSize",
+            "client.UiText.textLineHeight",
+            "client.UiText.textStrokeColor",
+            "client.UiText.textStrokeOpacity",
+            "client.UiText.textStrokeThickness",
+            "client.UiText.textXAlignment",
+            "client.UiText.textYAlignment",
+            "client.Vec2.copy",
+            "client.Vec2.create",
+            "client.Vec2.x",
+            "client.Vec2.y",
+            "client.Vec3.b",
+            "client.Vec3.copy",
+            "client.Vec3.create",
+            "client.Vec3.g",
+            "client.Vec3.r",
+            "client.Vec3.x",
+            "client.Vec3.y",
+            "client.Vec3.z",
+            "client.global.ui",
+            "client.input.lockPointer",
+            "client.input.pointerdown",
+            "client.input.pointerlockchange",
+            "client.input.pointerlockerror",
+            "client.input.pointerup",
+            "client.input.unlockPointer",
+            "client.object.ClientScreen",
+            "client.object.Coord2",
+            "client.object.InputSystem",
+            "client.object.UiNode",
+            "client.object.UiScale",
+            "client.object.Vec2",
+            "client.object.Vec3"
+          ]
+        },
+        {
+          "id": "client.world",
+          "availability": "confirmed",
+          "compatibility": "native",
+          "entries": [
+            "client.ClientWorld.rendering3d",
+            "client.object.ClientWorld"
+          ]
+        }
+      ],
+      "uncategorizedEntries": [
+        "client.runtime.contract"
+      ]
+    },
+    {
+      "id": "nea-server-runtime/v1",
+      "side": "server",
+      "apiVersion": "0.1.0",
+      "provider": "local-vm-script-runtime",
+      "compatibilityLevel": "experimental",
+      "capabilities": [
+        {
+          "id": "server.player",
+          "availability": "confirmed",
+          "compatibility": "emulated",
+          "entries": [
+            "server.RuntimePlayer.grounded",
+            "server.RuntimePlayer.health",
+            "server.RuntimePlayer.id",
+            "server.RuntimePlayer.snapshot",
+            "server.object.RuntimePlayer"
+          ]
+        },
+        {
+          "id": "server.player.write",
+          "availability": "confirmed",
+          "compatibility": "emulated",
+          "entries": [
+            "server.RuntimePlayer.applyImpulse",
+            "server.RuntimePlayer.damage",
+            "server.RuntimePlayer.name",
+            "server.RuntimePlayer.position",
+            "server.RuntimePlayer.velocity"
+          ]
+        },
+        {
+          "id": "server.remote-channel",
+          "availability": "confirmed",
+          "compatibility": "bridged",
+          "entries": [
+            "server.remoteChannel.nextClientEvent",
+            "server.remoteChannel.onClientEvent",
+            "server.remoteChannel.sendClientEvent"
+          ]
+        },
+        {
+          "id": "server.world.chat",
+          "availability": "confirmed",
+          "compatibility": "emulated",
+          "entries": [
+            "server.RuntimePlayer.sendMessage",
+            "server.world.say"
+          ]
+        },
+        {
+          "id": "server.world.entities",
+          "availability": "confirmed",
+          "compatibility": "emulated",
+          "entries": [
+            "server.RuntimeEntity.id",
+            "server.RuntimeEntity.kind",
+            "server.RuntimeEntity.position",
+            "server.RuntimeEntity.snapshot",
+            "server.RuntimeEntity.tags",
+            "server.object.RuntimeEntity",
+            "server.world.createEntity",
+            "server.world.querySelector",
+            "server.world.querySelectorAll"
+          ]
+        },
+        {
+          "id": "server.world.events",
+          "availability": "confirmed",
+          "compatibility": "emulated",
+          "entries": [
+            "server.object.GameEventHandlerToken",
+            "server.world.currentTick",
+            "server.world.nextPlayerJoin",
+            "server.world.nextTick",
+            "server.world.onContact",
+            "server.world.onContactSeparate",
+            "server.world.onPlayerJoin",
+            "server.world.onPlayerLeave",
+            "server.world.onTick",
+            "server.world.onTriggerEnter",
+            "server.world.onTriggerLeave",
+            "server.world.onVoxelContact",
+            "server.world.onVoxelSeparate"
+          ]
+        }
+      ],
+      "uncategorizedEntries": [
+        "server.authoritativeRuntime.contract",
+        "server.runtime.contract"
+      ]
+    }
+  ],
+  "compatibilityMatrix": {
+    "path": "runtime-compat/abi/compatibility-matrix.json",
+    "declarations": 599,
+    "executable": 177,
+    "byStatus": {
+      "native": 125,
+      "compatible": 32,
+      "partial": 20,
+      "recovered-only": 185,
+      "declared-only": 237
+    }
+  },
+  "scriptRuntimes": {
+    "boundaries": "runtime-compat/abi/script-runtime-boundaries.json",
+    "invariant": "Client Script Runtime and Server Script Runtime are separate execution realms connected only through declared transport and authoritative state flows.",
+    "runtimes": [
+      {
+        "id": "dao3-client-runtime/v1",
+        "side": "client",
+        "engine": "SES Compartment",
+        "provider": "archived-player"
+      },
+      {
+        "id": "nea-server-runtime/v1",
+        "side": "server",
+        "engine": "Node vm.Context",
+        "provider": "local-vm-script-runtime"
+      }
+    ]
+  },
+  "objectModels": {
+    "server": {
+      "canonical": "runtime-compat/abi/server-object-model.json",
+      "playerRepresentation": "intersection-and-component",
+      "classicalPlayerInheritance": false,
+      "localAdapters": [
+        {
+          "object": "server.object.RuntimeEntity",
+          "map": "runtime-compat/abi/runtime-entity-adapter-map.json",
+          "status": "extension"
+        },
+        {
+          "object": "server.object.RuntimePlayer",
+          "map": "runtime-compat/abi/runtime-player-adapter-map.json",
+          "status": "extension"
+        }
+      ]
+    }
+  },
+  "sharedValues": {
+    "catalog": "runtime-compat/abi/shared-runtime.json",
+    "provider": "local-shared-compatibility-runtime",
+    "capability": "shared.math",
+    "executableEntries": 35,
+    "confirmedGameVector3Entries": 30,
+    "partialGameVector3Entries": 1
+  },
+  "contactEvents": {
+    "model": "runtime-compat/abi/contact-event-model.json",
+    "canonicalEvents": [
+      {
+        "id": "GameEntityContactEvent",
+        "localStatus": "partial"
+      },
+      {
+        "id": "GameVoxelContactEvent",
+        "localStatus": "partial"
+      }
+    ],
+    "forceStatus": "confirmed-historical-production-local-missing",
+    "packedVoxelAxisStatus": "confirmed",
+    "authoritativeStateStatus": "confirmed-schema-partial-binding",
+    "conformance": {
+      "status": "covered",
+      "fixture": "runtime-compat/conformance/contact-state.mjs",
+      "tests": "runtime-compat/test/contact-state-conformance.test.mjs",
+      "coveredMappings": [
+        "body contact fields",
+        "voxel contact fields",
+        "fluid contact fields",
+        "cube axis decoding"
+      ],
+      "excludedMappings": [
+        "GameEntity.contactForce aggregation"
+      ]
+    }
+  },
+  "transport": {
+    "id": "mudb-transport/v1",
+    "protocolAbi": "nea-protocol-abi/v1",
+    "requiredProtocols": [
+      "player.game-net",
+      "player.remote-channel"
+    ],
+    "remoteChannelEnvelope": {
+      "fields": [
+        "tick",
+        "args"
+      ],
+      "argsEncoding": "JSON-text"
+    }
+  },
+  "authoritativeRuntime": {
+    "id": "nea-authoritative-runtime/v1",
+    "bodyProfileRequired": true,
+    "bodyProfileSizeStatus": "confirmed",
+    "publicStateUsesExplicitHalfExtents": true,
+    "postureAbi": "runtime-compat/abi/physics-player-posture.json",
+    "postureShapeStatus": {
+      "standing": "confirmed",
+      "crouching": "unresolved",
+      "flying": "unresolved"
+    }
+  },
+  "flows": [
+    {
+      "id": "client-module-delivery",
+      "from": "authoritative-game-runtime",
+      "to": "client-script-runtime",
+      "protocol": "player.game-net.syncClientScriptModules",
+      "payload": "Dictionary of module source; entry clientIndex.js"
+    },
+    {
+      "id": "client-event",
+      "from": "client-script-runtime",
+      "to": "server-script-runtime",
+      "protocol": "player.remote-channel.sendServerEvent",
+      "payload": "MuDB {tick,args}; args is JSON text"
+    },
+    {
+      "id": "server-event",
+      "from": "server-script-runtime",
+      "to": "client-script-runtime",
+      "protocol": "player.remote-channel.sendClientEvent",
+      "payload": "MuDB {tick,args}; malformed JSON is dropped by Player"
+    },
+    {
+      "id": "authoritative-state",
+      "from": "server-script-runtime",
+      "to": "authoritative-game-runtime",
+      "protocol": "nea-control.player-state",
+      "payload": "Versioned position and velocity command"
+    },
+    {
+      "id": "public-state",
+      "from": "authoritative-game-runtime",
+      "to": "client-script-runtime",
+      "protocol": "player.game-net.PUBLIC",
+      "payload": "Player and RigidBody snapshots with explicit half extents"
+    }
+  ],
+  "demo": {
+    "project": {
+      "path": "demo-map/project/nea.map.json",
+      "bytes": 1048,
+      "sha256": "7399d2b7c899fe69b0d3d368c87d120818bba103f75a6f260b787d6d5d3a2904"
+    },
+    "scripts": {
+      "client": {
+        "path": "demo-map/project/scripts/client.js",
+        "bytes": 2127,
+        "sha256": "30d3e32e94c34b57d04fe0ab25c86b9ee626a60c621b68297e133792bffdca0a"
+      },
+      "server": {
+        "path": "demo-map/project/scripts/server.js",
+        "bytes": 2640,
+        "sha256": "fa20a4bf8619e508e5553f48d4c6d1caf4d9981ce613d242c2abb97606d1214b"
+      }
+    },
+    "bindings": [
+      {
+        "side": "client",
+        "contract": "dao3-client-runtime/v1",
+        "requestedCapabilities": [
+          "client.core",
+          "client.ui",
+          "client.remote-channel"
+        ],
+        "observedUsage": {
+          "side": "client",
+          "requiredCapabilities": [
+            "client.core",
+            "client.remote-channel",
+            "client.ui"
+          ],
+          "evidence": [
+            {
+              "capability": "client.core",
+              "evidence": "console.*"
+            },
+            {
+              "capability": "client.ui",
+              "evidence": "ui / Ui* / Vec*"
+            },
+            {
+              "capability": "client.remote-channel",
+              "evidence": "remoteChannel.*"
+            }
+          ]
+        },
+        "resolvedEntries": [
+          "client.ClientScreen.resize",
+          "client.Coord2.create",
+          "client.Coord2.offset",
+          "client.Coord2.scale",
+          "client.EventEmitter.add",
+          "client.EventEmitter.emit",
+          "client.EventEmitter.off",
+          "client.EventEmitter.on",
+          "client.EventEmitter.once",
+          "client.EventEmitter.remove",
+          "client.EventEmitter.removeAll",
+          "client.UiBox.create",
+          "client.UiImage.complete",
+          "client.UiImage.create",
+          "client.UiImage.image",
+          "client.UiImage.imageDisplayMode",
+          "client.UiImage.imageOpacity",
+          "client.UiImage.load",
+          "client.UiInput.blur",
+          "client.UiInput.create",
+          "client.UiInput.focus",
+          "client.UiInput.isFocus",
+          "client.UiInput.placeholder",
+          "client.UiInput.placeholderColor",
+          "client.UiNode.children",
+          "client.UiNode.clone",
+          "client.UiNode.events",
+          "client.UiNode.findChildByName",
+          "client.UiNode.name",
+          "client.UiNode.parent",
+          "client.UiNode.uiScale",
+          "client.UiRenderable.anchor",
+          "client.UiRenderable.autoResize",
+          "client.UiRenderable.backgroundColor",
+          "client.UiRenderable.backgroundOpacity",
+          "client.UiRenderable.pointerEventBehavior",
+          "client.UiRenderable.position",
+          "client.UiRenderable.rotation",
+          "client.UiRenderable.size",
+          "client.UiRenderable.visible",
+          "client.UiRenderable.zIndex",
+          "client.UiScale.create",
+          "client.UiScale.scale",
+          "client.UiScreen.create",
+          "client.UiScreen.getAllScreen",
+          "client.UiScreen.visible",
+          "client.UiScreen.zIndex",
+          "client.UiScrollBox.create",
+          "client.UiScrollBox.scrollPosition",
+          "client.UiText.autoWordWrap",
+          "client.UiText.create",
+          "client.UiText.richText",
+          "client.UiText.textColor",
+          "client.UiText.textContent",
+          "client.UiText.textFontFamily",
+          "client.UiText.textFontSize",
+          "client.UiText.textLineHeight",
+          "client.UiText.textStrokeColor",
+          "client.UiText.textStrokeOpacity",
+          "client.UiText.textStrokeThickness",
+          "client.UiText.textXAlignment",
+          "client.UiText.textYAlignment",
+          "client.Vec2.copy",
+          "client.Vec2.create",
+          "client.Vec2.x",
+          "client.Vec2.y",
+          "client.Vec3.b",
+          "client.Vec3.copy",
+          "client.Vec3.create",
+          "client.Vec3.g",
+          "client.Vec3.r",
+          "client.Vec3.x",
+          "client.Vec3.y",
+          "client.Vec3.z",
+          "client.global.http",
+          "client.global.input",
+          "client.global.media",
+          "client.global.navigator",
+          "client.global.remoteChannel",
+          "client.global.screen",
+          "client.global.screenHeight",
+          "client.global.screenWidth",
+          "client.global.ui",
+          "client.global.world",
+          "client.input.lockPointer",
+          "client.input.pointerdown",
+          "client.input.pointerlockchange",
+          "client.input.pointerlockerror",
+          "client.input.pointerup",
+          "client.input.unlockPointer",
+          "client.object.ClientScreen",
+          "client.object.Coord2",
+          "client.object.InputSystem",
+          "client.object.UiNode",
+          "client.object.UiScale",
+          "client.object.Vec2",
+          "client.object.Vec3",
+          "client.remoteChannel.onClientEvent",
+          "client.remoteChannel.sendServerEvent"
+        ],
+        "errors": [],
+        "resolved": true
+      },
+      {
+        "side": "server",
+        "contract": "nea-server-runtime/v1",
+        "requestedCapabilities": [
+          "server.world.events",
+          "server.world.chat",
+          "server.world.entities",
+          "server.player",
+          "server.player.write",
+          "server.remote-channel"
+        ],
+        "observedUsage": {
+          "side": "server",
+          "requiredCapabilities": [
+            "server.player",
+            "server.player.write",
+            "server.remote-channel",
+            "server.world.chat",
+            "server.world.entities",
+            "server.world.events"
+          ],
+          "evidence": [
+            {
+              "capability": "server.world.events",
+              "evidence": "world event/tick access"
+            },
+            {
+              "capability": "server.world.chat",
+              "evidence": "world.say/player.sendMessage"
+            },
+            {
+              "capability": "server.world.entities",
+              "evidence": "world entity query/create"
+            },
+            {
+              "capability": "server.player",
+              "evidence": "RuntimePlayer read"
+            },
+            {
+              "capability": "server.player.write",
+              "evidence": "RuntimePlayer mutation"
+            },
+            {
+              "capability": "server.remote-channel",
+              "evidence": "remoteChannel.*"
+            }
+          ]
+        },
+        "resolvedEntries": [
+          "server.RuntimeEntity.id",
+          "server.RuntimeEntity.kind",
+          "server.RuntimeEntity.position",
+          "server.RuntimeEntity.snapshot",
+          "server.RuntimeEntity.tags",
+          "server.RuntimePlayer.applyImpulse",
+          "server.RuntimePlayer.damage",
+          "server.RuntimePlayer.grounded",
+          "server.RuntimePlayer.health",
+          "server.RuntimePlayer.id",
+          "server.RuntimePlayer.name",
+          "server.RuntimePlayer.position",
+          "server.RuntimePlayer.sendMessage",
+          "server.RuntimePlayer.snapshot",
+          "server.RuntimePlayer.velocity",
+          "server.object.GameEventHandlerToken",
+          "server.object.RuntimeEntity",
+          "server.object.RuntimePlayer",
+          "server.remoteChannel.nextClientEvent",
+          "server.remoteChannel.onClientEvent",
+          "server.remoteChannel.sendClientEvent",
+          "server.world.createEntity",
+          "server.world.currentTick",
+          "server.world.nextPlayerJoin",
+          "server.world.nextTick",
+          "server.world.onContact",
+          "server.world.onContactSeparate",
+          "server.world.onPlayerJoin",
+          "server.world.onPlayerLeave",
+          "server.world.onTick",
+          "server.world.onTriggerEnter",
+          "server.world.onTriggerLeave",
+          "server.world.onVoxelContact",
+          "server.world.onVoxelSeparate",
+          "server.world.querySelector",
+          "server.world.querySelectorAll",
+          "server.world.say"
+        ],
+        "errors": [],
+        "resolved": true
+      }
+    ]
+  }
+}

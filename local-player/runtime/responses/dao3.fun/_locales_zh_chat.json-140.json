@@ -1,0 +1,20 @@
+{  
+  "channel_world": "世界",
+  "channel_experience": "地图",
+  "channel_team": "队伍",
+  "channel_temp": "临时",
+  "online_players": "在线玩家",
+  "chat": "聊天",
+  "chat_input_placeholder": "说点什么",
+  "login_to_chat": "登录后可以聊天哦",
+  "message_preview": "消息预览",
+  "settings": "设置",
+  "mute_toast": "发言太快啦！请在 {{ second }} 秒后再发言",
+  "picker_emoji": "表情",
+  "system_msg_sensitive_alert": "您发布的内容可能违反社区公约，请友善发言，若多次违规将会被禁言/封号处罚",
+  "sticker_preview": "表情",
+  "toast_open_preview": "消息预览已开启",
+  "toast_close_preview": "消息预览已关闭",
+  "inputError_maxLength": "消息过长，请减少内容再发送～({{ maxLength }}/{{ length }})",
+  "world_bind_phone": "在世界频道发言需要绑定手机号哦～"
+}

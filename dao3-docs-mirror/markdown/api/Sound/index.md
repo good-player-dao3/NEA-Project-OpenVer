@@ -1,0 +1,40 @@
+---
+title: "S-音乐对象"
+source: "https://docs.dao3.fun/api/Sound/index.html"
+---
+
+# S-音乐对象
+
+信息
+
+**Sound**，作为`sound()`方法的统一返回类型，支持后续的音乐操作。
+
+## 方法
+
+#### setCurrentTime(currentTime:number): void
+
+设置该音乐播放的时间点
+
+**输入参数**
+
+| **参数** | **必填** | **默认值** | **类型** | **说明** |
+| --- | --- | --- | --- | --- |
+| currentTime | 是 |  | number | 设定特定时间点 |
+
+#### resume(currentTime?:number): void
+
+继续该音乐播放
+
+**输入参数**
+
+| **参数** | **必填** | **默认值** | **类型** | **说明** |
+| --- | --- | --- | --- | --- |
+| currentTime | 否 |  | number | 从特定时间点继续播放 |
+
+#### pause(): void
+
+暂停该音乐的播放
+
+#### stop(): void
+
+终止该音乐的播放

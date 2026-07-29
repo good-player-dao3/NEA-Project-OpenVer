@@ -1,0 +1,1 @@
+@media screen and (min-width:1201px){.nIK1gL{height:calc(1vh*100 - 64px);height:calc(var(--vh, 1vh)*100 - 64px)}}@media screen and (min-width:961px)and (max-width:1200px){.nIK1gL{height:calc(1vh*100 - 48px);height:calc(var(--vh, 1vh)*100 - 48px)}}@media screen and (max-width:960px){.nIK1gL{height:calc(1vh*100 - 48px);height:calc(var(--vh, 1vh)*100 - 48px)}}

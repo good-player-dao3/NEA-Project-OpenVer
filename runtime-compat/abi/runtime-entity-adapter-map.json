@@ -1,0 +1,219 @@
+{
+  "format": "nea-runtime-entity-adapter-map",
+  "version": 1,
+  "generatedAt": "2026-07-29T06:40:06.159Z",
+  "contract": "nea-server-runtime/v1",
+  "localObject": {
+    "id": "server.object.RuntimeEntity",
+    "status": "extension",
+    "canonicalTarget": "server.object.GameEntity",
+    "notes": [
+      "RuntimeEntity is a small local subset and does not implement the canonical GameEntity lifecycle, physics, events, animation, damage, audio, or replication surface."
+    ]
+  },
+  "members": [
+    {
+      "local": {
+        "id": "server.RuntimeEntity.id",
+        "kind": "property",
+        "signature": {
+          "type": "string",
+          "readonly": true
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.id",
+          "kind": "property",
+          "signature": {
+            "type": "string",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [
+          "Local RuntimeEntity.id is getter-only so the host entity index cannot diverge; canonical GameEntity.id is documented writable."
+        ],
+        "signature": [],
+        "effect": [
+          "Local identity has no historical entity lifecycle or replication binding."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/label.md",
+          "symbol": "id: string",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.kind",
+        "kind": "property",
+        "signature": {
+          "type": "string",
+          "readonly": true
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [],
+      "status": "extension",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "kind is a local importer classification and has no canonical GameEntity member."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.position",
+        "kind": "property",
+        "signature": {
+          "type": "Vector3",
+          "readonly": false
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.position",
+          "kind": "property",
+          "signature": {
+            "type": "GameVector3",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "Canonical position uses GameVector3; local RuntimeEntity exposes the smaller Vector3 compatibility type."
+        ],
+        "effect": [
+          "Local writes update only the compatibility wrapper and are not yet connected to authoritative entity replication."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/appearance.md",
+          "symbol": "position:GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.tags",
+        "kind": "property",
+        "signature": {
+          "type": "Set<string>",
+          "readonly": true
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.tags",
+          "kind": "method",
+          "signature": {
+            "parameters": [],
+            "returns": "string[]"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [
+          "Canonical tags is a method returning string[]; local tags is a readonly Set<string> property whose contents remain mutable."
+        ],
+        "signature": [
+          "Property/method shape and collection type differ."
+        ],
+        "effect": [
+          "Canonical addTag/removeTag/hasTag behavior and replication are not implemented."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/label.md",
+          "symbol": "tags(): string[]",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.snapshot",
+        "kind": "method",
+        "signature": {
+          "parameters": [],
+          "returns": "RuntimeEntitySnapshot"
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [],
+      "status": "extension",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "snapshot is a local diagnostics helper with no documented canonical member."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "memberCount": 5,
+    "partial": 3,
+    "extensions": 2
+  }
+}

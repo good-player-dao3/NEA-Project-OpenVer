@@ -1,0 +1,14 @@
+{
+  "name": "nea-map-script-demo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node tools/import.mjs",
+    "start": "node src/server.mjs",
+    "validate": "node tools/import.mjs --check",
+    "inspect:ui": "node tools/inspect-player-ui-schema.cjs",
+    "probe:remote": "node tools/probe-remote-channel.cjs",
+    "test": "node --test"
+  }
+}

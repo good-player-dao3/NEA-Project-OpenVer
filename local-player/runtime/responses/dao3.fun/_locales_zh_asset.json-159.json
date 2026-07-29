@@ -1,0 +1,20 @@
+{
+  "title_claimable_tira": "可领取TIRA",
+  "title_daily_rate": "每日收益",
+  "title_claimed_tira": "已领TIRA",
+  "title_asset": "资产列表",
+  "button_details": "查看详情",
+  "toast_claim_succeeded": "领取成功",
+  "toast_claim_failed": "领取失败",
+  "toast_stake_failed": "质押失败",
+  "toast_unstake_failed": "解除质押失败",
+  "tooltip_claimed_tira": "通过质押资产获得的TIRA累计值。",
+  "batch_operation_placeholder": "批量操作",
+  "batch_operation_stake": "批量质押",
+  "batch_operation_unstake": "批量解质押",
+  "modal_unstake_title": "解除质押",
+  "modal_unstake_desc": "确认解除土地 #{{ tokenId }}的质押状态吗？",
+  "modal_unstake_batch_desc": "确认批量解除土地质押吗？",
+  "modal_unstake_desc_during_event": "确认解除土地 #{{ tokenId }}的质押状态吗？现在解除质押，你仅会获得65%该土地已产生的TIRA，剩余35%将作为公共奖励。",
+  "modal_unstake_batch_desc_during_event": "确认解除批量解除土地质押吗？现在解除质押，你仅会获得65%该土地已产生的TIRA，剩余35%将作为公共奖励。"
+}

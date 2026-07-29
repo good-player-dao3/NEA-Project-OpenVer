@@ -1,0 +1,1700 @@
+{
+  "format": "nea-local-shared-runtime-analysis",
+  "version": 1,
+  "generatedAt": "2026-07-29T06:40:05.988Z",
+  "source": {
+    "path": "demo-map/src/runtime/vector3.mjs",
+    "bytes": 4274,
+    "sha256": "ca2c76a02532f78204231a296f33114f881b8142ed531ca3e5b355da94024295"
+  },
+  "entries": [
+    {
+      "id": "shared.GameVector3.add",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "add",
+      "signature": {
+        "parameters": [
+          {
+            "name": "v",
+            "optional": false,
+            "type": "GameVector3",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "GameVector3",
+              "description": "三维向量"
+            }
+          }
+        ],
+        "returns": "GameVector3"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "add(v:GameVector3): GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.addEq",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "addEq",
+      "signature": {
+        "parameters": [
+          {
+            "name": "v",
+            "optional": false,
+            "type": "GameVector3",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "GameVector3",
+              "description": "三维向量"
+            }
+          }
+        ],
+        "returns": "GameVector3"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "addEq(v:GameVector3): GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.angle",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "angle",
+      "signature": {
+        "parameters": [
+          {
+            "name": "v",
+            "optional": false,
+            "type": "GameVector3",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "GameVector3",
+              "description": "三维向量"
+            }
+          }
+        ],
+        "returns": "number"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "angle(v:GameVector3): number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.clone",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "clone",
+      "signature": {
+        "parameters": [],
+        "returns": "GameVector3"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "clone(): GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.copy",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "copy",
+      "signature": {
+        "parameters": [
+          {
+            "name": "v",
+            "optional": false,
+            "type": "GameVector3",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "GameVector3",
+              "description": "三维向量"
+            }
+          }
+        ],
+        "returns": "GameVector3"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "copy(v:GameVector3): GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.cross",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "cross",
+      "signature": {
+        "parameters": [
+          {
+            "name": "v",
+            "optional": false,
+            "type": "GameVector3",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "GameVector3",
+              "description": "三维向量"
+            }
+          }
+        ],
+        "returns": "GameVector3"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "cross(v:GameVector3): GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.distance",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "distance",
+      "signature": {
+        "parameters": [
+          {
+            "name": "v",
+            "optional": false,
+            "type": "GameVector3",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "GameVector3",
+              "description": "三维向量"
+            }
+          }
+        ],
+        "returns": "number"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "distance(v:GameVector3): number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.div",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "div",
+      "signature": {
+        "parameters": [
+          {
+            "name": "v",
+            "optional": false,
+            "type": "GameVector3",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "GameVector3",
+              "description": "三维向量"
+            }
+          }
+        ],
+        "returns": "GameVector3"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "div(v:GameVector3): GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.divEq",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "divEq",
+      "signature": {
+        "parameters": [
+          {
+            "name": "v",
+            "optional": false,
+            "type": "GameVector3",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "GameVector3",
+              "description": "三维向量"
+            }
+          }
+        ],
+        "returns": "GameVector3"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "divEq(v:GameVector3): GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.dot",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "dot",
+      "signature": {
+        "parameters": [
+          {
+            "name": "v",
+            "optional": false,
+            "type": "GameVector3",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "GameVector3",
+              "description": "三维向量"
+            }
+          }
+        ],
+        "returns": "number"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "dot(v:GameVector3): number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.equals",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "equals",
+      "signature": {
+        "parameters": [
+          {
+            "name": "v",
+            "optional": false,
+            "type": "GameVector3",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "GameVector3",
+              "description": "三维向量"
+            }
+          }
+        ],
+        "returns": "boolean"
+      },
+      "availability": "partial",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "The origin formula is confirmed, but the EPSILON$2 binding was not present in the extracted origin class; the local 1e-6 tolerance is supported indirectly by the archived Player math bundle."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "equals(v:GameVector3): boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/457.36bf26873ad51e54.js",
+          "symbol": "module 48388 EPSILON = 1e-6",
+          "confidence": "supporting"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.exactEquals",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "exactEquals",
+      "signature": {
+        "parameters": [
+          {
+            "name": "v",
+            "optional": false,
+            "type": "GameVector3",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "GameVector3",
+              "description": "三维向量"
+            }
+          }
+        ],
+        "returns": "boolean"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "exactEquals(v:GameVector3): boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.fromPolar",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "fromPolar",
+      "signature": {
+        "parameters": [
+          {
+            "name": "mag",
+            "optional": false,
+            "type": "number",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "number",
+              "description": "向量的模长或半径，即从原点到点的直线距离。"
+            }
+          },
+          {
+            "name": "phi",
+            "optional": false,
+            "type": "number",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "number",
+              "description": "表示从正 y 轴到点在 xy 平面上的投影的逆时针角度（即经度）。"
+            }
+          },
+          {
+            "name": "theta",
+            "optional": false,
+            "type": "number",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "number",
+              "description": "表示从 xz 平面向上或向下到点的角度（即纬度）。"
+            }
+          }
+        ],
+        "returns": "GameVector3"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "fromPolar(mag: number, phi: number, theta: number): GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.GameVector3",
+      "side": "shared",
+      "kind": "constructor",
+      "owner": "GameVector3",
+      "name": "GameVector3",
+      "signature": {
+        "parameters": [
+          {
+            "name": "x",
+            "optional": false,
+            "type": "number",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "number",
+              "description": "x 轴坐标"
+            }
+          },
+          {
+            "name": "y",
+            "optional": false,
+            "type": "number",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "number",
+              "description": "y 轴坐标"
+            }
+          },
+          {
+            "name": "z",
+            "optional": false,
+            "type": "number",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "number",
+              "description": "z 轴坐标"
+            }
+          }
+        ],
+        "returns": "GameVector3"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "GameVector3(x: number, y: number, z: number): GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.lerp",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "lerp",
+      "signature": {
+        "parameters": [
+          {
+            "name": "v",
+            "optional": false,
+            "type": "GameVector3",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "GameVector3",
+              "description": "目标三维向量"
+            }
+          },
+          {
+            "name": "n",
+            "optional": false,
+            "type": "number",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "number(0-1)",
+              "description": "插值百分比"
+            }
+          }
+        ],
+        "returns": "GameVector3"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "lerp(v:GameVector3,n: number): GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.mag",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "mag",
+      "signature": {
+        "parameters": [],
+        "returns": "number"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "mag(): number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.max",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "max",
+      "signature": {
+        "parameters": [
+          {
+            "name": "v",
+            "optional": false,
+            "type": "GameVector3",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "GameVector3",
+              "description": "三维向量"
+            }
+          }
+        ],
+        "returns": "GameVector3"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "max(v:GameVector3): GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.min",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "min",
+      "signature": {
+        "parameters": [
+          {
+            "name": "v",
+            "optional": false,
+            "type": "GameVector3",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "GameVector3",
+              "description": "三维向量"
+            }
+          }
+        ],
+        "returns": "GameVector3"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "min(v:GameVector3): GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.mul",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "mul",
+      "signature": {
+        "parameters": [
+          {
+            "name": "v",
+            "optional": false,
+            "type": "GameVector3",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "GameVector3",
+              "description": "三维向量"
+            }
+          }
+        ],
+        "returns": "GameVector3"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "mul(v:GameVector3): GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.mulEq",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "mulEq",
+      "signature": {
+        "parameters": [
+          {
+            "name": "v",
+            "optional": false,
+            "type": "GameVector3",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "GameVector3",
+              "description": "三维向量"
+            }
+          }
+        ],
+        "returns": "GameVector3"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "mulEq(v:GameVector3): GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.normalize",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "normalize",
+      "signature": {
+        "parameters": [],
+        "returns": "GameVector3"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "normalize(): GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.scale",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "scale",
+      "signature": {
+        "parameters": [
+          {
+            "name": "n",
+            "optional": false,
+            "type": "number",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "number",
+              "description": "乘数"
+            }
+          }
+        ],
+        "returns": "GameVector3"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "scale(n: number): GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.set",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "set",
+      "signature": {
+        "parameters": [
+          {
+            "name": "x",
+            "optional": false,
+            "type": "number",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "number",
+              "description": "x 轴坐标"
+            }
+          },
+          {
+            "name": "y",
+            "optional": false,
+            "type": "number",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "number",
+              "description": "y 轴坐标"
+            }
+          },
+          {
+            "name": "z",
+            "optional": false,
+            "type": "number",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "number",
+              "description": "z 轴坐标"
+            }
+          }
+        ],
+        "returns": "GameVector3"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "set(x: number, y: number, z: number): GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.sqrMag",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "sqrMag",
+      "signature": {
+        "parameters": [],
+        "returns": "number"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "sqrMag(): number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.sub",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "sub",
+      "signature": {
+        "parameters": [
+          {
+            "name": "v",
+            "optional": false,
+            "type": "GameVector3",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "GameVector3",
+              "description": "三维向量"
+            }
+          }
+        ],
+        "returns": "GameVector3"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "sub(v:GameVector3): GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.subEq",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "subEq",
+      "signature": {
+        "parameters": [
+          {
+            "name": "v",
+            "optional": false,
+            "type": "GameVector3",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "GameVector3",
+              "description": "三维向量"
+            }
+          }
+        ],
+        "returns": "GameVector3"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "subEq(v:GameVector3): GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.toString",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "toString",
+      "signature": {
+        "parameters": [],
+        "returns": "string"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "toString(): string",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.towards",
+      "side": "shared",
+      "kind": "method",
+      "owner": "GameVector3",
+      "name": "towards",
+      "signature": {
+        "parameters": [
+          {
+            "name": "v",
+            "optional": false,
+            "type": "GameVector3",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "GameVector3",
+              "description": "三维向量"
+            }
+          }
+        ],
+        "returns": "GameVector3"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "towards(v:GameVector3): GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.x",
+      "side": "shared",
+      "kind": "property",
+      "owner": "GameVector3",
+      "name": "x",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "x: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.y",
+      "side": "shared",
+      "kind": "property",
+      "owner": "GameVector3",
+      "name": "y",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "y: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.GameVector3.z",
+      "side": "shared",
+      "kind": "property",
+      "owner": "GameVector3",
+      "name": "z",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Declared by documentation page: S-三维向量",
+        "Implemented from the documented signature and recovered origin GameVector3 formula."
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+          "symbol": "z: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameVector3.js",
+          "symbol": "GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.object.Vector3",
+      "side": "shared",
+      "kind": "object",
+      "owner": null,
+      "name": "Vector3",
+      "signature": {
+        "declaration": "class"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Local Vector3 compatibility extension; not a documented GameVector3 identifier."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.Vector3.from",
+      "side": "shared",
+      "kind": "method",
+      "owner": "Vector3",
+      "name": "from",
+      "signature": {
+        "parameters": [
+          {
+            "name": "value",
+            "type": "Vector3Like"
+          }
+        ],
+        "returns": "Vector3",
+        "static": true
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Local Vector3 compatibility extension; not a documented GameVector3 identifier."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.Vector3.subtract",
+      "side": "shared",
+      "kind": "method",
+      "owner": "Vector3",
+      "name": "subtract",
+      "signature": {
+        "parameters": [
+          {
+            "name": "value",
+            "type": "Vector3Like"
+          }
+        ],
+        "returns": "Vector3"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Local Vector3 compatibility extension; not a documented GameVector3 identifier."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "shared.Vector3.toArray",
+      "side": "shared",
+      "kind": "method",
+      "owner": "Vector3",
+      "name": "toArray",
+      "signature": {
+        "parameters": [],
+        "returns": "number[3]"
+      },
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
+      "notes": [
+        "Local Vector3 compatibility extension; not a documented GameVector3 identifier."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/vector3.mjs",
+          "symbol": "Vector3 / GameVector3 compatibility implementation",
+          "confidence": "direct"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "canonicalEntries": 31,
+    "confirmedCanonical": 30,
+    "partialCanonical": 1,
+    "localExtensions": 4
+  }
+}

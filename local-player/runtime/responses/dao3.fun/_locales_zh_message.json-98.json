@@ -1,0 +1,14 @@
+{
+  "title": "消息中心",
+  "menu_comment": "评论我的",
+  "menu_like": "赞和收藏",
+  "menu_official": "系统通知",
+  "commented_on_my_work": "对我的作品《{{ title }}》发表了评论",
+  "replied_to_my_comment": "回复了我的评论",
+  "liked_my_work": "赞了我的作品《{{ title }}》",
+  "favorited_my_work": "收藏了我的作品《{{ title }}》",
+  "liked_my_comment": "赞了我的评论",
+  "my_comment": "我的评论",
+  "go_now": "立即前往",
+  "reply_successful": "回复成功"
+}

@@ -1,0 +1,15 @@
+@font-face {
+  font-family: 'MiSans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(/fonts/MiSans-Regular.woff) format('woff');
+}
+
+@font-face {
+  font-family: 'MiSans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(/fonts/MiSans-Semibold.woff) format('woff');
+}

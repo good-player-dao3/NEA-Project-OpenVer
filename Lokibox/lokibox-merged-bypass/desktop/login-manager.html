@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DAO3 Account Manager</title>
+    <style>
+      :root { color-scheme: dark; font-family: Inter, "Microsoft YaHei", sans-serif; background: #111827; color: #e5e7eb; }
+      body { margin: 0; padding: 24px; }
+      h1 { margin: 0 0 8px; font-size: 22px; }
+      p { color: #9ca3af; line-height: 1.55; }
+      .notice { padding: 12px; border: 1px solid #374151; border-radius: 8px; background: #172033; font-size: 13px; }
+      form, .profiles { margin-top: 20px; padding: 18px; border: 1px solid #374151; border-radius: 10px; background: #161e2d; }
+      label { display: block; margin: 14px 0 6px; font-size: 13px; font-weight: 600; }
+      input, textarea { box-sizing: border-box; width: 100%; border: 1px solid #4b5563; border-radius: 6px; background: #0f172a; color: #f9fafb; padding: 9px 10px; font: inherit; }
+      textarea { min-height: 80px; resize: vertical; }
+      button { border: 0; border-radius: 6px; padding: 9px 12px; cursor: pointer; font: inherit; color: #fff; background: #2563eb; }
+      button.secondary { background: #4b5563; }
+      button.danger { background: #b91c1c; }
+      .actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+      .profile { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 12px 0; border-top: 1px solid #374151; }
+      .profile:first-child { border-top: 0; }
+      .profile-name { font-weight: 700; }
+      .profile-meta { margin-top: 4px; color: #9ca3af; font-size: 12px; }
+      .profile-actions { display: flex; gap: 8px; }
+      #status { min-height: 20px; margin-top: 12px; color: #fca5a5; font-size: 13px; }
+      .active { color: #86efac; }
+    </style>
+  </head>
+  <body>
+    <h1>DAO3 原生上号工具</h1>
+    <p>资料使用 Windows 凭据保护加密保存。激活时会先全局应用 User-Agent，再并行写入 <code>.dao3.fun</code> 的 <code>authorization</code> 与 <code>box-auth2</code> Cookie。</p>
+    <div class="notice">此界面不发送凭据到第三方。authorization 和 box-auth2 均为必填；Cookie JSON 仅用于额外的 DAO3 Cookie。</div>
+    <form id="profile-form">
+      <label for="name">账号名称</label>
+      <input id="name" maxlength="64" autocomplete="off" required />
+      <label for="user-agent">User-Agent</label>
+      <input id="user-agent" autocomplete="off" placeholder="建议填写原浏览器的完整 navigator.userAgent" />
+      <label for="token">authorization Cookie</label>
+      <textarea id="token" spellcheck="false" autocomplete="off" placeholder="authorization 的值"></textarea>
+      <label for="box-auth2">box-auth2 Cookie</label>
+      <textarea id="box-auth2" spellcheck="false" autocomplete="off" placeholder="box-auth2 的值"></textarea>
+      <label for="cookies">额外 DAO3 Cookie JSON（可选）</label>
+      <textarea id="cookies" spellcheck="false" autocomplete="off" placeholder='[{"name":"other-cookie","value":"...","domain":".dao3.fun","path":"/","secure":true}]'></textarea>
+      <div class="actions"><button type="submit">保存账号</button><button type="button" class="secondary" id="deactivate">退出当前账号</button></div>
+      <div id="status" role="status"></div>
+    </form>
+    <section class="profiles"><h2>已保存账号</h2><div id="profile-list"></div></section>
+    <script>
+      const form = document.querySelector('#profile-form');
+      const status = document.querySelector('#status');
+      const list = document.querySelector('#profile-list');
+      const deactivate = document.querySelector('#deactivate');
+      const message = text => { status.textContent = text; };
+      const render = snapshot => {
+        list.replaceChildren();
+        if (snapshot.profiles.length === 0) {
+          list.textContent = '暂无账号。';
+          return;
+        }
+        for (const profile of snapshot.profiles) {
+          const item = document.createElement('div');
+          item.className = 'profile';
+          const detail = document.createElement('div');
+          const name = document.createElement('div');
+          name.className = 'profile-name';
+          name.textContent = profile.name + (profile.id === snapshot.activeProfileId ? '（当前）' : '');
+          if (profile.id === snapshot.activeProfileId) name.classList.add('active');
+          const meta = document.createElement('div');
+          meta.className = 'profile-meta';
+          meta.textContent = `${profile.hasAuthorization ? 'authorization' : ''}${profile.hasBoxAuth2 ? ' + box-auth2' : ''}${profile.cookieCount ? ` + ${profile.cookieCount} 个附加 Cookie` : ''}`;
+          detail.append(name, meta);
+          const actions = document.createElement('div');
+          actions.className = 'profile-actions';
+          const activate = document.createElement('button');
+          activate.textContent = '激活';
+          activate.onclick = async () => { try { render(await window.dao3Profiles.activate(profile.id)); message('账号已激活，游戏页已重新加载。'); } catch (error) { message(error.message); } };
+          const remove = document.createElement('button');
+          remove.textContent = '删除';
+          remove.className = 'danger';
+          remove.onclick = async () => { try { render(await window.dao3Profiles.remove(profile.id)); message('账号已删除。'); } catch (error) { message(error.message); } };
+          actions.append(activate, remove);
+          item.append(detail, actions);
+          list.append(item);
+        }
+      };
+      const refresh = async () => render(await window.dao3Profiles.list());
+      form.addEventListener('submit', async event => {
+        event.preventDefault();
+        try {
+          const rawCookies = document.querySelector('#cookies').value.trim();
+          const cookies = rawCookies ? JSON.parse(rawCookies) : [];
+          if (!Array.isArray(cookies)) throw new Error('Cookie JSON 必须是对象数组。');
+          const snapshot = await window.dao3Profiles.create({
+            name: document.querySelector('#name').value,
+            userAgent: document.querySelector('#user-agent').value,
+            authToken: document.querySelector('#token').value,
+            boxAuth2: document.querySelector('#box-auth2').value,
+            cookies,
+          });
+          form.reset();
+          render(snapshot);
+          message('账号已加密保存。');
+        } catch (error) { message(error.message); }
+      });
+      deactivate.onclick = async () => { try { render(await window.dao3Profiles.deactivate()); message('已清除 DAO3 Cookie 和本地令牌。'); } catch (error) { message(error.message); } };
+      refresh().catch(error => message(error.message));
+    </script>
+  </body>
+</html>

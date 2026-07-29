@@ -1,0 +1,14 @@
+{
+  "title": "Notifications",
+  "menu_comment": "Comment",
+  "menu_like": "Like and Favorite",
+  "menu_official": "System",
+  "commented_on_my_work": "commented on my work '{{ title }}'.",
+  "replied_to_my_comment": "replied to my comment.",
+  "liked_my_work": "liked my work '{{ title }}'.",
+  "favorited_my_work": "favorited my work '{{ title }}'.",
+  "liked_my_comment": "liked my comment.",
+  "my_comment": "My comment",
+  "go_now": "Go Now",
+  "reply_successful": "reply successful"
+}

@@ -1,0 +1,22 @@
+{
+  "third_party_auth_title": "Application Authorization Request",
+  "third_party_auth_desc": "wants to access your Box3 account",
+  "third_party_auth_permission_scope": "Permission scope: {{scope}}",
+  "third_party_auth_approve": "Allow",
+  "third_party_auth_deny": "Deny",
+  "third_party_auth_loading": "Loading authorization information...",
+  "third_party_auth_error_title": "Authorization Error",
+  "third_party_auth_error_missing_params": "The authorization request is missing necessary parameters (response_type, client_id, state, redirect_uri, scope).",
+  "third_party_auth_error_invalid_client_id": "Invalid client ID",
+  "third_party_auth_error_invalid_redirect_uri": "Invalid redirect URI",
+  "auth_operation": "Authorization Action",
+  "permissions_requested": "Permissions Requested",
+  "callback_address_heading": "Callback Address",
+  "callback_address_desc": "You will be redirected to this address after authorization.",
+  "third_party_auth_error_unsupported_response_type": "Unsupported response type: response_type must be 'code'",
+  "third_party_auth_error_invalid_scope": "Invalid scope requested.",
+  "third_party_auth_error_failed_to_authorize": "Failed to authorize the application. Please try again.",
+  "third_party_auth_error_missing_public_key": "Client public key not found.",
+  "third_party_auth_error_user_not_logged_in": "User not logged in, redirecting to login page...",
+  "third_party_auth_warning_all_scope": "Warning: This permission will allow the application to access your all personal information (including user avatar, nickname, token, etc.), and may represent you to perform operations. Please only authorize applications you fully trust."
+} 

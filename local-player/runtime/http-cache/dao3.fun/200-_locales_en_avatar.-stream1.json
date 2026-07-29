@@ -1,0 +1,17 @@
+{
+  "suit": "Suit",
+  "head": "Head",
+  "top": "Top",
+  "bottom": "Bottom",
+  "shoes": "Shoes",
+  "standing": "Standing",
+  "walk": "Walk",
+  "run": "Run",
+  "hi": "Hi",
+  "dance": "Dance",
+  "create_my_avatar": "Create my avatar",
+  "share": "Share",
+  "share_text": "Share your favorite Avatar to your friends.",
+  "save": "Save",
+  "next_step": "Continue"
+}

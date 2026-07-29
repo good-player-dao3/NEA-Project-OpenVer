@@ -1,0 +1,191 @@
+import { overlapsOpen, playerAabb } from "./aabb.mjs";
+
+const EPSILON = 1e-7;
+const CHUNK_SIZE = 16;
+const DEFAULT_MATERIAL = Object.freeze({ solid: true, friction: 8, restitution: 0, tags: Object.freeze([]) });
+
+export class VoxelCollisionWorld {
+  #chunks = new Map();
+  #materials = new Map();
+  #colliders = [];
+  #triggers = [];
+  #diagnostics = { sweeps: 0, chunkQueries: 0, candidates: 0, triggerQueries: 0 };
+
+  constructor(options = []) {
+    const config = Array.isArray(options) ? { voxels: options } : options;
+    for (const [id, material] of Object.entries(config.materials ?? {})) {
+      this.#materials.set(String(id), normalizeMaterial(material));
+    }
+    for (const voxel of config.voxels ?? []) {
+      const [x, y, z] = voxel.position;
+      if (voxel.blockId === 0) continue;
+      const cell = Object.freeze({
+        kind: "voxel",
+        id: `${x},${y},${z}`,
+        x,
+        y,
+        z,
+        blockId: voxel.blockId,
+        min: Object.freeze({ x, y, z }),
+        max: Object.freeze({ x: x + 1, y: y + 1, z: z + 1 }),
+        material: this.materialFor(voxel.blockId),
+        tags: Object.freeze([]),
+      });
+      if (!cell.material.solid) continue;
+      const chunkKey = key(Math.floor(x / CHUNK_SIZE), Math.floor(y / CHUNK_SIZE), Math.floor(z / CHUNK_SIZE));
+      const chunk = this.#chunks.get(chunkKey) ?? [];
+      chunk.push(cell);
+      this.#chunks.set(chunkKey, chunk);
+    }
+    this.#colliders = (config.colliders ?? []).map(item => volumeCollider(item, this.materialFor(item.material)));
+    this.#triggers = (config.triggers ?? []).map(item => volumeTrigger(item));
+  }
+
+  materialFor(id) {
+    return this.#materials.get(String(id)) ?? DEFAULT_MATERIAL;
+  }
+
+  sweep(body, axis, amount) {
+    this.#diagnostics.sweeps += 1;
+    if (!Number.isFinite(amount) || amount === 0) return Object.freeze({ amount: 0, collisions: Object.freeze([]) });
+    const boundsBox = playerAabb(body.position, body.boundsHalfExtents ?? body.halfExtents);
+    const shapeBox = playerAabb(body.position, body.shapeHalfExtents ?? body.halfExtents);
+    const candidates = [...this.#sweptVoxelCandidates(boundsBox, axis, amount), ...this.#colliders];
+    this.#diagnostics.candidates += candidates.length;
+    let allowed = amount;
+    const hits = [];
+
+    for (const collider of candidates) {
+      if (!overlapsOtherAxes(shapeBox, collider, axis)) continue;
+      const limit = movementLimit(shapeBox, collider, axis, amount);
+      if (limit === undefined) continue;
+      if (amount > 0 ? limit < allowed : limit > allowed) {
+        allowed = limit;
+        hits.length = 0;
+        hits.push(collider);
+      } else if (Math.abs(limit - allowed) <= EPSILON) {
+        hits.push(collider);
+      }
+    }
+
+    const normal = axisNormal(axis, amount);
+    return Object.freeze({
+      amount: Math.abs(allowed) <= EPSILON ? 0 : allowed,
+      collisions: Object.freeze(hits.map(collider => Object.freeze({ collider, normal }))),
+    });
+  }
+
+  queryTriggers(body) {
+    this.#diagnostics.triggerQueries += 1;
+    const box = playerAabb(body.position, body.shapeHalfExtents ?? body.halfExtents);
+    return Object.freeze(this.#triggers.filter(trigger => intersects(box, trigger)));
+  }
+
+  diagnostics() {
+    return Object.freeze({
+      ...this.#diagnostics,
+      chunks: this.#chunks.size,
+      colliders: this.#colliders.length,
+      triggers: this.#triggers.length,
+    });
+  }
+
+  #sweptVoxelCandidates(box, axis, amount) {
+    const moved = { ...box };
+    const upper = axis.toUpperCase();
+    moved[`min${upper}`] += amount;
+    moved[`max${upper}`] += amount;
+    const minX = Math.floor(Math.min(box.minX, moved.minX) - EPSILON);
+    const maxX = Math.floor(Math.max(box.maxX, moved.maxX) + EPSILON);
+    const minY = Math.floor(Math.min(box.minY, moved.minY) - EPSILON);
+    const maxY = Math.floor(Math.max(box.maxY, moved.maxY) + EPSILON);
+    const minZ = Math.floor(Math.min(box.minZ, moved.minZ) - EPSILON);
+    const maxZ = Math.floor(Math.max(box.maxZ, moved.maxZ) + EPSILON);
+    const result = [];
+    for (let chunkX = Math.floor(minX / CHUNK_SIZE); chunkX <= Math.floor(maxX / CHUNK_SIZE); chunkX += 1) {
+      for (let chunkY = Math.floor(minY / CHUNK_SIZE); chunkY <= Math.floor(maxY / CHUNK_SIZE); chunkY += 1) {
+        for (let chunkZ = Math.floor(minZ / CHUNK_SIZE); chunkZ <= Math.floor(maxZ / CHUNK_SIZE); chunkZ += 1) {
+          this.#diagnostics.chunkQueries += 1;
+          for (const voxel of this.#chunks.get(key(chunkX, chunkY, chunkZ)) ?? []) {
+            if (voxel.max.x < minX || voxel.min.x > maxX + 1) continue;
+            if (voxel.max.y < minY || voxel.min.y > maxY + 1) continue;
+            if (voxel.max.z < minZ || voxel.min.z > maxZ + 1) continue;
+            result.push(voxel);
+          }
+        }
+      }
+    }
+    return result;
+  }
+}
+
+function normalizeMaterial(material = {}) {
+  return Object.freeze({
+    solid: material.solid !== false,
+    friction: Number.isFinite(material.friction) ? material.friction : DEFAULT_MATERIAL.friction,
+    restitution: Number.isFinite(material.restitution) ? material.restitution : DEFAULT_MATERIAL.restitution,
+    tags: Object.freeze([...(material.tags ?? [])]),
+  });
+}
+
+function volumeCollider(item, material) {
+  return Object.freeze({
+    kind: "collider",
+    id: item.id,
+    min: vectorObject(item.min),
+    max: vectorObject(item.max),
+    material,
+    tags: Object.freeze([...(item.tags ?? [])]),
+  });
+}
+
+function volumeTrigger(item) {
+  return Object.freeze({
+    kind: "trigger",
+    id: item.id,
+    min: vectorObject(item.min),
+    max: vectorObject(item.max),
+    material: item.material ?? null,
+    tags: Object.freeze([...(item.tags ?? [])]),
+  });
+}
+
+function vectorObject(value) {
+  return Object.freeze({ x: value[0], y: value[1], z: value[2] });
+}
+
+function overlapsOtherAxes(box, collider, axis) {
+  if (axis !== "x" && !overlapsOpen(box.minX, box.maxX, collider.min.x, collider.max.x)) return false;
+  if (axis !== "y" && !overlapsOpen(box.minY, box.maxY, collider.min.y, collider.max.y)) return false;
+  if (axis !== "z" && !overlapsOpen(box.minZ, box.maxZ, collider.min.z, collider.max.z)) return false;
+  return true;
+}
+
+function movementLimit(box, collider, axis, amount) {
+  const upper = axis.toUpperCase();
+  const min = box[`min${upper}`];
+  const max = box[`max${upper}`];
+  const colliderMin = collider.min[axis];
+  const colliderMax = collider.max[axis];
+  if (amount > 0) {
+    if (max > colliderMin + EPSILON || max + amount < colliderMin - EPSILON) return undefined;
+    return colliderMin - max;
+  }
+  if (min < colliderMax - EPSILON || min + amount > colliderMax + EPSILON) return undefined;
+  return colliderMax - min;
+}
+
+function intersects(box, volume) {
+  return overlapsOpen(box.minX, box.maxX, volume.min.x, volume.max.x)
+    && overlapsOpen(box.minY, box.maxY, volume.min.y, volume.max.y)
+    && overlapsOpen(box.minZ, box.maxZ, volume.min.z, volume.max.z);
+}
+
+function axisNormal(axis, amount) {
+  const value = amount > 0 ? -1 : 1;
+  return Object.freeze({ x: axis === "x" ? value : 0, y: axis === "y" ? value : 0, z: axis === "z" ? value : 0 });
+}
+
+function key(x, y, z) {
+  return `${x},${y},${z}`;
+}

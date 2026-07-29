@@ -1,0 +1,137 @@
+{
+  "format": "nea-server-adapter-map",
+  "version": 1,
+  "generatedAt": "2026-07-29T06:40:05.893Z",
+  "contract": "nea-server-runtime/v1",
+  "adapters": [
+    {
+      "localId": "server.world.currentTick",
+      "canonicalId": "server.GameWorld.currentTick",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.world.onTick",
+      "canonicalId": "server.GameWorld.onTick",
+      "status": "partial",
+      "gaps": [
+        "Local elapsedTimeMS uses the configured fixed interval instead of the historical wall-clock measurement.",
+        "Historical skip calculation and delayed-tick behavior are not yet reproduced."
+      ]
+    },
+    {
+      "localId": "server.world.onPlayerJoin",
+      "canonicalId": "server.GameWorld.onPlayerJoin",
+      "status": "partial",
+      "gaps": [
+        "Event fields now match GameEntityEvent, but RuntimePlayer is still only a subset of GamePlayerEntity."
+      ]
+    },
+    {
+      "localId": "server.world.onPlayerLeave",
+      "canonicalId": "server.GameWorld.onPlayerLeave",
+      "status": "partial",
+      "gaps": [
+        "Event fields now match GameEntityEvent, but RuntimePlayer is still only a subset of GamePlayerEntity."
+      ]
+    },
+    {
+      "localId": "server.world.onVoxelContact",
+      "canonicalId": "server.GameWorld.onVoxelContact",
+      "status": "partial",
+      "gaps": [
+        "GameVoxelContactEvent force remains null because historical fx/fy/fz production semantics are unresolved.",
+        "RuntimePlayer is still only a subset of GamePlayerEntity."
+      ]
+    },
+    {
+      "localId": "server.world.onVoxelSeparate",
+      "canonicalId": "server.GameWorld.onVoxelSeparate",
+      "status": "partial",
+      "gaps": [
+        "GameVoxelContactEvent force remains null because historical fx/fy/fz production semantics are unresolved.",
+        "RuntimePlayer is still only a subset of GamePlayerEntity."
+      ]
+    },
+    {
+      "localId": "server.world.onContact",
+      "canonicalId": "server.GameWorld.onEntityContact",
+      "status": "partial",
+      "gaps": [
+        "Local collider abstraction is not a historical GameEntityContactEvent."
+      ]
+    },
+    {
+      "localId": "server.world.onContactSeparate",
+      "canonicalId": "server.GameWorld.onEntitySeparate",
+      "status": "partial",
+      "gaps": [
+        "Local collider abstraction is not a historical GameEntityContactEvent."
+      ]
+    },
+    {
+      "localId": "server.world.nextTick",
+      "canonicalId": "server.GameWorld.nextTick",
+      "status": "partial",
+      "gaps": [
+        "Historical nextTick accepts an optional filter and resolves a GameTickEvent."
+      ]
+    },
+    {
+      "localId": "server.world.nextPlayerJoin",
+      "canonicalId": "server.GameWorld.nextPlayerJoin",
+      "status": "partial",
+      "gaps": [
+        "Historical nextPlayerJoin accepts an optional filter and resolves a GameEntityEvent."
+      ]
+    },
+    {
+      "localId": "server.world.say",
+      "canonicalId": "server.GameWorld.say",
+      "status": "partial",
+      "gaps": [
+        "Local implementation records/logs messages but does not yet prove historical broadcast delivery and limits."
+      ]
+    },
+    {
+      "localId": "server.world.createEntity",
+      "canonicalId": "server.GameWorld.createEntity",
+      "status": "partial",
+      "gaps": [
+        "Local entity spec and returned wrapper expose only a small subset of GameEntity."
+      ]
+    },
+    {
+      "localId": "server.world.querySelector",
+      "canonicalId": "server.GameWorld.querySelector",
+      "status": "partial",
+      "gaps": [
+        "Local selector grammar supports only id, tag and kind subsets."
+      ]
+    },
+    {
+      "localId": "server.world.querySelectorAll",
+      "canonicalId": "server.GameWorld.querySelectorAll",
+      "status": "partial",
+      "gaps": [
+        "Local selector grammar supports only id, tag and kind subsets."
+      ]
+    },
+    {
+      "localId": "server.remoteChannel.onClientEvent",
+      "canonicalId": "server.remoteChannel.onServerEvent",
+      "status": "partial",
+      "gaps": [
+        "Local payload is {player,event}; historical ServerEvent is {tick,entity,args}."
+      ]
+    },
+    {
+      "localId": "server.remoteChannel.sendClientEvent",
+      "canonicalId": "server.remoteChannel.sendClientEvent",
+      "status": "partial",
+      "gaps": [
+        "Local method accepts one RuntimePlayer; historical API accepts one or many GamePlayerEntity targets and empty arrays."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "codemaoRoot": "https://box3.codemao.cn/",
+  "venlyID": "Createra",
+  "sensorsTrackerUrl": "https://shence-data.codemao.cn/sa?project=BoxProduction",
+  "edu": {
+    "arenaRoot": "https://view.edu.dao3.fun/",
+    "voxaRoot": "https://voxa.edu.dao3.fun/"
+  },
+  "mint": [
+    {
+      "name": "CreateraGenesisLand",
+      "address": "0x3F3915Fb8769Ee456035331BC2F7fBE380f6b4d2",
+      "symbol": "CGL"
+    }
+  ],
+  "genesis": {
+    "name": "CreateraGenesis",
+    "address": "0x3F3915Fb8769Ee456035331BC2F7fBE380f6b4d2"
+  },
+  "staking": {
+    "name": "CreateraStaking",
+    "address": "0x6e9ba56D838be9eeCA1C2bbF792C330c08eeA332"
+  },
+  "mintOpenSeaUrl": "https://opensea.io/collection/createra-genesis-land",
+  "mintConnectedChain": {
+    "chainName": "Mainnet",
+    "chainId": 1,
+    "nativeCurrency": {
+      "name": "ETH",
+      "symbol": "ETH",
+      "decimals": 18
+    },
+    "rpcUrls": [
+      "https://mainnet.infura.io/v3/991ce0ecbe254e4eba85139fcc477d46",
+      "https://polygon-rpc.com"
+    ],
+    "blockExplorerUrls": ["https://etherscan.io/"],
+    "iconUrls": [ "https://res.cloudinary.com/polygontech/image/upload/f_auto,q_auto,dpr_2,w_48,h_48/Polygon_Po_S_d1987f7e1e" ]
+  },
+  "connectedChain": {
+    "chainName": "Mainnet",
+    "chainId": 1,
+    "nativeCurrency": {
+      "name": "ETH",
+      "symbol": "ETH",
+      "decimals": 18
+    },
+    "rpcUrls": [
+      "https://mainnet.infura.io/v3/991ce0ecbe254e4eba85139fcc477d46",
+      "https://polygon-rpc.com"
+    ],
+    "blockExplorerUrls": ["https://etherscan.io/"],
+    "iconUrls": [ "https://res.cloudinary.com/polygontech/image/upload/f_auto,q_auto,dpr_2,w_48,h_48/Polygon_Po_S_d1987f7e1e" ]
+  },
+  "chatSignKey": "84808ED605434204B8BDCD97C57ABDFA"
+}

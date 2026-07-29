@@ -1,0 +1,22 @@
+{
+  "appRoot": "https://development.createra.fun/",
+  "apiRoot": "https://development-code-api-pc.createra.fun/",
+  "gameRoot": "https://development-view.createra.fun/",
+  "voxaRoot": "https://development-voxa.createra.fun/",
+  "codemaoRoot": "https://development.box3-vpc.codemao.cn/",
+  "swappedTokenList": [
+    {
+      "name": "Tether USD",
+      "address": "0x3813e82e6f7098b9583FC0F33a962D02018B6803",
+      "symbol": "USDT",
+      "decimals": 6,
+      "chainId": 80001,
+      "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png"
+    }
+  ],
+  "genesis": {
+    "name": "CreateraGenesis",
+    "address": "0xcc7478017d1BEF1c19B141A1D48E565d87ce9aaf"
+  },
+  "chatSignKey": "6E85A499B5FB49639E484BC47402E0B2"
+}

@@ -1,0 +1,20 @@
+{
+  "channel_world": "World",
+  "channel_experience": "Experience",
+  "channel_team": "Team",
+  "channel_temp": "Temp",
+  "online_players": "Online players",
+  "chat": "Chat",
+  "chat_input_placeholder": "Send a friendly message",
+  "login_to_chat": "Please login to chat",
+  "message_preview": "Message preview",
+  "settings": "Settings",
+  "mute_toast": "Chat too frequently, please try again after {{ second }} sec",
+  "picker_emoji": "Emoji",
+  "system_msg_sensitive_alert": "The content you posted may violate the community guidelines. Please be friendly in your speech, and repeated violations may result in being muted or having your account suspended.",
+  "sticker_preview": "sticker",
+  "toast_open_preview": "Message preview is ON",
+  "toast_close_preview": "Message preview is OFF",
+  "inputError_maxLength": "Message is too long, please reduce the content and resend it. ({{ maxLength }}/{{ length }})",
+  "world_bind_phone": "In the world channel, you need to bind a phone number before you can chat."
+}

@@ -1,0 +1,31 @@
+{
+  "appRoot": "https://development.dao3.fun/",
+  "apiRoot": "https://development-code-api-pc.dao3.fun/",
+  "gameRoot": "https://development-view.dao3.fun/",
+  "voxaRoot": "https://development-voxa.dao3.fun/",
+  "edu": {
+    "arenaRoot": "https://development-view.edu.dao3.fun/",
+    "voxaRoot": "https://development-voxa.edu.dao3.fun/"
+  },
+  "wp": {
+    "arenaRoot": "https://development-view.wordparty.dao3.fun/",
+    "voxaRoot": "https://development-voxa.wordparty.dao3.fun/"
+  },
+  "codemaoRoot": "https://development.box3-vpc.codemao.cn/",
+  "cdnRoot": "https://development-static.dao3.fun/block/",
+  "swappedTokenList": [
+    {
+      "name": "Tether USD",
+      "address": "0x3813e82e6f7098b9583FC0F33a962D02018B6803",
+      "symbol": "USDT",
+      "decimals": 6,
+      "chainId": 80001,
+      "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png"
+    }
+  ],
+  "genesis": {
+    "name": "CreateraGenesis",
+    "address": "0xcc7478017d1BEF1c19B141A1D48E565d87ce9aaf"
+  },
+  "chatSignKey": "6E85A499B5FB49639E484BC47402E0B2"
+}

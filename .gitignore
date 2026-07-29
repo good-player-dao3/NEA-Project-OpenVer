@@ -1,0 +1,46 @@
+# Private browser/session material
+/dump/private/
+/local-player/.profile/
+
+# Dependency trees
+**/node_modules/
+**/.pnpm-store/
+
+# Generated desktop/browser packages
+/Lokibox/lokibox-merged-bypass/dist/
+/Lokibox/lokibox-merged-bypass/dist-desktop/
+/Lokibox/lokibox-merged-bypass/release/
+/Lokibox/lokibox-merged-bypass/release-*/
+/Lokibox/lokibox-merged-bypass/.svelte-kit/
+
+# Rebuildable demo output
+/demo-map/build/
+
+# Duplicate standalone worktree; the preserved snapshot lives under Lokibox/box-go
+/box-go/
+
+# Local repository metadata and agent state
+**/.git/
+**/.git
+**/.claude/
+**/.codex/
+**/.agents/
+/.git-metadata-backup/
+
+# Logs, caches, and transient files
+*.log
+*.pid
+*.tmp
+*.temp
+*.stderr
+*.stdout
+**/__pycache__/
+**/*.py[cod]
+.DS_Store
+Thumbs.db
+
+# Local environment files; the checked dev-bypass profile is intentional
+**/.env
+**/.env.local
+**/.env.*.local
+

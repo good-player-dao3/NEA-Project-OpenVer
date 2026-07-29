@@ -1,0 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* ── LokiBox Theme Tokens ──────────────────────────────
+ * Default values — runtime overrides via theme.ts setTheme().
+ * Keep this block as a cold-start fallback.  */
+
+:root {
+  --bg-default: #222;
+  --bg-hover: #252525;
+  --bg-active: #fff;
+  --bg-active-hover: #fcfcfc;
+  --text-on-active: #000;
+  --text-default: #fff;
+  --accent: #fff;
+  --track: #3a3a3a;
+}
