@@ -32,6 +32,6 @@ npm test
 - `emulated`: implemented locally without complete historical conformance.
 - `missing`: no compatible implementation is currently registered.
 
-The player body ABI is `partial`: body-center coordinates and the upright default half extents `0.45 / 1.1 / 0.45` are confirmed from the archived Player bundle and corroborated by Lokibox field mappings. Server-authoritative crouch and flying shape mutations remain unresolved.
+The player body ABI confirms body-center coordinates and upright default half extents `0.45 / 1.1 / 0.45` from the archived Player bundle, corroborated by Lokibox field mappings. Historical crouch and flying shape fields are represented explicitly as `null` with status `evidence-deferred`. The local contract preserves the current collider when no complete authoritative shape is available; this policy is not a historical-value claim.
 
 The Demo binds `client.js` and `server.js` to separate runtime contracts and capability lists. A capability confirmed on one side never grants an API on the other side.

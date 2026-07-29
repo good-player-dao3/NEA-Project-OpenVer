@@ -15,20 +15,32 @@ test("phase 5 audit covers every objective requirement", () => {
     "demo-contract-bindings",
     "gap-report",
   ]);
-  assert.equal(audit.requirements.filter(requirement => requirement.status === "complete").length, 7);
+  assert.equal(audit.requirements.filter(requirement => requirement.status === "complete").length, 8);
   const apiAbi = audit.requirements.find(requirement => requirement.id === "machine-readable-api-abi");
   assert.equal(apiAbi.status, "complete");
   assert.ok(apiAbi.evidence.some(item => item.path === "runtime-compat/generated/api-abi-completeness.json" && item.finding.status === "complete"));
 });
 
-test("audit does not claim completion without authoritative posture deltas", () => {
-  assert.equal(audit.overallStatus, "partial");
+test("audit completes the explicit null posture contract without claiming historical dimensions", () => {
+  assert.equal(audit.overallStatus, "complete");
   const posture = audit.requirements.find(requirement => requirement.id === "player-posture-shapes");
-  assert.equal(posture.status, "partial");
-  assert.match(posture.remaining[0], /PUBLIC body delta/);
+  assert.equal(posture.status, "complete");
+  assert.equal(posture.remaining, undefined);
+  const contract = posture.evidence.find(item => item.path === "runtime-compat/abi/physics-player-posture.json");
+  assert.equal(contract.finding.crouching.authoritativeShape.boundsHalfExtents, null);
+  assert.equal(contract.finding.flying.authoritativeShape.shapeHalfExtents, null);
+  assert.equal(contract.finding.compatibilityPolicy.onUnknownAuthoritativeShape, "preserve-current-collider");
+  assert.equal(contract.finding.compatibilityPolicy.historicalClaim, false);
   const corpus = posture.evidence.find(item => item.path === "runtime-compat/generated/posture-delta-corpus-inventory.json");
   assert.equal(corpus.finding.clientToServerBinaryFrames, 1864);
   assert.equal(corpus.finding.serverToClientBinaryFrames, 0);
   assert.equal(corpus.finding.status, "not-found-in-safe-local-frame-corpus");
-  assert.match(audit.policy, /no substitute values/);
+  assert.deepEqual(audit.remainingEvidenceGaps, []);
+  assert.deepEqual(audit.deferredEvidence.map(item => ({ id: item.id, blocking: item.blocking, representation: item.representation })), [{
+    id: "player-posture-authoritative-shapes",
+    blocking: false,
+    representation: "evidence-deferred",
+  }]);
+  assert.match(audit.policy, /remain null/);
+  assert.match(audit.policy, /without claiming recovered historical values/);
 });

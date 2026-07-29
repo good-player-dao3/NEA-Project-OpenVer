@@ -18,6 +18,16 @@ test("runtime architecture preserves five explicit layers", async () => {
   assert.equal(architecture.transport.remoteChannelEnvelope.argsEncoding, "JSON-text");
   assert.equal(architecture.authoritativeRuntime.bodyProfileRequired, true);
   assert.equal(architecture.authoritativeRuntime.bodyProfileSizeStatus, "confirmed");
+  assert.deepEqual(architecture.authoritativeRuntime.postureShapeStatus, {
+    standing: "confirmed",
+    crouching: "evidence-deferred",
+    flying: "evidence-deferred",
+  });
+  assert.deepEqual(architecture.authoritativeRuntime.postureShapeCompatibilityPolicy, {
+    onUnknownAuthoritativeShape: "preserve-current-collider",
+    requireCompleteAuthoritativeShape: true,
+    historicalClaim: false,
+  });
   assert.equal(architecture.objectModels.server.playerRepresentation, "intersection-and-component");
   assert.equal(architecture.objectModels.server.classicalPlayerInheritance, false);
   assert.deepEqual(architecture.objectModels.server.localAdapters.map(adapter => adapter.object), [

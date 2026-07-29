@@ -1,7 +1,7 @@
 {
   "format": "nea-player-network-body-analysis",
   "version": 1,
-  "generatedAt": "2026-07-29T07:32:14.903Z",
+  "generatedAt": "2026-07-29T08:25:31.689Z",
   "sources": {
     "backend": {
       "path": "local-player/backend/box3-server.cjs",

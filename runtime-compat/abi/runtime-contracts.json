@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-architecture-contract",
   "version": 1,
-  "generatedAt": "2026-07-29T07:32:17.954Z",
+  "generatedAt": "2026-07-29T08:25:34.845Z",
   "apiVersion": "0.1.0",
   "compatibilityLevel": "experimental",
   "layers": [
@@ -468,8 +468,13 @@
     "postureAbi": "runtime-compat/abi/physics-player-posture.json",
     "postureShapeStatus": {
       "standing": "confirmed",
-      "crouching": "unresolved",
-      "flying": "unresolved"
+      "crouching": "evidence-deferred",
+      "flying": "evidence-deferred"
+    },
+    "postureShapeCompatibilityPolicy": {
+      "onUnknownAuthoritativeShape": "preserve-current-collider",
+      "requireCompleteAuthoritativeShape": true,
+      "historicalClaim": false
     }
   },
   "flows": [

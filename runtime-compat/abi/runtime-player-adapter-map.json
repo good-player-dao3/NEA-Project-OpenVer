@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-player-adapter-map",
   "version": 1,
-  "generatedAt": "2026-07-29T07:32:15.598Z",
+  "generatedAt": "2026-07-29T08:25:32.445Z",
   "contract": "nea-server-runtime/v1",
   "localObject": {
     "id": "server.object.RuntimePlayer",

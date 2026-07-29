@@ -43,7 +43,7 @@ if (evidenceCoverage.postureShapeProducer.status !== "not-found-in-indexed-local
 
 const model = {
   format: "nea-physics-player-posture-abi",
-  version: 1,
+  version: 2,
   generatedAt: new Date().toISOString(),
   stateEncoding: {
     PlayerFlyState: { shift: 0, bits: 1, mask: 1, values: { NOT_FLYING: 0, FLYING: 1 } },
@@ -62,19 +62,24 @@ const model = {
     stateStatus: "confirmed",
     confirmedClientEffects: physics.posture.crouch.confirmedEffects,
     clientShapeMutation: "absent",
-    authoritativeShape: "unresolved",
+    authoritativeShape: evidenceDeferredShape(),
   },
   flying: {
     stateStatus: "confirmed",
     confirmedClientEffects: physics.posture.flying.confirmedEffects,
     clientShapeMutation: "absent",
-    authoritativeShape: "unresolved",
+    authoritativeShape: evidenceDeferredShape(),
+  },
+  compatibilityPolicy: {
+    onUnknownAuthoritativeShape: "preserve-current-collider",
+    requireCompleteAuthoritativeShape: true,
+    historicalClaim: false,
   },
   authority: {
     bodyShapeOwner: "authoritative-game-runtime",
     clientMotorMayWriteShape: false,
     evidenceAvailable: "The explicit captures, inspected Player profile stores, and legacy worktree contain no historical binary server-to-client PUBLIC body frame.",
-    policy: "Do not synthesize crouch or flying half extents until a historical PUBLIC body delta or equivalent server producer is recovered.",
+    policy: "Do not synthesize crouch or flying half extents. Keep their historical fields null; preserving the current collider is a local compatibility policy, not a recovered historical value.",
   },
   evidence: [
     { type: "player-bundle", path: bundlePath, module: 70648, sha256: createHash("sha256").update(stateModule).digest("hex"), finding: "Player state and capability bit assignments." },
@@ -88,7 +93,24 @@ const model = {
 };
 
 await writeFile(resolve(root, "abi", "physics-player-posture.json"), `${JSON.stringify(model, null, 2)}\n`);
-console.log("Built Player posture ABI; standing confirmed, crouch/flying authoritative shapes unresolved.");
+console.log("Built Player posture ABI; unknown authoritative posture shapes are explicit null fields.");
+
+function evidenceDeferredShape() {
+  return {
+    status: "evidence-deferred",
+    boundsHalfExtents: null,
+    shapeHalfExtents: null,
+    dimensions: null,
+    wireFields: {
+      rx: null,
+      ry: null,
+      rz: null,
+      hsx: null,
+      hsy: null,
+      hsz: null,
+    },
+  };
+}
 
 function webpackModule(source, id) {
   const headers = [...source.matchAll(/(?:^|,)(\d+):function\(/g)].map(match => ({ id: Number(match[1]), start: match.index }));

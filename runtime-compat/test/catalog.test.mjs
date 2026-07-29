@@ -112,10 +112,17 @@ test("gap report counts recovered Player and origin contracts", async () => {
   assert.ok(report.covered.includes("client.global.remoteChannel"));
   assert.ok(report.covered.includes("client.ClientMedia.startRecording"));
   assert.equal(report.evidenceGaps.playerPostureShapes.status, "not-found-in-indexed-local-evidence");
+  assert.equal(report.evidenceGaps.playerPostureShapes.representationStatus, "evidence-deferred");
+  assert.deepEqual(report.evidenceGaps.playerPostureShapes.unknownWireFields, ["rx", "ry", "rz", "hsx", "hsy", "hsz"]);
+  assert.equal(report.evidenceGaps.playerPostureShapes.compatibilityPolicy.onUnknownAuthoritativeShape, "preserve-current-collider");
+  assert.equal(report.evidenceGaps.playerPostureShapes.compatibilityPolicy.historicalClaim, false);
+  assert.equal(report.evidenceGaps.playerPostureShapes.blockingCurrentPhase, false);
+  assert.equal(report.deferredEvidence[0].blocking, false);
   assert.equal(report.evidenceGaps.contactBinding.status, "reference-only");
   assert.equal(report.evidenceGaps.contactBinding.perContactForceProduction, "confirmed-historical-production-local-missing");
   assert.equal(report.evidenceGaps.contactBinding.aggregateContactForce, "unresolved");
   assert.ok(report.immediatePriorities.every(priority => !priority.includes("Recover the authoritative fx/fy/fz producer")));
+  assert.ok(report.immediatePriorities.every(priority => !priority.includes("PUBLIC body delta")));
   assert.deepEqual(report.summary.compatibilityStatus, {
     native: 125,
     compatible: 32,

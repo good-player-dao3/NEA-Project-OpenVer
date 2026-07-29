@@ -19,7 +19,7 @@ npm start
 
 The Demo starts the historical Player on `4322` and a random-token, loopback-only Script Runtime control bridge on `4323`. Set `NEA_DEMO_CONTROL_PORT` to move the bridge or `NEA_DEMO_CONTROL_TOKEN` only for deterministic local testing.
 
-The server-side player model runs fixed-step physics at 20 Hz. Historical Player module 7166 confirms the upright default half extents `0.45 / 1.1 / 0.45`, while Lokibox confirms that `rx/ry/rz` are broadphase bounds and `hsx/hsy/hsz` are separate shape half extents. Player positions remain rigid-body-center coordinates. Runtime snapshots expose the exact profile and AABB used by the solver; crouch and flying shape mutations remain unresolved.
+The server-side player model runs fixed-step physics at 20 Hz. Historical Player module 7166 confirms the upright default half extents `0.45 / 1.1 / 0.45`, while Lokibox confirms that `rx/ry/rz` are broadphase bounds and `hsx/hsy/hsz` are separate shape half extents. Player positions remain rigid-body-center coordinates. Runtime snapshots expose the exact collider source and AABB used by the solver. A complete authoritative `bodyHalfExtents` plus `bodyShapeHalfExtents` update replaces the current collider; explicit unknown (`null`) posture shapes preserve it, and partial updates are rejected.
 
 Run `npm run probe:remote` while the Demo is active to create a real MuDB session and verify ack, checkpoint, and hazard events end to end.
 
@@ -31,7 +31,7 @@ The editable sample is under `project/`. Generated compatibility output is under
 
 ## Verified flow
 
-- The importer expands the sample to 11,560 non-air voxels.
+- The importer expands the sample to 11,592 non-air voxels.
 - The historical Player renders the generated map and creates a Guest avatar.
 - `clientIndex.js` is delivered through `gameNet.syncClientScriptModules`.
 - A recovered minimal `gameUI` identity allows the Player client script to start.

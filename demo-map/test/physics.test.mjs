@@ -30,6 +30,7 @@ test("player AABB uses body center and exact profile half extents without hidden
     origin: "body-center",
     originStatus: "confirmed",
     sizeStatus: "unverified",
+    shapeSource: "player-body-profile",
     boundsHalfExtents: { x: 0.3, y: 0.9, z: 0.3 },
     shapeHalfExtents: { x: 0.3, y: 0.9, z: 0.3 },
     halfExtents: { x: 0.3, y: 0.9, z: 0.3 },
@@ -51,6 +52,30 @@ test("player AABB uses body center and exact profile half extents without hidden
       maxZ: 30.3,
     },
   });
+});
+
+test("unknown authoritative posture shapes preserve the current collider", () => {
+  const body = playerBody();
+  const before = body.collisionSnapshot();
+  assert.equal(body.applyAuthoritativePostureShape(null), false);
+  assert.deepEqual(body.collisionSnapshot(), before);
+});
+
+test("authoritative posture shapes must be complete and may update the collider", () => {
+  const body = playerBody();
+  assert.throws(
+    () => body.applyAuthoritativePostureShape({ boundsHalfExtents: [0.4, 0.7, 0.4] }),
+    /requires complete/,
+  );
+  assert.equal(body.applyAuthoritativePostureShape({
+    boundsHalfExtents: [0.4, 0.7, 0.4],
+    shapeHalfExtents: [0.35, 0.65, 0.35],
+  }), true);
+  const collision = body.collisionSnapshot();
+  assert.equal(collision.shapeSource, "authoritative-state");
+  assert.deepEqual(collision.boundsHalfExtents, { x: 0.4, y: 0.7, z: 0.4 });
+  assert.deepEqual(collision.shapeHalfExtents, { x: 0.35, y: 0.65, z: 0.35 });
+  assert.deepEqual(collision.dimensions, { width: 0.7, height: 1.3, depth: 0.7 });
 });
 
 test("broadphase bounds do not enlarge the contact shape", () => {

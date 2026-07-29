@@ -11,13 +11,26 @@ test("Player posture state bits match the archived schema", () => {
   assert.equal(posture.stateEncoding.PlayerFlags.ALLOW_CROUCH, 128);
 });
 
-test("only standing body dimensions are currently evidence-backed", () => {
+test("unknown historical posture shapes use an explicit null contract", () => {
   assert.deepEqual(posture.standing.halfExtents, [0.45, 1.1, 0.45]);
   assert.deepEqual(posture.standing.dimensions, [0.9, 2.2, 0.9]);
   assert.equal(posture.crouching.clientShapeMutation, "absent");
   assert.equal(posture.flying.clientShapeMutation, "absent");
-  assert.equal(posture.crouching.authoritativeShape, "unresolved");
-  assert.equal(posture.flying.authoritativeShape, "unresolved");
+  for (const state of [posture.crouching, posture.flying]) {
+    assert.deepEqual(state.authoritativeShape, {
+      status: "evidence-deferred",
+      boundsHalfExtents: null,
+      shapeHalfExtents: null,
+      dimensions: null,
+      wireFields: { rx: null, ry: null, rz: null, hsx: null, hsy: null, hsz: null },
+    });
+  }
+  assert.deepEqual(posture.compatibilityPolicy, {
+    onUnknownAuthoritativeShape: "preserve-current-collider",
+    requireCompleteAuthoritativeShape: true,
+    historicalClaim: false,
+  });
   assert.equal(posture.authority.clientMotorMayWriteShape, false);
   assert.match(posture.authority.policy, /Do not synthesize/);
+  assert.match(posture.authority.policy, /local compatibility policy/);
 });

@@ -196,6 +196,12 @@ export class ScriptRuntime {
     if (Number.isFinite(version) && version < player._stateVersion) return false;
     if (state.position) player._body.position.copy(Vector3.from(state.position));
     if (state.velocity) player._body.velocity.copy(Vector3.from(state.velocity));
+    if (Object.hasOwn(state, "bodyHalfExtents") || Object.hasOwn(state, "bodyShapeHalfExtents")) {
+      const shape = state.bodyHalfExtents === null && state.bodyShapeHalfExtents === null
+        ? null
+        : { boundsHalfExtents: state.bodyHalfExtents, shapeHalfExtents: state.bodyShapeHalfExtents };
+      player._body.applyAuthoritativePostureShape(shape);
+    }
     player._stateVersion = Number.isFinite(version) ? version : player._stateVersion + 1;
     player._backendPlayerId = state.playerId ?? player._backendPlayerId;
     player._lastBackendTick = Number.isFinite(version) ? version : player._lastBackendTick;

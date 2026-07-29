@@ -1,7 +1,7 @@
 {
   "format": "nea-posture-delta-corpus-inventory",
   "version": 1,
-  "generatedAt": "2026-07-29T07:32:17.093Z",
+  "generatedAt": "2026-07-29T08:25:34.001Z",
   "sourceSets": [
     {
       "id": "box-go-captures",

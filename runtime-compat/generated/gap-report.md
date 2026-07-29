@@ -1,6 +1,6 @@
 # Runtime Compatibility Gap Report
 
-Generated: 2026-07-29T07:32:18.640Z
+Generated: 2026-07-29T08:25:35.640Z
 
 ## Summary
 
@@ -34,12 +34,16 @@ Generated: 2026-07-29T07:32:18.640Z
 
 - Native, compatible and partial matrix states are executable classifications; partial still records unresolved behavioral gaps.
 - Documentation declarations remain missing until Player/origin evidence and conformance tests prove compatibility.
-- The upright Player default collision dimensions are recovered; server-authoritative crouch and flying shape mutations remain unresolved.
+- The upright Player default collision dimensions are recovered; crouch and flying historical shapes are explicit null fields with a non-historical preserve-current-collider compatibility policy.
 - Per-contact fx/fy/fz production is recovered from the historical impulse solver; only the GameEntity.contactForce aggregate and local solver integration remain unresolved.
 
 ## Evidence Gaps
 
 - Player posture producer: not-found-in-indexed-local-evidence
+- Player posture representation: evidence-deferred
+- Unknown posture wire fields: rx, ry, rz, hsx, hsy, hsz
+- Unknown posture policy: preserve-current-collider; historical claim=false
+- Blocking current phase: false
 - Posture frame corpus: not-found-in-safe-local-frame-corpus
 - Captured binary traffic: 1864 client-to-server; 0 server-to-client
 - Indexed source sets: origin-server-runtime, lokibox-runtime-adapters, local-player-backend, archived-player-bundle, player-browser-profile, legacy-worktree, posture-delta-frame-corpus
@@ -47,10 +51,13 @@ Generated: 2026-07-29T07:32:18.640Z
 - Per-contact force: confirmed-historical-production-local-missing
 - Aggregate contactForce: unresolved
 
+## Deferred Evidence
+
+- player-posture-authoritative-shapes: not-found-in-indexed-local-evidence; blocking=false
+
 ## Immediate Priorities
 
 1. Recover ContactBinding or equivalent server source to determine GameEntity.contactForce aggregation and active contact object reuse.
-2. Decode a historical server-to-client PUBLIC body delta for crouching and flying before adding posture dimensions.
-3. Integrate the recovered per-contact impulse force formula only with a compatible authoritative solver, not the current sweep approximation.
-4. Bind recovered origin GameEntity and GamePlayer surfaces to server runtime adapters only after behavior matches.
-5. Resolve the remaining client UiInput.placeholderOpacity wrapper or retain it as explicitly unavailable.
+2. Integrate the recovered per-contact impulse force formula only with a compatible authoritative solver, not the current sweep approximation.
+3. Bind recovered origin GameEntity and GamePlayer surfaces to server runtime adapters only after behavior matches.
+4. Resolve the remaining client UiInput.placeholderOpacity wrapper or retain it as explicitly unavailable.

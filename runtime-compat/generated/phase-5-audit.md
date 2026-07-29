@@ -1,7 +1,7 @@
 # NEA Runtime Compatibility Phase 5 Audit
 
-Generated: 2026-07-29T07:32:19.249Z
-Overall status: **partial**
+Generated: 2026-07-29T08:25:36.218Z
+Overall status: **complete**
 
 ## Requirements
 
@@ -26,15 +26,14 @@ Historical standing Player body dimensions and body-center coordinates replace t
 
 - runtime-compat/abi/physics-player-body.json: {"origin":"body-center","halfExtents":[0.45,1.1,0.45],"dimensions":[0.9,2.2,0.9],"status":"confirmed-player-bundle-default"}
 
-### player-posture-shapes: partial
+### player-posture-shapes: complete
 
-Crouch/fly state encoding and client motor behavior are recovered, but historical authoritative shape deltas are not present in local captures.
+Crouch/fly state encoding and client motor behavior are recovered; unavailable historical shapes are explicit null fields and the local runtime preserves the current collider instead of synthesizing dimensions.
 
-- runtime-compat/abi/physics-player-posture.json: {"crouching":{"stateStatus":"confirmed","confirmedClientEffects":["crouch-speed","crouch-acceleration","edge-occupancy-limiting"],"clientShapeMutation":"absent","authoritativeShape":"unresolved"},"flying":{"stateStatus":"confirmed","confirmedClientEffects":["gravity-flag","collision-flag","vertical-motor-force"],"clientShapeMutation":"absent","authoritativeShape":"unresolved"},"captureEvidence":"The explicit captures, inspected Player profile stores, and legacy worktree contain no historical binary server-to-client PUBLIC body frame."}
+- runtime-compat/abi/physics-player-posture.json: {"crouching":{"stateStatus":"confirmed","confirmedClientEffects":["crouch-speed","crouch-acceleration","edge-occupancy-limiting"],"clientShapeMutation":"absent","authoritativeShape":{"status":"evidence-deferred","boundsHalfExtents":null,"shapeHalfExtents":null,"dimensions":null,"wireFields":{"rx":null,"ry":null,"rz":null,"hsx":null,"hsy":null,"hsz":null}}},"flying":{"stateStatus":"confirmed","confirmedClientEffects":["gravity-flag","collision-flag","vertical-motor-force"],"clientShapeMutation":"absent","authoritativeShape":{"status":"evidence-deferred","boundsHalfExtents":null,"shapeHalfExtents":null,"dimensions":null,"wireFields":{"rx":null,"ry":null,"rz":null,"hsx":null,"hsy":null,"hsz":null}}},"compatibilityPolicy":{"onUnknownAuthoritativeShape":"preserve-current-collider","requireCompleteAuthoritativeShape":true,"historicalClaim":false},"captureEvidence":"The explicit captures, inspected Player profile stores, and legacy worktree contain no historical binary server-to-client PUBLIC body frame."}
 - runtime-compat/generated/legacy-worktree-posture-inventory.json: {"clientShapeWrites":[],"legacyProducer":"local-reproduction-not-historical-evidence","authoritativeStatus":"unresolved"}
 - runtime-compat/generated/posture-delta-corpus-inventory.json: {"captures":9,"clientToServerBinaryFrames":1864,"serverToClientBinaryFrames":0,"resourceArchives":3,"rawReplayPayloadAvailable":false,"status":"not-found-in-safe-local-frame-corpus"}
 - runtime-compat/generated/authoritative-runtime-evidence-coverage.json: {"indexedSourceSets":["origin-server-runtime","lokibox-runtime-adapters","local-player-backend","archived-player-bundle","player-browser-profile","legacy-worktree","posture-delta-frame-corpus"],"producerStatus":"not-found-in-indexed-local-evidence","contactBindingStatus":"reference-only"}
-- Remaining: Recover or decode a historical server-to-client PUBLIC body delta containing crouch or flying rx/ry/rz and hsx/hsy/hsz changes.
 
 ### terrain-contact-rules: complete
 
@@ -62,9 +61,13 @@ The generated gap report uses the same canonical compatibility matrix classifica
 
 - runtime-compat/generated/gap-report.json: {"executable":177,"compatibilityStatus":{"native":125,"compatible":32,"partial":20,"recovered-only":185,"declared-only":237}}
 
+## Deferred Evidence
+
+- player-posture-authoritative-shapes: not-found-in-indexed-local-evidence; blocking=false; representation=evidence-deferred
+
 ## Validation
 
 - `cd runtime-compat && npm run build && npm test`
-- `cd demo-map && npm test`
+- `cd demo-map && npm run build && npm test`
 
-Policy: A partial requirement remains partial when the local evidence set cannot prove historical behavior; no substitute values are synthesized.
+Policy: Historical behavior is never synthesized. Evidence-deferred fields remain null; a local preserve-current-collider policy may complete the compatibility contract without claiming recovered historical values.

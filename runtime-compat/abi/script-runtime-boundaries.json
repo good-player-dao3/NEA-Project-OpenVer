@@ -1,7 +1,7 @@
 {
   "format": "nea-script-runtime-boundaries",
   "version": 1,
-  "generatedAt": "2026-07-29T07:32:15.848Z",
+  "generatedAt": "2026-07-29T08:25:32.670Z",
   "invariant": "Client Script Runtime and Server Script Runtime are separate execution realms connected only through declared transport and authoritative state flows.",
   "runtimes": [
     {
@@ -115,8 +115,8 @@
       "evidence": [
         {
           "path": "demo-map/src/runtime/script-runtime.mjs",
-          "bytes": 20552,
-          "sha256": "9792ed92c2ad822fca9f8ec675113ef8ab667e2437c540176ae6475d23c16237"
+          "bytes": 20928,
+          "sha256": "7714f6e030c8080a3ef2d4e87231096002c28b648c67e199baf13abac15425c9"
         }
       ]
     }

@@ -117,9 +117,10 @@ const architecture = {
     postureAbi: "runtime-compat/abi/physics-player-posture.json",
     postureShapeStatus: {
       standing: playerPosture.standing.status,
-      crouching: playerPosture.crouching.authoritativeShape,
-      flying: playerPosture.flying.authoritativeShape,
+      crouching: playerPosture.crouching.authoritativeShape.status,
+      flying: playerPosture.flying.authoritativeShape.status,
     },
+    postureShapeCompatibilityPolicy: playerPosture.compatibilityPolicy,
   },
   flows: [
     flow("client-module-delivery", "authoritative-game-runtime", "client-script-runtime", "player.game-net.syncClientScriptModules", "Dictionary of module source; entry clientIndex.js"),

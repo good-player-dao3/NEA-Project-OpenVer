@@ -11,9 +11,31 @@ export class PlayerPhysicsBody {
     this.shapeHalfExtents = profile.shapeHalfExtents;
     this.halfExtents = this.shapeHalfExtents;
     this.dimensions = profile.shapeDimensions;
+    this.shapeSource = "player-body-profile";
     this.grounded = false;
     this.contacts = new Map();
     this.triggers = new Map();
+  }
+
+  applyAuthoritativePostureShape(shape) {
+    if (shape === null) return false;
+    if (!shape || typeof shape !== "object" || Array.isArray(shape)) {
+      throw new Error("Authoritative posture shape must be null or a complete shape record");
+    }
+    if (!Object.hasOwn(shape, "boundsHalfExtents") || !Object.hasOwn(shape, "shapeHalfExtents")) {
+      throw new Error("Authoritative posture shape requires complete boundsHalfExtents and shapeHalfExtents");
+    }
+    const boundsHalfExtents = requireHalfExtents(shape.boundsHalfExtents, "authoritative boundsHalfExtents");
+    const shapeHalfExtents = requireHalfExtents(shape.shapeHalfExtents, "authoritative shapeHalfExtents");
+    if (["x", "y", "z"].some(axis => shapeHalfExtents[axis] > boundsHalfExtents[axis])) {
+      throw new Error("Authoritative posture shapeHalfExtents must fit inside boundsHalfExtents");
+    }
+    this.boundsHalfExtents = boundsHalfExtents;
+    this.shapeHalfExtents = shapeHalfExtents;
+    this.halfExtents = shapeHalfExtents;
+    this.dimensions = dimensions(shapeHalfExtents);
+    this.shapeSource = "authoritative-state";
+    return true;
   }
 
   collisionSnapshot() {
@@ -24,6 +46,7 @@ export class PlayerPhysicsBody {
       origin: this.profile.origin,
       originStatus: this.profile.originStatus,
       sizeStatus: this.profile.sizeStatus,
+      shapeSource: this.shapeSource,
       boundsHalfExtents: Object.freeze({ ...this.boundsHalfExtents }),
       shapeHalfExtents: Object.freeze({ ...this.shapeHalfExtents }),
       halfExtents: Object.freeze({ ...this.shapeHalfExtents }),
@@ -54,10 +77,11 @@ function requirePlayerBodyProfile(value) {
 }
 
 function requireHalfExtents(value, name) {
-  if (!value || ![value.x, value.y, value.z].every(component => Number.isFinite(component) && component > 0)) {
+  const components = Array.isArray(value) ? value : [value?.x, value?.y, value?.z];
+  if (components.length !== 3 || !components.every(component => Number.isFinite(component) && component > 0)) {
     throw new Error(`Player body profile ${name} must be positive finite numbers`);
   }
-  return Object.freeze({ x: value.x, y: value.y, z: value.z });
+  return Object.freeze({ x: components[0], y: components[1], z: components[2] });
 }
 
 function dimensions(halfExtents) {

@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-abi",
   "version": 1,
-  "generatedAt": "2026-07-29T07:32:17.505Z",
+  "generatedAt": "2026-07-29T08:25:34.471Z",
   "entries": [
     {
       "id": "client.Audio.Audio",

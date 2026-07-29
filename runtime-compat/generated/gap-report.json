@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-gap-report",
   "version": 1,
-  "generatedAt": "2026-07-29T07:32:18.640Z",
+  "generatedAt": "2026-07-29T08:25:35.640Z",
   "summary": {
     "documentedDeclarations": 599,
     "currentContractEntries": 205,
@@ -50,12 +50,27 @@
   "warnings": [
     "Native, compatible and partial matrix states are executable classifications; partial still records unresolved behavioral gaps.",
     "Documentation declarations remain missing until Player/origin evidence and conformance tests prove compatibility.",
-    "The upright Player default collision dimensions are recovered; server-authoritative crouch and flying shape mutations remain unresolved.",
+    "The upright Player default collision dimensions are recovered; crouch and flying historical shapes are explicit null fields with a non-historical preserve-current-collider compatibility policy.",
     "Per-contact fx/fy/fz production is recovered from the historical impulse solver; only the GameEntity.contactForce aggregate and local solver integration remain unresolved."
   ],
   "evidenceGaps": {
     "playerPostureShapes": {
       "status": "not-found-in-indexed-local-evidence",
+      "representationStatus": "evidence-deferred",
+      "unknownWireFields": [
+        "rx",
+        "ry",
+        "rz",
+        "hsx",
+        "hsy",
+        "hsz"
+      ],
+      "compatibilityPolicy": {
+        "onUnknownAuthoritativeShape": "preserve-current-collider",
+        "requireCompleteAuthoritativeShape": true,
+        "historicalClaim": false
+      },
+      "blockingCurrentPhase": false,
       "indexedSourceSets": [
         "origin-server-runtime",
         "lokibox-runtime-adapters",
@@ -76,9 +91,16 @@
       "aggregateContactForce": "unresolved"
     }
   },
+  "deferredEvidence": [
+    {
+      "id": "player-posture-authoritative-shapes",
+      "status": "not-found-in-indexed-local-evidence",
+      "blocking": false,
+      "requiredEvidence": "historical server-to-client PUBLIC body delta or equivalent authoritative posture producer"
+    }
+  ],
   "immediatePriorities": [
     "Recover ContactBinding or equivalent server source to determine GameEntity.contactForce aggregation and active contact object reuse.",
-    "Decode a historical server-to-client PUBLIC body delta for crouching and flying before adding posture dimensions.",
     "Integrate the recovered per-contact impulse force formula only with a compatible authoritative solver, not the current sweep approximation.",
     "Bind recovered origin GameEntity and GamePlayer surfaces to server runtime adapters only after behavior matches.",
     "Resolve the remaining client UiInput.placeholderOpacity wrapper or retain it as explicitly unavailable."

@@ -1,7 +1,7 @@
 {
   "format": "nea-physics-player-posture-abi",
-  "version": 1,
-  "generatedAt": "2026-07-29T07:32:17.391Z",
+  "version": 2,
+  "generatedAt": "2026-07-29T08:25:34.370Z",
   "stateEncoding": {
     "PlayerFlyState": {
       "shift": 0,
@@ -76,7 +76,20 @@
       "edge-occupancy-limiting"
     ],
     "clientShapeMutation": "absent",
-    "authoritativeShape": "unresolved"
+    "authoritativeShape": {
+      "status": "evidence-deferred",
+      "boundsHalfExtents": null,
+      "shapeHalfExtents": null,
+      "dimensions": null,
+      "wireFields": {
+        "rx": null,
+        "ry": null,
+        "rz": null,
+        "hsx": null,
+        "hsy": null,
+        "hsz": null
+      }
+    }
   },
   "flying": {
     "stateStatus": "confirmed",
@@ -86,13 +99,31 @@
       "vertical-motor-force"
     ],
     "clientShapeMutation": "absent",
-    "authoritativeShape": "unresolved"
+    "authoritativeShape": {
+      "status": "evidence-deferred",
+      "boundsHalfExtents": null,
+      "shapeHalfExtents": null,
+      "dimensions": null,
+      "wireFields": {
+        "rx": null,
+        "ry": null,
+        "rz": null,
+        "hsx": null,
+        "hsy": null,
+        "hsz": null
+      }
+    }
+  },
+  "compatibilityPolicy": {
+    "onUnknownAuthoritativeShape": "preserve-current-collider",
+    "requireCompleteAuthoritativeShape": true,
+    "historicalClaim": false
   },
   "authority": {
     "bodyShapeOwner": "authoritative-game-runtime",
     "clientMotorMayWriteShape": false,
     "evidenceAvailable": "The explicit captures, inspected Player profile stores, and legacy worktree contain no historical binary server-to-client PUBLIC body frame.",
-    "policy": "Do not synthesize crouch or flying half extents until a historical PUBLIC body delta or equivalent server producer is recovered."
+    "policy": "Do not synthesize crouch or flying half extents. Keep their historical fields null; preserving the current collider is a local compatibility policy, not a recovered historical value."
   },
   "evidence": [
     {

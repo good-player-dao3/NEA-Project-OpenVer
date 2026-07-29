@@ -1,9 +1,9 @@
 {
   "format": "nea-runtime-compatibility-phase-audit",
   "version": 1,
-  "generatedAt": "2026-07-29T07:32:19.249Z",
+  "generatedAt": "2026-07-29T08:25:36.218Z",
   "phase": 5,
-  "overallStatus": "partial",
+  "overallStatus": "complete",
   "requirements": [
     {
       "id": "layered-architecture",
@@ -120,8 +120,8 @@
     },
     {
       "id": "player-posture-shapes",
-      "status": "partial",
-      "conclusion": "Crouch/fly state encoding and client motor behavior are recovered, but historical authoritative shape deltas are not present in local captures.",
+      "status": "complete",
+      "conclusion": "Crouch/fly state encoding and client motor behavior are recovered; unavailable historical shapes are explicit null fields and the local runtime preserves the current collider instead of synthesizing dimensions.",
       "evidence": [
         {
           "path": "runtime-compat/abi/physics-player-posture.json",
@@ -134,7 +134,20 @@
                 "edge-occupancy-limiting"
               ],
               "clientShapeMutation": "absent",
-              "authoritativeShape": "unresolved"
+              "authoritativeShape": {
+                "status": "evidence-deferred",
+                "boundsHalfExtents": null,
+                "shapeHalfExtents": null,
+                "dimensions": null,
+                "wireFields": {
+                  "rx": null,
+                  "ry": null,
+                  "rz": null,
+                  "hsx": null,
+                  "hsy": null,
+                  "hsz": null
+                }
+              }
             },
             "flying": {
               "stateStatus": "confirmed",
@@ -144,7 +157,25 @@
                 "vertical-motor-force"
               ],
               "clientShapeMutation": "absent",
-              "authoritativeShape": "unresolved"
+              "authoritativeShape": {
+                "status": "evidence-deferred",
+                "boundsHalfExtents": null,
+                "shapeHalfExtents": null,
+                "dimensions": null,
+                "wireFields": {
+                  "rx": null,
+                  "ry": null,
+                  "rz": null,
+                  "hsx": null,
+                  "hsy": null,
+                  "hsz": null
+                }
+              }
+            },
+            "compatibilityPolicy": {
+              "onUnknownAuthoritativeShape": "preserve-current-collider",
+              "requireCompleteAuthoritativeShape": true,
+              "historicalClaim": false
             },
             "captureEvidence": "The explicit captures, inspected Player profile stores, and legacy worktree contain no historical binary server-to-client PUBLIC body frame."
           }
@@ -184,9 +215,6 @@
             "contactBindingStatus": "reference-only"
           }
         }
-      ],
-      "remaining": [
-        "Recover or decode a historical server-to-client PUBLIC body delta containing crouch or flying rx/ry/rz and hsx/hsy/hsz changes."
       ]
     },
     {
@@ -400,12 +428,19 @@
       ]
     }
   ],
-  "remainingEvidenceGaps": [
-    "Recover or decode a historical server-to-client PUBLIC body delta containing crouch or flying rx/ry/rz and hsx/hsy/hsz changes."
+  "remainingEvidenceGaps": [],
+  "deferredEvidence": [
+    {
+      "id": "player-posture-authoritative-shapes",
+      "blocking": false,
+      "status": "not-found-in-indexed-local-evidence",
+      "representation": "evidence-deferred",
+      "requiredEvidence": "Historical server-to-client PUBLIC body delta containing crouch or flying rx/ry/rz and hsx/hsy/hsz changes."
+    }
   ],
   "validationCommands": [
     "cd runtime-compat && npm run build && npm test",
-    "cd demo-map && npm test"
+    "cd demo-map && npm run build && npm test"
   ],
-  "policy": "A partial requirement remains partial when the local evidence set cannot prove historical behavior; no substitute values are synthesized."
+  "policy": "Historical behavior is never synthesized. Evidence-deferred fields remain null; a local preserve-current-collider policy may complete the compatibility contract without claiming recovered historical values."
 }

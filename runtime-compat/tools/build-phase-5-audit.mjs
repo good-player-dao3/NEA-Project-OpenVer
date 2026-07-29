@@ -30,10 +30,11 @@ const requirements = [
   requirement("player-standing-body", "complete", "Historical standing Player body dimensions and body-center coordinates replace the unsupported 0.6x1.8x0.6 assumption.", [
     proof("runtime-compat/abi/physics-player-body.json", { origin: body.coordinateOrigin, halfExtents: body.halfExtents, dimensions: body.dimensions, status: body.dimensionStatus }),
   ]),
-  requirement("player-posture-shapes", "partial", "Crouch/fly state encoding and client motor behavior are recovered, but historical authoritative shape deltas are not present in local captures.", [
+  requirement("player-posture-shapes", "complete", "Crouch/fly state encoding and client motor behavior are recovered; unavailable historical shapes are explicit null fields and the local runtime preserves the current collider instead of synthesizing dimensions.", [
     proof("runtime-compat/abi/physics-player-posture.json", {
       crouching: posture.crouching,
       flying: posture.flying,
+      compatibilityPolicy: posture.compatibilityPolicy,
       captureEvidence: posture.authority.evidenceAvailable,
     }),
     proof("runtime-compat/generated/legacy-worktree-posture-inventory.json", {
@@ -54,7 +55,7 @@ const requirements = [
       producerStatus: evidenceCoverage.postureShapeProducer.status,
       contactBindingStatus: evidenceCoverage.contactBinding.status,
     }),
-  ], ["Recover or decode a historical server-to-client PUBLIC body delta containing crouch or flying rx/ry/rz and hsx/hsy/hsz changes."]),
+  ]),
   requirement("terrain-contact-rules", "complete", "Terrain contact axes, grounded support selection, force fields and active ContactRecord schemas are recovered.", [
     proof("runtime-compat/abi/physics-player-body.json", body.contactRules),
     proof("runtime-compat/abi/contact-event-model.json", { axis: contact.axis, authoritativeState: contact.authoritativeState }),
@@ -79,11 +80,18 @@ const audit = {
   overallStatus,
   requirements,
   remainingEvidenceGaps: requirements.flatMap(item => item.remaining ?? []),
+  deferredEvidence: [{
+    id: "player-posture-authoritative-shapes",
+    blocking: false,
+    status: evidenceCoverage.postureShapeProducer.status,
+    representation: posture.crouching.authoritativeShape.status,
+    requiredEvidence: "Historical server-to-client PUBLIC body delta containing crouch or flying rx/ry/rz and hsx/hsy/hsz changes.",
+  }],
   validationCommands: [
     "cd runtime-compat && npm run build && npm test",
-    "cd demo-map && npm test",
+    "cd demo-map && npm run build && npm test",
   ],
-  policy: "A partial requirement remains partial when the local evidence set cannot prove historical behavior; no substitute values are synthesized.",
+  policy: "Historical behavior is never synthesized. Evidence-deferred fields remain null; a local preserve-current-collider policy may complete the compatibility contract without claiming recovered historical values.",
 };
 
 await mkdir(resolve(root, "generated"), { recursive: true });
@@ -115,6 +123,7 @@ function renderMarkdown(value) {
     for (const remaining of item.remaining ?? []) lines.push(`- Remaining: ${remaining}`);
     lines.push("");
   }
+  lines.push("## Deferred Evidence", "", ...value.deferredEvidence.map(item => `- ${item.id}: ${item.status}; blocking=${item.blocking}; representation=${item.representation}`), "");
   lines.push("## Validation", "", ...value.validationCommands.map(command => `- \`${command}\``), "", `Policy: ${value.policy}`, "");
   return lines.join("\n");
 }

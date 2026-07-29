@@ -46,6 +46,7 @@ test("runs server script lifecycle and capability-gated APIs", async () => {
   assert.equal(snapshot.players[0].health, 75);
   assert.equal(snapshot.players[0].collision.origin, "body-center");
   assert.equal(snapshot.players[0].collision.sizeStatus, "confirmed");
+  assert.equal(snapshot.players[0].collision.shapeSource, "player-body-profile");
   assert.deepEqual(snapshot.players[0].collision.halfExtents, { x: 0.45, y: 1.1, z: 0.45 });
   assert.deepEqual(snapshot.players[0].collision.boundsHalfExtents, { x: 0.45, y: 1.1, z: 0.45 });
   assert.deepEqual(snapshot.players[0].collision.shapeHalfExtents, { x: 0.45, y: 1.1, z: 0.45 });
@@ -66,7 +67,14 @@ test("backend-authoritative players observe state without local gravity and queu
   });
   await runtime.start();
   const player = runtime.addPlayer({ id: "backend-1", position: [10, 10, 10], authority: "backend" });
-  runtime.applyAuthoritativeState(player.id, { tick: 20, playerId: 77, position: [12, 7, 12], velocity: [1, 0, 0] });
+  runtime.applyAuthoritativeState(player.id, {
+    tick: 20,
+    playerId: 77,
+    position: [12, 7, 12],
+    velocity: [1, 0, 0],
+    bodyHalfExtents: [0.45, 1.1, 0.45],
+    bodyShapeHalfExtents: [0.4, 1, 0.4],
+  });
   runtime.tick();
   assert.deepEqual(player.position.toArray(), [12, 7, 12]);
   player.applyImpulse({ x: 2, y: 3, z: 4 });
@@ -74,6 +82,9 @@ test("backend-authoritative players observe state without local gravity and queu
   runtime.stop();
   assert.equal(snapshot.authority, "backend");
   assert.equal(snapshot.backendPlayerId, 77);
+  assert.equal(snapshot.collision.shapeSource, "authoritative-state");
+  assert.deepEqual(snapshot.collision.boundsHalfExtents, { x: 0.45, y: 1.1, z: 0.45 });
+  assert.deepEqual(snapshot.collision.shapeHalfExtents, { x: 0.4, y: 1, z: 0.4 });
   assert.deepEqual(snapshot.velocity, [3, 3, 4]);
   assert.ok(writes.some(write => write.playerId === "backend-1" && write.state.velocity[1] === 3));
 });
