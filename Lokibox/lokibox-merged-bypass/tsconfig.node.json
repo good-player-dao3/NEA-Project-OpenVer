@@ -1,8 +1,0 @@
-{
-  "compilerOptions": {
-    "composite": true,
-    "module": "node16",
-    "moduleResolution": "node16"
-  },
-  "include": ["vite.config.ts", "vite-obfuscator.ts"]
-}
