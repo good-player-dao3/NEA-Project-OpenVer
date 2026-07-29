@@ -16,6 +16,9 @@ test("phase 5 audit covers every objective requirement", () => {
     "gap-report",
   ]);
   assert.equal(audit.requirements.filter(requirement => requirement.status === "complete").length, 7);
+  const apiAbi = audit.requirements.find(requirement => requirement.id === "machine-readable-api-abi");
+  assert.equal(apiAbi.status, "complete");
+  assert.ok(apiAbi.evidence.some(item => item.path === "runtime-compat/generated/api-abi-completeness.json" && item.finding.status === "complete"));
 });
 
 test("audit does not claim completion without authoritative posture deltas", () => {

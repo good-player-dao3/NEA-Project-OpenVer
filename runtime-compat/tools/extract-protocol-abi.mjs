@@ -56,6 +56,11 @@ remote.conformance = {
   ],
 };
 
+const messages = protocols.flatMap(protocol => [
+  ...messageRecords(protocol, "clientReceives", "server-to-client", "server", "client"),
+  ...messageRecords(protocol, "serverReceives", "client-to-server", "client", "server"),
+]);
+
 const output = {
   format: "nea-protocol-abi",
   version: 1,
@@ -68,9 +73,32 @@ const output = {
     scriptProtocols: report.summary.scriptProtocols,
     scriptClientMessages: report.summary.scriptClientMessages,
     scriptServerMessages: report.summary.scriptServerMessages,
+    messages: messages.length,
+    byDirection: {
+      "server-to-client": messages.filter(message => message.direction === "server-to-client").length,
+      "client-to-server": messages.filter(message => message.direction === "client-to-server").length,
+    },
   },
   protocols,
+  messages,
 };
 
 await writeFile(resolve(root, "abi", "protocols.json"), `${JSON.stringify(output, null, 2)}\n`);
 console.log(`Extracted ${protocols.length} MuDB protocol catalogs with complete message schemas.`);
+
+function messageRecords(protocol, collection, direction, sender, receiver) {
+  return Object.entries(protocol[collection] ?? {}).map(([name, schema]) => ({
+    id: `${protocol.id}.${direction}.${name}`,
+    protocolId: protocol.id,
+    layer: protocol.layer,
+    transport: protocol.transport,
+    name,
+    direction,
+    sender,
+    receiver,
+    schema: structuredClone(schema),
+    availability: protocol.availability,
+    compatibility: protocol.compatibility,
+    evidence: structuredClone(protocol.evidence),
+  }));
+}

@@ -11,17 +11,21 @@ const posture = await readJson("abi/physics-player-posture.json");
 const contact = await readJson("abi/contact-event-model.json");
 const legacyPosture = await readJson("generated/legacy-worktree-posture-inventory.json");
 const evidenceCoverage = await readJson("generated/authoritative-runtime-evidence-coverage.json");
+const apiAbiCompleteness = await readJson("generated/api-abi-completeness.json");
 const gap = await readJson("generated/gap-report.json");
+const apiAbiStatus = apiAbiCompleteness.status === "complete" ? "complete" : "partial";
+const apiAbiRemaining = apiAbiCompleteness.gaps.slice(0, 20).map(item => `${item.domain}:${item.id}:${item.field} - ${item.rule}`);
 
 const requirements = [
   requirement("layered-architecture", "complete", "Client Script Runtime, Server Script Runtime, MuDB transport and authoritative state are separate layers.", [
     proof("runtime-compat/abi/runtime-contracts.json", architecture.layers.map(layer => layer.id)),
     proof("runtime-compat/abi/script-runtime-boundaries.json", architecture.scriptRuntimes.invariant),
   ]),
-  requirement("machine-readable-api-abi", "complete", "Every locally documented canonical declaration and every recovered MuDB protocol has a machine-readable entry and availability state.", [
+  requirement("machine-readable-api-abi", apiAbiStatus, "Every locally documented canonical declaration, kind-qualified member signature and recovered MuDB message has an explicit machine-readable record with availability, compatibility and evidence.", [
+    proof("runtime-compat/generated/api-abi-completeness.json", { status: apiAbiCompleteness.status, summary: apiAbiCompleteness.summary }),
     proof("runtime-compat/abi/compatibility-matrix.json", { declarations: matrix.summary.entries, byStatus: matrix.summary.byStatus }),
-    proof("runtime-compat/abi/protocols.json", { protocols: protocols.protocols.length }),
-  ]),
+    proof("runtime-compat/abi/protocols.json", { protocols: protocols.protocols.length, messages: protocols.messages.length, byDirection: protocols.summary.byDirection }),
+  ], apiAbiRemaining),
   requirement("player-standing-body", "complete", "Historical standing Player body dimensions and body-center coordinates replace the unsupported 0.6x1.8x0.6 assumption.", [
     proof("runtime-compat/abi/physics-player-body.json", { origin: body.coordinateOrigin, halfExtents: body.halfExtents, dimensions: body.dimensions, status: body.dimensionStatus }),
   ]),

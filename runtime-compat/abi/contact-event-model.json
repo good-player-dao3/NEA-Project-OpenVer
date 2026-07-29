@@ -1,7 +1,7 @@
 {
   "format": "nea-contact-event-model",
   "version": 2,
-  "generatedAt": "2026-07-29T06:40:06.333Z",
+  "generatedAt": "2026-07-29T07:15:45.275Z",
   "scope": "Server Script Runtime collision events and active contact value objects",
   "canonicalEvents": [
     {

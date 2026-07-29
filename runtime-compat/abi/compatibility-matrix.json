@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-compatibility-matrix",
   "version": 1,
-  "generatedAt": "2026-07-29T07:03:44.603Z",
+  "generatedAt": "2026-07-29T07:15:47.157Z",
   "apiVersion": "0.1.0",
   "compatibilityLevel": "experimental",
   "contracts": [
@@ -3960,7 +3960,7 @@
       "id": "client.object.ClientHttp",
       "side": "client",
       "contract": "dao3-client-runtime/v1",
-      "owner": null,
+      "owner": "object",
       "kind": "object",
       "kinds": [
         "object"
@@ -4025,7 +4025,7 @@
       "id": "client.object.ClientMedia",
       "side": "client",
       "contract": "dao3-client-runtime/v1",
-      "owner": null,
+      "owner": "object",
       "kind": "object",
       "kinds": [
         "object"
@@ -4090,7 +4090,7 @@
       "id": "client.object.ClientNavigator",
       "side": "client",
       "contract": "dao3-client-runtime/v1",
-      "owner": null,
+      "owner": "object",
       "kind": "object",
       "kinds": [
         "object"
@@ -4155,7 +4155,7 @@
       "id": "client.object.ClientRemoteChannel",
       "side": "client",
       "contract": "dao3-client-runtime/v1",
-      "owner": null,
+      "owner": "object",
       "kind": "object",
       "kinds": [
         "object"
@@ -4220,7 +4220,7 @@
       "id": "client.object.ClientScreen",
       "side": "client",
       "contract": "dao3-client-runtime/v1",
-      "owner": null,
+      "owner": "object",
       "kind": "object",
       "kinds": [
         "object"
@@ -4285,7 +4285,7 @@
       "id": "client.object.ClientWorld",
       "side": "client",
       "contract": "dao3-client-runtime/v1",
-      "owner": null,
+      "owner": "object",
       "kind": "object",
       "kinds": [
         "object"
@@ -4350,7 +4350,7 @@
       "id": "client.object.Coord2",
       "side": "client",
       "contract": "dao3-client-runtime/v1",
-      "owner": null,
+      "owner": "object",
       "kind": "object",
       "kinds": [
         "object"
@@ -4421,7 +4421,7 @@
       "id": "client.object.InputSystem",
       "side": "client",
       "contract": "dao3-client-runtime/v1",
-      "owner": null,
+      "owner": "object",
       "kind": "object",
       "kinds": [
         "object"
@@ -4486,7 +4486,7 @@
       "id": "client.object.UiNode",
       "side": "client",
       "contract": "dao3-client-runtime/v1",
-      "owner": null,
+      "owner": "object",
       "kind": "object",
       "kinds": [
         "object"
@@ -4557,7 +4557,7 @@
       "id": "client.object.UiScale",
       "side": "client",
       "contract": "dao3-client-runtime/v1",
-      "owner": null,
+      "owner": "object",
       "kind": "object",
       "kinds": [
         "object"
@@ -4628,7 +4628,7 @@
       "id": "client.object.Vec2",
       "side": "client",
       "contract": "dao3-client-runtime/v1",
-      "owner": null,
+      "owner": "object",
       "kind": "object",
       "kinds": [
         "object"
@@ -4699,7 +4699,7 @@
       "id": "client.object.Vec3",
       "side": "client",
       "contract": "dao3-client-runtime/v1",
-      "owner": null,
+      "owner": "object",
       "kind": "object",
       "kinds": [
         "object"
@@ -32246,7 +32246,7 @@
       "id": "server.object.GameAssetListEntry",
       "side": "server",
       "contract": "nea-server-runtime/v1",
-      "owner": null,
+      "owner": "object",
       "kind": "object",
       "kinds": [
         "object"
@@ -32296,7 +32296,7 @@
       "id": "server.object.GameEntity",
       "side": "server",
       "contract": "nea-server-runtime/v1",
-      "owner": null,
+      "owner": "object",
       "kind": "object",
       "kinds": [
         "object"
@@ -32346,7 +32346,7 @@
       "id": "server.object.GameHttpAPI",
       "side": "server",
       "contract": "nea-server-runtime/v1",
-      "owner": null,
+      "owner": "object",
       "kind": "object",
       "kinds": [
         "object"
@@ -32396,7 +32396,7 @@
       "id": "server.object.GameMotionController",
       "side": "server",
       "contract": "nea-server-runtime/v1",
-      "owner": null,
+      "owner": "object",
       "kind": "object",
       "kinds": [
         "object"
@@ -32446,7 +32446,7 @@
       "id": "server.object.GamePlayerEntity",
       "side": "server",
       "contract": "nea-server-runtime/v1",
-      "owner": null,
+      "owner": "object",
       "kind": "object",
       "kinds": [
         "object"
@@ -32496,7 +32496,7 @@
       "id": "server.object.GameRTC",
       "side": "server",
       "contract": "nea-server-runtime/v1",
-      "owner": null,
+      "owner": "object",
       "kind": "object",
       "kinds": [
         "object"
@@ -32546,7 +32546,7 @@
       "id": "server.object.GameStorage",
       "side": "server",
       "contract": "nea-server-runtime/v1",
-      "owner": null,
+      "owner": "object",
       "kind": "object",
       "kinds": [
         "object"
@@ -32596,7 +32596,7 @@
       "id": "server.object.GameVoxels",
       "side": "server",
       "contract": "nea-server-runtime/v1",
-      "owner": null,
+      "owner": "object",
       "kind": "object",
       "kinds": [
         "object"
@@ -32646,7 +32646,7 @@
       "id": "server.object.GameWorld",
       "side": "server",
       "contract": "nea-server-runtime/v1",
-      "owner": null,
+      "owner": "object",
       "kind": "object",
       "kinds": [
         "object"
@@ -32696,7 +32696,7 @@
       "id": "server.object.ServerRemoteChannel",
       "side": "server",
       "contract": "nea-server-runtime/v1",
-      "owner": null,
+      "owner": "object",
       "kind": "object",
       "kinds": [
         "object"
@@ -33868,9 +33868,10 @@
           "signature": {
             "parameters": [
               {
-                "name": "arg0",
+                "name": "points",
                 "optional": false,
-                "type": "...points:GameVector3[]"
+                "type": "GameVector3[]",
+                "rest": true
               }
             ],
             "returns": "GameBounds3"
@@ -33889,9 +33890,10 @@
       "signature": {
         "parameters": [
           {
-            "name": "arg0",
+            "name": "points",
             "optional": false,
-            "type": "...points:GameVector3[]"
+            "type": "GameVector3[]",
+            "rest": true
           }
         ],
         "returns": "GameBounds3"

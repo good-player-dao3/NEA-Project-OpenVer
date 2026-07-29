@@ -48,6 +48,11 @@ test("remote-channel schema stays symmetric", async () => {
   assert.equal(remote.compatibility, "bridged");
   assert.equal(catalog.summary.playerProtocols, 20);
   assert.equal(catalog.summary.scriptProtocols, 12);
+  const clientMessage = catalog.messages.find(message => message.id === "player.remote-channel.server-to-client.sendClientEvent");
+  const serverMessage = catalog.messages.find(message => message.id === "player.remote-channel.client-to-server.sendServerEvent");
+  assert.equal(clientMessage.receiver, "client");
+  assert.equal(serverMessage.receiver, "server");
+  assert.deepEqual(clientMessage.schema.fields, serverMessage.schema.fields);
 });
 
 test("generated client and server catalogs remain separated", async () => {

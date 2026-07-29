@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-abi",
   "version": 1,
-  "generatedAt": "2026-07-29T07:03:44.479Z",
+  "generatedAt": "2026-07-29T07:15:47.038Z",
   "side": "shared",
   "entries": [
     {
@@ -768,9 +768,10 @@
       "signature": {
         "parameters": [
           {
-            "name": "arg0",
+            "name": "points",
             "optional": false,
-            "type": "...points:GameVector3[]"
+            "type": "GameVector3[]",
+            "rest": true
           }
         ],
         "returns": "GameBounds3"
@@ -800,9 +801,10 @@
           "signature": {
             "parameters": [
               {
-                "name": "arg0",
+                "name": "points",
                 "optional": false,
-                "type": "...points:GameVector3[]"
+                "type": "GameVector3[]",
+                "rest": true
               }
             ],
             "returns": "GameBounds3"

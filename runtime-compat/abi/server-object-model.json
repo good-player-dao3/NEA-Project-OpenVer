@@ -1,7 +1,7 @@
 {
   "format": "nea-server-object-model",
   "version": 1,
-  "generatedAt": "2026-07-29T06:40:06.075Z",
+  "generatedAt": "2026-07-29T07:15:44.935Z",
   "entities": {
     "GameEntity": {
       "documentedOwner": "GameEntity",

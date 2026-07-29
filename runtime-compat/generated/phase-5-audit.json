@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-compatibility-phase-audit",
   "version": 1,
-  "generatedAt": "2026-07-29T06:40:09.003Z",
+  "generatedAt": "2026-07-29T07:15:48.623Z",
   "phase": 5,
   "overallStatus": "partial",
   "requirements": [
@@ -29,8 +29,45 @@
     {
       "id": "machine-readable-api-abi",
       "status": "complete",
-      "conclusion": "Every locally documented canonical declaration and every recovered MuDB protocol has a machine-readable entry and availability state.",
+      "conclusion": "Every locally documented canonical declaration, kind-qualified member signature and recovered MuDB message has an explicit machine-readable record with availability, compatibility and evidence.",
       "evidence": [
+        {
+          "path": "runtime-compat/generated/api-abi-completeness.json",
+          "finding": {
+            "status": "complete",
+            "summary": {
+              "documentation": {
+                "entries": 599,
+                "memberVariants": 602,
+                "byKind": {
+                  "method": 245,
+                  "event": 53,
+                  "property": 265,
+                  "global": 17,
+                  "object": 22
+                }
+              },
+              "catalogs": {
+                "client": 130,
+                "server": 838,
+                "shared": 131
+              },
+              "compatibilityMatrix": {
+                "entries": 599,
+                "coveredDocumentationEntries": 599
+              },
+              "protocols": {
+                "catalogs": 32,
+                "messages": 180,
+                "byDirection": {
+                  "server-to-client": 86,
+                  "client-to-server": 94
+                }
+              },
+              "gaps": 0
+            }
+          }
+        },
         {
           "path": "runtime-compat/abi/compatibility-matrix.json",
           "finding": {
@@ -47,7 +84,12 @@
         {
           "path": "runtime-compat/abi/protocols.json",
           "finding": {
-            "protocols": 32
+            "protocols": 32,
+            "messages": 180,
+            "byDirection": {
+              "server-to-client": 86,
+              "client-to-server": 94
+            }
           }
         }
       ]

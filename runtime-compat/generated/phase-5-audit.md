@@ -1,6 +1,6 @@
 # NEA Runtime Compatibility Phase 5 Audit
 
-Generated: 2026-07-29T06:40:09.003Z
+Generated: 2026-07-29T07:15:48.623Z
 Overall status: **partial**
 
 ## Requirements
@@ -14,10 +14,11 @@ Client Script Runtime, Server Script Runtime, MuDB transport and authoritative s
 
 ### machine-readable-api-abi: complete
 
-Every locally documented canonical declaration and every recovered MuDB protocol has a machine-readable entry and availability state.
+Every locally documented canonical declaration, kind-qualified member signature and recovered MuDB message has an explicit machine-readable record with availability, compatibility and evidence.
 
+- runtime-compat/generated/api-abi-completeness.json: {"status":"complete","summary":{"documentation":{"entries":599,"memberVariants":602,"byKind":{"method":245,"event":53,"property":265,"global":17,"object":22}},"catalogs":{"client":130,"server":838,"shared":131},"compatibilityMatrix":{"entries":599,"coveredDocumentationEntries":599},"protocols":{"catalogs":32,"messages":180,"byDirection":{"server-to-client":86,"client-to-server":94}},"gaps":0}}
 - runtime-compat/abi/compatibility-matrix.json: {"declarations":599,"byStatus":{"native":125,"compatible":32,"partial":20,"recovered-only":185,"declared-only":237}}
-- runtime-compat/abi/protocols.json: {"protocols":32}
+- runtime-compat/abi/protocols.json: {"protocols":32,"messages":180,"byDirection":{"server-to-client":86,"client-to-server":94}}
 
 ### player-standing-body: complete
 

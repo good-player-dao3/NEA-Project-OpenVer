@@ -1,7 +1,7 @@
 {
   "format": "nea-player-client-script-runtime-analysis",
   "version": 1,
-  "generatedAt": "2026-07-29T07:03:44.243Z",
+  "generatedAt": "2026-07-29T07:15:44.652Z",
   "source": {
     "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/474.c17d0cc8a4489c84.js",
     "bytes": 40625,
@@ -645,7 +645,7 @@
       "id": "client.object.ClientHttp",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "ClientHttp",
       "signature": {
         "declaration": "class"
@@ -697,7 +697,7 @@
       "id": "client.object.ClientMedia",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "ClientMedia",
       "signature": {
         "declaration": "class"
@@ -749,7 +749,7 @@
       "id": "client.object.ClientNavigator",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "ClientNavigator",
       "signature": {
         "declaration": "class"
@@ -801,7 +801,7 @@
       "id": "client.object.ClientRemoteChannel",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "ClientRemoteChannel",
       "signature": {
         "declaration": "class"
@@ -853,7 +853,7 @@
       "id": "client.object.ClientScreen",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "ClientScreen",
       "signature": {
         "declaration": "class"
@@ -905,7 +905,7 @@
       "id": "client.object.ClientWorld",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "ClientWorld",
       "signature": {
         "declaration": "class"
@@ -957,7 +957,7 @@
       "id": "client.object.InputSystem",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "InputSystem",
       "signature": {
         "declaration": "class"
@@ -2033,7 +2033,7 @@
       "id": "client.object.Coord2",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "Coord2",
       "signature": {
         "declaration": "class"
@@ -2295,7 +2295,7 @@
       "id": "client.object.Vec2",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "Vec2",
       "signature": {
         "declaration": "class"
@@ -2641,7 +2641,7 @@
       "id": "client.object.Vec3",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "Vec3",
       "signature": {
         "declaration": "class"
@@ -4671,7 +4671,7 @@
       "id": "client.object.UiNode",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "UiNode",
       "signature": {
         "declaration": "class"
@@ -4729,7 +4729,7 @@
       "id": "client.object.UiScale",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "UiScale",
       "signature": {
         "declaration": "class"

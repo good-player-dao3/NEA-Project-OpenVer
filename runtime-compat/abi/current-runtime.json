@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-abi",
   "version": 1,
-  "generatedAt": "2026-07-29T07:03:44.347Z",
+  "generatedAt": "2026-07-29T07:15:46.902Z",
   "entries": [
     {
       "id": "client.Audio.Audio",
@@ -3292,7 +3292,7 @@
       "id": "client.object.ClientHttp",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "ClientHttp",
       "signature": {
         "declaration": "class"
@@ -3344,7 +3344,7 @@
       "id": "client.object.ClientMedia",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "ClientMedia",
       "signature": {
         "declaration": "class"
@@ -3396,7 +3396,7 @@
       "id": "client.object.ClientNavigator",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "ClientNavigator",
       "signature": {
         "declaration": "class"
@@ -3448,7 +3448,7 @@
       "id": "client.object.ClientRemoteChannel",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "ClientRemoteChannel",
       "signature": {
         "declaration": "class"
@@ -3500,7 +3500,7 @@
       "id": "client.object.ClientScreen",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "ClientScreen",
       "signature": {
         "declaration": "class"
@@ -3552,7 +3552,7 @@
       "id": "client.object.ClientWorld",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "ClientWorld",
       "signature": {
         "declaration": "class"
@@ -3604,7 +3604,7 @@
       "id": "client.object.Coord2",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "Coord2",
       "signature": {
         "declaration": "class"
@@ -3662,7 +3662,7 @@
       "id": "client.object.InputSystem",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "InputSystem",
       "signature": {
         "declaration": "class"
@@ -3714,7 +3714,7 @@
       "id": "client.object.UiNode",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "UiNode",
       "signature": {
         "declaration": "class"
@@ -3772,7 +3772,7 @@
       "id": "client.object.UiScale",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "UiScale",
       "signature": {
         "declaration": "class"
@@ -3830,7 +3830,7 @@
       "id": "client.object.Vec2",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "Vec2",
       "signature": {
         "declaration": "class"
@@ -3888,7 +3888,7 @@
       "id": "client.object.Vec3",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "Vec3",
       "signature": {
         "declaration": "class"
@@ -9395,6 +9395,39 @@
           "symbol": "GameVector3",
           "confidence": "direct"
         }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "v",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "三维向量"
+                }
+              }
+            ],
+            "returns": "GameVector3"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "add(v:GameVector3): GameVector3",
+              "confidence": "direct"
+            }
+          ]
+        }
       ]
     },
     {
@@ -9445,6 +9478,39 @@
           "path": "origin/origin/origin/api/GameVector3.js",
           "symbol": "GameVector3",
           "confidence": "direct"
+        }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "v",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "三维向量"
+                }
+              }
+            ],
+            "returns": "GameVector3"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "addEq(v:GameVector3): GameVector3",
+              "confidence": "direct"
+            }
+          ]
         }
       ]
     },
@@ -9497,6 +9563,39 @@
           "symbol": "GameVector3",
           "confidence": "direct"
         }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "v",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "三维向量"
+                }
+              }
+            ],
+            "returns": "number"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "angle(v:GameVector3): number",
+              "confidence": "direct"
+            }
+          ]
+        }
       ]
     },
     {
@@ -9535,6 +9634,27 @@
           "path": "origin/origin/origin/api/GameVector3.js",
           "symbol": "GameVector3",
           "confidence": "direct"
+        }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [],
+            "returns": "GameVector3"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "clone(): GameVector3",
+              "confidence": "direct"
+            }
+          ]
         }
       ]
     },
@@ -9587,6 +9707,39 @@
           "symbol": "GameVector3",
           "confidence": "direct"
         }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "v",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "三维向量"
+                }
+              }
+            ],
+            "returns": "GameVector3"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "copy(v:GameVector3): GameVector3",
+              "confidence": "direct"
+            }
+          ]
+        }
       ]
     },
     {
@@ -9637,6 +9790,39 @@
           "path": "origin/origin/origin/api/GameVector3.js",
           "symbol": "GameVector3",
           "confidence": "direct"
+        }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "v",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "三维向量"
+                }
+              }
+            ],
+            "returns": "GameVector3"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "cross(v:GameVector3): GameVector3",
+              "confidence": "direct"
+            }
+          ]
         }
       ]
     },
@@ -9689,6 +9875,39 @@
           "symbol": "GameVector3",
           "confidence": "direct"
         }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "v",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "三维向量"
+                }
+              }
+            ],
+            "returns": "number"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "distance(v:GameVector3): number",
+              "confidence": "direct"
+            }
+          ]
+        }
       ]
     },
     {
@@ -9739,6 +9958,39 @@
           "path": "origin/origin/origin/api/GameVector3.js",
           "symbol": "GameVector3",
           "confidence": "direct"
+        }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "v",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "三维向量"
+                }
+              }
+            ],
+            "returns": "GameVector3"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "div(v:GameVector3): GameVector3",
+              "confidence": "direct"
+            }
+          ]
         }
       ]
     },
@@ -9791,6 +10043,39 @@
           "symbol": "GameVector3",
           "confidence": "direct"
         }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "v",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "三维向量"
+                }
+              }
+            ],
+            "returns": "GameVector3"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "divEq(v:GameVector3): GameVector3",
+              "confidence": "direct"
+            }
+          ]
+        }
       ]
     },
     {
@@ -9841,6 +10126,39 @@
           "path": "origin/origin/origin/api/GameVector3.js",
           "symbol": "GameVector3",
           "confidence": "direct"
+        }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "v",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "三维向量"
+                }
+              }
+            ],
+            "returns": "number"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "dot(v:GameVector3): number",
+              "confidence": "direct"
+            }
+          ]
         }
       ]
     },
@@ -9899,6 +10217,39 @@
           "symbol": "module 48388 EPSILON = 1e-6",
           "confidence": "supporting"
         }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "v",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "三维向量"
+                }
+              }
+            ],
+            "returns": "boolean"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "equals(v:GameVector3): boolean",
+              "confidence": "direct"
+            }
+          ]
+        }
       ]
     },
     {
@@ -9949,6 +10300,39 @@
           "path": "origin/origin/origin/api/GameVector3.js",
           "symbol": "GameVector3",
           "confidence": "direct"
+        }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "v",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "三维向量"
+                }
+              }
+            ],
+            "returns": "boolean"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "exactEquals(v:GameVector3): boolean",
+              "confidence": "direct"
+            }
+          ]
         }
       ]
     },
@@ -10023,6 +10407,61 @@
           "symbol": "GameVector3",
           "confidence": "direct"
         }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "mag",
+                "optional": false,
+                "type": "number",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "number",
+                  "description": "向量的模长或半径，即从原点到点的直线距离。"
+                }
+              },
+              {
+                "name": "phi",
+                "optional": false,
+                "type": "number",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "number",
+                  "description": "表示从正 y 轴到点在 xy 平面上的投影的逆时针角度（即经度）。"
+                }
+              },
+              {
+                "name": "theta",
+                "optional": false,
+                "type": "number",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "number",
+                  "description": "表示从 xz 平面向上或向下到点的角度（即纬度）。"
+                }
+              }
+            ],
+            "returns": "GameVector3"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "fromPolar(mag: number, phi: number, theta: number): GameVector3",
+              "confidence": "direct"
+            }
+          ]
+        }
       ]
     },
     {
@@ -10096,6 +10535,61 @@
           "symbol": "GameVector3",
           "confidence": "direct"
         }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "x",
+                "optional": false,
+                "type": "number",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "number",
+                  "description": "x 轴坐标"
+                }
+              },
+              {
+                "name": "y",
+                "optional": false,
+                "type": "number",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "number",
+                  "description": "y 轴坐标"
+                }
+              },
+              {
+                "name": "z",
+                "optional": false,
+                "type": "number",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "number",
+                  "description": "z 轴坐标"
+                }
+              }
+            ],
+            "returns": "GameVector3"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "GameVector3(x: number, y: number, z: number): GameVector3",
+              "confidence": "direct"
+            }
+          ]
+        }
       ]
     },
     {
@@ -10158,6 +10652,50 @@
           "symbol": "GameVector3",
           "confidence": "direct"
         }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "v",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "目标三维向量"
+                }
+              },
+              {
+                "name": "n",
+                "optional": false,
+                "type": "number",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "number(0-1)",
+                  "description": "插值百分比"
+                }
+              }
+            ],
+            "returns": "GameVector3"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "lerp(v:GameVector3,n: number): GameVector3",
+              "confidence": "direct"
+            }
+          ]
+        }
       ]
     },
     {
@@ -10196,6 +10734,27 @@
           "path": "origin/origin/origin/api/GameVector3.js",
           "symbol": "GameVector3",
           "confidence": "direct"
+        }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [],
+            "returns": "number"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "mag(): number",
+              "confidence": "direct"
+            }
+          ]
         }
       ]
     },
@@ -10248,6 +10807,39 @@
           "symbol": "GameVector3",
           "confidence": "direct"
         }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "v",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "三维向量"
+                }
+              }
+            ],
+            "returns": "GameVector3"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "max(v:GameVector3): GameVector3",
+              "confidence": "direct"
+            }
+          ]
+        }
       ]
     },
     {
@@ -10298,6 +10890,39 @@
           "path": "origin/origin/origin/api/GameVector3.js",
           "symbol": "GameVector3",
           "confidence": "direct"
+        }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "v",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "三维向量"
+                }
+              }
+            ],
+            "returns": "GameVector3"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "min(v:GameVector3): GameVector3",
+              "confidence": "direct"
+            }
+          ]
         }
       ]
     },
@@ -10350,6 +10975,39 @@
           "symbol": "GameVector3",
           "confidence": "direct"
         }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "v",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "三维向量"
+                }
+              }
+            ],
+            "returns": "GameVector3"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "mul(v:GameVector3): GameVector3",
+              "confidence": "direct"
+            }
+          ]
+        }
       ]
     },
     {
@@ -10401,6 +11059,39 @@
           "symbol": "GameVector3",
           "confidence": "direct"
         }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "v",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "三维向量"
+                }
+              }
+            ],
+            "returns": "GameVector3"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "mulEq(v:GameVector3): GameVector3",
+              "confidence": "direct"
+            }
+          ]
+        }
       ]
     },
     {
@@ -10439,6 +11130,27 @@
           "path": "origin/origin/origin/api/GameVector3.js",
           "symbol": "GameVector3",
           "confidence": "direct"
+        }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [],
+            "returns": "GameVector3"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "normalize(): GameVector3",
+              "confidence": "direct"
+            }
+          ]
         }
       ]
     },
@@ -10490,6 +11202,39 @@
           "path": "origin/origin/origin/api/GameVector3.js",
           "symbol": "GameVector3",
           "confidence": "direct"
+        }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "n",
+                "optional": false,
+                "type": "number",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "number",
+                  "description": "乘数"
+                }
+              }
+            ],
+            "returns": "GameVector3"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "scale(n: number): GameVector3",
+              "confidence": "direct"
+            }
+          ]
         }
       ]
     },
@@ -10564,6 +11309,61 @@
           "symbol": "GameVector3",
           "confidence": "direct"
         }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "x",
+                "optional": false,
+                "type": "number",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "number",
+                  "description": "x 轴坐标"
+                }
+              },
+              {
+                "name": "y",
+                "optional": false,
+                "type": "number",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "number",
+                  "description": "y 轴坐标"
+                }
+              },
+              {
+                "name": "z",
+                "optional": false,
+                "type": "number",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "number",
+                  "description": "z 轴坐标"
+                }
+              }
+            ],
+            "returns": "GameVector3"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "set(x: number, y: number, z: number): GameVector3",
+              "confidence": "direct"
+            }
+          ]
+        }
       ]
     },
     {
@@ -10602,6 +11402,27 @@
           "path": "origin/origin/origin/api/GameVector3.js",
           "symbol": "GameVector3",
           "confidence": "direct"
+        }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [],
+            "returns": "number"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "sqrMag(): number",
+              "confidence": "direct"
+            }
+          ]
         }
       ]
     },
@@ -10654,6 +11475,39 @@
           "symbol": "GameVector3",
           "confidence": "direct"
         }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "v",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "三维向量"
+                }
+              }
+            ],
+            "returns": "GameVector3"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "sub(v:GameVector3): GameVector3",
+              "confidence": "direct"
+            }
+          ]
+        }
       ]
     },
     {
@@ -10705,6 +11559,39 @@
           "symbol": "GameVector3",
           "confidence": "direct"
         }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "v",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "三维向量"
+                }
+              }
+            ],
+            "returns": "GameVector3"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "subEq(v:GameVector3): GameVector3",
+              "confidence": "direct"
+            }
+          ]
+        }
       ]
     },
     {
@@ -10743,6 +11630,27 @@
           "path": "origin/origin/origin/api/GameVector3.js",
           "symbol": "GameVector3",
           "confidence": "direct"
+        }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [],
+            "returns": "string"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "toString(): string",
+              "confidence": "direct"
+            }
+          ]
         }
       ]
     },
@@ -10795,6 +11703,39 @@
           "symbol": "GameVector3",
           "confidence": "direct"
         }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "v",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "三维向量"
+                }
+              }
+            ],
+            "returns": "GameVector3"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "towards(v:GameVector3): GameVector3",
+              "confidence": "direct"
+            }
+          ]
+        }
       ]
     },
     {
@@ -10833,6 +11774,27 @@
           "path": "origin/origin/origin/api/GameVector3.js",
           "symbol": "GameVector3",
           "confidence": "direct"
+        }
+      ],
+      "kinds": [
+        "property"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "x: number",
+              "confidence": "direct"
+            }
+          ]
         }
       ]
     },
@@ -10873,6 +11835,27 @@
           "symbol": "GameVector3",
           "confidence": "direct"
         }
+      ],
+      "kinds": [
+        "property"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "y: number",
+              "confidence": "direct"
+            }
+          ]
+        }
       ]
     },
     {
@@ -10911,6 +11894,27 @@
           "path": "origin/origin/origin/api/GameVector3.js",
           "symbol": "GameVector3",
           "confidence": "direct"
+        }
+      ],
+      "kinds": [
+        "property"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameVector3/index.md",
+              "symbol": "z: number",
+              "confidence": "direct"
+            }
+          ]
         }
       ]
     },

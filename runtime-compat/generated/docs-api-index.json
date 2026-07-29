@@ -2,7 +2,7 @@
   "format": "nea-runtime-abi",
   "version": 2,
   "signatureModel": "member-variants-v1",
-  "generatedAt": "2026-07-29T07:03:44.126Z",
+  "generatedAt": "2026-07-29T07:15:43.994Z",
   "source": "dao3-docs-mirror/markdown/api",
   "documentCount": 105,
   "entries": [
@@ -2789,7 +2789,7 @@
       "id": "client.object.ClientHttp",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "ClientHttp",
       "signature": {
         "declaration": "class"
@@ -2834,7 +2834,7 @@
       "id": "client.object.ClientMedia",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "ClientMedia",
       "signature": {
         "declaration": "class"
@@ -2879,7 +2879,7 @@
       "id": "client.object.ClientNavigator",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "ClientNavigator",
       "signature": {
         "declaration": "class"
@@ -2924,7 +2924,7 @@
       "id": "client.object.ClientRemoteChannel",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "ClientRemoteChannel",
       "signature": {
         "declaration": "class"
@@ -2969,7 +2969,7 @@
       "id": "client.object.ClientScreen",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "ClientScreen",
       "signature": {
         "declaration": "class"
@@ -3014,7 +3014,7 @@
       "id": "client.object.ClientWorld",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "ClientWorld",
       "signature": {
         "declaration": "class"
@@ -3059,7 +3059,7 @@
       "id": "client.object.Coord2",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "Coord2",
       "signature": {
         "declaration": "class"
@@ -3104,7 +3104,7 @@
       "id": "client.object.InputSystem",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "InputSystem",
       "signature": {
         "declaration": "class"
@@ -3149,7 +3149,7 @@
       "id": "client.object.UiNode",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "UiNode",
       "signature": {
         "declaration": "class"
@@ -3194,7 +3194,7 @@
       "id": "client.object.UiScale",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "UiScale",
       "signature": {
         "declaration": "class"
@@ -3239,7 +3239,7 @@
       "id": "client.object.Vec2",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "Vec2",
       "signature": {
         "declaration": "class"
@@ -3284,7 +3284,7 @@
       "id": "client.object.Vec3",
       "side": "client",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "Vec3",
       "signature": {
         "declaration": "class"
@@ -25691,7 +25691,7 @@
       "id": "server.object.GameAssetListEntry",
       "side": "server",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "GameAssetListEntry",
       "signature": {
         "declaration": "class"
@@ -25736,7 +25736,7 @@
       "id": "server.object.GameEntity",
       "side": "server",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "GameEntity",
       "signature": {
         "declaration": "class"
@@ -25781,7 +25781,7 @@
       "id": "server.object.GameHttpAPI",
       "side": "server",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "GameHttpAPI",
       "signature": {
         "declaration": "class"
@@ -25826,7 +25826,7 @@
       "id": "server.object.GameMotionController",
       "side": "server",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "GameMotionController",
       "signature": {
         "declaration": "class"
@@ -25871,7 +25871,7 @@
       "id": "server.object.GamePlayerEntity",
       "side": "server",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "GamePlayerEntity",
       "signature": {
         "declaration": "class"
@@ -25916,7 +25916,7 @@
       "id": "server.object.GameRTC",
       "side": "server",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "GameRTC",
       "signature": {
         "declaration": "class"
@@ -25961,7 +25961,7 @@
       "id": "server.object.GameStorage",
       "side": "server",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "GameStorage",
       "signature": {
         "declaration": "class"
@@ -26006,7 +26006,7 @@
       "id": "server.object.GameVoxels",
       "side": "server",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "GameVoxels",
       "signature": {
         "declaration": "class"
@@ -26051,7 +26051,7 @@
       "id": "server.object.GameWorld",
       "side": "server",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "GameWorld",
       "signature": {
         "declaration": "class"
@@ -26096,7 +26096,7 @@
       "id": "server.object.ServerRemoteChannel",
       "side": "server",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "ServerRemoteChannel",
       "signature": {
         "declaration": "class"
@@ -27136,9 +27136,10 @@
       "signature": {
         "parameters": [
           {
-            "name": "arg0",
+            "name": "points",
             "optional": false,
-            "type": "...points:GameVector3[]"
+            "type": "GameVector3[]",
+            "rest": true
           }
         ],
         "returns": "GameBounds3"
@@ -27168,9 +27169,10 @@
           "signature": {
             "parameters": [
               {
-                "name": "arg0",
+                "name": "points",
                 "optional": false,
-                "type": "...points:GameVector3[]"
+                "type": "GameVector3[]",
+                "rest": true
               }
             ],
             "returns": "GameBounds3"

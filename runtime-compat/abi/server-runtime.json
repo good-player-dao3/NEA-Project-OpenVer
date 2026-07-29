@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-abi",
   "version": 1,
-  "generatedAt": "2026-07-29T07:03:44.470Z",
+  "generatedAt": "2026-07-29T07:15:47.030Z",
   "side": "server",
   "entries": [
     {
@@ -30806,7 +30806,7 @@
       "id": "server.object.GameAssetListEntry",
       "side": "server",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "GameAssetListEntry",
       "signature": {
         "declaration": "class"
@@ -30851,7 +30851,7 @@
       "id": "server.object.GameEntity",
       "side": "server",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "GameEntity",
       "signature": {
         "declaration": "class"
@@ -30925,7 +30925,7 @@
       "id": "server.object.GameHttpAPI",
       "side": "server",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "GameHttpAPI",
       "signature": {
         "declaration": "class"
@@ -30970,7 +30970,7 @@
       "id": "server.object.GameMotionController",
       "side": "server",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "GameMotionController",
       "signature": {
         "declaration": "class"
@@ -31015,7 +31015,7 @@
       "id": "server.object.GamePlayerEntity",
       "side": "server",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "GamePlayerEntity",
       "signature": {
         "declaration": "class"
@@ -31060,7 +31060,7 @@
       "id": "server.object.GameRTC",
       "side": "server",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "GameRTC",
       "signature": {
         "declaration": "class"
@@ -31105,7 +31105,7 @@
       "id": "server.object.GameStorage",
       "side": "server",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "GameStorage",
       "signature": {
         "declaration": "class"
@@ -31150,7 +31150,7 @@
       "id": "server.object.GameVoxels",
       "side": "server",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "GameVoxels",
       "signature": {
         "declaration": "class"
@@ -31195,7 +31195,7 @@
       "id": "server.object.GameWorld",
       "side": "server",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "GameWorld",
       "signature": {
         "declaration": "class"
@@ -31311,7 +31311,7 @@
       "id": "server.object.ServerRemoteChannel",
       "side": "server",
       "kind": "object",
-      "owner": null,
+      "owner": "object",
       "name": "ServerRemoteChannel",
       "signature": {
         "declaration": "class"

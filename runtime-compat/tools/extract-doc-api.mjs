@@ -41,7 +41,7 @@ for (const file of files) {
       id: `${side}.object.${match[1]}`,
       side,
       kind: "object",
-      owner: null,
+      owner: "object",
       name: match[1],
       signature: { declaration: match[0].startsWith("declare class") ? "class" : "interface" },
       availability: "declared",
@@ -250,10 +250,14 @@ function isEventSection(value) {
 function parseParameters(source) {
   if (!source.trim()) return [];
   return splitTopLevel(source).map((parameter, index) => {
-    const match = parameter.trim().match(/^([A-Za-z_$][\w$]*)(\?)?\s*:\s*(.+)$/);
-    return match
-      ? { name: match[1], optional: Boolean(match[2]), type: match[3].trim() }
-      : { name: `arg${index}`, optional: false, type: parameter.trim() || "unknown" };
+    const match = parameter.trim().match(/^(\.\.\.)?([A-Za-z_$][\w$]*)(\?)?\s*:\s*(.+)$/);
+    if (!match) return { name: `arg${index}`, optional: false, type: parameter.trim() || "unknown" };
+    return {
+      name: match[2],
+      optional: Boolean(match[3]),
+      type: match[4].trim(),
+      ...(match[1] ? { rest: true } : {}),
+    };
   });
 }
 
