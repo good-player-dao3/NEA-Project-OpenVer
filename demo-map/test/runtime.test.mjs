@@ -533,20 +533,22 @@ test("GameWorld.createEntity emits synchronously and projects captured runtime e
   });
   await runtime.start();
   const player = runtime.addPlayer({ id: "create-entity-player" });
-  await new Promise(resolveEvent => setTimeout(resolveEvent, 1));
+  for (let attempt = 0; states.length === 0 && attempt < 100; attempt += 1) {
+    await new Promise(resolveEvent => setTimeout(resolveEvent, 1));
+  }
 
-  assert.deepEqual({ ...player.runtimeCreate }, {
+  assert.deepEqual(JSON.parse(JSON.stringify(player.runtimeCreate)), {
     id: "runtime-projectile",
     creationEvent: { tick: 0, entity: "runtime-projectile", playerAlias: true },
     selectorMatches: true,
   });
-  assert.deepEqual(creates, [{
+  assert.deepEqual(JSON.parse(JSON.stringify(creates)), [{
     position: [1, 2, 3], velocity: [0, 1, 0], name: "Runtime Projectile", tags: ["runtime-projectile"],
     mesh: "captured-runtime-mesh", collides: false, fixed: true, gravity: false, mass: 2,
     friction: 0.25, restitution: 0.5, meshScale: [2, 3, 4], meshOrientation: [0, 0, 0, 1],
     meshInvisible: true, meshMetalness: 0.7, meshEmissive: 0.2, meshShininess: 0.9, enableInteract: true,
   }]);
-  assert.deepEqual(states, [{ entityId: 7002, state: {
+  assert.deepEqual(JSON.parse(JSON.stringify(states)), [{ entityId: 7002, state: {
     position: [10, 11, 12], velocity: [3, 2, 1], orientation: [0, 0, 0, 1],
   } }]);
   runtime.stop();

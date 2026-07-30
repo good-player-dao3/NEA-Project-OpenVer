@@ -57,7 +57,7 @@ if (runtimePackagePath) {
   imported = await importMapProject(sourceRoot, buildRoot);
   clientManifest = await publishClientScript(imported, assetRoot);
   spawnPoint = imported.manifest.world.spawn;
-  playerBodyProfile = playerBodyProfile;
+  playerBodyProfile = imported.manifest.world.physics.playerBody;
 }
 const blockCatalog = await loadPreservedBlockCatalog(assetRoot, worldManifestName);
 const runtime = await ScriptRuntime.load(buildRoot, {
