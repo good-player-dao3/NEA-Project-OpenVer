@@ -56,3 +56,6 @@ http://127.0.0.1:4322/play/nea-script-lab?contentId=100110008
 
 Private browser profiles, cookies, login databases, session state, tokens, logs, dependency trees, packaged desktop binaries, and private captured scripts are intentionally excluded from version control. Generated reports record evidence classifications and gaps without publishing private session material.
 
+## License
+
+This repository is source-available under the [PolyForm Noncommercial License 1.0.0](LICENSE.md). Commercial use is not permitted under that license.
