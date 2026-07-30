@@ -1,5 +1,6 @@
 export class EventSignal {
   #records = new Set();
+  #futures = new Set();
   #destroyed = false;
 
   on(handler) {
@@ -28,24 +29,46 @@ export class EventSignal {
     return token;
   }
 
-  next() {
-    return new Promise(resolve => this.once(resolve));
+  next(filter) {
+    if (this.#destroyed) return Promise.reject(new Error("dispatcher destroyed"));
+    return new Promise((resolve, reject) => {
+      if (this.#destroyed) {
+        reject(new Error("dispatcher destroyed"));
+        return;
+      }
+      this.#futures.add({ filter, resolve, reject });
+    });
   }
 
   emit(event, onError = error => { throw error; }) {
     for (const record of [...this.#records]) {
       if (!record.active) continue;
       try {
-        record.handler(event);
+        Promise.resolve(record.handler(event)).catch(onError);
       } catch (error) {
         onError(error);
       }
     }
+    for (const future of [...this.#futures]) {
+      if (!this.#futures.has(future)) continue;
+      if (future.filter) {
+        try {
+          if (!future.filter.call(null, event)) continue;
+        } catch (error) {
+          onError(error);
+        }
+      }
+      this.#futures.delete(future);
+      future.resolve(event);
+    }
   }
 
-  clear() {
+  clear(reason = "dispatcher destroyed") {
     this.#destroyed = true;
     for (const record of this.#records) record.active = false;
     this.#records.clear();
+    const error = new Error(String(reason));
+    for (const future of this.#futures) future.reject(error);
+    this.#futures.clear();
   }
 }

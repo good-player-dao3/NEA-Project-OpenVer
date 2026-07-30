@@ -82,8 +82,14 @@ requireMarkers("cube axis mapping", text.cubeAxis, [
 ]);
 requireMarkers("local contact payload", text.localRuntime, [
   "export function createContactEvent(tick, entity, contact)",
-  "force: null",
-  "compatibility: contactCompatibility(\"force\")",
+  "const force = Vector3.from(contact.force ?? [0, 0, 0])",
+  "force,",
+  "collider.kind === \"voxel\" ? [] : [\"other\"]",
+]);
+requireMarkers("local impulse-derived force", text.localPhysics, [
+  "(body.velocity[axis] - incoming) * body.mass / deltaTime",
+  "(body.velocity.x - beforeX) * body.mass / deltaTime",
+  "(body.velocity.z - beforeZ) * body.mass / deltaTime",
 ]);
 requireMarkers("contact state conformance", text.conformance, [
   "export function unpackCubeAxis(axis)",
@@ -94,20 +100,20 @@ requireMarkers("contact state conformance", text.conformance, [
 const evidence = Object.fromEntries(Object.entries(sources).map(([key, path]) => [key, { path, confidence: "direct" }]));
 const model = {
   format: "nea-contact-event-model",
-  version: 2,
+  version: 3,
   generatedAt: new Date().toISOString(),
   scope: "Server Script Runtime collision events and active contact value objects",
   canonicalEvents: [
     schema("GameEntityContactEvent", ["tick", "entity", "other", "axis", "force"], {
       wire: ["tick", "id", "otherId", "nx", "ny", "nz", "fx", "fy", "fz"],
       localStatus: "partial",
-      unresolved: ["other: local static colliders are not GameEntity instances", "force: the local Demo sweep solver does not yet implement the recovered impulse-derived value"],
+      unresolved: ["other: local static colliders are not GameEntity instances"],
       evidence: [evidence.worldDocs, evidence.shell],
     }),
     schema("GameVoxelContactEvent", ["tick", "entity", "x", "y", "z", "voxel", "axis", "force"], {
       wire: ["tick", "id", "x", "y", "z", "axis", "fx", "fy", "fz"],
-      localStatus: "partial",
-      unresolved: ["force: the local Demo sweep solver does not yet implement the recovered impulse-derived value"],
+      localStatus: "compatible",
+      unresolved: [],
       evidence: [evidence.worldDocs, evidence.shell, evidence.localRuntime],
     }),
   ],
@@ -157,14 +163,14 @@ const model = {
   force: {
     wire: "fx/fy/fz are reconstructed as GameVector3",
     schema: "BodyContactSchema and VoxelContactSchema store fx/fy/fz as unquantized MuFloat32 fields",
-    local: "null",
-    status: "confirmed-historical-production-local-missing",
+    local: "The sweep solver projects its actual collision and ground-friction velocity deltas through force = mass * deltaVelocity / deltaTime, distributing simultaneous contacts evenly before GameVector3 event reconstruction.",
+    status: "confirmed-historical-production-local-compatible",
     solver: forceProduction.solverForce,
     bodyProjection: forceProduction.bodyContactProjection,
     voxelProjection: forceProduction.voxelContactProjection,
     aggregateContactForce: forceProduction.contactForceProperty,
     evidence: [{ path: "runtime-compat/generated/contact-force-production-analysis.json", confidence: "direct" }],
-    policy: "Implement per-contact force only from the recovered impulse solver formula; do not invent GameEntity.contactForce aggregation without ContactBinding evidence.",
+    policy: "Per-contact event force follows the recovered impulse-per-fixed-step formula; do not invent GameEntity.contactForce aggregation without ContactBinding evidence.",
   },
   localExtensions: {
     eventFields: ["player", "collider", "normal", "compatibility"],

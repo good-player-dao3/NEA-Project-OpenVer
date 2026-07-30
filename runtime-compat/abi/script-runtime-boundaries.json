@@ -1,7 +1,7 @@
 {
   "format": "nea-script-runtime-boundaries",
   "version": 1,
-  "generatedAt": "2026-07-29T08:25:32.670Z",
+  "generatedAt": "2026-07-30T00:56:54.328Z",
   "invariant": "Client Script Runtime and Server Script Runtime are separate execution realms connected only through declared transport and authoritative state flows.",
   "runtimes": [
     {
@@ -93,8 +93,13 @@
       "engine": "Node vm.Context",
       "entry": "scripts/server.js",
       "globals": [
+        "GameButtonType",
+        "GameGUI",
+        "GameStorage",
+        "GameVoxels",
         "RuntimeEntity",
         "RuntimePlayer",
+        "global",
         "remoteChannel",
         "world"
       ],
@@ -115,8 +120,8 @@
       "evidence": [
         {
           "path": "demo-map/src/runtime/script-runtime.mjs",
-          "bytes": 20928,
-          "sha256": "7714f6e030c8080a3ef2d4e87231096002c28b648c67e199baf13abac15425c9"
+          "bytes": 44564,
+          "sha256": "7a9e4ab2d2bd75e1b8a6948ada7894e07ce08c37055e43d107c55f9c01bf1d09"
         }
       ]
     }

@@ -114,6 +114,7 @@ test("ground contacts enter once and separate after takeoff", () => {
   body.velocity.y = 10;
   const third = physics.step(body, 0.05);
   assert.equal(first.entered.length, 1);
+  assert.deepEqual(first.entered[0].force, { x: 0, y: 20, z: 0 });
   assert.equal(second.entered.length, 0);
   assert.equal(second.collisions.length, 1);
   assert.equal(third.separated.length, 1);
@@ -130,6 +131,7 @@ test("surface materials apply restitution and different friction", () => {
   assert.equal(bouncingBody.position.y, 1.9);
   assert.equal(bouncingBody.velocity.y, 8);
   assert.equal(bouncingBody.grounded, true);
+  assert.deepEqual(bounce.step(playerBody({ position: [0.5, 2, 0.5], velocity: [0, -10, 0] }), 0.1).collisions[0].force, { x: 0, y: 180, z: 0 });
 
   const stone = physicsWith([{ position: [0, 0, 0], blockId: 129 }], {
     materials: { "129": { friction: 10 } },

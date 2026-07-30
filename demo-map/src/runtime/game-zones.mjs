@@ -1,0 +1,19 @@
+import { EventSignal } from "./event-signal.mjs";
+import { Vector3 } from "./vector3.mjs";
+import { GameRGBColor, GameRGBAColor } from "./colors.mjs";
+
+export class GameBounds3 {
+  static fromPoints(...points) { const lo=new Vector3(Infinity,Infinity,Infinity),hi=new Vector3(-Infinity,-Infinity,-Infinity); for(const p of points){lo.x=Math.min(lo.x,p.x);lo.y=Math.min(lo.y,p.y);lo.z=Math.min(lo.z,p.z);hi.x=Math.max(hi.x,p.x);hi.y=Math.max(hi.y,p.y);hi.z=Math.max(hi.z,p.z)} return new GameBounds3(lo,hi); }
+  constructor(lo,hi){this.lo=Vector3.from(lo);this.hi=Vector3.from(hi)} intersect(b){return new GameBounds3(this.lo.max(b.lo),this.hi.min(b.hi))} contains(p){return !(p.x<this.lo.x||p.x>this.hi.x||p.y<this.lo.y||p.y>this.hi.y||p.z<this.lo.z||p.z>this.hi.z)} containsBounds(b){return this.contains(b.lo)&&this.contains(b.hi)} intersects(b){return this.lo.x<b.hi.x&&b.lo.x<this.hi.x&&this.lo.y<b.hi.y&&b.lo.y<this.hi.y&&this.lo.z<b.hi.z&&b.lo.z<this.hi.z} set(lox,loy,loz,hix,hiy,hiz){this.lo.set(lox,loy,loz);this.hi.set(hix,hiy,hiz);return this} copy(b){this.lo.copy(b.lo);this.hi.copy(b.hi);return this} toString(){return `{ lo:${this.lo.toString()}, hi:${this.hi.toString()} }`}
+}
+
+export class GameZoneSystem {
+  #zones=[]; #tick=0;
+  list(){return this.#zones.map(wrapper=>wrapper.zone)}
+  add(config={}){const wrapper=createZone(config,()=>this.remove(wrapper.zone));this.#zones.push(wrapper);return wrapper.zone}
+  remove(zone){const index=this.#zones.findIndex(wrapper=>wrapper.zone===zone);if(index<0)return;const [wrapper]=this.#zones.splice(index,1);for(const entity of wrapper.active){wrapper.leave.emit(Object.freeze({tick:this.#tick,entity,player:entity}));}wrapper.active.clear();wrapper.enter.clear();wrapper.leave.clear()}
+  poll(tick,players){this.#tick=tick;for(const wrapper of this.#zones){for(const entity of [...wrapper.active])if(!matches(wrapper.zone,entity)){wrapper.active.delete(entity);wrapper.leave.emit(Object.freeze({tick,entity,player:entity}))}for(const entity of players)if(!wrapper.active.has(entity)&&matches(wrapper.zone,entity)){wrapper.active.add(entity);wrapper.enter.emit(Object.freeze({tick,entity,player:entity}))}}}
+}
+
+function createZone(config,remove){const enter=new EventSignal(),leave=new EventSignal(),active=new Set();const zone={entities:()=>[...active],onEnter:h=>enter.on(h),nextEnter:()=>enter.next(),onLeave:h=>leave.on(h),nextLeave:()=>leave.next(),remove,bounds:new GameBounds3(new Vector3(0,0,0),new Vector3(0,0,0)),selector:"*",massScale:0,force:new Vector3(0,0,0),fogEnabled:false,fogColor:new GameRGBColor(1,1,1),fogStartDistance:0,fogHeightOffset:-8,fogHeightFalloff:.8,fogDensity:0,fogMax:1,snowEnabled:false,snowDensity:1,snowSizeLo:.1,snowSizeHi:1,snowFallSpeed:1,snowSpinSpeed:0,snowColor:new GameRGBAColor(1,1,1,1),snowTexture:"snow/snow2.part",rainEnabled:false,rainDensity:1,rainDirection:new Vector3(0,1,0),rainSpeed:1,rainSizeLo:.5,rainSizeHi:.5,rainInterference:0,rainColor:new GameRGBAColor(1,1,1,1),skyEnabled:false,skyMode:"natural",skySunPhase:4/24,skySunFrequency:0,skyLunarPhase:0,skySunDirection:new Vector3(0,-1,0),skySunLight:new GameRGBColor(1000,1000,1000),skyLeftLight:new GameRGBColor(0,0,0),skyRightLight:new GameRGBColor(0,0,0),skyBottomLight:new GameRGBColor(0,0,0),skyTopLight:new GameRGBColor(0,0,0),skyFrontLight:new GameRGBColor(0,0,0),skyBackLight:new GameRGBColor(0,0,0)};Object.assign(zone,config);zone.bounds=config.bounds instanceof GameBounds3?config.bounds:new GameBounds3(config.bounds?.lo??[0,0,0],config.bounds?.hi??[0,0,0]);zone.force=Vector3.from(config.force??zone.force);return {zone,enter,leave,active}}
+function matches(zone,entity){if(zone.selector!=="*"&&zone.selector!=="player")return false;const p=entity.position;return zone.bounds.contains(p)}

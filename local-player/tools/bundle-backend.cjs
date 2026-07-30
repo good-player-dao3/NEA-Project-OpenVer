@@ -1,4 +1,6 @@
 const esbuild = require(process.argv[2]);
+const { patchGenericRemoteChannelBundle } = require("./patch-generic-remote-channel.cjs");
+const { applyBackendCompatPatch } = require("./apply-backend-compat-patch.cjs");
 const { readFileSync } = require("node:fs");
 const { join } = require("node:path");
 
@@ -226,6 +228,9 @@ esbuild.build({
       });
     },
   }],
+}).then(() => {
+  patchGenericRemoteChannelBundle(process.argv[4]);
+  applyBackendCompatPatch(process.argv[4]);
 }).catch(error => {
   console.error(error);
   process.exitCode = 1;

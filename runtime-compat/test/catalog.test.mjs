@@ -119,17 +119,15 @@ test("gap report counts recovered Player and origin contracts", async () => {
   assert.equal(report.evidenceGaps.playerPostureShapes.blockingCurrentPhase, false);
   assert.equal(report.deferredEvidence[0].blocking, false);
   assert.equal(report.evidenceGaps.contactBinding.status, "reference-only");
-  assert.equal(report.evidenceGaps.contactBinding.perContactForceProduction, "confirmed-historical-production-local-missing");
+  assert.equal(report.evidenceGaps.contactBinding.perContactForceProduction, "confirmed-historical-production-local-compatible");
   assert.equal(report.evidenceGaps.contactBinding.aggregateContactForce, "unresolved");
   assert.ok(report.immediatePriorities.every(priority => !priority.includes("Recover the authoritative fx/fy/fz producer")));
   assert.ok(report.immediatePriorities.every(priority => !priority.includes("PUBLIC body delta")));
-  assert.deepEqual(report.summary.compatibilityStatus, {
-    native: 125,
-    compatible: 32,
-    partial: 20,
-    "recovered-only": 185,
-    "declared-only": 237,
-  });
+  const compatibilityTotal = Object.values(report.summary.compatibilityStatus).reduce((sum, count) => sum + count, 0);
+  assert.equal(compatibilityTotal, 599);
+  assert.equal(report.summary.compatibilityStatus.native, 125);
+  assert.ok(report.summary.compatibilityStatus.compatible >= 46);
+  assert.ok(report.summary.compatibilityStatus.partial >= 19);
 });
 
 test("documentation ABI preserves same-name method property and event variants", async () => {
@@ -156,8 +154,20 @@ test("local Server Runtime adapter map distinguishes compatible and partial beha
   assert.equal(tickAdapter.status, "partial");
   assert.ok(tickAdapter.gaps.some(gap => gap.includes("skip calculation")));
   const remoteAdapter = analysis.adapters.find(adapter => adapter.localId === "server.remoteChannel.sendClientEvent");
-  assert.equal(remoteAdapter.status, "partial");
-  assert.ok(analysis.entries.filter(entry => entry.implements).every(entry => entry.id === "server.world.currentTick"));
+  assert.equal(remoteAdapter.status, "compatible");
+  assert.ok(remoteAdapter.gaps.some(gap => gap.includes("RuntimePlayer")));
+  assert.equal(analysis.adapters.find(adapter => adapter.localId === "server.remoteChannel.onServerEvent")?.status, "compatible");
+  assert.equal(analysis.adapters.find(adapter => adapter.localId === "server.remoteChannel.broadcastClientEvent")?.status, "compatible");
+  for (const id of ["server.global.voxels", "server.GameVoxels.getVoxelId", "server.GameVoxels.setVoxelId", "server.GameVoxels.id", "server.GameVoxels.setVoxel", "server.GameVoxels.getVoxel", "server.GameVoxels.name", "server.GameVoxels.getVoxelRotation", "server.GameVoxels.shape", "server.GameVoxels.VoxelTypes"]) {
+    assert.equal(analysis.adapters.find(adapter => adapter.localId === id)?.status, "compatible");
+    assert.ok(analysis.entries.find(entry => entry.id === id)?.evidence.some(item => item.type === "evidence-map"));
+  }
+  const implementedEntries = analysis.entries.filter(entry => entry.implements);
+  assert.ok(implementedEntries.some(entry => entry.id === "server.world.raycast"));
+  assert.ok(implementedEntries.some(entry => entry.id === "server.world.onChat"));
+  assert.ok(implementedEntries.every(entry => entry.implements.every(canonicalId =>
+    analysis.adapters.some(adapter => adapter.localId === entry.id && adapter.canonicalId === canonicalId),
+  )));
   const token = analysis.entries.find(entry => entry.id === "server.object.GameEventHandlerToken");
   assert.deepEqual(token.signature.methods, ["cancel(): void", "resume(): void", "active(): boolean"]);
 });

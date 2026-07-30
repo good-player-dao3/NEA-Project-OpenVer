@@ -65,7 +65,7 @@ export async function loadClientRuntime(root) {
       headless: false,
       mapInfo: {
         contentId: manifest.contentId,
-        name: "Local BedWars",
+        name: "NEA Local Player",
         backgroundImage: `${localOrigin}/block/QmTn4FL6hBnoD469zujDAFMpQtZMNwF5Wcc4LtHTqWNYHZ.png`,
       },
       mockJavaBackend: true,
@@ -96,12 +96,12 @@ export async function loadClientRuntime(root) {
     };
     const styles = manifest.initialStyles.map((path) => `<link rel="stylesheet" href="${path}">`).join("");
     const scripts = manifest.initialScripts.map((path) => `<script defer src="${path}"></script>`).join("");
-    return `<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="next-head-count" content="0"><title>Local BedWars</title>${styles}<script>window.CLIENT_CONFIG=${jsonForScript(clientConfig)};</script></head><body><div id="__next"></div><div id="react-container"></div><script id="__NEXT_DATA__" type="application/json">${jsonForScript(nextData)}</script>${scripts}</body></html>`;
+    return `<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="next-head-count" content="0"><title>NEA Local Player</title>${styles}<script>window.CLIENT_CONFIG=${jsonForScript(clientConfig)};</script></head><body><div id="__next"></div><div id="react-container"></div><script id="__NEXT_DATA__" type="application/json">${jsonForScript(nextData)}</script>${scripts}</body></html>`;
   }
 
   function renderLauncher() {
     const source = `${manifest.pagePath}?contentId=${encodeURIComponent(manifest.contentId)}`;
-    return `<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Local BedWars</title><style>html,body,#GameIframe{width:100%;height:100%;margin:0;border:0;display:block;overflow:hidden;background:#000}</style></head><body>${renderLauncherBridge()}<iframe id="GameIframe" data-local-bridge="waiting" title="Local BedWars" src="${source}" allow="autoplay; clipboard-read; clipboard-write; fullscreen; gamepad; pointer-lock" allowfullscreen></iframe></body></html>`;
+    return `<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NEA Local Player</title><style>html,body,#GameIframe{width:100%;height:100%;margin:0;border:0;display:block;overflow:hidden;background:#000}</style></head><body>${renderLauncherBridge()}<iframe id="GameIframe" data-local-bridge="waiting" title="NEA Local Player" src="${source}" allow="autoplay; clipboard-read; clipboard-write; fullscreen; gamepad; pointer-lock" allowfullscreen></iframe></body></html>`;
   }
 
   return {

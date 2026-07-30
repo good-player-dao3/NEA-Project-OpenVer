@@ -1,7 +1,7 @@
 {
   "format": "nea-contact-event-model",
-  "version": 2,
-  "generatedAt": "2026-07-29T08:25:32.567Z",
+  "version": 3,
+  "generatedAt": "2026-07-30T00:56:54.223Z",
   "scope": "Server Script Runtime collision events and active contact value objects",
   "canonicalEvents": [
     {
@@ -26,8 +26,7 @@
       ],
       "localStatus": "partial",
       "unresolved": [
-        "other: local static colliders are not GameEntity instances",
-        "force: the local Demo sweep solver does not yet implement the recovered impulse-derived value"
+        "other: local static colliders are not GameEntity instances"
       ],
       "evidence": [
         {
@@ -63,10 +62,8 @@
         "fy",
         "fz"
       ],
-      "localStatus": "partial",
-      "unresolved": [
-        "force: the local Demo sweep solver does not yet implement the recovered impulse-derived value"
-      ],
+      "localStatus": "compatible",
+      "unresolved": [],
       "evidence": [
         {
           "path": "dao3-docs-mirror/markdown/api/GameWorld/input.md",
@@ -253,8 +250,8 @@
   "force": {
     "wire": "fx/fy/fz are reconstructed as GameVector3",
     "schema": "BodyContactSchema and VoxelContactSchema store fx/fy/fz as unquantized MuFloat32 fields",
-    "local": "null",
-    "status": "confirmed-historical-production-local-missing",
+    "local": "The sweep solver projects its actual collision and ground-friction velocity deltas through force = mass * deltaVelocity / deltaTime, distributing simultaneous contacts evenly before GameVector3 event reconstruction.",
+    "status": "confirmed-historical-production-local-compatible",
     "solver": {
       "reset": "Each solver pass resets contact fx/fy/fz before processing its contact points.",
       "perPointFormula": "force += (normal * normalImpulse + tangent * tangentImpulse + binormal * binormalImpulse) * INV_DT",
@@ -296,7 +293,7 @@
         "confidence": "direct"
       }
     ],
-    "policy": "Implement per-contact force only from the recovered impulse solver formula; do not invent GameEntity.contactForce aggregation without ContactBinding evidence."
+    "policy": "Per-contact event force follows the recovered impulse-per-fixed-step formula; do not invent GameEntity.contactForce aggregation without ContactBinding evidence."
   },
   "localExtensions": {
     "eventFields": [

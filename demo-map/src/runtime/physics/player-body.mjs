@@ -6,6 +6,7 @@ export class PlayerPhysicsBody {
     const profile = requirePlayerBodyProfile(options.profile);
     this.position = Vector3.from(options.position ?? [0, 0, 0]);
     this.velocity = Vector3.from(options.velocity ?? [0, 0, 0]);
+    this.mass = Number.isFinite(options.mass) ? options.mass : 1;
     this.profile = profile;
     this.boundsHalfExtents = profile.boundsHalfExtents;
     this.shapeHalfExtents = profile.shapeHalfExtents;

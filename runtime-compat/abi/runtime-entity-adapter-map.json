@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-entity-adapter-map",
   "version": 1,
-  "generatedAt": "2026-07-29T08:25:32.333Z",
+  "generatedAt": "2026-07-30T00:56:53.984Z",
   "contract": "nea-server-runtime/v1",
   "localObject": {
     "id": "server.object.RuntimeEntity",
@@ -135,6 +135,122 @@
     },
     {
       "local": {
+        "id": "server.RuntimeEntity.onClick",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "handler",
+              "type": "({tick,entity,clicker,button,distance,clickerPosition,raycast})=>void"
+            }
+          ],
+          "returns": "listener-token"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.onClick",
+          "kind": "event",
+          "signature": {
+            "parameters": [
+              {
+                "name": "handler",
+                "optional": false,
+                "type": "(event:GameClickEvent)=>void",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "function",
+                  "description": "监听到鼠标点击时的处理函数"
+                }
+              }
+            ],
+            "returns": "GameEventHandlerToken"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The recovered GameClickEvent fields are exposed; the historical optional listener filter remains unimplemented."
+        ],
+        "effect": [
+          "World and clicked-entity double dispatch is implemented when game-net supplies an authoritative entity binding."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/input.md",
+          "symbol": "事件onClick(handler:(event:GameClickEvent)=>void):GameEventHandlerToken",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.nextClick",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "filter",
+              "type": "(event: GameClickEvent) => boolean",
+              "optional": true
+            }
+          ],
+          "returns": "Promise<GameClickEvent>"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.nextClick",
+          "kind": "event",
+          "signature": {
+            "parameters": [],
+            "returns": "unknown",
+            "representation": "function-valued property"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The historical optional filter remains unimplemented."
+        ],
+        "effect": [
+          "Resolution depends on an authoritative backend entity binding."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.nextClick",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
         "id": "server.RuntimeEntity.tags",
         "kind": "property",
         "signature": {
@@ -212,8 +328,8 @@
     }
   ],
   "summary": {
-    "memberCount": 5,
-    "partial": 3,
+    "memberCount": 7,
+    "partial": 5,
     "extensions": 2
   }
 }

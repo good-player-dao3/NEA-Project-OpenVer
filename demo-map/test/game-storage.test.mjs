@@ -1,0 +1,32 @@
+import assert from "node:assert/strict";
+import { mkdtemp, readFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+import { LocalGameStorage } from "../src/runtime/game-storage.mjs";
+
+test("implements and persists the recovered GameDataStorage surface", async () => {
+  const root = await mkdtemp(join(tmpdir(), "nea-storage-"));
+  const file = join(root, "storage.json");
+  const storage = new LocalGameStorage({ file });
+  const space = storage.getDataStorage("players");
+  assert.equal(space.key, "players");
+  assert.equal(await space.get("guest"), undefined);
+  await space.set("guest", { score: 1 });
+  const first = await space.get("guest");
+  assert.deepEqual(first.value, { score: 1 });
+  await space.update("guest", previous => ({ score: previous.value.score + 1 }));
+  assert.deepEqual((await space.get("guest")).value, { score: 2 });
+  assert.equal(await space.increment("wins", 2), 2);
+  assert.equal(await space.increment("wins"), 3);
+  const list = await space.list({ cursor: 0, pageSize: 1 });
+  assert.equal(list.getCurrentPage().length, 1);
+  assert.equal(list.isLastPage, false);
+  await list.nextPage();
+  assert.equal(list.getCurrentPage().length, 1);
+  assert.ok(JSON.parse(await readFile(file, "utf8")).spaces.players);
+  assert.equal((await space.remove("wins")).value, 3);
+  await space.destroy();
+  assert.deepEqual((await storage.getDataStorage("players").list()).getCurrentPage(), []);
+  assert.equal(storage.getGroupStorage("shared"), undefined);
+});

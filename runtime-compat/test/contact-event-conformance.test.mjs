@@ -10,12 +10,12 @@ test("canonical contact event fields are evidence-backed", () => {
   assert.deepEqual(entity.fields, ["tick", "entity", "other", "axis", "force"]);
   assert.deepEqual(voxel.fields, ["tick", "entity", "x", "y", "z", "voxel", "axis", "force"]);
   assert.equal(entity.localStatus, "partial");
-  assert.equal(voxel.localStatus, "partial");
+  assert.equal(voxel.localStatus, "compatible");
 });
 
-test("per-contact force production is recovered while aggregate contactForce remains unresolved", () => {
-  assert.equal(model.force.status, "confirmed-historical-production-local-missing");
-  assert.equal(model.force.local, "null");
+test("per-contact force production is locally compatible while aggregate contactForce remains unresolved", () => {
+  assert.equal(model.force.status, "confirmed-historical-production-local-compatible");
+  assert.match(model.force.local, /mass \* deltaVelocity \/ deltaTime/);
   assert.match(model.force.schema, /MuFloat32/);
   assert.equal(model.force.solver.status, "confirmed");
   assert.equal(model.force.voxelProjection.cutoff, 0.001);

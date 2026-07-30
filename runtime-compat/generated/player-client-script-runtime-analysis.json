@@ -1,7 +1,7 @@
 {
   "format": "nea-player-client-script-runtime-analysis",
   "version": 1,
-  "generatedAt": "2026-07-29T08:25:31.896Z",
+  "generatedAt": "2026-07-30T00:56:53.536Z",
   "source": {
     "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/474.c17d0cc8a4489c84.js",
     "bytes": 40625,
@@ -78,7 +78,8 @@
     "listenerMethods": [
       "onClientEvent",
       "removeEventListener",
-      "clear"
+      "clear",
+      "events.on('client')"
     ]
   },
   "entries": [
@@ -8140,6 +8141,96 @@
           ]
         }
       ]
+    },
+    {
+      "id": "client.remoteChannel.events",
+      "side": "client",
+      "kind": "property",
+      "owner": "remoteChannel",
+      "name": "events",
+      "signature": {
+        "type": "EventEmitter<{client:any}>",
+        "readonly": true
+      },
+      "availability": "confirmed",
+      "compatibility": "native",
+      "capability": "client.remote-channel",
+      "since": null,
+      "notes": [
+        "The archived ClientRemoteChannel constructs an EventEmitter and emits the client event after each decoded server event."
+      ],
+      "evidence": [
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/474.c17d0cc8a4489c84.js",
+          "symbol": "module 93474 ClientScript / SES global construction",
+          "confidence": "direct"
+        }
+      ],
+      "binding": {
+        "eventBus": "remoteChannel.events",
+        "eventName": "client"
+      }
+    },
+    {
+      "id": "client.input.pointerLockEvents",
+      "side": "client",
+      "kind": "property",
+      "owner": "input",
+      "name": "pointerLockEvents",
+      "signature": {
+        "type": "EventEmitter<PointerLockEvents>",
+        "readonly": true
+      },
+      "availability": "confirmed",
+      "compatibility": "native",
+      "capability": "client.ui",
+      "since": null,
+      "notes": [
+        "The archived InputSystem constructs pointerLockEvents and emits pointerlockchange and pointerlockerror."
+      ],
+      "evidence": [
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/474.c17d0cc8a4489c84.js",
+          "symbol": "module 93474 ClientScript / SES global construction",
+          "confidence": "direct"
+        }
+      ],
+      "binding": {
+        "propertyPath": "input.pointerLockEvents",
+        "access": "read-only"
+      }
+    },
+    {
+      "id": "client.ClientScreen.events",
+      "side": "client",
+      "kind": "property",
+      "owner": "ClientScreen",
+      "name": "events",
+      "signature": {
+        "type": "EventEmitter<ScreenEvents>",
+        "readonly": true
+      },
+      "availability": "confirmed",
+      "compatibility": "native",
+      "capability": "client.ui",
+      "since": null,
+      "notes": [
+        "The archived ClientScreen constructs an EventEmitter and emits resize events."
+      ],
+      "evidence": [
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/474.c17d0cc8a4489c84.js",
+          "symbol": "module 93474 ClientScript / SES global construction",
+          "confidence": "direct"
+        }
+      ],
+      "binding": {
+        "propertyPath": "screen.events",
+        "access": "read-only"
+      }
     },
     {
       "id": "client.runtime.moduleDelivery",

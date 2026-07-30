@@ -24,7 +24,7 @@ remoteChannel.sendServerEvent({
   runtimeApiVersion: "0.1.0"
 });
 
-remoteChannel.onClientEvent(event => {
+remoteChannel.events.on("client", event => {
   if (event?.type === "nea-demo:welcome") {
     console.log(`[NEA Demo] welcome received at server tick ${event.tick}`);
     const collision = event.collision;

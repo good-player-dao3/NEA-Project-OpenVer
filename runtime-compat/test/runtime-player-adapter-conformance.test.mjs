@@ -12,9 +12,11 @@ test("RuntimePlayer canonical map covers every public local member", async () =>
   const localIds = local.entries.filter(entry => entry.owner === "RuntimePlayer").map(entry => entry.id).sort();
   const mappedIds = map.members.map(entry => entry.local.id).sort();
   assert.deepEqual(mappedIds, localIds);
-  assert.equal(map.summary.memberCount, 10);
-  assert.equal(map.summary.compatible, 0);
-  assert.equal(map.summary.partial, 6);
+  assert.equal(map.summary.memberCount, mappedIds.length);
+  assert.equal(map.summary.compatible, map.members.filter(entry => entry.status === "compatible").length);
+  assert.equal(map.summary.partial, map.members.filter(entry => entry.status === "partial").length);
+  assert.equal(map.summary.extensions, map.members.filter(entry => entry.status === "extension").length);
+  assert.ok(map.summary.partial >= 13);
   assert.equal(map.summary.extensions, 4);
   assert.ok(map.members.filter(entry => entry.status !== "compatible").every(entry => entry.implements.length === 0));
 });
@@ -26,6 +28,11 @@ test("RuntimePlayer remains a composite instead of claiming GamePlayerEntity", a
   assert.deepEqual(member(map, "server.RuntimePlayer.name").canonicalTargets.map(entry => entry.id), ["server.GamePlayerEntity.name"]);
   assert.deepEqual(member(map, "server.RuntimePlayer.position").canonicalTargets.map(entry => entry.id), ["server.GameEntity.position"]);
   assert.deepEqual(member(map, "server.RuntimePlayer.health").canonicalTargets.map(entry => entry.id), ["server.GameEntity.hp"]);
+  assert.equal(member(map, "server.RuntimePlayer.color").canonicalTargets[0].id, "server.GamePlayerEntity.color");
+  assert.equal(member(map, "server.RuntimePlayer.forceRespawn").canonicalTargets[0].id, "server.GamePlayerEntity.forceRespawn");
+  assert.equal(member(map, "server.RuntimePlayer.nextRespawn").canonicalTargets.length, 0);
+  assert.equal(member(map, "server.RuntimePlayer.onTakeDamage").canonicalTargets[0].id, "server.GameEntity.onTakeDamage");
+  assert.equal(member(map, "server.RuntimePlayer.nextTakeDamage").canonicalTargets.length, 0);
   assert.equal(member(map, "server.RuntimePlayer.snapshot").status, "extension");
 });
 
@@ -34,6 +41,9 @@ test("GameEntityEvent records canonical fields and isolates the player alias", a
   assert.deepEqual(map.events[0].canonicalFields, ["tick", "entity"]);
   assert.deepEqual(map.events[0].localAliases, [{ name: "player", target: "entity" }]);
   assert.equal(map.events[0].status, "partial");
+  assert.deepEqual(map.events[1].canonicalFields, ["tick", "entity", "attacker", "damage", "damageType"]);
+  assert.equal(map.events[1].canonicalObject, "server.GameDamageEvent");
+  assert.equal(map.events[1].status, "partial");
 });
 
 function member(map, id) {

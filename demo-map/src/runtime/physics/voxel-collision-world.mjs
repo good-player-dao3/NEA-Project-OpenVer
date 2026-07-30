@@ -6,6 +6,7 @@ const DEFAULT_MATERIAL = Object.freeze({ solid: true, friction: 8, restitution: 
 
 export class VoxelCollisionWorld {
   #chunks = new Map();
+  #voxelIds = new Map();
   #materials = new Map();
   #colliders = [];
   #triggers = [];
@@ -18,24 +19,8 @@ export class VoxelCollisionWorld {
     }
     for (const voxel of config.voxels ?? []) {
       const [x, y, z] = voxel.position;
-      if (voxel.blockId === 0) continue;
-      const cell = Object.freeze({
-        kind: "voxel",
-        id: `${x},${y},${z}`,
-        x,
-        y,
-        z,
-        blockId: voxel.blockId,
-        min: Object.freeze({ x, y, z }),
-        max: Object.freeze({ x: x + 1, y: y + 1, z: z + 1 }),
-        material: this.materialFor(voxel.blockId),
-        tags: Object.freeze([]),
-      });
-      if (!cell.material.solid) continue;
-      const chunkKey = key(Math.floor(x / CHUNK_SIZE), Math.floor(y / CHUNK_SIZE), Math.floor(z / CHUNK_SIZE));
-      const chunk = this.#chunks.get(chunkKey) ?? [];
-      chunk.push(cell);
-      this.#chunks.set(chunkKey, chunk);
+      const fullId = (voxel.blockId & 0x3fff) | (((voxel.rotation ?? 0) & 3) << 14);
+      this.setVoxelId(x, y, z, fullId);
     }
     this.#colliders = (config.colliders ?? []).map(item => volumeCollider(item, this.materialFor(item.material)));
     this.#triggers = (config.triggers ?? []).map(item => volumeTrigger(item));
@@ -43,6 +28,52 @@ export class VoxelCollisionWorld {
 
   materialFor(id) {
     return this.#materials.get(String(id)) ?? DEFAULT_MATERIAL;
+  }
+
+  getVoxelId(x, y, z) {
+    return this.#voxelIds.get(key(x, y, z)) ?? 0;
+  }
+
+  setVoxelId(x, y, z, fullId) {
+    const cellKey = key(x, y, z);
+    const previous = this.#voxelIds.get(cellKey) ?? 0;
+    if (previous === fullId) return fullId;
+    if (previous !== 0) this.#removeCollisionCell(x, y, z);
+    if (fullId === 0) {
+      this.#voxelIds.delete(cellKey);
+      return 0;
+    }
+    this.#voxelIds.set(cellKey, fullId);
+    const blockId = fullId & 0x3fff;
+    const material = this.materialFor(blockId);
+    if (!material.solid || blockId === 0) return fullId;
+    const cell = Object.freeze({
+      kind: "voxel",
+      id: cellKey,
+      x,
+      y,
+      z,
+      blockId: fullId,
+      min: Object.freeze({ x, y, z }),
+      max: Object.freeze({ x: x + 1, y: y + 1, z: z + 1 }),
+      material,
+      tags: Object.freeze([]),
+    });
+    const chunkKey = key(Math.floor(x / CHUNK_SIZE), Math.floor(y / CHUNK_SIZE), Math.floor(z / CHUNK_SIZE));
+    const chunk = this.#chunks.get(chunkKey) ?? [];
+    chunk.push(cell);
+    this.#chunks.set(chunkKey, chunk);
+    return fullId;
+  }
+
+  #removeCollisionCell(x, y, z) {
+    const chunkKey = key(Math.floor(x / CHUNK_SIZE), Math.floor(y / CHUNK_SIZE), Math.floor(z / CHUNK_SIZE));
+    const chunk = this.#chunks.get(chunkKey);
+    if (!chunk) return;
+    const cellKey = key(x, y, z);
+    const index = chunk.findIndex(cell => cell.id === cellKey);
+    if (index >= 0) chunk.splice(index, 1);
+    if (chunk.length === 0) this.#chunks.delete(chunkKey);
   }
 
   sweep(body, axis, amount) {

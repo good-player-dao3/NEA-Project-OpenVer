@@ -8214,7 +8214,10 @@ var import_node_http2 = require("node:http");
 var import_node_crypto = require("node:crypto");
 var import_promises = require("node:fs/promises");
 var import_node_path = require("node:path");
-var safeModuleName = /^[A-Za-z0-9._-]+\.js$/;
+function isSafeModuleName(name) {
+  return name.length > 3 && name.endsWith(".js") && !name.includes("/") && !name.includes("\\") && !name.includes("\0") && name !== ".js" && name !== "..js";
+}
+var { loadClientUiState } = require("./client-ui-state.cjs");
 var sha256Pattern = /^[0-9a-f]{64}$/;
 async function loadClientScriptModules(assetRoot, manifestName = "project/bedwars/client-scripts/manifest.json") {
   const root = (0, import_node_path.resolve)(assetRoot);
@@ -8239,7 +8242,7 @@ function validateManifest(value) {
   }
   const names = /* @__PURE__ */ new Set();
   for (const entry of value.files) {
-    if (!isRecord(entry) || typeof entry.name !== "string" || !safeModuleName.test(entry.name) || !Number.isInteger(entry.bytes) || entry.bytes < 0 || typeof entry.sha256 !== "string" || !sha256Pattern.test(entry.sha256) || names.has(entry.name)) {
+    if (!isRecord(entry) || typeof entry.name !== "string" || !isSafeModuleName(entry.name) || !Number.isInteger(entry.bytes) || entry.bytes < 0 || typeof entry.sha256 !== "string" || !sha256Pattern.test(entry.sha256) || names.has(entry.name)) {
       throw new Error("Invalid client script manifest entry");
     }
     names.add(entry.name);
@@ -8651,7 +8654,7 @@ async function loadProjectBootstrap(assetRoot, manifestName = "project/bedwars/b
 }
 function validateProjectBootstrap(value) {
   const data = asRecord(value, "bootstrap data");
-  if (data.format !== PROJECT_BOOTSTRAP_FORMAT || data.version !== PROJECT_BOOTSTRAP_VERSION || !sameStrings(data.sourceMessages, PROJECT_BOOTSTRAP_SOURCE_MESSAGES) || !Array.isArray(data.meshHashes) || data.meshHashes.length !== 117 || !Array.isArray(data.skinHashes) || data.skinHashes.length !== 1 || !Array.isArray(data.skinPartHashBatches) || data.skinPartHashBatches.length !== 2 || !Array.isArray(data.soundDictionary) || data.soundDictionary.length !== 45 || data.soundDictionary[0] !== "") throw new Error("Unsupported project bootstrap data");
+  if (data.format !== PROJECT_BOOTSTRAP_FORMAT || data.version !== PROJECT_BOOTSTRAP_VERSION || !sameStrings(data.sourceMessages, PROJECT_BOOTSTRAP_SOURCE_MESSAGES) || !Array.isArray(data.meshHashes) || data.meshHashes.length < 117 || !Array.isArray(data.skinHashes) || data.skinHashes.length !== 1 || !Array.isArray(data.skinPartHashBatches) || data.skinPartHashBatches.length !== 2 || !Array.isArray(data.soundDictionary) || data.soundDictionary.length !== 45 || data.soundDictionary[0] !== "") throw new Error("Unsupported project bootstrap data");
   const usedPartIds = /* @__PURE__ */ new Set();
   return freezeBootstrap({
     meshHashes: data.meshHashes.map((entry, index) => validateMesh(entry, index)),
@@ -10398,7 +10401,7 @@ function parseModel(value, index) {
   return Object.freeze({
     ...record.invisible === void 0 ? {} : { invisible: requireBoolean(record.invisible, "Local Player projection model invisible") },
     ...record.color === void 0 ? {} : { color: requireRgba(record.color, "Local Player projection model color") },
-    ...record.scale === void 0 ? {} : { scale: requirePositiveVector(record.scale, "Local Player projection model scale") },
+    ...record.scale === void 0 ? {} : { scale: requireVector(record.scale, "Local Player projection model scale") },
     ...record.offset === void 0 ? {} : { offset: requireVector(record.offset, "Local Player projection model offset") },
     ...record.emissive === void 0 ? {} : { emissive: requireFinite(record.emissive, 0, 1, "Local Player projection model emissive") },
     ...record.shininess === void 0 ? {} : { shininess: requireFinite(record.shininess, 0, 1, "Local Player projection model shininess") },
@@ -10744,7 +10747,7 @@ function validateReplica(replica) {
   }
   requireOptionalBoolean(model.invisible, "runtime entity model invisible");
   if (model.color !== void 0) requireRgba2(model.color, "runtime entity model color");
-  if (model.scale !== void 0) requirePositiveVector2(model.scale, "runtime entity model scale");
+  if (model.scale !== void 0) requireVector2(model.scale, "runtime entity model scale");
   if (model.offset !== void 0) requireVector2(model.offset, "runtime entity model offset");
   requireOptionalFinite(model.emissive, "runtime entity model emissive", 0, 1);
   requireOptionalFinite(model.shininess, "runtime entity model shininess", 0, 1);
@@ -11290,6 +11293,61 @@ var initialDelayMilliseconds = 1500;
 var inventorySize = 36;
 var quickInventorySize = 9;
 var maximumStackSize = 64;
+var RemoteChannelSessions = class {
+  sessions = /* @__PURE__ */ new Map();
+  get size() {
+    return this.sessions.size;
+  }
+  connect(client) {
+    requireSessionId3(client.sessionId);
+    const session = this.getOrCreate(client.sessionId);
+    session.client = client;
+  }
+  sendExternalEvent(sessionLabel, event) {
+    const session = [...this.sessions.values()].find((candidate) => {
+      if (candidate.sessionId === sessionLabel) return true;
+      if (candidate.sessionId.length <= 12) return candidate.sessionId === sessionLabel;
+      return candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === sessionLabel;
+    });
+    if (!session?.client) return false;
+    const sender = session.client.message.sendClientEvent;
+    if (typeof sender !== "function") return false;
+    const args = JSON.stringify(event);
+    if (typeof args !== "string") return false;
+    sender({ tick: session.nextTick++, args });
+    return true;
+  }
+  handleServerEvent(client, value) {
+    const session = this.sessions.get(client.sessionId);
+    if (!session || session.client !== client) return false;
+    if (!value || !Number.isSafeInteger(value.tick) || value.tick < 0 || typeof value.args !== "string") return false;
+    try {
+      JSON.parse(value.args);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  disconnect(client) {
+    const session = this.sessions.get(client.sessionId);
+    if (!session || session.client !== client) return false;
+    session.client = void 0;
+    return true;
+  }
+  delete(sessionId) {
+    return this.sessions.delete(sessionId);
+  }
+  dispose() {
+    this.sessions.clear();
+  }
+  getOrCreate(sessionId) {
+    const existing = this.sessions.get(sessionId);
+    if (existing) return existing;
+    const session = { sessionId, nextTick: 1, client: void 0 };
+    this.sessions.set(sessionId, session);
+    return session;
+  }
+};
 var BedwarsRemoteSessions = class {
   match;
   schedule;
@@ -11676,7 +11734,7 @@ var DialogSessions = class {
     return this.sessions.size;
   }
   hasActiveClient(sessionId) {
-    return this.sessions.get(sessionId)?.client !== void 0;
+    return this.resolveSessionLabel(sessionId)?.client !== void 0;
   }
   connect(client) {
     requireSessionId4(client.sessionId);
@@ -11688,7 +11746,7 @@ var DialogSessions = class {
   }
   open(sessionId, config) {
     requireSessionId4(sessionId);
-    const session = this.sessions.get(sessionId);
+    const session = this.resolveSessionLabel(sessionId);
     const client = session?.client;
     if (!session || !client) throw new Error(`No active dialog client for session ${sessionId}`);
     const rpcId = allocateRpcId(session);
@@ -11696,9 +11754,11 @@ var DialogSessions = class {
     const response = new Promise((resolve9, reject) => {
       pending = { resolve: resolve9, reject };
     });
+    response.catch(() => {
+    });
     session.pending.set(rpcId, pending);
     try {
-      client.message.open({ rpcId, config });
+      client.message.open({ rpcId, config: normalizeDialogConfig(config) });
     } catch (error) {
       session.pending.delete(rpcId);
       pending.reject(asError(error));
@@ -11717,7 +11777,7 @@ var DialogSessions = class {
     return true;
   }
   cancel(sessionId, rpcId) {
-    const session = this.sessions.get(sessionId);
+    const session = this.resolveSessionLabel(sessionId);
     if (!session || !isRpcId(rpcId)) return false;
     const pending = session.pending.get(rpcId);
     if (!pending) return false;
@@ -11727,7 +11787,7 @@ var DialogSessions = class {
     return true;
   }
   cancelAll(sessionId) {
-    const session = this.sessions.get(sessionId);
+    const session = this.resolveSessionLabel(sessionId);
     if (!session || session.pending.size === 0) return 0;
     const pending = [...session.pending.values()];
     session.pending.clear();
@@ -11754,10 +11814,16 @@ var DialogSessions = class {
   dispose() {
     for (const sessionId of [...this.sessions.keys()]) this.delete(sessionId);
   }
+  resolveSessionLabel(sessionLabel) {
+    const exact = this.sessions.get(sessionLabel);
+    if (exact) return exact;
+    return [...this.sessions.values()].find((candidate) => candidate.sessionId.length > 12 && candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === sessionLabel);
+  }
   getOrCreate(sessionId) {
     const existing = this.sessions.get(sessionId);
     if (existing) return existing;
     const session = {
+      sessionId,
       nextRpcId: 0,
       pending: /* @__PURE__ */ new Map()
     };
@@ -11765,6 +11831,53 @@ var DialogSessions = class {
     return session;
   }
 };
+var defaultDialogBackgroundColor = Object.freeze({ r: 1, g: 1, b: 1, a: 1 });
+var defaultDialogTextColor = Object.freeze({ r: 0, g: 0, b: 0, a: 1 });
+function normalizeDialogConfig(config) {
+  if (!config || typeof config !== "object" || Array.isArray(config)) throw new TypeError("Dialog config must be an object");
+  const type = String(config.type ?? "text").toLowerCase();
+  const common = {
+    lookEyeEntity: dialogEntityId(config.lookEyeEntity),
+    lookTargetEntity: dialogEntityId(config.lookTargetEntity),
+    lookEyeEnabled: Boolean(config.lookEyeEnabled),
+    lookTargetEnabled: Boolean(config.lookTargetEnabled),
+    lookUpEnabled: Boolean(config.lookUpEnabled),
+    content: String(config.content ?? ""),
+    contentBackgroundColor: dialogColor(config.contentBackgroundColor, defaultDialogBackgroundColor),
+    contentTextColor: dialogColor(config.contentTextColor, defaultDialogTextColor),
+    lookEyeOffset: dialogVector(config.lookEyeOffset),
+    lookTargetOffset: dialogVector(config.lookTargetOffset),
+    lookUp: dialogVector(config.lookUp),
+    title: String(config.title ?? ""),
+    titleBackgroundColor: dialogColor(config.titleBackgroundColor, defaultDialogBackgroundColor),
+    titleTextColor: dialogColor(config.titleTextColor, defaultDialogTextColor)
+  };
+  if (type === "text") return { type, data: { common, hasArrow: Boolean(config.hasArrow) } };
+  if (type === "input") return { type, data: { common, confirmText: String(config.confirmText ?? ""), placeholder: String(config.placeholder ?? "") } };
+  if (type === "select") {
+    if (!Array.isArray(config.options)) throw new TypeError("Select dialog options must be an array");
+    return { type, data: { common, options: config.options.map((option) => String(option)) } };
+  }
+  throw new RangeError(`Unsupported dialog type: ${type}`);
+}
+function dialogEntityId(value) {
+  return Number.isSafeInteger(value) && value >= 0 ? value : 0;
+}
+function dialogVector(value) {
+  return {
+    x: Number.isFinite(value?.x) ? value.x : 0,
+    y: Number.isFinite(value?.y) ? value.y : 0,
+    z: Number.isFinite(value?.z) ? value.z : 0
+  };
+}
+function dialogColor(value, fallback) {
+  return {
+    r: Number.isFinite(value?.r) ? value.r : fallback.r,
+    g: Number.isFinite(value?.g) ? value.g : fallback.g,
+    b: Number.isFinite(value?.b) ? value.b : fallback.b,
+    a: Number.isFinite(value?.a) ? value.a : fallback.a
+  };
+}
 function allocateRpcId(session) {
   for (let attempts = 0; attempts <= maximumRpcId; attempts++) {
     const rpcId = session.nextRpcId;
@@ -11830,6 +11943,143 @@ function isRecord6(value) {
   return typeof value === "object" && value !== null;
 }
 function asError(value) {
+  return value instanceof Error ? value : new Error(String(value));
+}
+
+// legacy/box3-compat/src/session/gui-sessions.ts
+var maximumGuiHandle = 4294967295;
+var GuiSessions = class {
+  sessions = /* @__PURE__ */ new Map();
+  get size() {
+    return this.sessions.size;
+  }
+  hasActiveClient(sessionId) {
+    return this.resolveSessionLabel(sessionId)?.client !== void 0;
+  }
+  connect(client) {
+    requireGuiSessionId(client.sessionId);
+    const session = this.getOrCreate(client.sessionId);
+    if (session.client && session.client !== client) rejectPendingGui(session, `GUI client was replaced for session ${client.sessionId}`);
+    session.client = client;
+  }
+  command(sessionId, command) {
+    requireGuiSessionId(sessionId);
+    if (!command || typeof command !== "object" || Array.isArray(command)) throw new TypeError("GUI command must be an object");
+    const session = this.resolveSessionLabel(sessionId);
+    const client = session?.client;
+    if (!session || !client) throw new Error(`No active GUI client for session ${sessionId}`);
+    const handle = allocateGuiHandle(session);
+    let pending;
+    const response = new Promise((resolveGui, reject) => {
+      pending = { resolve: resolveGui, reject };
+    });
+    session.pending.set(handle, pending);
+    try {
+      sendGuiCommandPacket(client, handle, command);
+    } catch (error) {
+      session.pending.delete(handle);
+      pending.reject(asGuiError(error));
+    }
+    return response;
+  }
+  resolve(client, message) {
+    const session = this.sessions.get(client.sessionId);
+    if (!session || session.client !== client || !isGuiHandle(message.handle)) return false;
+    const pending = session.pending.get(message.handle);
+    if (!pending) return false;
+    session.pending.delete(message.handle);
+    try {
+      pending.resolve(message.value ? JSON.parse(message.value) : void 0);
+    } catch (error) {
+      pending.reject(asGuiError(error));
+    }
+    return true;
+  }
+  reject(client, message) {
+    const session = this.sessions.get(client.sessionId);
+    if (!session || session.client !== client || !isGuiHandle(message.handle)) return false;
+    const pending = session.pending.get(message.handle);
+    if (!pending) return false;
+    session.pending.delete(message.handle);
+    pending.reject(new Error(String(message.message)));
+    return true;
+  }
+  disconnect(client) {
+    const session = this.sessions.get(client.sessionId);
+    if (!session || session.client !== client) return false;
+    this.sessions.delete(client.sessionId);
+    rejectPendingGui(session, `GUI client disconnected for session ${client.sessionId}`);
+    return true;
+  }
+  delete(sessionId) {
+    const session = this.sessions.get(sessionId);
+    if (!session) return false;
+    this.sessions.delete(sessionId);
+    rejectPendingGui(session, `GUI session expired for session ${sessionId}`);
+    return true;
+  }
+  dispose() {
+    for (const sessionId of [...this.sessions.keys()]) this.delete(sessionId);
+  }
+  resolveSessionLabel(sessionLabel) {
+    const exact = this.sessions.get(sessionLabel);
+    if (exact) return exact;
+    return [...this.sessions.values()].find((candidate) => candidate.sessionId.length > 12 && candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === sessionLabel);
+  }
+  getOrCreate(sessionId) {
+    const existing = this.sessions.get(sessionId);
+    if (existing) return existing;
+    const session = { sessionId, nextHandle: 0, pending: /* @__PURE__ */ new Map() };
+    this.sessions.set(sessionId, session);
+    return session;
+  }
+};
+function sendGuiCommandPacket(client, handle, command) {
+  const operation = String(command.operation ?? "");
+  switch (operation) {
+    case "init":
+      client.message.init({ handle, data: JSON.stringify(command.config) });
+      return;
+    case "show":
+      client.message.show({ handle, name: requireGuiString(command.name, "name"), allowMultiple: command.allowMultiple === true });
+      return;
+    case "remove":
+      client.message.remove({ handle, selector: requireGuiString(command.selector, "selector") });
+      return;
+    case "getAttribute":
+      client.message.getAttribute({ handle, selector: requireGuiString(command.selector, "selector"), name: requireGuiString(command.name, "name") });
+      return;
+    case "setAttribute":
+      client.message.setAttribute({ handle, selector: requireGuiString(command.selector, "selector"), name: requireGuiString(command.name, "name"), value: JSON.stringify(command.value) });
+      return;
+    default:
+      throw new Error(`Unsupported GUI operation: ${operation}`);
+  }
+}
+function allocateGuiHandle(session) {
+  for (let offset = 0; offset <= maximumGuiHandle; offset += 1) {
+    const handle = session.nextHandle;
+    session.nextHandle = handle === maximumGuiHandle ? 0 : handle + 1;
+    if (!session.pending.has(handle)) return handle;
+  }
+  throw new Error(`GUI handle space exhausted for session ${session.sessionId}`);
+}
+function rejectPendingGui(session, message) {
+  const pending = [...session.pending.values()];
+  session.pending.clear();
+  for (const call of pending) call.reject(new Error(message));
+}
+function requireGuiSessionId(sessionId) {
+  if (!sessionId) throw new Error("sessionId must not be empty");
+}
+function requireGuiString(value, name) {
+  if (typeof value !== "string") throw new TypeError(`GUI ${name} must be a string`);
+  return value;
+}
+function isGuiHandle(value) {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0 && value <= maximumGuiHandle;
+}
+function asGuiError(value) {
   return value instanceof Error ? value : new Error(String(value));
 }
 
@@ -12558,7 +12808,7 @@ function createNetPublicState(input2) {
     model.green = green;
     model.blue = blue;
     model.alpha = alpha;
-    const [scaleX, scaleY, scaleZ] = normalizePositiveVector(entity.model.scale ?? [1, 1, 1], "entity model scale");
+    const [scaleX, scaleY, scaleZ] = normalizeVector(entity.model.scale ?? [1, 1, 1], "entity model scale");
     model.scaleX = scaleX;
     model.scaleY = scaleY;
     model.scaleZ = scaleZ;
@@ -13328,6 +13578,11 @@ var ProjectBootstrapSessions = class {
     session.terrain = client;
     return this.flush(session);
   }
+  connectGameUi(client) {
+    const session = this.getOrCreate(client.sessionId);
+    session.gameUiReady = true;
+    return this.flush(session);
+  }
   joinGameNet(client, afterBootstrap) {
     const session = this.getOrCreate(client.sessionId);
     session.gameNet = client;
@@ -13347,6 +13602,7 @@ var ProjectBootstrapSessions = class {
     if (existing) return existing;
     const session = {
       joined: false,
+      gameUiReady: !this.options.clientUiRequired,
       modelsSent: this.options.bootstrap.meshHashes.length === 0,
       skinHashesSent: this.options.bootstrap.skinHashes.length === 0,
       initialSkinPartHashesSent: skinPartBatch(this.options.bootstrap, 0).length === 0,
@@ -13367,6 +13623,7 @@ var ProjectBootstrapSessions = class {
     session.sound = void 0;
     session.terrain = void 0;
     session.joined = false;
+    session.gameUiReady = !this.options.clientUiRequired;
     session.modelsSent = this.options.bootstrap.meshHashes.length === 0;
     session.skinHashesSent = this.options.bootstrap.skinHashes.length === 0;
     session.initialSkinPartHashesSent = skinPartBatch(this.options.bootstrap, 0).length === 0;
@@ -13380,7 +13637,7 @@ var ProjectBootstrapSessions = class {
     session.diagnosticsCompleted = false;
   }
   flush(session) {
-    if (!session.joined || !session.gameNet || !session.terrain) return false;
+    if (!session.joined || !session.gameNet || !session.terrain || !session.gameUiReady) return false;
     if (!session.modelsSent && !session.models) return false;
     if (!session.skinHashesSent && !session.models) return false;
     if (!session.initialSkinPartHashesSent && !session.models) return false;
@@ -14245,9 +14502,12 @@ var LegacyHistoricalProjectInstance = class {
     this.mutableTerrain = new MutableArchiveWorld(terrain, options.world);
     this.terrainSessions = new TerrainSessions();
     this.dialogSessions = new DialogSessions();
+    this.guiSessions = new GuiSessions();
     this.gameChatSessions = new GameChatSessions();
     this.playerProtocolSessions = new PlayerProtocolSessions();
-    const bedwarsEnabled = options.world.gameplayMode !== "base" || process.env.BOX3_ENABLE_REMOTE_SESSIONS === "1";
+    this.remoteChannelSessions = new RemoteChannelSessions();
+    const legacyGameplayDisabled = process.env.BOX3_DISABLE_LEGACY_GAMEPLAY === "1";
+    const bedwarsEnabled = !legacyGameplayDisabled && (options.world.gameplayMode !== "base" || process.env.BOX3_ENABLE_REMOTE_SESSIONS === "1");
     this.bedwarsMatch = bedwarsEnabled ? new BedwarsMatch() : void 0;
     this.bedwarsRemoteSessions = this.bedwarsMatch ? new BedwarsRemoteSessions({ match: this.bedwarsMatch }) : void 0;
     this.forgeResources = this.bedwarsMatch && this.bedwarsRemoteSessions ? new ForgeResourceService({
@@ -14284,12 +14544,16 @@ var LegacyHistoricalProjectInstance = class {
     this.projectBootstrapSessions = new ProjectBootstrapSessions({
       bootstrap: options.projectBootstrap,
       clientScripts: options.clientScripts,
+      clientUiRequired: Boolean(options.clientUiState),
       world: options.world
     });
     this.protocolContext = {
       clientScripts: options.clientScripts,
+      clientUiState: options.clientUiState,
+      remoteChannelSessions: this.remoteChannelSessions,
       bedwarsRemoteSessions: this.bedwarsRemoteSessions,
       dialogSessions: this.dialogSessions,
+      guiSessions: this.guiSessions,
       gameChatSessions: this.gameChatSessions,
       playerProtocolSessions: this.playerProtocolSessions,
       gameClock: this.gameClock,
@@ -14315,8 +14579,10 @@ var LegacyHistoricalProjectInstance = class {
   mutableTerrain;
   terrainSessions;
   dialogSessions;
+  guiSessions;
   gameChatSessions;
   playerProtocolSessions;
+  remoteChannelSessions;
   bedwarsMatch;
   bedwarsRemoteSessions;
   terrainInteraction;
@@ -14351,8 +14617,10 @@ var LegacyHistoricalProjectInstance = class {
     this.gameNetHandshakes.delete(sessionId);
     this.gameNetPublicSessions.delete(sessionId);
     this.terrainSessions.delete(sessionId);
+    this.remoteChannelSessions.delete(sessionId);
     this.bedwarsRemoteSessions?.delete(sessionId);
     this.dialogSessions.delete(sessionId);
+    this.guiSessions.delete(sessionId);
     this.gameChatSessions.delete(sessionId);
     this.playerProtocolSessions.delete(sessionId);
     this.projectBootstrapSessions.delete(sessionId);
@@ -14377,8 +14645,10 @@ var LegacyHistoricalProjectInstance = class {
     this.gameRuntime.dispose();
     this.terrainSessions.dispose();
     this.forgeResources?.dispose();
+    this.remoteChannelSessions.dispose();
     this.bedwarsRemoteSessions?.dispose();
     this.dialogSessions.dispose();
+    this.guiSessions.dispose();
     this.gameChatSessions.dispose();
     try {
       afterGameChat?.();
@@ -14542,23 +14812,36 @@ var MuQuantizedVec3 = class {
     if (qb0 === qt0 && qb1 === qt1 && qb2 === qt2) {
       return false;
     }
-    const d0 = encodeRelative2(qt0 - qb0);
-    const d1 = encodeRelative2(qt1 - qb1);
-    const d2 = encodeRelative2(qt2 - qb2);
+    const magic = 2863311530;
+    const d0 = (magic + (qt0 - qb0) ^ magic) >>> 0;
+    const d1 = (magic + (qt1 - qb1) ^ magic) >>> 0;
+    const d2 = (magic + (qt2 - qb2) ^ magic) >>> 0;
     const mask = (d0 ? 1 : 0) | (d1 ? 2 : 0) | (d2 ? 4 : 0);
+    const writeFirst = value => {
+      const low = value & 15;
+      const rest = value >>> 4;
+      out.writeUint8((mask | (rest ? 8 : 0)) << 4 | low);
+      if (rest) out.writeVarint(rest);
+    };
     out.grow(16);
-    out.writeUint8(mask | mask << 3 | (mask & 4) << 4);
-    if (d0) out.writeVarint(d0);
-    if (d1) out.writeVarint(d1);
-    if (d2) out.writeVarint(d2);
+    if (d0) { writeFirst(d0); if (d1) out.writeVarint(d1); if (d2) out.writeVarint(d2); }
+    else if (d1) { writeFirst(d1); if (d2) out.writeVarint(d2); }
+    else writeFirst(d2);
     return true;
   }
   patch(base, inp) {
     const n = inp.readUint8();
+    const magic = 2863311530;
+    const readFirst = () => {
+      let value = n & 15;
+      if (n & 128) value += inp.readVarint() << 4;
+      return (magic ^ value) - magic >> 0;
+    };
+    const readNext = () => { const value = inp.readVarint(); return (magic ^ value) - magic >> 0; };
     let r = 0, a = 0, o = 0;
-    if (n & 16) r = decodeRelative2(inp.readVarint());
-    if (n & 32) a = decodeRelative2(inp.readVarint());
-    if (n & 64) o = decodeRelative2(inp.readVarint());
+    if (n & 16) { r = readFirst(); if (n & 32) a = readNext(); if (n & 64) o = readNext(); }
+    else if (n & 32) { a = readFirst(); if (n & 64) o = readNext(); }
+    else o = readFirst();
     const inv = this.invPrecision;
     const prec = this.precision;
     const qb0 = Math.round(inv * base[0]) >> 0;
@@ -14632,20 +14915,31 @@ var MuQuantizedVec2 = class {
     const qt0 = Math.round(inv * target[0]) >> 0;
     const qt1 = Math.round(inv * target[1]) >> 0;
     if (qb0 === qt0 && qb1 === qt1) return false;
-    const d0 = encodeRelative2(qt0 - qb0);
-    const d1 = encodeRelative2(qt1 - qb1);
+    const magic = 2863311530;
+    const d0 = (magic + (qt0 - qb0) ^ magic) >>> 0;
+    const d1 = (magic + (qt1 - qb1) ^ magic) >>> 0;
     const mask = (d0 ? 1 : 0) | (d1 ? 2 : 0);
+    const value = d0 || d1;
+    const low = value & 31;
+    const rest = value >>> 5;
     out.grow(16);
-    out.writeUint8(mask | mask << 4);
-    if (d0) out.writeVarint(d0);
-    if (d1) out.writeVarint(d1);
+    out.writeUint8((mask | (rest ? 4 : 0)) << 5 | low);
+    if (rest) out.writeVarint(rest);
+    if (d0 && d1) out.writeVarint(d1);
     return true;
   }
   patch(base, inp) {
     const n = inp.readUint8();
+    const magic = 2863311530;
+    const readFirst = () => {
+      let value = n & 31;
+      if (n & 128) value += inp.readVarint() << 5;
+      return (magic ^ value) - magic >> 0;
+    };
+    const readNext = () => { const value = inp.readVarint(); return (magic ^ value) - magic >> 0; };
     let r = 0, a = 0;
-    if (n & 16) r = decodeRelative2(inp.readVarint());
-    if (n & 32) a = decodeRelative2(inp.readVarint());
+    if (n & 32) { r = readFirst(); if (n & 64) a = readNext(); }
+    else a = readFirst();
     const inv = this.invPrecision;
     const prec = this.precision;
     const qb0 = Math.round(inv * base[0]) >> 0;
@@ -15340,153 +15634,124 @@ var remoteChannel = {
   }
 };
 function createGameUIProtocol() {
-  const size2d = new import_schema5.MuStruct({
-    offset: new MuQuantizedVec2(390625e-8, [5, 5]),
-    ratio: new MuQuantizedVec2(9765625e-10, [0, 0])
+  const coord2d = (offset, ratio) => new import_schema5.MuStruct({
+    offset: new MuQuantizedVec2(390625e-8, offset),
+    ratio: new MuQuantizedVec2(9765625e-10, ratio)
   });
   const autoLayoutSchema = new import_schema5.MuStruct({
-    maxCells: new import_schema5.MuVarint(),
-    fillDirection: new import_schema5.MuUint8(),
-    horizontalAlignment: new import_schema5.MuUint8(),
-    startCorner: new import_schema5.MuUint8(),
-    verticalAlignment: new import_schema5.MuUint8(),
-    columnWidthEnabled: new import_schema5.MuBoolean(),
-    lineHeightEnabled: new import_schema5.MuBoolean(),
-    maxCellsEnabled: new import_schema5.MuBoolean(),
-    cellPadding: size2d,
-    cellSize: size2d
+    cellSize: coord2d([50, 50], [0, 0]),
+    lineHeightEnabled: new import_schema5.MuBoolean(true),
+    columnWidthEnabled: new import_schema5.MuBoolean(true),
+    startCorner: new import_schema5.MuUint8(0),
+    fillDirection: new import_schema5.MuUint8(0),
+    maxCells: new import_schema5.MuVarint(3),
+    maxCellsEnabled: new import_schema5.MuBoolean(true),
+    cellPadding: coord2d([5, 5], [0, 0]),
+    horizontalAlignment: new import_schema5.MuUint8(1),
+    verticalAlignment: new import_schema5.MuUint8(1)
   });
-  const layoutUnion = new import_schema5.MuUnion({
-    none: new import_schema5.MuVoid(),
-    autoLayout: autoLayoutSchema
-  });
+  const layoutUnion = new import_schema5.MuUnion({ none: new import_schema5.MuVoid(), autoLayout: autoLayoutSchema }, "none");
   const screenSchema = new import_schema5.MuStruct({
-    zIndex: new import_schema5.MuVarint(),
-    enable: new import_schema5.MuBoolean(),
-    layout: layoutUnion
-  });
-  const pos2d = new import_schema5.MuStruct({
-    offset: new MuQuantizedVec2(390625e-8, [0, 0]),
-    ratio: new MuQuantizedVec2(9765625e-10, [0, 0])
-  });
-  const baseElement = {
-    backgroundOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, 1),
-    rotation: new import_schema5.MuQuantizedFloat(9765625e-10, 0),
-    layoutOrder: new import_schema5.MuVarint(),
-    zIndex: new import_schema5.MuVarint(),
-    autoResize: new import_schema5.MuUint8(),
-    clipsDescendants: new import_schema5.MuBoolean(),
-    visible: new import_schema5.MuBoolean(),
-    anchor: new MuQuantizedVec2(9765625e-10, [0, 0]),
-    backgroundColor: new MuQuantizedVec3(1, [255, 255, 255]),
+    enable: new import_schema5.MuBoolean(true),
     layout: layoutUnion,
-    position: pos2d,
-    size: pos2d
-  };
-  const boxSchema = new import_schema5.MuStruct({ ...baseElement });
-  const imageSchema = new import_schema5.MuStruct({
-    ...baseElement,
-    imageOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, 1),
-    imageDisplayMode: new import_schema5.MuUint8(),
-    image: new import_schema5.MuUTF8()
+    zIndex: new import_schema5.MuVarint(1)
+  });
+  const common = (size, backgroundOpacity = 1, clipsDescendants = false) => ({
+    anchor: new MuQuantizedVec2(9765625e-10, [0, 0]),
+    position: coord2d([0, 0], [0, 0]),
+    size: coord2d(size, [0, 0]),
+    autoResize: new import_schema5.MuUint8(0),
+    visible: new import_schema5.MuBoolean(true),
+    backgroundColor: new MuQuantizedVec3(1, [255, 255, 255]),
+    backgroundOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, backgroundOpacity),
+    zIndex: new import_schema5.MuVarint(1),
+    layoutOrder: new import_schema5.MuVarint(1),
+    layout: layoutUnion,
+    clipsDescendants: new import_schema5.MuBoolean(clipsDescendants)
+  });
+  const rotation = () => new import_schema5.MuQuantizedFloat(9765625e-10, 0);
+  const textStroke = () => ({
+    textStrokeColor: new MuQuantizedVec3(1, [255, 255, 255]),
+    textStrokeOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, 1),
+    textStrokeThickness: new import_schema5.MuQuantizedFloat(9765625e-10, 0),
+    textFontFamily: new import_schema5.MuUint8(0)
+  });
+  const boxSchema = new import_schema5.MuStruct({ ...common([400, 300]), rotation: rotation() });
+  const inputFieldSchema = new import_schema5.MuStruct({
+    ...common([200, 50]),
+    textContent: new import_schema5.MuUTF8(""),
+    textFontSize: new import_schema5.MuUint8(14),
+    textColor: new MuQuantizedVec3(1, [0, 0, 0]),
+    textOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, 1),
+    textXAlignment: new import_schema5.MuUint8(0),
+    textYAlignment: new import_schema5.MuUint8(0),
+    textLineHeight: new import_schema5.MuQuantizedFloat(390625e-8, 1.2),
+    autoWordWrap: new import_schema5.MuBoolean(false),
+    placeholder: new import_schema5.MuUTF8("Type something here"),
+    placeholderColor: new MuQuantizedVec3(1, [172, 172, 164]),
+    placeholderOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, 1),
+    rotation: rotation(),
+    ...textStroke()
   });
   const textSchema = new import_schema5.MuStruct({
-    ...baseElement,
-    textLineHeight: new import_schema5.MuQuantizedFloat(390625e-8, 1.19921875),
-    textOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, 1),
-    textStrokeOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, 1),
-    textStrokeThickness: new import_schema5.MuQuantizedFloat(9765625e-10, 0),
-    textFontFamily: new import_schema5.MuUint8(),
-    textFontSize: new import_schema5.MuUint8(),
-    textXAlignment: new import_schema5.MuUint8(),
-    textYAlignment: new import_schema5.MuUint8(),
-    autoWordWrap: new import_schema5.MuBoolean(),
-    richText: new import_schema5.MuBoolean(),
+    ...common([200, 50], 0),
+    textContent: new import_schema5.MuUTF8("Text"),
+    textFontSize: new import_schema5.MuUint8(14),
     textColor: new MuQuantizedVec3(1, [0, 0, 0]),
-    textContent: new import_schema5.MuUTF8(),
-    textStrokeColor: new MuQuantizedVec3(1, [255, 255, 255])
+    textOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, 1),
+    textXAlignment: new import_schema5.MuUint8(0),
+    textYAlignment: new import_schema5.MuUint8(0),
+    textLineHeight: new import_schema5.MuQuantizedFloat(390625e-8, 1.2),
+    autoWordWrap: new import_schema5.MuBoolean(false),
+    ...textStroke(),
+    richText: new import_schema5.MuBoolean(false),
+    rotation: rotation()
+  });
+  const imageSchema = new import_schema5.MuStruct({
+    ...common([200, 200]),
+    image: new import_schema5.MuUTF8(""),
+    imageOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, 1),
+    imageDisplayMode: new import_schema5.MuUint8(0),
+    rotation: rotation()
   });
   const scrollBoxSchema = new import_schema5.MuStruct({
-    ...baseElement,
+    ...common([300, 300], 1, true),
+    scrollDirection: new import_schema5.MuUint8(1),
+    scrollbarHorizontal: new import_schema5.MuUint8(1),
+    scrollbarVertical: new import_schema5.MuUint8(1),
+    scrollbarVisibility: new import_schema5.MuUint8(1),
+    scrollbarThickness: new import_schema5.MuVarint(8),
+    scrollbarColor: new MuQuantizedVec3(1, [153, 153, 153]),
     scrollbarOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, 1),
-    scrollbarThickness: new import_schema5.MuVarint(),
-    scrollCanvasAutoResize: new import_schema5.MuUint8(),
-    scrollDirection: new import_schema5.MuUint8(),
-    scrollbarHorizontal: new import_schema5.MuUint8(),
-    scrollbarVertical: new import_schema5.MuUint8(),
-    scrollbarVisibility: new import_schema5.MuUint8(),
-    scrollCanvasSize: size2d,
+    scrollCanvasAutoResize: new import_schema5.MuUint8(0),
+    scrollCanvasSize: coord2d([500, 500], [0, 0]),
     scrollPosition: new MuQuantizedVec2(390625e-8, [0, 0]),
-    scrollbarColor: new MuQuantizedVec3(1, [153, 153, 153])
+    rotation: rotation()
   });
-  const inputFieldSchema = new import_schema5.MuStruct({
-    ...baseElement,
-    placeholderOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, 1),
-    textLineHeight: new import_schema5.MuQuantizedFloat(390625e-8, 1.19921875),
-    textOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, 1),
-    textStrokeOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, 1),
-    textStrokeThickness: new import_schema5.MuQuantizedFloat(9765625e-10, 0),
-    textFontFamily: new import_schema5.MuUint8(),
-    textFontSize: new import_schema5.MuUint8(),
-    textXAlignment: new import_schema5.MuUint8(),
-    textYAlignment: new import_schema5.MuUint8(),
-    autoWordWrap: new import_schema5.MuBoolean(),
-    placeholder: new import_schema5.MuUTF8(),
-    placeholderColor: new MuQuantizedVec3(1, [172, 172, 164]),
-    textColor: new MuQuantizedVec3(1, [0, 0, 0]),
-    textContent: new import_schema5.MuUTF8(),
-    textStrokeColor: new MuQuantizedVec3(1, [255, 255, 255])
-  });
-  const elementUnion = new import_schema5.MuUnion({
-    box: boxSchema,
-    image: imageSchema,
-    text: textSchema,
-    scrollBox: scrollBoxSchema,
-    input: inputFieldSchema
-  });
+  const elementUnion = new import_schema5.MuUnion({ box: boxSchema, image: imageSchema, text: textSchema, scrollBox: scrollBoxSchema, input: inputFieldSchema });
   return {
     name: "gameUI",
     client: {
       reset: new import_schema5.MuStruct({
         running: new import_schema5.MuBoolean(),
-        defaultScreenId: new import_schema5.MuUTF8(),
-        pictureAssets: new import_schema5.MuDictionary(new import_schema5.MuStruct({
-          height: new import_schema5.MuInt32(),
-          width: new import_schema5.MuInt32(),
-          hash: new import_schema5.MuASCII(),
-          metadataHash: new import_schema5.MuASCII()
-        })),
         uiTree: new import_schema5.MuDictionary(new import_schema5.MuStruct({
-          type: new import_schema5.MuVarint(),
-          childrenIds: new import_schema5.MuArray(new import_schema5.MuASCII()),
           id: new import_schema5.MuASCII(),
+          type: new import_schema5.MuVarint(),
           name: new import_schema5.MuUTF8(),
           parentId: new import_schema5.MuASCII(),
-          value: new import_schema5.MuOption(new import_schema5.MuUnion({
-            screen: screenSchema,
-            element: elementUnion
-          }))
+          childrenIds: new import_schema5.MuArray(new import_schema5.MuASCII()),
+          value: new import_schema5.MuOption(new import_schema5.MuUnion({ screen: screenSchema, element: elementUnion }), void 0, true)
         }), Number.POSITIVE_INFINITY, {
-          ROOT_ID: {
-            type: 0,
-            childrenIds: ["DEFAULT_SCREEN_ID"],
-            id: "ROOT_ID",
-            name: "Root",
-            parentId: "",
-            value: { type: "", data: void 0 }
-          },
-          DEFAULT_SCREEN_ID: {
-            type: 2,
-            childrenIds: [],
-            id: "DEFAULT_SCREEN_ID",
-            name: "screen",
-            parentId: "ROOT_ID",
-            value: {
-              type: "screen",
-              data: { zIndex: 1, enable: true, layout: { type: "none", data: void 0 } }
-            }
-          }
-        })
+          ROOT_ID: { type: 0, childrenIds: ["DEFAULT_SCREEN_ID"], id: "ROOT_ID", name: "Root", parentId: "", value: void 0 },
+          DEFAULT_SCREEN_ID: { type: 2, childrenIds: [], id: "DEFAULT_SCREEN_ID", name: "screen", parentId: "ROOT_ID", value: { type: "screen", data: { enable: true, layout: { type: "none", data: void 0 }, zIndex: 1 } } }
+        }),
+        pictureAssets: new import_schema5.MuDictionary(new import_schema5.MuStruct({
+          metadataHash: new import_schema5.MuASCII(),
+          hash: new import_schema5.MuASCII(),
+          width: new import_schema5.MuInt32(),
+          height: new import_schema5.MuInt32()
+        })),
+        defaultScreenId: new import_schema5.MuUTF8("")
       })
     },
     server: {}
@@ -15553,6 +15818,23 @@ function createDialogHandlers(context) {
 }
 
 // legacy/box3-compat/src/protocol/handlers/entity-interact.ts
+function createGuiHandlers(context) {
+  return {
+    return(client, message) {
+      context.stats.record("gui", "return");
+      context.guiSessions.resolve(client, message);
+    },
+    throw(client, message) {
+      context.stats.record("gui", "throw");
+      context.guiSessions.reject(client, message);
+    },
+    sendMessage(client, message) {
+      context.stats.record("gui", "sendMessage");
+      context.logger.info(`[gui:message] ${shortSession(client.sessionId)} ${JSON.stringify(message)}`);
+    }
+  };
+}
+
 function createEntityInteractHandlers(context) {
   return {
     interact(client) {
@@ -15597,6 +15879,9 @@ function createGameNetHandlers(context) {
     input(client, data) {
       context.stats.record("game-net", "input");
       const accepted = context.gameNetPublicSessions.acceptInput(client.sessionId, data);
+      if (accepted && process.env.BOX3_LOG_SCRIPT_INPUT_EVENTS === "1" && Array.isArray(data.events) && data.events.length > 0) {
+        context.logger.info(`[game-net:input] ${shortSession(client.sessionId)} ${JSON.stringify({ tick: data.tick, events: data.events })}`);
+      }
       if (accepted) context.terrainInteraction.handleInput(client.sessionId, data);
     },
     sendKeyBoardEvent(client, data) {
@@ -15611,8 +15896,10 @@ function createRemoteChannelHandlers(context) {
   return {
     sendServerEvent(client, data) {
       context.stats.record("remote-channel", "sendServerEvent");
-      const handled = context.bedwarsRemoteSessions?.handleServerEvent(client, data) ?? false;
-      if (process.env.BOX3_LOG_REMOTE_EVENTS === "1") {
+      const relayed = context.remoteChannelSessions.handleServerEvent(client, data);
+      const legacyHandled = context.bedwarsRemoteSessions?.handleServerEvent(client, data) ?? false;
+      const handled = relayed || legacyHandled;
+      if (relayed && process.env.BOX3_LOG_REMOTE_EVENTS === "1") {
         context.logger.info(`[remote-channel:event] ${shortSession(client.sessionId)} ${JSON.stringify(data)}`);
       }
       context.logger.info(
@@ -15701,9 +15988,9 @@ function registerProtocols(server, contexts) {
         if (schema === models) context.projectBootstrapSessions.connectModels(client);
         if (schema === sound) context.projectBootstrapSessions.connectSound(client);
         if (schema === gameTerrain) context.projectBootstrapSessions.connectTerrain(client);
-        if (schema === gameUI && process.env.BOX3_MINIMAL_GAME_UI === "1") {
+        if (schema === gameUI) {
           const reset = client.message.reset;
-          if (typeof reset === "function") reset({
+          const clientUiState = context.clientUiState ?? (process.env.BOX3_MINIMAL_GAME_UI === "1" ? {
             running: true,
             defaultScreenId: "DEFAULT_SCREEN_ID",
             pictureAssets: {},
@@ -15714,7 +16001,7 @@ function registerProtocols(server, contexts) {
                 id: "ROOT_ID",
                 name: "Root",
                 parentId: "",
-                value: { type: "", data: void 0 }
+                value: void 0
               },
               DEFAULT_SCREEN_ID: {
                 type: 2,
@@ -15728,12 +16015,20 @@ function registerProtocols(server, contexts) {
                 }
               }
             }
-          });
+          } : void 0);
+          if (clientUiState && typeof reset === "function") {
+            reset(clientUiState);
+            context.projectBootstrapSessions.connectGameUi(client);
+          }
         }
         if (schema === dialog) context.dialogSessions.connect(client);
+        if (schema === gui) context.guiSessions.connect(client);
         if (schema === gameChat) context.gameChatSessions.connect(client);
         if (schema === playerProtocol) context.playerProtocolSessions.connect(client);
-        if (schema === remoteChannel) context.bedwarsRemoteSessions?.connect(client);
+        if (schema === remoteChannel) {
+          context.remoteChannelSessions.connect(client);
+          context.bedwarsRemoteSessions?.connect(client);
+        }
       },
       disconnect: (client) => {
         const context = resolveContext(contexts, client);
@@ -15746,9 +16041,13 @@ function registerProtocols(server, contexts) {
         if (schema === gameNet) context.gameNetPublicSessions.disconnect(client);
         if (schema === gameTerrain) context.terrainSessions.disconnect(client);
         if (schema === dialog) context.dialogSessions.disconnect(client);
+        if (schema === gui) context.guiSessions.disconnect(client);
         if (schema === gameChat) context.gameChatSessions.disconnect(client);
         if (schema === playerProtocol) context.playerProtocolSessions.disconnect(client);
-        if (schema === remoteChannel) context.bedwarsRemoteSessions?.disconnect(client);
+        if (schema === remoteChannel) {
+          context.remoteChannelSessions.disconnect(client);
+          context.bedwarsRemoteSessions?.disconnect(client);
+        }
       }
     });
   }
@@ -15756,6 +16055,7 @@ function registerProtocols(server, contexts) {
 function specializedMessageHandler(schema, messageName, context) {
   if (schema === gameClock) return createClockHandlers(context)[messageName];
   if (schema === dialog) return createDialogHandlers(context)[messageName];
+  if (schema === gui) return createGuiHandlers(context)[messageName];
   if (schema === entityInteract) return createEntityInteractHandlers(context)[messageName];
   if (schema === gameNet) return createGameNetHandlers(context)[messageName];
   if (schema === remoteChannel) return createRemoteChannelHandlers(context)[messageName];
@@ -16011,6 +16311,7 @@ var Box3Server = class {
   assetStore;
   clientRuntime;
   clientScripts;
+  clientUiState;
   projectBootstrap;
   legacyProject;
   projectPackagePlayerProjection;
@@ -16031,6 +16332,7 @@ var Box3Server = class {
     this.assetStore = options.assetStore ?? new FileArchiveAssetStore(this.config.assetRoot);
     this.clientRuntime = options.clientRuntime ?? emptyClientRuntime;
     this.clientScripts = options.clientScripts ?? Object.freeze({});
+    this.clientUiState = options.clientUiState;
     this.projectBootstrap = options.projectBootstrap ?? emptyProjectBootstrap;
     this.testSessionRegistryOptions = options.testSessionRegistryOptions;
     if (options.legacyProject && options.projectPackagePlayerProjection) {
@@ -16063,7 +16365,7 @@ var Box3Server = class {
   /** Loopback-only ingress used by the NEA Script Runtime bridge. */
   sendRemoteClientEvent(sessionLabel, event) {
     if (!this.running) return false;
-    return this.historicalProjectInstance?.bedwarsRemoteSessions?.sendExternalEvent(sessionLabel, event) ?? false;
+    return this.historicalProjectInstance?.remoteChannelSessions.sendExternalEvent(sessionLabel, event) ?? false;
   }
   playerRuntimeState(sessionLabel) {
     if (!this.running) return void 0;
@@ -16085,6 +16387,12 @@ var Box3Server = class {
    * Host-only ingress for the recovered dialog.open transport. This is not a
    * dialog API bridge, project API, or Player UI implementation.
    */
+  sendGuiCommand(sessionId, command) {
+    if (!this.running) return false;
+    const guiSessions = this.historicalProjectInstance?.guiSessions;
+    if (!guiSessions?.hasActiveClient(sessionId)) return false;
+    return guiSessions.command(sessionId, command);
+  }
   openDialog(sessionId, config) {
     if (!this.running) return false;
     const dialogSessions = this.historicalProjectInstance?.dialogSessions;
@@ -16130,6 +16438,7 @@ var Box3Server = class {
     );
     const instance = new LegacyHistoricalProjectInstance({
       clientScripts: this.clientScripts,
+      clientUiState: this.clientUiState,
       issuedSessions,
       legacyProject: this.legacyProject,
       logger: this.logger,
@@ -16198,6 +16507,12 @@ var Box3Server = class {
       this.logger.info(
         `Local v1 Player entity projection: ${instance.projectPackagePlayerProjectionMount.spawned.length} mounted, ${instance.projectPackagePlayerProjectionMount.diagnostics.length} static entities unmapped`
       );
+    }
+    if (process.env.BOX3_LOG_SCRIPT_INPUT_EVENTS === "1") {
+      const legacyBindings = instance.legacyProjectMount?.spawned.map((entry) => ({ sourceId: entry.sourceId, entityId: entry.entityId })) ?? [];
+      const projectionBindings = instance.projectPackagePlayerProjectionMount?.spawned.map((entry) => ({ entityIndex: entry.entityIndex, entityId: entry.entityId })) ?? [];
+      const entityBindings = [...legacyBindings, ...projectionBindings];
+      if (entityBindings.length > 0) this.logger.info(`[game-net:entity-map] ${JSON.stringify({ entities: entityBindings })}`);
     }
     const mudbReady = new Promise((resolve9, reject) => {
       mudbServer.start({
@@ -16549,12 +16864,15 @@ async function main() {
   if (projectWorld) clientRuntime.bindProjectIdentity(projectWorld.project.manifest.packageId, projectWorld.project.manifest.display?.name ?? projectWorld.project.manifest.packageId);
   const clientScriptManifest = process.env.BOX3_CLIENT_SCRIPT_MANIFEST;
   const clientScripts = projectRoot && !clientScriptManifest ? Object.freeze({}) : await loadClientScriptModules(config.assetRoot, clientScriptManifest);
+  const clientUiManifest = process.env.BOX3_CLIENT_UI_MANIFEST;
+  const clientUiState = await loadClientUiState(config.assetRoot, clientUiManifest);
   const projectBootstrap = await loadProjectBootstrap(config.assetRoot);
   const projectPackagePlayerProjection = projectionDescriptor && projectWorld ? await loadProjectPackagePlayerProjection(projectWorld.project, projectBootstrap, projectionDescriptor) : void 0;
   const server = await new Box3Server({
     ...config,
     clientRuntime,
     clientScripts,
+    clientUiState,
     logger,
     projectBootstrap,
     playerBodyProfile,
@@ -16565,6 +16883,7 @@ async function main() {
   }).start();
   const neaControlServer = await startNeaControlBridge(server, logger);
   if (projectRoot) logger.info(`Player compatibility project package: ${projectRoot}`);
+  if (clientUiManifest) logger.info(`Client UI manifest: ${clientUiManifest} nodes=${Object.keys(clientUiState.uiTree).length}`);
   if (playerBodyProfile) logger.info(`Player body profile: ${playerBodyProfile.profileId} halfExtents=${playerBodyProfile.halfExtents.join(",")} sizeStatus=${playerBodyProfile.sizeStatus}`);
   if (projectionDescriptor) logger.info(`Local Player entity projection descriptor: ${projectionDescriptor}`);
   let stopping = false;
@@ -16635,12 +16954,42 @@ async function startNeaControlBridge(server, logger) {
       }
       const body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
       if (request.method === "POST" && url.pathname === "/__nea/control/send-client-event") {
-        if (typeof body.session !== "string" || !body.event || typeof body.event !== "object" || Array.isArray(body.event)) {
+        if (typeof body.session !== "string" || !Object.prototype.hasOwnProperty.call(body, "event")) {
           throw new Error("session and event are required");
         }
         const delivered = server.sendRemoteClientEvent(body.session, body.event);
         response.statusCode = delivered ? 200 : 404;
         response.end(JSON.stringify(delivered ? { ok: true } : { ok: false, error: "session not connected" }));
+        return;
+      }
+      if (request.method === "POST" && url.pathname === "/__nea/control/gui-command") {
+        if (typeof body.session !== "string" || !body.command || typeof body.command !== "object" || Array.isArray(body.command)) {
+          throw new Error("session and GUI command are required");
+        }
+        const pending = server.sendGuiCommand(body.session, body.command);
+        if (pending === false) {
+          response.statusCode = 404;
+          response.end(JSON.stringify({ ok: false, error: "GUI client not connected" }));
+          return;
+        }
+        const result = await pending;
+        response.statusCode = 200;
+        response.end(JSON.stringify({ ok: true, result }));
+        return;
+      }
+      if (request.method === "POST" && url.pathname === "/__nea/control/dialog") {
+        if (typeof body.session !== "string" || !body.config || typeof body.config !== "object" || Array.isArray(body.config)) {
+          throw new Error("session and dialog config are required");
+        }
+        const pending = server.openDialog(body.session, body.config);
+        if (pending === false) {
+          response.statusCode = 404;
+          response.end(JSON.stringify({ ok: false, error: "dialog client not connected" }));
+          return;
+        }
+        const result = await pending;
+        response.statusCode = 200;
+        response.end(JSON.stringify({ ok: true, result }));
         return;
       }
       if (request.method === "POST" && url.pathname === "/__nea/control/player-state") {

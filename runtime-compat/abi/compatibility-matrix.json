@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-compatibility-matrix",
   "version": 1,
-  "generatedAt": "2026-07-29T08:25:34.722Z",
+  "generatedAt": "2026-07-30T00:56:56.162Z",
   "apiVersion": "0.1.0",
   "compatibilityLevel": "experimental",
   "contracts": [
@@ -53,10 +53,10 @@
     "entries": 599,
     "byStatus": {
       "native": 125,
-      "compatible": 32,
-      "partial": 20,
-      "recovered-only": 185,
-      "declared-only": 237
+      "compatible": 72,
+      "partial": 24,
+      "recovered-only": 156,
+      "declared-only": 222
     },
     "bySide": {
       "client": {
@@ -70,10 +70,10 @@
       "server": {
         "total": 346,
         "native": 0,
-        "compatible": 2,
-        "partial": 19,
-        "recovered-only": 185,
-        "declared-only": 140
+        "compatible": 42,
+        "partial": 23,
+        "recovered-only": 156,
+        "declared-only": 125
       },
       "shared": {
         "total": 127,
@@ -84,8 +84,8 @@
         "declared-only": 96
       }
     },
-    "executable": 177,
-    "nonExecutable": 422
+    "executable": 221,
+    "nonExecutable": 378
   },
   "entries": [
     {
@@ -12007,7 +12007,7 @@
           "gaps": [
             "access: Local health is getter-only, while canonical GameEntity.hp is writable.",
             "signature: The local member is named health rather than hp.",
-            "effect: Local health does not implement maxHp, enableDamage, death state, or damage events."
+            "effect: Local health and damage-event dispatch exist, but maxHp, enableDamage, native hurt producers, and death state remain unimplemented."
           ]
         }
       ],
@@ -13606,10 +13606,63 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.events",
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.onClick",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.events",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.onClick",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.events",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimeEntity.onClick",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "The declared GameClickEvent fields and world-to-target dispatch order are implemented when an authoritative entity binding exists."
+          ]
+        },
+        {
+          "localId": "server.RuntimePlayer.onClick",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "Clicked players receive the same GameClickEvent after world dispatch when their backend player id is authoritative."
+          ]
+        },
+        {
+          "localId": "server.RuntimeEntity.onClick",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "signature: The recovered GameClickEvent fields are exposed; the historical optional listener filter remains unimplemented.",
+            "effect: World and clicked-entity double dispatch is implemented when game-net supplies an authoritative entity binding."
+          ]
+        },
+        {
+          "localId": "server.RuntimePlayer.onClick",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "signature: The recovered GameClickEvent fields are exposed; the historical optional listener filter remains unimplemented.",
+            "effect: A clicked player receives the same event object after world.onClick when its backend entity id is authoritative."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -13629,6 +13682,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.onClick",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -14270,10 +14329,37 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.events",
+      "localBindings": [
+        {
+          "localId": "server.RuntimePlayer.onTakeDamage",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.events",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.onTakeDamage",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "Existing local RuntimePlayer.damage calls emit the recovered GameDamageEvent fields; native hurt producers and full damage/death state remain unverified."
+          ]
+        },
+        {
+          "localId": "server.RuntimePlayer.onTakeDamage",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "signature: The local listener token and recovered GameDamageEvent fields are present.",
+            "effect: Existing local damage() calls dispatch entity and world events; native hurt producers, damage enablement, attacker propagation, and death scheduling remain unverified."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -14293,6 +14379,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.onTakeDamage",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -17494,10 +17586,32 @@
         "type": "boolean",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.player",
+      "localBindings": [
+        {
+          "localId": "server.RuntimePlayer.action0Button",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.player",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.action0Button",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": "server.player",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.action0Button",
+          "relation": "object-adapter",
+          "status": "compatible",
+          "capability": "server.player",
+          "gaps": []
+        }
+      ],
       "recovery": {
         "availability": "declared",
         "compatibility": "missing",
@@ -17510,6 +17624,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
           "symbol": "action0Button: boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.action0Button",
           "confidence": "direct"
         }
       ]
@@ -17598,10 +17724,32 @@
         "type": "boolean",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.player",
+      "localBindings": [
+        {
+          "localId": "server.RuntimePlayer.action1Button",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.player",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.action1Button",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": "server.player",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.action1Button",
+          "relation": "object-adapter",
+          "status": "compatible",
+          "capability": "server.player",
+          "gaps": []
+        }
+      ],
       "recovery": {
         "availability": "declared",
         "compatibility": "missing",
@@ -17614,6 +17762,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
           "symbol": "action1Button: boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.action1Button",
           "confidence": "direct"
         }
       ]
@@ -18656,10 +18816,20 @@
         "type": "GameRGBColor",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "partial",
+      "executable": true,
+      "capability": "server.player.write",
+      "localBindings": [
+        {
+          "localId": "server.RuntimePlayer.color",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.player.write",
+          "gaps": [
+            "effect: The local Script Runtime value and mutation API are present; authoritative client rendering propagation remains unverified."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "declared",
         "compatibility": "missing",
@@ -18672,6 +18842,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/appearance.md",
           "symbol": "color: GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.color",
           "confidence": "direct"
         }
       ]
@@ -19403,10 +19585,36 @@
         "type": "boolean",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.player.write",
+      "localBindings": [
+        {
+          "localId": "server.RuntimePlayer.enableAction0",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.player.write",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.enableAction0",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.player.write",
+          "gaps": [
+            "The recovered server input mask is implemented; authoritative Player Public flags are not yet written back to the client."
+          ]
+        },
+        {
+          "localId": "server.RuntimePlayer.enableAction0",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.player.write",
+          "gaps": [
+            "effect: The server input bridge applies the recovered flag mask, but authoritative Player Public flags are not yet written back to the client."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "declared",
         "compatibility": "missing",
@@ -19419,6 +19627,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
           "symbol": "enableAction0: boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.enableAction0",
           "confidence": "direct"
         }
       ]
@@ -19455,10 +19675,36 @@
         "type": "boolean",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.player.write",
+      "localBindings": [
+        {
+          "localId": "server.RuntimePlayer.enableAction1",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.player.write",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.enableAction1",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.player.write",
+          "gaps": [
+            "The recovered server input mask is implemented; authoritative Player Public flags are not yet written back to the client."
+          ]
+        },
+        {
+          "localId": "server.RuntimePlayer.enableAction1",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.player.write",
+          "gaps": [
+            "effect: The server input bridge applies the recovered flag mask, but authoritative Player Public flags are not yet written back to the client."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "declared",
         "compatibility": "missing",
@@ -19471,6 +19717,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
           "symbol": "enableAction1: boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.enableAction1",
           "confidence": "direct"
         }
       ]
@@ -19507,10 +19765,36 @@
         "type": "boolean",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.player.write",
+      "localBindings": [
+        {
+          "localId": "server.RuntimePlayer.enableDoubleJump",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.player.write",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.enableDoubleJump",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.player.write",
+          "gaps": [
+            "The recovered server input mask is implemented; authoritative Player Public flags are not yet written back to the client."
+          ]
+        },
+        {
+          "localId": "server.RuntimePlayer.enableDoubleJump",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.player.write",
+          "gaps": [
+            "effect: The server input bridge applies the recovered flag mask, but authoritative Player Public flags are not yet written back to the client."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "declared",
         "compatibility": "missing",
@@ -19523,6 +19807,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
           "symbol": "enableDoubleJump: boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.enableDoubleJump",
           "confidence": "direct"
         }
       ]
@@ -19559,10 +19855,36 @@
         "type": "boolean",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.player.write",
+      "localBindings": [
+        {
+          "localId": "server.RuntimePlayer.enableJump",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.player.write",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.enableJump",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.player.write",
+          "gaps": [
+            "The recovered server input mask is implemented; authoritative Player Public flags are not yet written back to the client."
+          ]
+        },
+        {
+          "localId": "server.RuntimePlayer.enableJump",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.player.write",
+          "gaps": [
+            "effect: The server input bridge applies the recovered flag mask, but authoritative Player Public flags are not yet written back to the client."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "declared",
         "compatibility": "missing",
@@ -19575,6 +19897,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
           "symbol": "enableJump: boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.enableJump",
           "confidence": "direct"
         }
       ]
@@ -19819,10 +20153,20 @@
         "parameters": [],
         "returns": "void"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "partial",
+      "executable": true,
+      "capability": "server.player.write",
+      "localBindings": [
+        {
+          "localId": "server.RuntimePlayer.forceRespawn",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.player.write",
+          "gaps": [
+            "effect: Position, velocity, contacts, triggers, backend state, and respawn events are updated; native death-state side effects remain unverified."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "declared",
         "compatibility": "missing",
@@ -19835,6 +20179,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/fight.md",
           "symbol": "forceRespawn(): void",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.forceRespawn",
           "confidence": "direct"
         }
       ]
@@ -20183,10 +20539,32 @@
         "type": "boolean",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.player",
+      "localBindings": [
+        {
+          "localId": "server.RuntimePlayer.jumpButton",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.player",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.jumpButton",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": "server.player",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.jumpButton",
+          "relation": "object-adapter",
+          "status": "compatible",
+          "capability": "server.player",
+          "gaps": []
+        }
+      ],
       "recovery": {
         "availability": "declared",
         "compatibility": "missing",
@@ -20199,6 +20577,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
           "symbol": "jumpButton: boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.jumpButton",
           "confidence": "direct"
         }
       ]
@@ -21168,10 +21558,21 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.events",
+      "localBindings": [
+        {
+          "localId": "server.RuntimePlayer.onPress",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "signature: The recovered GameInputEvent fields and GameButtonType values are exposed.",
+            "effect: The game-net bridge dispatches real Player input events after applying the recovered PlayerFlags mask; complete client-side Public flag propagation remains separate."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "declared",
         "compatibility": "missing",
@@ -21184,6 +21585,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
           "symbol": "事件onPress(handler:(event:GameInputEvent)=>void):GameEventHandlerToken",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.onPress",
           "confidence": "direct"
         }
       ]
@@ -21244,10 +21657,21 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.events",
+      "localBindings": [
+        {
+          "localId": "server.RuntimePlayer.onRelease",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "signature: The recovered GameInputEvent fields and GameButtonType values are exposed.",
+            "effect: The game-net bridge dispatches real Player input events after applying the recovered PlayerFlags mask; complete client-side Public flag propagation remains separate."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "declared",
         "compatibility": "missing",
@@ -21260,6 +21684,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
           "symbol": "事件onRelease(handler:(event:GameInputEvent)=>void):GameEventHandlerToken",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.onRelease",
           "confidence": "direct"
         }
       ]
@@ -21320,10 +21756,21 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.events",
+      "localBindings": [
+        {
+          "localId": "server.RuntimePlayer.onRespawn",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "signature: The local listener token is structurally compatible, while the complete native event scheduling contract is not recovered.",
+            "effect: Local forceRespawn emits the recovered GameEntityEvent shape; automatic engine respawn triggers remain unverified."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "declared",
         "compatibility": "missing",
@@ -21336,6 +21783,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/fight.md",
           "symbol": "事件onRespawn(handler:(event:GameRespawnEvent)=>void):GameEventHandlerToken",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.onRespawn",
           "confidence": "direct"
         }
       ]
@@ -22628,10 +23087,21 @@
         "type": "GameVector3",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "partial",
+      "executable": true,
+      "capability": "server.player.write",
+      "localBindings": [
+        {
+          "localId": "server.RuntimePlayer.spawnPoint",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.player.write",
+          "gaps": [
+            "signature: Canonical spawnPoint uses GameVector3; the local value uses the compatible Vector3 implementation.",
+            "effect: The value drives local forceRespawn; native validation and automatic engine respawn integration remain unverified."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "declared",
         "compatibility": "missing",
@@ -22644,6 +23114,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/fight.md",
           "symbol": "spawnPoint:GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.spawnPoint",
           "confidence": "direct"
         }
       ]
@@ -23356,10 +23838,32 @@
         "type": "boolean",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.player",
+      "localBindings": [
+        {
+          "localId": "server.RuntimePlayer.walkButton",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.player",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.walkButton",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": "server.player",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.walkButton",
+          "relation": "object-adapter",
+          "status": "compatible",
+          "capability": "server.player",
+          "gaps": []
+        }
+      ],
       "recovery": {
         "availability": "declared",
         "compatibility": "missing",
@@ -23372,6 +23876,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
           "symbol": "walkButton: boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.walkButton",
           "confidence": "direct"
         }
       ]
@@ -24397,15 +24913,33 @@
         ],
         "returns": "number"
       },
-      "status": "recovered-only",
-      "executable": false,
+      "status": "compatible",
+      "executable": true,
       "capability": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.GameVoxels.getVoxel",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        },
+        {
+          "localId": "server.GameVoxels.getVoxel",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
-        "compatibility": "missing",
+        "compatibility": "emulated",
         "evidenceTypes": [
+          "declaration",
           "docs",
+          "evidence-map",
+          "local-source",
           "origin-source"
         ]
       },
@@ -24420,6 +24954,36 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameVoxels.js",
           "symbol": "GameVoxels.getVoxel",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-voxels.mjs",
+          "symbol": "GameVoxelsRuntime.getVoxel",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/sync/ScriptVoxelSync.js",
+          "symbol": "getVoxel",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVoxels/operate.md",
+          "symbol": "getVoxel",
+          "confidence": "direct"
+        },
+        {
+          "type": "declaration",
+          "path": "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts",
+          "symbol": "GameVoxels.getVoxel",
+          "confidence": "direct"
+        },
+        {
+          "type": "evidence-map",
+          "path": "runtime-compat/evidence/server-voxels-phase-2.json",
+          "symbol": "server.GameVoxels.getVoxel",
           "confidence": "direct"
         }
       ]
@@ -24524,15 +25088,33 @@
         ],
         "returns": "number"
       },
-      "status": "recovered-only",
-      "executable": false,
+      "status": "compatible",
+      "executable": true,
       "capability": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.GameVoxels.getVoxelId",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        },
+        {
+          "localId": "server.GameVoxels.getVoxelId",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
-        "compatibility": "missing",
+        "compatibility": "emulated",
         "evidenceTypes": [
+          "declaration",
           "docs",
+          "evidence-map",
+          "local-source",
           "origin-source"
         ]
       },
@@ -24547,6 +25129,36 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameVoxels.js",
           "symbol": "GameVoxels.getVoxelId",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-voxels.mjs",
+          "symbol": "GameVoxelsRuntime.getVoxelId",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/sync/ScriptVoxelSync.js",
+          "symbol": "getVoxelId",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVoxels/operate.md",
+          "symbol": "getVoxelId",
+          "confidence": "direct"
+        },
+        {
+          "type": "declaration",
+          "path": "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts",
+          "symbol": "GameVoxels.getVoxelId",
+          "confidence": "direct"
+        },
+        {
+          "type": "evidence-map",
+          "path": "runtime-compat/evidence/server-voxels-phase-1.json",
+          "symbol": "server.GameVoxels.getVoxelId",
           "confidence": "direct"
         }
       ]
@@ -24651,15 +25263,33 @@
         ],
         "returns": "number"
       },
-      "status": "recovered-only",
-      "executable": false,
+      "status": "compatible",
+      "executable": true,
       "capability": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.GameVoxels.getVoxelRotation",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        },
+        {
+          "localId": "server.GameVoxels.getVoxelRotation",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
-        "compatibility": "missing",
+        "compatibility": "emulated",
         "evidenceTypes": [
+          "declaration",
           "docs",
+          "evidence-map",
+          "local-source",
           "origin-source"
         ]
       },
@@ -24674,6 +25304,36 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameVoxels.js",
           "symbol": "GameVoxels.getVoxelRotation",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-voxels.mjs",
+          "symbol": "GameVoxelsRuntime.getVoxelRotation",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/sync/ScriptVoxelSync.js",
+          "symbol": "getVoxelRotation",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVoxels/operate.md",
+          "symbol": "getVoxelRotation",
+          "confidence": "direct"
+        },
+        {
+          "type": "declaration",
+          "path": "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts",
+          "symbol": "GameVoxels.getVoxelRotation",
+          "confidence": "direct"
+        },
+        {
+          "type": "evidence-map",
+          "path": "runtime-compat/evidence/server-voxels-phase-2.json",
+          "symbol": "server.GameVoxels.getVoxelRotation",
           "confidence": "direct"
         }
       ]
@@ -24734,15 +25394,33 @@
         ],
         "returns": "number"
       },
-      "status": "recovered-only",
-      "executable": false,
+      "status": "compatible",
+      "executable": true,
       "capability": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.GameVoxels.id",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        },
+        {
+          "localId": "server.GameVoxels.id",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
-        "compatibility": "missing",
+        "compatibility": "emulated",
         "evidenceTypes": [
+          "declaration",
           "docs",
+          "evidence-map",
+          "local-source",
           "origin-source"
         ]
       },
@@ -24757,6 +25435,36 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameVoxels.js",
           "symbol": "GameVoxels.id",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-voxels.mjs",
+          "symbol": "GameVoxelsRuntime.id",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/sync/ScriptVoxelSync.js",
+          "symbol": "id",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVoxels/operate.md",
+          "symbol": "id",
+          "confidence": "direct"
+        },
+        {
+          "type": "declaration",
+          "path": "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts",
+          "symbol": "GameVoxels.id",
+          "confidence": "direct"
+        },
+        {
+          "type": "evidence-map",
+          "path": "runtime-compat/evidence/server-voxels-phase-1.json",
+          "symbol": "server.GameVoxels.id",
           "confidence": "direct"
         }
       ]
@@ -24817,15 +25525,33 @@
         ],
         "returns": "string"
       },
-      "status": "recovered-only",
-      "executable": false,
+      "status": "compatible",
+      "executable": true,
       "capability": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.GameVoxels.name",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        },
+        {
+          "localId": "server.GameVoxels.name",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
-        "compatibility": "missing",
+        "compatibility": "emulated",
         "evidenceTypes": [
+          "declaration",
           "docs",
+          "evidence-map",
+          "local-source",
           "origin-source"
         ]
       },
@@ -24840,6 +25566,36 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameVoxels.js",
           "symbol": "GameVoxels.name",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-voxels.mjs",
+          "symbol": "GameVoxelsRuntime.name",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/sync/ScriptVoxelSync.js",
+          "symbol": "name",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVoxels/operate.md",
+          "symbol": "name",
+          "confidence": "direct"
+        },
+        {
+          "type": "declaration",
+          "path": "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts",
+          "symbol": "GameVoxels.name",
+          "confidence": "direct"
+        },
+        {
+          "type": "evidence-map",
+          "path": "runtime-compat/evidence/server-voxels-phase-2.json",
+          "symbol": "server.GameVoxels.name",
           "confidence": "direct"
         }
       ]
@@ -24988,15 +25744,35 @@
         ],
         "returns": "number"
       },
-      "status": "recovered-only",
-      "executable": false,
+      "status": "compatible",
+      "executable": true,
       "capability": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.GameVoxels.setVoxel",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        },
+        {
+          "localId": "server.GameVoxels.setVoxel",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": null,
+          "gaps": [
+            "Four Chinese string rotation aliases remain unresolved because the recovered historical source contains mojibake at those switch cases."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
-        "compatibility": "missing",
+        "compatibility": "emulated",
         "evidenceTypes": [
+          "declaration",
           "docs",
+          "evidence-map",
+          "local-source",
           "origin-source"
         ]
       },
@@ -25011,6 +25787,36 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameVoxels.js",
           "symbol": "GameVoxels.setVoxel",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-voxels.mjs",
+          "symbol": "GameVoxelsRuntime.setVoxel",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/sync/ScriptVoxelSync.js",
+          "symbol": "setVoxel",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVoxels/operate.md",
+          "symbol": "setVoxel",
+          "confidence": "direct"
+        },
+        {
+          "type": "declaration",
+          "path": "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts",
+          "symbol": "GameVoxels.setVoxel",
+          "confidence": "direct"
+        },
+        {
+          "type": "evidence-map",
+          "path": "runtime-compat/evidence/server-voxels-phase-1.json",
+          "symbol": "server.GameVoxels.setVoxel",
           "confidence": "direct"
         }
       ]
@@ -25137,15 +25943,33 @@
         ],
         "returns": "number"
       },
-      "status": "recovered-only",
-      "executable": false,
+      "status": "compatible",
+      "executable": true,
       "capability": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.GameVoxels.setVoxelId",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        },
+        {
+          "localId": "server.GameVoxels.setVoxelId",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
-        "compatibility": "missing",
+        "compatibility": "emulated",
         "evidenceTypes": [
+          "declaration",
           "docs",
+          "evidence-map",
+          "local-source",
           "origin-source"
         ]
       },
@@ -25160,6 +25984,36 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameVoxels.js",
           "symbol": "GameVoxels.setVoxelId",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-voxels.mjs",
+          "symbol": "GameVoxelsRuntime.setVoxelId",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/sync/ScriptVoxelSync.js",
+          "symbol": "setVoxelId",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVoxels/operate.md",
+          "symbol": "setVoxelId",
+          "confidence": "direct"
+        },
+        {
+          "type": "declaration",
+          "path": "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts",
+          "symbol": "GameVoxels.setVoxelId",
+          "confidence": "direct"
+        },
+        {
+          "type": "evidence-map",
+          "path": "runtime-compat/evidence/server-voxels-phase-1.json",
+          "symbol": "server.GameVoxels.setVoxelId",
           "confidence": "direct"
         }
       ]
@@ -25196,15 +26050,33 @@
         "type": "GameVector3",
         "readonly": true
       },
-      "status": "recovered-only",
-      "executable": false,
+      "status": "compatible",
+      "executable": true,
       "capability": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.GameVoxels.shape",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        },
+        {
+          "localId": "server.GameVoxels.shape",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
-        "compatibility": "missing",
+        "compatibility": "emulated",
         "evidenceTypes": [
+          "declaration",
           "docs",
+          "evidence-map",
+          "local-source",
           "origin-source"
         ]
       },
@@ -25219,6 +26091,36 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameVoxels.js",
           "symbol": "GameVoxels.shape",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-voxels.mjs",
+          "symbol": "GameVoxelsRuntime.shape",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/sync/ScriptVoxelSync.js",
+          "symbol": "shape",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVoxels/operate.md",
+          "symbol": "shape",
+          "confidence": "direct"
+        },
+        {
+          "type": "declaration",
+          "path": "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts",
+          "symbol": "GameVoxels.shape",
+          "confidence": "direct"
+        },
+        {
+          "type": "evidence-map",
+          "path": "runtime-compat/evidence/server-voxels-phase-2.json",
+          "symbol": "server.GameVoxels.shape",
           "confidence": "direct"
         }
       ]
@@ -25255,15 +26157,33 @@
         "type": "string[]",
         "readonly": true
       },
-      "status": "recovered-only",
-      "executable": false,
+      "status": "compatible",
+      "executable": true,
       "capability": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.GameVoxels.VoxelTypes",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        },
+        {
+          "localId": "server.GameVoxels.VoxelTypes",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
-        "compatibility": "missing",
+        "compatibility": "emulated",
         "evidenceTypes": [
+          "declaration",
           "docs",
+          "evidence-map",
+          "local-source",
           "origin-source"
         ]
       },
@@ -25278,6 +26198,36 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameVoxels.js",
           "symbol": "GameVoxels.VoxelTypes",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-voxels.mjs",
+          "symbol": "GameVoxelsRuntime.VoxelTypes",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/sync/ScriptVoxelSync.js",
+          "symbol": "VoxelTypes",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVoxels/operate.md",
+          "symbol": "VoxelTypes",
+          "confidence": "direct"
+        },
+        {
+          "type": "declaration",
+          "path": "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts",
+          "symbol": "GameVoxels.VoxelTypes",
+          "confidence": "direct"
+        },
+        {
+          "type": "evidence-map",
+          "path": "runtime-compat/evidence/server-voxels-phase-2.json",
+          "symbol": "server.GameVoxels.VoxelTypes",
           "confidence": "direct"
         }
       ]
@@ -25360,10 +26310,27 @@
         ],
         "returns": "void"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.entities",
+      "localBindings": [
+        {
+          "localId": "server.world.addCollisionFilter",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.entities",
+          "gaps": []
+        },
+        {
+          "localId": "server.world.addCollisionFilter",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "Filter registration/list lifecycle is implemented; the local physics solver does not yet consume selector pairs."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -25383,6 +26350,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.addCollisionFilter",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -25548,10 +26521,27 @@
         ],
         "returns": "GameZone"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.events",
+      "localBindings": [
+        {
+          "localId": "server.world.addZone",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.events",
+          "gaps": []
+        },
+        {
+          "localId": "server.world.addZone",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "Zone creation, polling, enter/leave events, and removal exist; selector grammar and environmental effects remain partial."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -25571,6 +26561,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.addZone",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -25607,10 +26603,27 @@
         "type": "number",
         "readonly": false
       },
-      "status": "recovered-only",
-      "executable": false,
+      "status": "compatible",
+      "executable": true,
       "capability": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.world.airFriction",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        },
+        {
+          "localId": "server.world.airFriction",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": null,
+          "gaps": [
+            "The recovered property is script-visible, but writes do not yet reconfigure the fixed-step physics engine."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -25629,6 +26642,12 @@
         {
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
+          "symbol": "GameWorld.airFriction",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-world.mjs",
           "symbol": "GameWorld.airFriction",
           "confidence": "direct"
         }
@@ -26411,10 +27430,27 @@
         "type": "GameRGBColor",
         "readonly": false
       },
-      "status": "recovered-only",
-      "executable": false,
+      "status": "compatible",
+      "executable": true,
       "capability": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.world.fogColor",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        },
+        {
+          "localId": "server.world.fogColor",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": null,
+          "gaps": [
+            "The recovered GameRGBColor property is script-visible; client rendering propagation remains unimplemented."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -26433,6 +27469,12 @@
         {
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
+          "symbol": "GameWorld.fogColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-world.mjs",
           "symbol": "GameWorld.fogColor",
           "confidence": "direct"
         }
@@ -27025,10 +28067,27 @@
         "type": "number",
         "readonly": false
       },
-      "status": "recovered-only",
-      "executable": false,
+      "status": "compatible",
+      "executable": true,
       "capability": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.world.gravity",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        },
+        {
+          "localId": "server.world.gravity",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": null,
+          "gaps": [
+            "The recovered property is script-visible, but writes do not yet reconfigure the fixed-step physics engine."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -27047,6 +28106,12 @@
         {
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
+          "symbol": "GameWorld.gravity",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-world.mjs",
           "symbol": "GameWorld.gravity",
           "confidence": "direct"
         }
@@ -27226,10 +28291,27 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.chat",
+      "localBindings": [
+        {
+          "localId": "server.world.onChat",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.chat",
+          "gaps": []
+        },
+        {
+          "localId": "server.world.onChat",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.chat",
+          "gaps": [
+            "Recovered event fields are emitted by the local bridge; native moderation, cancellation, and transport timing remain unverified."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -27249,6 +28331,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.onChat",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -27309,10 +28397,28 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.events",
+      "localBindings": [
+        {
+          "localId": "server.world.onClick",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.events",
+          "gaps": []
+        },
+        {
+          "localId": "server.world.onClick",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "The game-net bridge reconstructs the declared GameClickEvent fields, applies the recovered PlayerFlags mask, and dispatches the same event to world and the clicked entity in historical order.",
+            "Non-player clicks require an authoritative backend entity binding; the latest capture still has two entities without sufficient model evidence for projection."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -27332,6 +28438,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.onClick",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -27392,10 +28504,27 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.events",
+      "localBindings": [
+        {
+          "localId": "server.world.onDie",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.events",
+          "gaps": []
+        },
+        {
+          "localId": "server.world.onDie",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "The event surface is dispatchable, but automatic native death-state production remains unverified."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -27415,6 +28544,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.onDie",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -27475,10 +28610,26 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "partial",
+      "status": "compatible",
       "executable": true,
       "capability": "server.world.events",
       "localBindings": [
+        {
+          "localId": "server.world.onEntityContact",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.events",
+          "gaps": []
+        },
+        {
+          "localId": "server.world.onEntityContact",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "The event surface is dispatchable; full native GameEntityContactEvent production remains covered separately by the contact model."
+          ]
+        },
         {
           "localId": "server.world.onContact",
           "relation": "adapter",
@@ -27839,10 +28990,27 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.events",
+      "localBindings": [
+        {
+          "localId": "server.world.onFluidEnter",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.events",
+          "gaps": []
+        },
+        {
+          "localId": "server.world.onFluidEnter",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "The event surface and local physics dispatch exist; native fluid metadata and exact transition timing remain unverified."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -27862,6 +29030,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.onFluidEnter",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -27922,10 +29096,27 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.events",
+      "localBindings": [
+        {
+          "localId": "server.world.onFluidLeave",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.events",
+          "gaps": []
+        },
+        {
+          "localId": "server.world.onFluidLeave",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "The event surface and local physics dispatch exist; native fluid metadata and exact transition timing remain unverified."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -27945,6 +29136,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.onFluidLeave",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -28286,10 +29483,27 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.events",
+      "localBindings": [
+        {
+          "localId": "server.world.onPlayerPurchaseSuccess",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.events",
+          "gaps": []
+        },
+        {
+          "localId": "server.world.onPlayerPurchaseSuccess",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "The event surface is dispatchable; the native purchase producer and full payload remain unverified."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -28309,6 +29523,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.onPlayerPurchaseSuccess",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -28369,10 +29589,25 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.events",
+      "localBindings": [
+        {
+          "localId": "server.world.onPress",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.events",
+          "gaps": []
+        },
+        {
+          "localId": "server.world.onPress",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": "server.world.events",
+          "gaps": []
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -28392,6 +29627,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.onPress",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -28452,10 +29693,25 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.events",
+      "localBindings": [
+        {
+          "localId": "server.world.onRelease",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.events",
+          "gaps": []
+        },
+        {
+          "localId": "server.world.onRelease",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": "server.world.events",
+          "gaps": []
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -28475,6 +29731,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.onRelease",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -28535,10 +29797,27 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.events",
+      "localBindings": [
+        {
+          "localId": "server.world.onRespawn",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.events",
+          "gaps": []
+        },
+        {
+          "localId": "server.world.onRespawn",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "Local forceRespawn emits the recovered event shape; automatic engine respawn triggers remain unverified."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -28558,6 +29837,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.onRespawn",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -28618,10 +29903,27 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.events",
+      "localBindings": [
+        {
+          "localId": "server.world.onTakeDamage",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.events",
+          "gaps": []
+        },
+        {
+          "localId": "server.world.onTakeDamage",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "Existing local RuntimePlayer.damage calls emit the recovered GameDamageEvent fields; native hurt producers, damage enablement, death scheduling, attacker propagation, and transport-created damage remain unverified."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -28641,6 +29943,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.onTakeDamage",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -28811,8 +30119,7 @@
           "status": "partial",
           "capability": "server.world.events",
           "gaps": [
-            "GameVoxelContactEvent force remains null because historical fx/fy/fz production semantics are unresolved.",
-            "RuntimePlayer is still only a subset of GamePlayerEntity."
+            "The recovered impulse-derived GameVoxelContactEvent force is implemented; RuntimePlayer is still only a subset of GamePlayerEntity."
           ]
         }
       ],
@@ -28911,8 +30218,7 @@
           "status": "partial",
           "capability": "server.world.events",
           "gaps": [
-            "GameVoxelContactEvent force remains null because historical fx/fy/fz production semantics are unresolved.",
-            "RuntimePlayer is still only a subset of GamePlayerEntity."
+            "The recovered impulse-derived GameVoxelContactEvent force is implemented; RuntimePlayer is still only a subset of GamePlayerEntity."
           ]
         }
       ],
@@ -29892,10 +31198,28 @@
         ],
         "returns": "GameRaycastResult"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.entities",
+      "localBindings": [
+        {
+          "localId": "server.world.raycast",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.entities",
+          "gaps": []
+        },
+        {
+          "localId": "server.world.raycast",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "Voxel DDA, fluid filtering, selector filtering, player/entity AABBs, recovered result fields, the historical Infinity maxDistance default, and zero-direction preservation are implemented and exercised by conformance tests and the BedWars corpus.",
+            "The recovered engine raycastBoxes implementation and body-orientation semantics are not available locally; entity intersections therefore remain an explicit AABB approximation. GameWorld.useOBB is a separate world-physics property, not a GameRaycastOptions field."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -29915,6 +31239,36 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.raycast",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-raycast.mjs",
+          "symbol": "raycastWorld",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameWorld/querySelectorEntity.md",
+          "symbol": "GameWorld.raycast",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRaycastResult.js",
+          "symbol": "GameRaycastResult",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/sync/ScriptWorldSync.js",
+          "symbol": "ScriptWorldSync.raycast",
+          "confidence": "direct"
+        },
+        {
+          "type": "test",
+          "path": "demo-map/test/game-raycast.test.mjs",
+          "symbol": "GameWorld.raycast conformance",
           "confidence": "direct"
         }
       ]
@@ -32101,15 +33455,24 @@
       "signature": {
         "type": "GameStorage"
       },
-      "status": "recovered-only",
-      "executable": false,
+      "status": "compatible",
+      "executable": true,
       "capability": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.global.storage",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
         "evidenceTypes": [
           "docs",
+          "local-source",
           "origin-source"
         ]
       },
@@ -32124,6 +33487,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/shell/ScriptShell.js",
           "symbol": "createScriptAPI.storage",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -32158,15 +33527,33 @@
       "signature": {
         "type": "GameVoxels"
       },
-      "status": "recovered-only",
-      "executable": false,
+      "status": "compatible",
+      "executable": true,
       "capability": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.global.voxels",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        },
+        {
+          "localId": "server.global.voxels",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": null,
+          "gaps": []
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
-        "compatibility": "missing",
+        "compatibility": "emulated",
         "evidenceTypes": [
+          "declaration",
           "docs",
+          "evidence-map",
+          "local-source",
           "origin-source"
         ]
       },
@@ -32181,6 +33568,36 @@
           "type": "origin-source",
           "path": "origin/origin/origin/shell/ScriptShell.js",
           "symbol": "createScriptAPI.voxels",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-voxels.mjs",
+          "symbol": "GameVoxelsRuntime.voxels",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/sync/ScriptVoxelSync.js",
+          "symbol": "voxels",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameVoxels/operate.md",
+          "symbol": "voxels",
+          "confidence": "direct"
+        },
+        {
+          "type": "declaration",
+          "path": "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts",
+          "symbol": "GameVoxels.voxels",
+          "confidence": "direct"
+        },
+        {
+          "type": "evidence-map",
+          "path": "runtime-compat/evidence/server-voxels-phase-1.json",
+          "symbol": "server.global.voxels",
           "confidence": "direct"
         }
       ]
@@ -32798,15 +34215,33 @@
         ],
         "returns": "void"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.remote-channel",
+      "localBindings": [
+        {
+          "localId": "server.remoteChannel.broadcastClientEvent",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "server.remote-channel",
+          "gaps": []
+        },
+        {
+          "localId": "server.remoteChannel.broadcastClientEvent",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": "server.remote-channel",
+          "gaps": [
+            "RuntimePlayer remains a subset of historical GamePlayerEntity."
+          ]
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "bridged",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source"
         ]
       },
       "evidence": [
@@ -32814,6 +34249,12 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/RemoteChannel/Server/serverToClient.md",
           "symbol": "broadcastClientEvent(clientEvent:any): void",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -32874,25 +34315,31 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "partial",
+      "status": "compatible",
       "executable": true,
       "capability": "server.remote-channel",
       "localBindings": [
         {
-          "localId": "server.remoteChannel.onClientEvent",
-          "relation": "adapter",
-          "status": "partial",
+          "localId": "server.remoteChannel.onServerEvent",
+          "relation": "exact",
+          "status": "compatible",
           "capability": "server.remote-channel",
-          "gaps": [
-            "Local payload is {player,event}; historical ServerEvent is {tick,entity,args}."
-          ]
+          "gaps": []
+        },
+        {
+          "localId": "server.remoteChannel.onServerEvent",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": "server.remote-channel",
+          "gaps": []
         }
       ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "bridged",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source"
         ]
       },
       "evidence": [
@@ -33002,10 +34449,10 @@
         {
           "localId": "server.remoteChannel.sendClientEvent",
           "relation": "adapter",
-          "status": "partial",
+          "status": "compatible",
           "capability": "server.remote-channel",
           "gaps": [
-            "Local method accepts one RuntimePlayer; historical API accepts one or many GamePlayerEntity targets and empty arrays."
+            "RuntimePlayer remains a subset of historical GamePlayerEntity."
           ]
         }
       ],

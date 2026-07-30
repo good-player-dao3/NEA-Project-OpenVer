@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-architecture-contract",
   "version": 1,
-  "generatedAt": "2026-07-29T08:25:34.845Z",
+  "generatedAt": "2026-07-30T00:56:56.301Z",
   "apiVersion": "0.1.0",
   "compatibilityLevel": "experimental",
   "layers": [
@@ -141,6 +141,7 @@
           "compatibility": "native",
           "entries": [
             "client.global.remoteChannel",
+            "client.remoteChannel.events",
             "client.remoteChannel.onClientEvent",
             "client.remoteChannel.sendServerEvent"
           ]
@@ -161,6 +162,7 @@
           "availability": "confirmed",
           "compatibility": "native",
           "entries": [
+            "client.ClientScreen.events",
             "client.ClientScreen.resize",
             "client.Coord2.create",
             "client.Coord2.offset",
@@ -237,6 +239,7 @@
             "client.Vec3.z",
             "client.global.ui",
             "client.input.lockPointer",
+            "client.input.pointerLockEvents",
             "client.input.pointerdown",
             "client.input.pointerlockchange",
             "client.input.pointerlockerror",
@@ -277,10 +280,15 @@
           "availability": "confirmed",
           "compatibility": "emulated",
           "entries": [
+            "server.RuntimePlayer.action0Button",
+            "server.RuntimePlayer.action1Button",
+            "server.RuntimePlayer.crouchButton",
             "server.RuntimePlayer.grounded",
             "server.RuntimePlayer.health",
             "server.RuntimePlayer.id",
+            "server.RuntimePlayer.jumpButton",
             "server.RuntimePlayer.snapshot",
+            "server.RuntimePlayer.walkButton",
             "server.object.RuntimePlayer"
           ]
         },
@@ -290,9 +298,17 @@
           "compatibility": "emulated",
           "entries": [
             "server.RuntimePlayer.applyImpulse",
+            "server.RuntimePlayer.color",
             "server.RuntimePlayer.damage",
+            "server.RuntimePlayer.enableAction0",
+            "server.RuntimePlayer.enableAction1",
+            "server.RuntimePlayer.enableCrouch",
+            "server.RuntimePlayer.enableDoubleJump",
+            "server.RuntimePlayer.enableJump",
+            "server.RuntimePlayer.forceRespawn",
             "server.RuntimePlayer.name",
             "server.RuntimePlayer.position",
+            "server.RuntimePlayer.spawnPoint",
             "server.RuntimePlayer.velocity"
           ]
         },
@@ -301,8 +317,10 @@
           "availability": "confirmed",
           "compatibility": "bridged",
           "entries": [
+            "server.remoteChannel.broadcastClientEvent",
             "server.remoteChannel.nextClientEvent",
             "server.remoteChannel.onClientEvent",
+            "server.remoteChannel.onServerEvent",
             "server.remoteChannel.sendClientEvent"
           ]
         },
@@ -312,6 +330,7 @@
           "compatibility": "emulated",
           "entries": [
             "server.RuntimePlayer.sendMessage",
+            "server.world.onChat",
             "server.world.say"
           ]
         },
@@ -326,9 +345,11 @@
             "server.RuntimeEntity.snapshot",
             "server.RuntimeEntity.tags",
             "server.object.RuntimeEntity",
+            "server.world.addCollisionFilter",
             "server.world.createEntity",
             "server.world.querySelector",
-            "server.world.querySelectorAll"
+            "server.world.querySelectorAll",
+            "server.world.raycast"
           ]
         },
         {
@@ -336,14 +357,39 @@
           "availability": "confirmed",
           "compatibility": "emulated",
           "entries": [
+            "server.RuntimeEntity.nextClick",
+            "server.RuntimeEntity.onClick",
+            "server.RuntimePlayer.nextClick",
+            "server.RuntimePlayer.nextPress",
+            "server.RuntimePlayer.nextRelease",
+            "server.RuntimePlayer.nextRespawn",
+            "server.RuntimePlayer.nextTakeDamage",
+            "server.RuntimePlayer.onClick",
+            "server.RuntimePlayer.onPress",
+            "server.RuntimePlayer.onRelease",
+            "server.RuntimePlayer.onRespawn",
+            "server.RuntimePlayer.onTakeDamage",
             "server.object.GameEventHandlerToken",
+            "server.world.addZone",
             "server.world.currentTick",
             "server.world.nextPlayerJoin",
+            "server.world.nextRespawn",
+            "server.world.nextTakeDamage",
             "server.world.nextTick",
+            "server.world.onClick",
             "server.world.onContact",
             "server.world.onContactSeparate",
+            "server.world.onDie",
+            "server.world.onEntityContact",
+            "server.world.onFluidEnter",
+            "server.world.onFluidLeave",
             "server.world.onPlayerJoin",
             "server.world.onPlayerLeave",
+            "server.world.onPlayerPurchaseSuccess",
+            "server.world.onPress",
+            "server.world.onRelease",
+            "server.world.onRespawn",
+            "server.world.onTakeDamage",
             "server.world.onTick",
             "server.world.onTriggerEnter",
             "server.world.onTriggerLeave",
@@ -353,21 +399,55 @@
         }
       ],
       "uncategorizedEntries": [
+        "server.GameButtonType.ACTION0",
+        "server.GameButtonType.ACTION1",
+        "server.GameButtonType.CROUCH",
+        "server.GameButtonType.DOUBLE_JUMP",
+        "server.GameButtonType.FLY",
+        "server.GameButtonType.JUMP",
+        "server.GameButtonType.RUN",
+        "server.GameButtonType.WALK",
+        "server.GameGUI.getAttribute",
+        "server.GameGUI.init",
+        "server.GameGUI.onMessage",
+        "server.GameGUI.remove",
+        "server.GameGUI.setAttribute",
+        "server.GameGUI.show",
+        "server.GameGUI.ui",
+        "server.GameStorage.getDataStorage",
+        "server.GameStorage.getGroupStorage",
+        "server.GameVoxels.VoxelTypes",
+        "server.GameVoxels.getVoxel",
+        "server.GameVoxels.getVoxelId",
+        "server.GameVoxels.getVoxelRotation",
+        "server.GameVoxels.id",
+        "server.GameVoxels.name",
+        "server.GameVoxels.setVoxel",
+        "server.GameVoxels.setVoxelId",
+        "server.GameVoxels.shape",
         "server.authoritativeRuntime.contract",
-        "server.runtime.contract"
+        "server.global.GameButtonType",
+        "server.global.gui",
+        "server.global.storage",
+        "server.global.voxels",
+        "server.runtime.contract",
+        "server.world.airFriction",
+        "server.world.fogColor",
+        "server.world.gravity",
+        "server.world.size"
       ]
     }
   ],
   "compatibilityMatrix": {
     "path": "runtime-compat/abi/compatibility-matrix.json",
     "declarations": 599,
-    "executable": 177,
+    "executable": 221,
     "byStatus": {
       "native": 125,
-      "compatible": 32,
-      "partial": 20,
-      "recovered-only": 185,
-      "declared-only": 237
+      "compatible": 72,
+      "partial": 24,
+      "recovered-only": 156,
+      "declared-only": 222
     }
   },
   "scriptRuntimes": {
@@ -424,10 +504,10 @@
       },
       {
         "id": "GameVoxelContactEvent",
-        "localStatus": "partial"
+        "localStatus": "compatible"
       }
     ],
-    "forceStatus": "confirmed-historical-production-local-missing",
+    "forceStatus": "confirmed-historical-production-local-compatible",
     "packedVoxelAxisStatus": "confirmed",
     "authoritativeStateStatus": "confirmed-schema-partial-binding",
     "conformance": {
@@ -523,13 +603,13 @@
     "scripts": {
       "client": {
         "path": "demo-map/project/scripts/client.js",
-        "bytes": 2127,
-        "sha256": "30d3e32e94c34b57d04fe0ab25c86b9ee626a60c621b68297e133792bffdca0a"
+        "bytes": 2133,
+        "sha256": "389307e0bb666e33860e5103cec991bceb3c92bb41c11f23620188e416774056"
       },
       "server": {
         "path": "demo-map/project/scripts/server.js",
-        "bytes": 2640,
-        "sha256": "fa20a4bf8619e508e5553f48d4c6d1caf4d9981ce613d242c2abb97606d1214b"
+        "bytes": 2654,
+        "sha256": "4b5bc70d59cd275dfc39743d4722ef08bf91c6b3818830ca0d014ec0b896885e"
       }
     },
     "bindings": [
@@ -564,6 +644,7 @@
           ]
         },
         "resolvedEntries": [
+          "client.ClientScreen.events",
           "client.ClientScreen.resize",
           "client.Coord2.create",
           "client.Coord2.offset",
@@ -649,6 +730,7 @@
           "client.global.ui",
           "client.global.world",
           "client.input.lockPointer",
+          "client.input.pointerLockEvents",
           "client.input.pointerdown",
           "client.input.pointerlockchange",
           "client.input.pointerlockerror",
@@ -661,6 +743,7 @@
           "client.object.UiScale",
           "client.object.Vec2",
           "client.object.Vec3",
+          "client.remoteChannel.events",
           "client.remoteChannel.onClientEvent",
           "client.remoteChannel.sendServerEvent"
         ],
@@ -718,33 +801,75 @@
         "resolvedEntries": [
           "server.RuntimeEntity.id",
           "server.RuntimeEntity.kind",
+          "server.RuntimeEntity.nextClick",
+          "server.RuntimeEntity.onClick",
           "server.RuntimeEntity.position",
           "server.RuntimeEntity.snapshot",
           "server.RuntimeEntity.tags",
+          "server.RuntimePlayer.action0Button",
+          "server.RuntimePlayer.action1Button",
           "server.RuntimePlayer.applyImpulse",
+          "server.RuntimePlayer.color",
+          "server.RuntimePlayer.crouchButton",
           "server.RuntimePlayer.damage",
+          "server.RuntimePlayer.enableAction0",
+          "server.RuntimePlayer.enableAction1",
+          "server.RuntimePlayer.enableCrouch",
+          "server.RuntimePlayer.enableDoubleJump",
+          "server.RuntimePlayer.enableJump",
+          "server.RuntimePlayer.forceRespawn",
           "server.RuntimePlayer.grounded",
           "server.RuntimePlayer.health",
           "server.RuntimePlayer.id",
+          "server.RuntimePlayer.jumpButton",
           "server.RuntimePlayer.name",
+          "server.RuntimePlayer.nextClick",
+          "server.RuntimePlayer.nextPress",
+          "server.RuntimePlayer.nextRelease",
+          "server.RuntimePlayer.nextRespawn",
+          "server.RuntimePlayer.nextTakeDamage",
+          "server.RuntimePlayer.onClick",
+          "server.RuntimePlayer.onPress",
+          "server.RuntimePlayer.onRelease",
+          "server.RuntimePlayer.onRespawn",
+          "server.RuntimePlayer.onTakeDamage",
           "server.RuntimePlayer.position",
           "server.RuntimePlayer.sendMessage",
           "server.RuntimePlayer.snapshot",
+          "server.RuntimePlayer.spawnPoint",
           "server.RuntimePlayer.velocity",
+          "server.RuntimePlayer.walkButton",
           "server.object.GameEventHandlerToken",
           "server.object.RuntimeEntity",
           "server.object.RuntimePlayer",
+          "server.remoteChannel.broadcastClientEvent",
           "server.remoteChannel.nextClientEvent",
           "server.remoteChannel.onClientEvent",
+          "server.remoteChannel.onServerEvent",
           "server.remoteChannel.sendClientEvent",
+          "server.world.addCollisionFilter",
+          "server.world.addZone",
           "server.world.createEntity",
           "server.world.currentTick",
           "server.world.nextPlayerJoin",
+          "server.world.nextRespawn",
+          "server.world.nextTakeDamage",
           "server.world.nextTick",
+          "server.world.onChat",
+          "server.world.onClick",
           "server.world.onContact",
           "server.world.onContactSeparate",
+          "server.world.onDie",
+          "server.world.onEntityContact",
+          "server.world.onFluidEnter",
+          "server.world.onFluidLeave",
           "server.world.onPlayerJoin",
           "server.world.onPlayerLeave",
+          "server.world.onPlayerPurchaseSuccess",
+          "server.world.onPress",
+          "server.world.onRelease",
+          "server.world.onRespawn",
+          "server.world.onTakeDamage",
           "server.world.onTick",
           "server.world.onTriggerEnter",
           "server.world.onTriggerLeave",
@@ -752,6 +877,7 @@
           "server.world.onVoxelSeparate",
           "server.world.querySelector",
           "server.world.querySelectorAll",
+          "server.world.raycast",
           "server.world.say"
         ],
         "errors": [],

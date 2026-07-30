@@ -18,18 +18,18 @@ export class FixedStepPlayerPhysics {
     body.grounded = false;
     const collisions = [];
 
-    moveAxis(this.world, body, "y", body.velocity.y * deltaTime, collisions);
+    moveAxis(this.world, body, "y", body.velocity.y * deltaTime, deltaTime, collisions);
     for (const axis of ["x", "z"]) {
       const movement = body.velocity[axis] * deltaTime;
       const result = this.world.sweep(body, axis, movement);
       if (result.collisions.length > 0 && (body.grounded || wasGrounded) && this.stepHeight > 0) {
-        if (tryStep(this.world, body, axis, movement, this.stepHeight, collisions)) continue;
+        if (tryStep(this.world, body, axis, movement, this.stepHeight, deltaTime, collisions)) continue;
       }
-      applySweep(body, axis, movement, result, collisions);
+      applySweep(body, axis, movement, result, deltaTime, collisions);
     }
 
-    const groundContact = collisions.find(contact => contact.normal.y === 1);
-    if (groundContact && body.grounded) applyGroundFriction(body, groundContact.collider.material.friction, deltaTime);
+    const groundContacts = collisions.filter(contact => contact.normal.y === 1);
+    if (groundContacts.length > 0 && body.grounded) applyGroundFriction(body, groundContacts, deltaTime);
 
     const nextContacts = new Map(collisions.map(contact => [contactKey(contact), contact]));
     const entered = [...nextContacts].filter(([key]) => !body.contacts.has(key)).map(([, contact]) => contact);
@@ -66,22 +66,23 @@ export class FixedStepPlayerPhysics {
   }
 }
 
-function moveAxis(world, body, axis, movement, collisions) {
+function moveAxis(world, body, axis, movement, deltaTime, collisions) {
   const result = world.sweep(body, axis, movement);
-  applySweep(body, axis, movement, result, collisions);
+  applySweep(body, axis, movement, result, deltaTime, collisions);
 }
 
-function applySweep(body, axis, movement, result, collisions) {
+function applySweep(body, axis, movement, result, deltaTime, collisions) {
   body.position[axis] += result.amount;
   if (result.collisions.length === 0) return;
   const incoming = body.velocity[axis];
   const restitution = Math.max(...result.collisions.map(contact => contact.collider.material.restitution));
   if (axis === "y" && movement < 0) body.grounded = true;
   body.velocity[axis] = Math.abs(incoming) * restitution >= BOUNCE_THRESHOLD ? -incoming * restitution : 0;
-  collisions.push(...result.collisions);
+  const force = (body.velocity[axis] - incoming) * body.mass / deltaTime / result.collisions.length;
+  collisions.push(...result.collisions.map(contact => withForce(contact, axis, force)));
 }
 
-function tryStep(world, body, axis, movement, stepHeight, collisions) {
+function tryStep(world, body, axis, movement, stepHeight, deltaTime, collisions) {
   const original = { x: body.position.x, y: body.position.y, z: body.position.z };
   const rise = world.sweep(body, "y", stepHeight);
   if (Math.abs(rise.amount - stepHeight) > 1e-7 || rise.collisions.length > 0) return false;
@@ -96,19 +97,36 @@ function tryStep(world, body, axis, movement, stepHeight, collisions) {
   body.position.y += down.amount;
   if (down.collisions.length > 0) {
     body.grounded = true;
-    collisions.push(...down.collisions);
+    collisions.push(...down.collisions.map(contact => withForce(contact, "y", 0)));
   }
   if (across.collisions.length > 0) {
+    const incoming = body.velocity[axis];
     body.velocity[axis] = 0;
-    collisions.push(...across.collisions);
+    const force = -incoming * body.mass / deltaTime / across.collisions.length;
+    collisions.push(...across.collisions.map(contact => withForce(contact, axis, force)));
   }
   return true;
 }
 
-function applyGroundFriction(body, friction, deltaTime) {
+function applyGroundFriction(body, contacts, deltaTime) {
+  const friction = Math.max(...contacts.map(contact => contact.collider.material.friction));
+  const beforeX = body.velocity.x;
+  const beforeZ = body.velocity.z;
   const multiplier = Math.exp(-Math.max(0, friction) * deltaTime);
   body.velocity.x *= multiplier;
   body.velocity.z *= multiplier;
+  const forceX = (body.velocity.x - beforeX) * body.mass / deltaTime / contacts.length;
+  const forceZ = (body.velocity.z - beforeZ) * body.mass / deltaTime / contacts.length;
+  for (const contact of contacts) {
+    contact.force.x += forceX;
+    contact.force.z += forceZ;
+  }
+}
+
+function withForce(contact, axis, component) {
+  const force = { x: 0, y: 0, z: 0 };
+  force[axis] = component;
+  return { ...contact, force };
 }
 
 function sanitize(body) {

@@ -27,7 +27,7 @@ test("partial canonical entries retain local binding gaps and capabilities", () 
   assert.equal(voxelContact.executable, true);
   assert.equal(voxelContact.capability, "server.world.events");
   assert.ok(voxelContact.localBindings.some(binding => binding.localId === "server.world.onVoxelContact"));
-  assert.ok(voxelContact.localBindings.flatMap(binding => binding.gaps).some(gap => gap.includes("force remains null")));
+  assert.ok(voxelContact.localBindings.flatMap(binding => binding.gaps).some(gap => gap.includes("impulse-derived")));
 });
 
 test("protocol matrix preserves message directions", () => {

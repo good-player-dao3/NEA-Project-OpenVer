@@ -1,7 +1,7 @@
 {
   "format": "nea-server-adapter-map",
   "version": 1,
-  "generatedAt": "2026-07-29T08:25:31.999Z",
+  "generatedAt": "2026-07-30T00:56:53.642Z",
   "contract": "nea-server-runtime/v1",
   "adapters": [
     {
@@ -9,6 +9,107 @@
       "canonicalId": "server.GameWorld.currentTick",
       "status": "compatible",
       "gaps": []
+    },
+    {
+      "localId": "server.world.onRespawn",
+      "canonicalId": "server.GameWorld.onRespawn",
+      "status": "partial",
+      "gaps": [
+        "Local forceRespawn emits the recovered event shape; automatic engine respawn triggers remain unverified."
+      ]
+    },
+    {
+      "localId": "server.world.nextRespawn",
+      "canonicalId": "server.GameWorld.nextRespawn",
+      "status": "partial",
+      "gaps": [
+        "The recovered optional filter is implemented; automatic engine respawn triggers remain unverified."
+      ]
+    },
+    {
+      "localId": "server.world.onTakeDamage",
+      "canonicalId": "server.GameWorld.onTakeDamage",
+      "status": "partial",
+      "gaps": [
+        "Existing local RuntimePlayer.damage calls emit the recovered GameDamageEvent fields; native hurt producers, damage enablement, death scheduling, attacker propagation, and transport-created damage remain unverified."
+      ]
+    },
+    {
+      "localId": "server.world.nextTakeDamage",
+      "canonicalId": "server.GameWorld.nextTakeDamage",
+      "status": "partial",
+      "gaps": [
+        "The recovered optional filter is implemented; native damage producers remain unverified."
+      ]
+    },
+    {
+      "localId": "server.world.onChat",
+      "canonicalId": "server.GameWorld.onChat",
+      "status": "partial",
+      "gaps": [
+        "Recovered event fields are emitted by the local bridge; native moderation, cancellation, and transport timing remain unverified."
+      ]
+    },
+    {
+      "localId": "server.world.onPress",
+      "canonicalId": "server.GameWorld.onPress",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.world.onClick",
+      "canonicalId": "server.GameWorld.onClick",
+      "status": "partial",
+      "gaps": [
+        "The game-net bridge reconstructs the declared GameClickEvent fields, applies the recovered PlayerFlags mask, and dispatches the same event to world and the clicked entity in historical order.",
+        "Non-player clicks require an authoritative backend entity binding; the latest capture still has two entities without sufficient model evidence for projection."
+      ]
+    },
+    {
+      "localId": "server.world.onRelease",
+      "canonicalId": "server.GameWorld.onRelease",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.world.onFluidEnter",
+      "canonicalId": "server.GameWorld.onFluidEnter",
+      "status": "partial",
+      "gaps": [
+        "The event surface and local physics dispatch exist; native fluid metadata and exact transition timing remain unverified."
+      ]
+    },
+    {
+      "localId": "server.world.onFluidLeave",
+      "canonicalId": "server.GameWorld.onFluidLeave",
+      "status": "partial",
+      "gaps": [
+        "The event surface and local physics dispatch exist; native fluid metadata and exact transition timing remain unverified."
+      ]
+    },
+    {
+      "localId": "server.world.onDie",
+      "canonicalId": "server.GameWorld.onDie",
+      "status": "partial",
+      "gaps": [
+        "The event surface is dispatchable, but automatic native death-state production remains unverified."
+      ]
+    },
+    {
+      "localId": "server.world.onEntityContact",
+      "canonicalId": "server.GameWorld.onEntityContact",
+      "status": "partial",
+      "gaps": [
+        "The event surface is dispatchable; full native GameEntityContactEvent production remains covered separately by the contact model."
+      ]
+    },
+    {
+      "localId": "server.world.onPlayerPurchaseSuccess",
+      "canonicalId": "server.GameWorld.onPlayerPurchaseSuccess",
+      "status": "partial",
+      "gaps": [
+        "The event surface is dispatchable; the native purchase producer and full payload remain unverified."
+      ]
     },
     {
       "localId": "server.world.onTick",
@@ -40,8 +141,7 @@
       "canonicalId": "server.GameWorld.onVoxelContact",
       "status": "partial",
       "gaps": [
-        "GameVoxelContactEvent force remains null because historical fx/fy/fz production semantics are unresolved.",
-        "RuntimePlayer is still only a subset of GamePlayerEntity."
+        "The recovered impulse-derived GameVoxelContactEvent force is implemented; RuntimePlayer is still only a subset of GamePlayerEntity."
       ]
     },
     {
@@ -49,8 +149,7 @@
       "canonicalId": "server.GameWorld.onVoxelSeparate",
       "status": "partial",
       "gaps": [
-        "GameVoxelContactEvent force remains null because historical fx/fy/fz production semantics are unresolved.",
-        "RuntimePlayer is still only a subset of GamePlayerEntity."
+        "The recovered impulse-derived GameVoxelContactEvent force is implemented; RuntimePlayer is still only a subset of GamePlayerEntity."
       ]
     },
     {
@@ -74,7 +173,7 @@
       "canonicalId": "server.GameWorld.nextTick",
       "status": "partial",
       "gaps": [
-        "Historical nextTick accepts an optional filter and resolves a GameTickEvent."
+        "The recovered optional filter and GameTickEvent resolution are implemented; elapsedTimeMS, skip, and delayed-tick timing retain the same gaps as world.onTick."
       ]
     },
     {
@@ -82,7 +181,7 @@
       "canonicalId": "server.GameWorld.nextPlayerJoin",
       "status": "partial",
       "gaps": [
-        "Historical nextPlayerJoin accepts an optional filter and resolves a GameEntityEvent."
+        "The recovered optional filter and GameEntityEvent fields are implemented; RuntimePlayer remains a subset of GamePlayerEntity."
       ]
     },
     {
@@ -118,19 +217,362 @@
       ]
     },
     {
-      "localId": "server.remoteChannel.onClientEvent",
-      "canonicalId": "server.remoteChannel.onServerEvent",
+      "localId": "server.world.raycast",
+      "canonicalId": "server.GameWorld.raycast",
       "status": "partial",
       "gaps": [
-        "Local payload is {player,event}; historical ServerEvent is {tick,entity,args}."
+        "Voxel DDA, fluid filtering, selector filtering, player/entity AABBs, recovered result fields, the historical Infinity maxDistance default, and zero-direction preservation are implemented and exercised by conformance tests and the BedWars corpus.",
+        "The recovered engine raycastBoxes implementation and body-orientation semantics are not available locally; entity intersections therefore remain an explicit AABB approximation. GameWorld.useOBB is a separate world-physics property, not a GameRaycastOptions field."
       ]
+    },
+    {
+      "localId": "server.world.addCollisionFilter",
+      "canonicalId": "server.GameWorld.addCollisionFilter",
+      "status": "partial",
+      "gaps": [
+        "Filter registration/list lifecycle is implemented; the local physics solver does not yet consume selector pairs."
+      ]
+    },
+    {
+      "localId": "server.world.addZone",
+      "canonicalId": "server.GameWorld.addZone",
+      "status": "partial",
+      "gaps": [
+        "Zone creation, polling, enter/leave events, and removal exist; selector grammar and environmental effects remain partial."
+      ]
+    },
+    {
+      "localId": "server.world.gravity",
+      "canonicalId": "server.GameWorld.gravity",
+      "status": "partial",
+      "gaps": [
+        "The recovered property is script-visible, but writes do not yet reconfigure the fixed-step physics engine."
+      ]
+    },
+    {
+      "localId": "server.world.airFriction",
+      "canonicalId": "server.GameWorld.airFriction",
+      "status": "partial",
+      "gaps": [
+        "The recovered property is script-visible, but writes do not yet reconfigure the fixed-step physics engine."
+      ]
+    },
+    {
+      "localId": "server.world.fogColor",
+      "canonicalId": "server.GameWorld.fogColor",
+      "status": "partial",
+      "gaps": [
+        "The recovered GameRGBColor property is script-visible; client rendering propagation remains unimplemented."
+      ]
+    },
+    {
+      "localId": "server.RuntimeEntity.onClick",
+      "canonicalId": "server.GameEntity.onClick",
+      "status": "partial",
+      "gaps": [
+        "The declared GameClickEvent fields and world-to-target dispatch order are implemented when an authoritative entity binding exists."
+      ]
+    },
+    {
+      "localId": "server.RuntimeEntity.nextClick",
+      "canonicalId": "server.GameEntity.nextClick",
+      "status": "partial",
+      "gaps": [
+        "The recovered optional filter is implemented; resolution still depends on an authoritative entity binding."
+      ]
+    },
+    {
+      "localId": "server.RuntimePlayer.onClick",
+      "canonicalId": "server.GameEntity.onClick",
+      "status": "partial",
+      "gaps": [
+        "Clicked players receive the same GameClickEvent after world dispatch when their backend player id is authoritative."
+      ]
+    },
+    {
+      "localId": "server.RuntimePlayer.nextClick",
+      "canonicalId": "server.GameEntity.nextClick",
+      "status": "partial",
+      "gaps": [
+        "The recovered optional filter is implemented; resolution still depends on an authoritative backend player id."
+      ]
+    },
+    {
+      "localId": "server.RuntimePlayer.walkButton",
+      "canonicalId": "server.GamePlayerEntity.walkButton",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.RuntimePlayer.jumpButton",
+      "canonicalId": "server.GamePlayerEntity.jumpButton",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.RuntimePlayer.action0Button",
+      "canonicalId": "server.GamePlayerEntity.action0Button",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.RuntimePlayer.action1Button",
+      "canonicalId": "server.GamePlayerEntity.action1Button",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.RuntimePlayer.enableAction0",
+      "canonicalId": "server.GamePlayerEntity.enableAction0",
+      "status": "partial",
+      "gaps": [
+        "The recovered server input mask is implemented; authoritative Player Public flags are not yet written back to the client."
+      ]
+    },
+    {
+      "localId": "server.RuntimePlayer.enableAction1",
+      "canonicalId": "server.GamePlayerEntity.enableAction1",
+      "status": "partial",
+      "gaps": [
+        "The recovered server input mask is implemented; authoritative Player Public flags are not yet written back to the client."
+      ]
+    },
+    {
+      "localId": "server.RuntimePlayer.enableJump",
+      "canonicalId": "server.GamePlayerEntity.enableJump",
+      "status": "partial",
+      "gaps": [
+        "The recovered server input mask is implemented; authoritative Player Public flags are not yet written back to the client."
+      ]
+    },
+    {
+      "localId": "server.RuntimePlayer.enableDoubleJump",
+      "canonicalId": "server.GamePlayerEntity.enableDoubleJump",
+      "status": "partial",
+      "gaps": [
+        "The recovered server input mask is implemented; authoritative Player Public flags are not yet written back to the client."
+      ]
+    },
+    {
+      "localId": "server.RuntimePlayer.color",
+      "canonicalId": "server.GamePlayer.color",
+      "status": "partial",
+      "gaps": [
+        "The Script Runtime value and mutation API are present; authoritative client rendering propagation remains unverified."
+      ]
+    },
+    {
+      "localId": "server.RuntimePlayer.spawnPoint",
+      "canonicalId": "server.GamePlayer.spawnPoint",
+      "status": "partial",
+      "gaps": [
+        "The spawn point drives local forceRespawn; native validation and automatic respawn integration remain unverified."
+      ]
+    },
+    {
+      "localId": "server.RuntimePlayer.onRespawn",
+      "canonicalId": "server.GamePlayer.onRespawn",
+      "status": "partial",
+      "gaps": [
+        "Local forceRespawn emits the recovered event shape; automatic engine respawn triggers remain unverified."
+      ]
+    },
+    {
+      "localId": "server.RuntimePlayer.nextRespawn",
+      "canonicalId": "server.GamePlayer.nextRespawn",
+      "status": "partial",
+      "gaps": [
+        "The recovered optional filter is implemented; automatic engine respawn triggers remain unverified."
+      ]
+    },
+    {
+      "localId": "server.RuntimePlayer.onPress",
+      "canonicalId": "server.GamePlayer.onPress",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.RuntimePlayer.nextPress",
+      "canonicalId": "server.GamePlayer.nextPress",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.RuntimePlayer.onRelease",
+      "canonicalId": "server.GamePlayer.onRelease",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.RuntimePlayer.nextRelease",
+      "canonicalId": "server.GamePlayer.nextRelease",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.RuntimePlayer.onTakeDamage",
+      "canonicalId": "server.GameEntity.onTakeDamage",
+      "status": "partial",
+      "gaps": [
+        "Existing local RuntimePlayer.damage calls emit the recovered GameDamageEvent fields; native hurt producers and full damage/death state remain unverified."
+      ]
+    },
+    {
+      "localId": "server.RuntimePlayer.nextTakeDamage",
+      "canonicalId": "server.GameEntity.nextTakeDamage",
+      "status": "partial",
+      "gaps": [
+        "The recovered optional filter is implemented; native damage producers remain unverified."
+      ]
+    },
+    {
+      "localId": "server.RuntimePlayer.forceRespawn",
+      "canonicalId": "server.GamePlayer.forceRespawn",
+      "status": "partial",
+      "gaps": [
+        "Position, velocity, contacts, triggers, backend state, and respawn events are updated; native death-state side effects remain unverified."
+      ]
+    },
+    {
+      "localId": "server.global.voxels",
+      "canonicalId": "server.global.voxels",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.GameVoxels.getVoxelId",
+      "canonicalId": "server.GameVoxels.getVoxelId",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.GameVoxels.setVoxelId",
+      "canonicalId": "server.GameVoxels.setVoxelId",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.GameVoxels.id",
+      "canonicalId": "server.GameVoxels.id",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.GameVoxels.setVoxel",
+      "canonicalId": "server.GameVoxels.setVoxel",
+      "status": "compatible",
+      "gaps": [
+        "Four Chinese string rotation aliases remain unresolved because the recovered historical source contains mojibake at those switch cases."
+      ]
+    },
+    {
+      "localId": "server.GameVoxels.getVoxel",
+      "canonicalId": "server.GameVoxels.getVoxel",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.GameVoxels.name",
+      "canonicalId": "server.GameVoxels.name",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.GameVoxels.getVoxelRotation",
+      "canonicalId": "server.GameVoxels.getVoxelRotation",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.GameVoxels.shape",
+      "canonicalId": "server.GameVoxels.shape",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.GameVoxels.VoxelTypes",
+      "canonicalId": "server.GameVoxels.VoxelTypes",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.GameGUI.init",
+      "canonicalId": "server.GameGUI.init",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.GameGUI.show",
+      "canonicalId": "server.GameGUI.show",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.GameGUI.remove",
+      "canonicalId": "server.GameGUI.remove",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.GameGUI.getAttribute",
+      "canonicalId": "server.GameGUI.getAttribute",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.GameGUI.setAttribute",
+      "canonicalId": "server.GameGUI.setAttribute",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.GameGUI.onMessage",
+      "canonicalId": "server.GameGUI.onMessage",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.GameGUI.ui",
+      "canonicalId": "server.GameGUI.ui",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.GameStorage.getDataStorage",
+      "canonicalId": "server.GameStorage.getDataStorage",
+      "status": "partial",
+      "gaps": [
+        "Local JSON persistence implements the recovered data-space operations; native cloud scope, quotas, consistency, and version semantics remain unverified."
+      ]
+    },
+    {
+      "localId": "server.GameStorage.getGroupStorage",
+      "canonicalId": "server.GameStorage.getGroupStorage",
+      "status": "partial",
+      "gaps": [
+        "The function surface exists, but default project runtimes disable cross-map group storage because no authoritative group identity/configuration is available."
+      ]
+    },
+    {
+      "localId": "server.remoteChannel.onServerEvent",
+      "canonicalId": "server.remoteChannel.onServerEvent",
+      "status": "compatible",
+      "gaps": []
     },
     {
       "localId": "server.remoteChannel.sendClientEvent",
       "canonicalId": "server.remoteChannel.sendClientEvent",
-      "status": "partial",
+      "status": "compatible",
       "gaps": [
-        "Local method accepts one RuntimePlayer; historical API accepts one or many GamePlayerEntity targets and empty arrays."
+        "RuntimePlayer remains a subset of historical GamePlayerEntity."
+      ]
+    },
+    {
+      "localId": "server.remoteChannel.broadcastClientEvent",
+      "canonicalId": "server.remoteChannel.broadcastClientEvent",
+      "status": "compatible",
+      "gaps": [
+        "RuntimePlayer remains a subset of historical GamePlayerEntity."
       ]
     }
   ]

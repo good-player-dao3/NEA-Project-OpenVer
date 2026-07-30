@@ -421,6 +421,21 @@ const entries = supportedDocumentedIds.map(id => {
 });
 
 entries.push(
+  recoveredMember("client.remoteChannel.events", "property", "remoteChannel", "events", { type: "EventEmitter<{client:any}>", readonly: true }, "client.remote-channel", {
+    eventBus: "remoteChannel.events",
+    eventName: "client",
+  }, "The archived ClientRemoteChannel constructs an EventEmitter and emits the client event after each decoded server event."),
+  recoveredMember("client.input.pointerLockEvents", "property", "input", "pointerLockEvents", { type: "EventEmitter<PointerLockEvents>", readonly: true }, "client.ui", {
+    propertyPath: "input.pointerLockEvents",
+    access: "read-only",
+  }, "The archived InputSystem constructs pointerLockEvents and emits pointerlockchange and pointerlockerror."),
+  recoveredMember("client.ClientScreen.events", "property", "ClientScreen", "events", { type: "EventEmitter<ScreenEvents>", readonly: true }, "client.ui", {
+    propertyPath: "screen.events",
+    access: "read-only",
+  }, "The archived ClientScreen constructs an EventEmitter and emits resize events."),
+);
+
+entries.push(
   runtimeEntry("client.runtime.moduleDelivery", "protocol", "runtime", "moduleDelivery", {
     schema: "game-net.syncClientScriptModules -> dictionary<string, UTF-8 source>",
   }, "Server-delivered client module sources are cloned into state.clientModules."),
@@ -461,7 +476,7 @@ const analysis = {
   remoteChannel: {
     send: "JSON.stringify -> remote-channel.sendServerEvent {tick,args}",
     receive: "remote-channel.sendClientEvent -> pending event queue -> JSON.parse -> receiveClientEvent",
-    listenerMethods: ["onClientEvent", "removeEventListener", "clear"],
+    listenerMethods: ["onClientEvent", "removeEventListener", "clear", "events.on('client')"],
   },
   entries,
   unresolved: [
@@ -491,6 +506,24 @@ function runtimeEntry(id, kind, owner, name, signature, note) {
     since: null,
     notes: [note],
     evidence: id === "client.runtime.moduleDelivery" ? [engineEvidence, evidence] : [evidence],
+  };
+}
+
+function recoveredMember(id, kind, owner, name, signature, capability, binding, note) {
+  return {
+    id,
+    side: "client",
+    kind,
+    owner,
+    name,
+    signature,
+    availability: "confirmed",
+    compatibility: "native",
+    capability,
+    since: null,
+    notes: [note],
+    evidence: [evidence],
+    binding,
   };
 }
 

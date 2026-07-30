@@ -109,7 +109,7 @@ const server = createServer(async (request, response) => {
     if (request.method === "GET" && url.pathname === "/api/getMapInfo") {
       sendJson(response, clientRuntime.renderShell ? {
         contentId: clientRuntime.manifest.contentId,
-        name: "Local BedWars",
+        name: "NEA Local Player",
         backgroundImage: `${origin}/block/QmTn4FL6hBnoD469zujDAFMpQtZMNwF5Wcc4LtHTqWNYHZ.png`,
       } : {});
       return;

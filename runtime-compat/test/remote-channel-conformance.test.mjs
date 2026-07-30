@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  encodeHistoricalClientEvent,
   decodeHistoricalClientEvent,
   encodeHistoricalServerEvent,
   HistoricalClientRemoteChannelFixture,
@@ -17,6 +18,35 @@ test("RemoteChannel encodes event payloads as ticked JSON strings", () => {
     event: { type: "demo", value: [1, true, null] },
   });
   assert.throws(() => encodeHistoricalServerEvent(1, 1n), TypeError);
+});
+
+test("RemoteChannel sends client events through the confirmed tick/args schema", () => {
+  const sent = [];
+  const fixture = new HistoricalClientRemoteChannelFixture({
+    getTick: () => 41,
+    sendPacket: packet => sent.push(packet),
+  });
+  fixture.sendServerEvent({ type: "ready", value: 3 });
+  assert.deepEqual(sent, [encodeHistoricalClientEvent(41, { type: "ready", value: 3 })]);
+});
+
+test("RemoteChannel events emitter supports ArenaPro client registrations", () => {
+  const fixture = new HistoricalClientRemoteChannelFixture();
+  const received = [];
+  const removed = event => received.push(["removed", event]);
+  fixture.events.on("client", event => received.push(["on", event]));
+  fixture.events.once("client", event => received.push(["once", event]));
+  fixture.events.add("client", removed);
+  fixture.events.off("client", removed);
+  fixture.start();
+  fixture.receivePacket({ tick: 1, args: '{"type":"first"}' });
+  fixture.receivePacket({ tick: 2, args: '{"type":"second"}' });
+  assert.deepEqual(received, [
+    ["on", { type: "first" }],
+    ["once", { type: "first" }],
+    ["on", { type: "second" }],
+  ]);
+  assert.throws(() => fixture.events.on("server", () => {}), RangeError);
 });
 
 test("RemoteChannel queues packets until the client isolate starts", () => {

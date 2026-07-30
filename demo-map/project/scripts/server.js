@@ -56,7 +56,7 @@ world.onTriggerLeave(({ player, trigger }) => {
   });
 });
 
-remoteChannel.onClientEvent(({ player, event }) => {
+remoteChannel.onServerEvent(({ entity: player, args: event }) => {
   if (event?.type === "nea-demo:ready") {
     world.say(`${player.name} completed the Player handshake`);
     remoteChannel.sendClientEvent(player, {

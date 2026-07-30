@@ -1,34 +1,34 @@
 # Runtime Compatibility Gap Report
 
-Generated: 2026-07-29T08:25:35.640Z
+Generated: 2026-07-30T00:56:57.341Z
 
 ## Summary
 
 - Documentation declarations: 599
-- Current contract entries: 205
-- Recovered compatible entries: 168
-- Identifier/canonical matches: 177
-- Documented declarations still missing: 422
-- Local extensions not joined to documentation: 47
+- Current contract entries: 285
+- Recovered compatible entries: 237
+- Identifier/canonical matches: 221
+- Documented declarations still missing: 378
+- Local extensions not joined to documentation: 86
 - Native: 125
-- Compatible: 32
-- Partial: 20
-- Recovered only: 185
-- Declared only: 237
+- Compatible: 72
+- Partial: 24
+- Recovered only: 156
+- Declared only: 222
 
 ## By Runtime Side
 
 - client: 125/126 represented; 1 missing
-- server: 21/346 represented; 325 missing
+- server: 65/346 represented; 281 missing
 - shared: 31/127 represented; 96 missing
 
 ## Recovery vs Implementation
 
-- Client confirmed/native: 129
+- Client confirmed/native: 132
 - Client declared/missing: 1
-- Server confirmed but unimplemented: 656
-- Server confirmed/bridged: 3
-- Server confirmed/emulated: 34
+- Server confirmed but unimplemented: 646
+- Server confirmed/bridged: 5
+- Server confirmed/emulated: 52
 
 ## Interpretation
 
@@ -48,7 +48,7 @@ Generated: 2026-07-29T08:25:35.640Z
 - Captured binary traffic: 1864 client-to-server; 0 server-to-client
 - Indexed source sets: origin-server-runtime, lokibox-runtime-adapters, local-player-backend, archived-player-bundle, player-browser-profile, legacy-worktree, posture-delta-frame-corpus
 - ContactBinding: reference-only
-- Per-contact force: confirmed-historical-production-local-missing
+- Per-contact force: confirmed-historical-production-local-compatible
 - Aggregate contactForce: unresolved
 
 ## Deferred Evidence

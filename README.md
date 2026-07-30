@@ -4,6 +4,22 @@ NEA Project is a local preservation and compatibility effort for the discontinue
 
 The current `beta` branch is an evidence-first work in progress. It separates the project package, client Script Runtime, server Script Runtime, MuDB transport, and authoritative game runtime instead of treating the archived Player as a complete server implementation.
 
+## Repository layout
+
+The root intentionally separates executable code from preserved evidence:
+
+- `demo-map/`: importable reference project and the local server Script Runtime.
+- `runtime-compat/`: API/ABI catalogs, generators, conformance fixtures, and compatibility reports.
+- `local-player/`: recovered Player assets, compatibility backend, launch tools, and Player reports.
+- `preservation-dump/`: bounded capture and export tools; private output stays under `dump/private/`.
+- `works/`: local work catalog; actual recovered works stay under ignored `works/private/`.
+- `dao3-docs-mirror/`, `origin/`, `mudb/`, and `box-go/`: historical or third-party evidence, not new application architecture.
+- `dump/` and `Lokibox/`: preserved local evidence. Treat private or packaged contents as non-publishable.
+- `tools/`: repository maintenance helpers.
+- `.workspace/`: ignored local logs and transient operator output.
+
+See `docs/repository-layout.md` before adding a new top-level directory or moving preserved material.
+
 ## Current status
 
 - Local Player recovery server and archived Player assets are available under `local-player/`.

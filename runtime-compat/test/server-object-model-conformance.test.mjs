@@ -37,8 +37,8 @@ test("RuntimeEntity adapter covers every local member without false implements",
   const local = await readJson("generated/local-server-runtime-analysis.json");
   const localIds = local.entries.filter(entry => entry.owner === "RuntimeEntity").map(entry => entry.id).sort();
   assert.deepEqual(map.members.map(entry => entry.local.id).sort(), localIds);
-  assert.equal(map.summary.memberCount, 5);
-  assert.equal(map.summary.partial, 3);
+  assert.equal(map.summary.memberCount, 7);
+  assert.equal(map.summary.partial, 5);
   assert.equal(map.summary.extensions, 2);
   assert.ok(map.members.every(entry => entry.implements.length === 0));
 });

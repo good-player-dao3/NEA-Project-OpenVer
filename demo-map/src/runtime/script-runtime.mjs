@@ -5,7 +5,50 @@ import { EventSignal } from "./event-signal.mjs";
 import { FixedStepPlayerPhysics } from "./physics/fixed-step-physics.mjs";
 import { PlayerPhysicsBody } from "./physics/player-body.mjs";
 import { VoxelCollisionWorld } from "./physics/voxel-collision-world.mjs";
+import { GameVoxelsRuntime } from "./game-voxels.mjs";
+import { CommonJsModuleLoader } from "./commonjs-module-loader.mjs";
+import { LocalGameStorage } from "./game-storage.mjs";
+import { GameGuiRuntime } from "./game-gui.mjs";
 import { Vector3 } from "./vector3.mjs";
+import { GameQuaternion } from "./quaternion.mjs";
+import { GameRGBColor, GameRGBAColor } from "./colors.mjs";
+import { GameBounds3, GameZoneSystem } from "./game-zones.mjs";
+import { GameWorld } from "./game-world.mjs";
+import { GameSoundEffect } from "./game-sound-effect.mjs";
+import { GameBodyPart } from "./game-body-part.mjs";
+import { raycastWorld } from "./game-raycast.mjs";
+
+const EMPTY_PLAYER_TAGS = Object.freeze(new Set());
+
+export const GameButtonType = Object.freeze({
+  WALK: "walk",
+  RUN: "run",
+  CROUCH: "crouch",
+  JUMP: "jump",
+  DOUBLE_JUMP: "jump2",
+  FLY: "fly",
+  ACTION0: "action0",
+  ACTION1: "action1",
+});
+
+const INPUT_BUTTONS = Object.freeze([
+  Object.freeze({ mask: 1, button: GameButtonType.ACTION0 }),
+  Object.freeze({ mask: 2, button: GameButtonType.ACTION1 }),
+  Object.freeze({ mask: 4, button: GameButtonType.JUMP }),
+  Object.freeze({ mask: 8, button: GameButtonType.WALK }),
+  Object.freeze({ mask: 16, button: GameButtonType.CROUCH }),
+  Object.freeze({ mask: 32, button: GameButtonType.RUN }),
+  Object.freeze({ mask: 64, button: GameButtonType.DOUBLE_JUMP }),
+  Object.freeze({ mask: 128, button: GameButtonType.FLY }),
+]);
+
+const PLAYER_INPUT_PERMISSIONS = Object.freeze([
+  Object.freeze({ mask: 1, property: "enableAction0" }),
+  Object.freeze({ mask: 2, property: "enableAction1" }),
+  Object.freeze({ mask: 4, property: "enableJump" }),
+  Object.freeze({ mask: 16, property: "enableCrouch" }),
+  Object.freeze({ mask: 64, property: "enableDoubleJump" }),
+]);
 
 const KNOWN_CAPABILITIES = new Set([
   "server.world.events",
@@ -19,16 +62,34 @@ const KNOWN_CAPABILITIES = new Set([
 export class ScriptRuntime {
   #context;
   #interval;
+  #moduleLoader;
+  #moduleEnvironment = {};
+  #moduleEnvironmentKey = "__neaCommonJsModuleEnvironment";
   #timers = new Set();
   #players = new Map();
+  #playerIds = new WeakMap();
   #entities = new Map();
   #messages = [];
   #outboundEvents = [];
+  #collisionFilters = new Map();
   #signals = {
     tick: new EventSignal(),
     playerJoin: new EventSignal(),
     playerLeave: new EventSignal(),
+    respawn: new EventSignal(),
+    takeDamage: new EventSignal(),
     clientEvent: new EventSignal(),
+    chat: new EventSignal(),
+    press: new EventSignal(),
+    click: new EventSignal(),
+    release: new EventSignal(),
+    fluidEnter: new EventSignal(),
+    fluidLeave: new EventSignal(),
+    die: new EventSignal(),
+    entityContact: new EventSignal(),
+    playerPurchaseSuccess: new EventSignal(),
+    keyDown: new EventSignal(),
+    keyUp: new EventSignal(),
     voxelContact: new EventSignal(),
     voxelSeparate: new EventSignal(),
     contact: new EventSignal(),
@@ -43,6 +104,13 @@ export class ScriptRuntime {
     this.capabilities = new Set(options.capabilities);
     this.logger = options.logger ?? console;
     this.entry = options.entry;
+    this.moduleSources = options.modules;
+    this.storage = options.storage ?? new LocalGameStorage({ file: resolve(this.projectRoot, ".runtime-storage.json") });
+    this.gui = options.gui ?? new GameGuiRuntime({
+      transport: options.sendGuiCommand,
+      resolvePlayerId: entity => this.#playerIds.get(entity) ?? entity?.id,
+    });
+    this.zones = new GameZoneSystem();
     this.runtimeApiVersion = options.runtimeApiVersion;
     this.serverContract = options.serverContract;
     this.compatibilityLevel = options.compatibilityLevel;
@@ -50,12 +118,15 @@ export class ScriptRuntime {
     if (!this.playerBodyProfile) throw new Error("Runtime requires an explicit player body profile");
     this.sendClientEvent = options.sendClientEvent ?? (() => {});
     this.writePlayerState = options.writePlayerState ?? (() => {});
+    this.showDialog = options.showDialog ?? (() => Promise.reject(new Error("Dialog transport is not configured")));
+    this.cancelDialogs = options.cancelDialogs ?? (() => false);
     this.collisionWorld = new VoxelCollisionWorld({
       voxels: options.voxels ?? [],
       materials: options.physics?.materials ?? {},
       colliders: options.physics?.colliders ?? [],
       triggers: options.physics?.triggers ?? [],
     });
+    this.voxels = new GameVoxelsRuntime({ shape: options.shape, catalog: options.blockCatalog, collisionWorld: this.collisionWorld });
     this.physics = new FixedStepPlayerPhysics(this.collisionWorld, options.physics);
     this.currentTick = 0;
     this.started = false;
@@ -75,13 +146,23 @@ export class ScriptRuntime {
     const physicsSnapshot = world.physics
       ? JSON.parse(await readFile(resolve(root, world.physics), "utf8"))
       : {};
-    const entities = (entitySnapshot.entities ?? []).map((entity, index) => ({
-      id: entity.tags?.find(tag => tag.startsWith("id-"))?.slice(3) ?? `entity-${index + 1}`,
-      kind: entity.kind,
-      position: entity.position,
-      tags: entity.tags ?? [],
-    }));
+    const entities = (entitySnapshot.entities ?? []).map((entity, index) => {
+      const packageTags = Array.isArray(entity.tags) ? entity.tags : [];
+      const sourceTags = Array.isArray(entity.source?.tags) ? entity.source.tags : [];
+      return {
+        id: packageTags.find(tag => tag.startsWith("id-"))?.slice(3) ?? `entity-${index + 1}`,
+        kind: entity.kind,
+        name: entity.name ?? entity.source?.name,
+        position: entity.position,
+        tags: [...new Set([...sourceTags, ...packageTags])],
+        source: entity.source,
+        sourceIndex: index,
+      };
+    });
     if (scriptManifest.entry === null) throw new Error("Project has no server script entry");
+    const modulePaths = scriptManifest.modules ?? [scriptManifest.entry];
+    if (!Array.isArray(modulePaths) || !modulePaths.includes(scriptManifest.entry)) throw new Error("Script manifest modules must include the entry");
+    const modules = Object.fromEntries(await Promise.all(modulePaths.map(async modulePath => [modulePath, await readFile(resolve(root, modulePath), "utf8")])));
     if (scriptManifest.contract?.side !== "server") throw new Error("Script manifest must bind a server runtime contract");
     if (scriptManifest.contract.id !== project.engine.serverContract) throw new Error("Server runtime contract mismatch");
     if (scriptManifest.contract.apiVersion !== project.engine.runtimeApiVersion) throw new Error("Server runtime API version mismatch");
@@ -90,27 +171,41 @@ export class ScriptRuntime {
       tickRate: project.engine.tickRate,
       capabilities: scriptManifest.capabilities ?? [],
       entry: scriptManifest.entry,
+      modules,
       runtimeApiVersion: project.engine.runtimeApiVersion,
       serverContract: project.engine.serverContract,
       compatibilityLevel: project.engine.compatibilityLevel,
       entities,
+      shape: world.shape,
+      blockCatalog: options.blockCatalog,
       voxels: terrainSnapshot.voxels ?? [],
       logger: options.logger,
       sendClientEvent: options.sendClientEvent,
       writePlayerState: options.writePlayerState,
+      sendGuiCommand: options.sendGuiCommand,
+      showDialog: options.showDialog,
+      cancelDialogs: options.cancelDialogs,
       physics: { ...physicsSnapshot, ...options.physics },
     });
   }
 
   async start() {
     if (this.started) return;
-    const source = await readFile(resolve(this.projectRoot, this.entry), "utf8");
-    this.#context = vm.createContext(this.#createGlobals(), {
+    const globals = this.#createGlobals();
+    Object.defineProperty(globals, this.#moduleEnvironmentKey, { value: this.#moduleEnvironment });
+    Object.freeze(globals);
+    this.#context = vm.createContext(globals, {
       name: `nea-script:${this.projectRoot}`,
       codeGeneration: { strings: false, wasm: false },
     });
-    const script = new vm.Script(source, { filename: this.entry, displayErrors: true });
-    script.runInContext(this.#context, { timeout: 1_000 });
+    this.#moduleLoader = new CommonJsModuleLoader({
+      context: this.#context,
+      modules: this.moduleSources,
+      timeout: 1_000,
+      environment: this.#moduleEnvironment,
+      environmentKey: this.#moduleEnvironmentKey,
+    });
+    this.#moduleLoader.loadModule(this.entry);
     this.started = true;
     this.#interval = setInterval(() => this.tick(), 1000 / this.tickRate);
     this.#interval.unref?.();
@@ -167,6 +262,7 @@ export class ScriptRuntime {
       position: input.position ?? [0, 0, 0],
       authority: input.authority ?? "runtime",
     });
+    this.#playerIds.set(player, id);
     this.#players.set(id, player);
     this.#signals.playerJoin.emit(createGameEntityEvent(this.currentTick, player), error => this.#reportError("playerJoin", error));
     return player;
@@ -180,11 +276,88 @@ export class ScriptRuntime {
     return true;
   }
 
+  dispatchWorldEvent(type, playerId, details = {}) {
+    const signal = this.#signals[type];
+    const player = this.#players.get(playerId);
+    if (!signal || !player) return false;
+    signal.emit(Object.freeze({ tick: this.currentTick, entity: player, player, ...structuredClone(details) }), error => this.#reportError(type, error));
+    player._signals?.[type]?.emit(Object.freeze({ tick: this.currentTick, entity: player, player, ...structuredClone(details) }), error => this.#reportError(type, error));
+    return true;
+  }
+
+  bindBackendEntities(bindings) {
+    if (!Array.isArray(bindings)) return 0;
+    const entities = [...this.#entities.values()];
+    let bound = 0;
+    for (const binding of bindings) {
+      const backendEntityId = Number(binding?.entityId);
+      if (!Number.isSafeInteger(backendEntityId) || backendEntityId < 1) continue;
+      let entity = null;
+      if (Number.isSafeInteger(binding?.entityIndex) && binding.entityIndex >= 0) {
+        entity = entities.find(candidate => candidate._sourceIndex === binding.entityIndex) ?? null;
+      } else if (typeof binding?.sourceId === "string") {
+        entity = this.#entities.get(binding.sourceId) ?? null;
+      }
+      if (!entity) continue;
+      entity._backendEntityId = backendEntityId;
+      bound += 1;
+    }
+    return bound;
+  }
+
+  dispatchInputEvents(playerId, packet) {
+    const player = this.#players.get(playerId);
+    if (!player || !Array.isArray(packet?.events)) return 0;
+    let dispatched = 0;
+    for (const rawEvent of packet.events) {
+      if (!isByte(rawEvent?.buttonState) || !isByte(rawEvent?.prevButtonState)) continue;
+      const permissionMask = inputPermissionMask(player);
+      const buttonState = rawEvent.buttonState & permissionMask;
+      const prevButtonState = rawEvent.prevButtonState & permissionMask;
+      updatePlayerButtonState(player, buttonState);
+      const changed = buttonState ^ prevButtonState;
+      if (changed === 0) continue;
+      const raycast = reconstructInputRaycast(this, rawEvent);
+      const position = Vector3.from(rawEvent.position ?? [0, 0, 0]);
+      const pressedMask = changed & buttonState;
+      if ((pressedMask & 3) !== 0 && raycast.hitEntity) {
+        const button = (pressedMask & 1) !== 0 ? GameButtonType.ACTION0 : GameButtonType.ACTION1;
+        const clickEvent = createGameClickEvent(rawEvent.tick, raycast.hitEntity, player, button, position.distance(raycast.hitPosition), position, raycast);
+        this.#signals.click.emit(clickEvent, error => this.#reportError("click", error));
+        raycast.hitEntity._signals.click.emit(clickEvent, error => this.#reportError("entityClick", error));
+      }
+      for (const { mask, button } of INPUT_BUTTONS) {
+        if ((changed & mask) === 0) continue;
+        const pressed = (buttonState & mask) !== 0;
+        const event = createGameInputEvent(rawEvent.tick, player, position, button, pressed, raycast);
+        const type = pressed ? "press" : "release";
+        this.#signals[type].emit(event, error => this.#reportError(type, error));
+        player._signals[type].emit(event, error => this.#reportError(type, error));
+        dispatched += 1;
+      }
+    }
+    return dispatched;
+  }
+
+  dispatchChat(playerId, message) {
+    const player = this.#players.get(playerId);
+    if (!player) return false;
+    this.#signals.chat.emit(Object.freeze({ tick: this.currentTick, entity: player, player, message: String(message) }), error => this.#reportError("chat", error));
+    return true;
+  }
+
+  dispatchGuiMessage(playerId, name, payload) {
+    const player = this.#players.get(playerId);
+    if (!player) return false;
+    this.gui.dispatch(player, name, payload);
+    return true;
+  }
+
   dispatchClientEvent(playerId, event) {
     this.#require("server.remote-channel");
     const player = this.#players.get(playerId);
     if (!player) return false;
-    this.#signals.clientEvent.emit(Object.freeze({ player, event: structuredClone(event) }), error => this.#reportError("clientEvent", error));
+    this.#signals.clientEvent.emit(Object.freeze({ tick: this.currentTick, player, event: structuredClone(event) }), error => this.#reportError("clientEvent", error));
     return true;
   }
 
@@ -220,19 +393,42 @@ export class ScriptRuntime {
   }
 
   #createGlobals() {
-    const world = Object.freeze({
+    const worldProperties = {
       get currentTick() { return runtime.currentTick; },
+      get size() { return runtime.voxels.shape; },
       onTick: handler => this.#listen("server.world.events", this.#signals.tick, handler),
       onPlayerJoin: handler => this.#listen("server.world.events", this.#signals.playerJoin, handler),
       onPlayerLeave: handler => this.#listen("server.world.events", this.#signals.playerLeave, handler),
+      onRespawn: handler => this.#listen("server.world.events", this.#signals.respawn, handler),
+      nextRespawn: filter => this.#next("server.world.events", this.#signals.respawn, filter),
+      onTakeDamage: handler => this.#listen("server.world.events", this.#signals.takeDamage, handler),
+      nextTakeDamage: filter => this.#next("server.world.events", this.#signals.takeDamage, filter),
+      onChat: handler => this.#listen("server.world.chat", this.#signals.chat, handler),
+      nextChat: filter => this.#next("server.world.chat", this.#signals.chat, filter),
+      onPress: handler => this.#listen("server.world.events", this.#signals.press, handler),
+      nextPress: filter => this.#next("server.world.events", this.#signals.press, filter),
+      onClick: handler => this.#listen("server.world.events", this.#signals.click, handler),
+      nextClick: filter => this.#next("server.world.events", this.#signals.click, filter),
+      onRelease: handler => this.#listen("server.world.events", this.#signals.release, handler),
+      nextRelease: filter => this.#next("server.world.events", this.#signals.release, filter),
+      onFluidEnter: handler => this.#listen("server.world.events", this.#signals.fluidEnter, handler),
+      nextFluidEnter: filter => this.#next("server.world.events", this.#signals.fluidEnter, filter),
+      onFluidLeave: handler => this.#listen("server.world.events", this.#signals.fluidLeave, handler),
+      nextFluidLeave: filter => this.#next("server.world.events", this.#signals.fluidLeave, filter),
+      onDie: handler => this.#listen("server.world.events", this.#signals.die, handler),
+      nextDie: filter => this.#next("server.world.events", this.#signals.die, filter),
+      onEntityContact: handler => this.#listen("server.world.events", this.#signals.entityContact, handler),
+      nextEntityContact: filter => this.#next("server.world.events", this.#signals.entityContact, filter),
+      onPlayerPurchaseSuccess: handler => this.#listen("server.world.events", this.#signals.playerPurchaseSuccess, handler),
+      nextPlayerPurchaseSuccess: filter => this.#next("server.world.events", this.#signals.playerPurchaseSuccess, filter),
       onVoxelContact: handler => this.#listen("server.world.events", this.#signals.voxelContact, handler),
       onVoxelSeparate: handler => this.#listen("server.world.events", this.#signals.voxelSeparate, handler),
       onContact: handler => this.#listen("server.world.events", this.#signals.contact, handler),
       onContactSeparate: handler => this.#listen("server.world.events", this.#signals.contactSeparate, handler),
       onTriggerEnter: handler => this.#listen("server.world.events", this.#signals.triggerEnter, handler),
       onTriggerLeave: handler => this.#listen("server.world.events", this.#signals.triggerLeave, handler),
-      nextTick: () => this.#next("server.world.events", this.#signals.tick),
-      nextPlayerJoin: () => this.#next("server.world.events", this.#signals.playerJoin),
+      nextTick: filter => this.#next("server.world.events", this.#signals.tick, filter),
+      nextPlayerJoin: filter => this.#next("server.world.events", this.#signals.playerJoin, filter),
       say: message => {
         this.#require("server.world.chat");
         const text = String(message);
@@ -243,43 +439,111 @@ export class ScriptRuntime {
         this.#require("server.world.entities");
         const id = spec?.id ?? `runtime-entity-${this.#entities.size + 1}`;
         if (this.#entities.has(id)) throw new Error(`Entity already exists: ${id}`);
-        const entity = createRuntimeEntity({ id, kind: spec?.kind ?? "entity", position: spec?.position ?? [0, 0, 0], tags: spec?.tags ?? [] });
+        const entity = createRuntimeEntity({ id, name: spec?.name, kind: spec?.kind ?? "entity", position: spec?.position ?? [0, 0, 0], tags: spec?.tags ?? [], source: spec?.source });
         this.#entities.set(id, entity);
         return entity;
       },
       querySelector: selector => this.#query(selector)[0] ?? null,
       querySelectorAll: selector => Object.freeze(this.#query(selector)),
-    });
+      testSelector: (entity, selector) => this.#matchesSelector(entity, selector),
+      raycast: (origin, direction, options) => raycastWorld({
+        origin,
+        direction,
+        options,
+        voxels: this.voxels,
+        entities: this.#allQueryableEntities(),
+        matchesSelector: (entity, selector) => this.#matchesSelector(entity, selector),
+      }),
+      get zones() { return Object.freeze(runtime.zones.list()); },
+      addZone: config => runtime.zones.add(config),
+      removeZone: zone => runtime.zones.remove(zone),
+      addCollisionFilter: (aSelector, bSelector) => {
+        const pair = [aSelector, bSelector];
+        this.#collisionFilters.set(JSON.stringify(pair), pair);
+      },
+      removeCollisionFilter: (aSelector, bSelector) => {
+        this.#collisionFilters.delete(JSON.stringify([aSelector, bSelector]));
+      },
+      clearCollisionFilters: () => this.#collisionFilters.clear(),
+      collisionFilters: () => [...this.#collisionFilters.values()].map(pair => [...pair]),
+    };
+    const world = Object.defineProperties(new GameWorld(), Object.getOwnPropertyDescriptors(worldProperties));
+    const sendRemoteEvent = (player, event) => {
+      const playerId = this.#playerIds.get(player);
+      if (!playerId || !this.#players.has(playerId)) return;
+      const clonedEvent = cloneJsonValue(event);
+      this.#outboundEvents.push({ playerId, event: clonedEvent });
+      this.logger.info(`[script:remote] -> ${player.name} ${JSON.stringify(clonedEvent)}`);
+      Promise.resolve(this.sendClientEvent(playerId, structuredClone(clonedEvent))).catch(error => this.#reportError("remote-send", error));
+    };
     const remoteChannel = Object.freeze({
       onClientEvent: handler => this.#listen("server.remote-channel", this.#signals.clientEvent, handler),
-      nextClientEvent: () => this.#next("server.remote-channel", this.#signals.clientEvent),
-      sendClientEvent: (player, event) => {
+      nextClientEvent: filter => this.#next("server.remote-channel", this.#signals.clientEvent, filter),
+      onServerEvent: handler => this.#listen("server.remote-channel", this.#signals.clientEvent, ({ tick, player, event }) => handler(Object.freeze({
+        tick,
+        entity: player,
+        args: event,
+      }))),
+      sendClientEvent: (players, event) => {
         this.#require("server.remote-channel");
-        this.#outboundEvents.push({ playerId: player.id, event: structuredClone(event) });
-        this.logger.info(`[script:remote] -> ${player.name} ${JSON.stringify(event)}`);
-        Promise.resolve(this.sendClientEvent(player.id, structuredClone(event))).catch(error => this.#reportError("remote-send", error));
+        for (const player of Array.isArray(players) ? players : [players]) sendRemoteEvent(player, event);
+      },
+      broadcastClientEvent: event => {
+        this.#require("server.remote-channel");
+        for (const player of this.#players.values()) sendRemoteEvent(player, event);
       },
     });
     const runtime = this;
-    return Object.freeze({
+    return {
       world,
       remoteChannel,
+      storage: this.storage,
+      gui: this.gui,
+      voxels: this.voxels,
       Vector3,
       GameVector3: Vector3,
+      GameQuaternion,
+      GameRGBColor,
+      GameRGBAColor,
+      GameBounds3,
+      GameButtonType,
+      GameWorld,
+      GameSoundEffect,
+      GameBodyPart,
       Vec3: Object.freeze({ create: value => Vector3.from(value) }),
       console: Object.freeze({
+        clear: () => this.logger.clear?.(),
+        dir: () => {},
+        dirxml: () => {},
+        group: () => {},
+        groupCollapsed: () => {},
+        groupEnd: () => {},
+        table: () => {},
+        time: () => {},
+        timeEnd: () => {},
+        timeLog: () => {},
+        timeStamp: () => {},
+        trace: () => {},
+        assert: (assertion, ...values) => { if (!assertion) this.logger.error(`[script] ${values.map(formatValue).join(" ")}`); },
         log: (...values) => this.logger.info(`[script] ${values.map(formatValue).join(" ")}`),
         info: (...values) => this.logger.info(`[script] ${values.map(formatValue).join(" ")}`),
+        debug: (...values) => (this.logger.debug ?? this.logger.info)(`[script] ${values.map(formatValue).join(" ")}`),
         warn: (...values) => this.logger.warn(`[script] ${values.map(formatValue).join(" ")}`),
         error: (...values) => this.logger.error(`[script] ${values.map(formatValue).join(" ")}`),
       }),
       setTimeout: (handler, milliseconds, ...args) => this.#schedule(handler, milliseconds, args),
+      setInterval: (handler, milliseconds, ...args) => this.#scheduleInterval(handler, milliseconds, args),
       clearTimeout: timer => {
         this.#timers.delete(timer);
         clearTimeout(timer);
       },
+      clearInterval: timer => {
+        this.#timers.delete(timer);
+        clearInterval(timer);
+      },
+      sleep: milliseconds => new Promise(resolveSleep => this.#schedule(resolveSleep, milliseconds, [])),
       structuredClone,
-    });
+    };
   }
 
   #listen(capability, signal, handler) {
@@ -287,9 +551,9 @@ export class ScriptRuntime {
     return signal.on(handler);
   }
 
-  #next(capability, signal) {
+  #next(capability, signal, filter) {
     this.#require(capability);
-    return signal.next();
+    return signal.next(filter);
   }
 
   #schedule(handler, milliseconds, args) {
@@ -298,7 +562,7 @@ export class ScriptRuntime {
     const timer = setTimeout(() => {
       this.#timers.delete(timer);
       try {
-        handler(...args);
+        Promise.resolve(handler(...args)).catch(error => this.#reportError("timer", error));
       } catch (error) {
         this.#reportError("timer", error);
       }
@@ -308,13 +572,37 @@ export class ScriptRuntime {
     return timer;
   }
 
+  #scheduleInterval(handler, milliseconds, args) {
+    if (typeof handler !== "function") throw new TypeError("Timer handler must be a function");
+    const delay = Math.max(1, Math.min(Number(milliseconds) || 0, 60_000));
+    const timer = setInterval(() => {
+      try { Promise.resolve(handler(...args)).catch(error => this.#reportError("timer", error)); } catch (error) { this.#reportError("timer", error); }
+    }, delay);
+    timer.unref?.();
+    this.#timers.add(timer);
+    return timer;
+  }
+
   #query(selector) {
     this.#require("server.world.entities");
-    if (typeof selector !== "string" || !/^\.[a-z0-9][a-z0-9-]{0,63}$/.test(selector)) {
-      throw new Error("Demo runtime currently supports tag selectors such as .spawn only");
-    }
-    const tag = selector.slice(1);
-    return [...this.#entities.values()].filter(entity => entity.tags.has(tag));
+    return this.#allQueryableEntities().filter(entity => this.#matchesSelector(entity, selector));
+  }
+
+  #allQueryableEntities() {
+    return [...this.#entities.values(), ...this.#players.values()];
+  }
+
+  #matchesSelector(entity, selector) {
+    if (typeof selector !== "string") throw new TypeError("Game selector must be a string");
+    const tokens = selector.trim().split(/\s+/).filter(Boolean);
+    if (tokens.length === 0) return false;
+    return tokens.every(token => {
+      if (token === "*") return true;
+      if (token === "player") return entity.isPlayer === true;
+      if (token.startsWith("#")) return entity.name === token.slice(1);
+      if (token.startsWith(".")) return entity.tags?.has(token.slice(1)) === true;
+      return false;
+    });
   }
 
   #require(capability) {
@@ -322,7 +610,22 @@ export class ScriptRuntime {
   }
 
   #reportError(source, error) {
-    this.logger.error(`[script:${source}] ${error instanceof Error ? error.stack ?? error.message : error}`);
+    this.logger.error(`[script:${source}] ${formatRuntimeError(error)}`);
+  }
+
+  _runtimePlayerId(player) {
+    return this.#playerIds.get(player);
+  }
+
+  _entityByBackendId(id) {
+    if (!Number.isInteger(id) || id <= 0) return null;
+    for (const player of this.#players.values()) {
+      if (player._backendPlayerId === id) return player;
+    }
+    for (const entity of this.#entities.values()) {
+      if (entity._backendEntityId === id) return entity;
+    }
+    return null;
   }
 
   _writePlayer(player, field, value) {
@@ -331,6 +634,16 @@ export class ScriptRuntime {
     else if (field === "position") player._body.position.copy(Vector3.from(value));
     else if (field === "velocity") player._body.velocity.copy(Vector3.from(value));
     if (field === "position" || field === "velocity") this.#queuePlayerStateWrite(player);
+  }
+
+  _dialogPlayer(player, config) {
+    this.#require("server.player");
+    return Promise.resolve(this.showDialog(this.#playerIds.get(player), structuredClone(config)));
+  }
+
+  _cancelPlayerDialogs(player) {
+    this.#require("server.player");
+    return this.cancelDialogs(this.#playerIds.get(player));
   }
 
   _messagePlayer(player, message) {
@@ -349,11 +662,27 @@ export class ScriptRuntime {
     this.#queuePlayerStateWrite(player);
   }
 
+  _forceRespawnPlayer(player) {
+    this.#require("server.player.write");
+    player._body.position.copy(player.spawnPoint);
+    player._body.velocity.set(0, 0, 0);
+    player._body.grounded = false;
+    player._body.contacts.clear();
+    player._body.triggers.clear();
+    this.#queuePlayerStateWrite(player);
+    const event = createGameEntityEvent(this.currentTick, player);
+    player._signals.respawn.emit(event, error => this.#reportError("playerRespawn", error));
+    this.#signals.respawn.emit(event, error => this.#reportError("respawn", error));
+  }
+
   _damagePlayer(player, amount) {
     this.#require("server.player.write");
     const damage = Number(amount);
     if (!Number.isFinite(damage) || damage < 0) throw new TypeError("Damage must be a non-negative finite number");
     player._health = Math.max(0, player._health - damage);
+    const event = createGameDamageEvent(this.currentTick, player, damage);
+    player._signals.takeDamage.emit(event, error => this.#reportError("playerTakeDamage", error));
+    this.#signals.takeDamage.emit(event, error => this.#reportError("takeDamage", error));
     return player._health;
   }
 
@@ -366,7 +695,7 @@ export class ScriptRuntime {
       velocity: player._body.velocity.toArray(),
       version: player._stateVersion,
     };
-    Promise.resolve(this.writePlayerState(player.id, state)).catch(error => this.#reportError("state-write", error));
+    Promise.resolve(this.writePlayerState(this.#playerIds.get(player), state)).catch(error => this.#reportError("state-write", error));
   }
 }
 
@@ -376,15 +705,43 @@ export function createRuntimeEntity(input) {
   return {
     _id: String(input.id),
     _kind: input.kind ?? "entity",
+    _name: input.name ?? input.source?.name ?? String(input.id),
+    _source: input.source ?? null,
+    _sourceIndex: Number.isSafeInteger(input.sourceIndex) ? input.sourceIndex : null,
+    _backendEntityId: null,
     _position: position,
+    bounds: Vector3.from(input.bounds ?? input.source?.bounds ?? [1, 1, 1]),
+    mesh: input.mesh ?? input.source?.mesh ?? "",
+    meshInvisible: false,
+    meshScale: new Vector3(1 / 64, 1 / 64, 1 / 64),
+    meshOrientation: new GameQuaternion(0, 0, 0, 1),
+    meshOffset: new Vector3(0, 0, 0),
+    meshColor: new GameRGBAColor(1, 1, 1, 1),
+    meshMetalness: 0,
+    meshEmissive: 0,
+    meshShininess: 0,
+    anchorOffset: new Vector3(0, 0, 0),
     _tags: tags,
+    _signals: { click: new EventSignal(), fluidEnter: new EventSignal(), fluidLeave: new EventSignal() },
     get id() { return this._id; },
     get kind() { return this._kind; },
+    get name() { return this._name; },
+    get source() { return this._source; },
+    get isPlayer() { return false; },
     get position() { return this._position; },
     set position(value) { this._position.copy(Vector3.from(value)); },
     get tags() { return this._tags; },
+    addTag(tag) { this._tags.add(String(tag)); },
+    removeTag(tag) { this._tags.delete(String(tag)); },
+    hasTag(tag) { return this._tags.has(String(tag)); },
+    onClick(handler) { return this._signals.click.on(handler); },
+    nextClick(filter) { return this._signals.click.next(filter); },
+    onFluidEnter(handler) { return this._signals.fluidEnter.on(handler); },
+    nextFluidEnter(filter) { return this._signals.fluidEnter.next(filter); },
+    onFluidLeave(handler) { return this._signals.fluidLeave.on(handler); },
+    nextFluidLeave(filter) { return this._signals.fluidLeave.next(filter); },
     snapshot() {
-      return Object.freeze({ id: this.id, kind: this.kind, position: this.position.toArray(), tags: [...this.tags].sort() });
+      return Object.freeze({ id: this.id, name: this.name, kind: this.kind, position: this.position.toArray(), tags: [...this.tags].sort() });
     },
   };
 }
@@ -401,7 +758,55 @@ function createRuntimePlayer(runtime, input) {
     _backendPlayerId: null,
     _lastBackendTick: 0,
     _writeBarrierTick: 0,
-    get id() { return this._id; },
+    _tags: new Set(),
+    _signals: { click: new EventSignal(), fluidEnter: new EventSignal(), fluidLeave: new EventSignal(), press: new EventSignal(), release: new EventSignal(), keyDown: new EventSignal(), keyUp: new EventSignal(), respawn: new EventSignal(), takeDamage: new EventSignal() },
+    _wearables: [],
+    spawnPoint: Vector3.from(input.position ?? [0, 0, 0]),
+    color: new GameRGBColor(1, 1, 1),
+    skin: Object.fromEntries(Object.values(GameBodyPart).map(part => [part, undefined])),
+    cameraYaw: 0,
+    cameraPitch: 0,
+    spectator: false,
+    walkButton: false,
+    crouchButton: false,
+    jumpButton: false,
+    action0Button: false,
+    action1Button: false,
+    enableAction0: true,
+    enableAction1: true,
+    enableJump: true,
+    enableDoubleJump: true,
+    enableCrouch: true,
+    get id() { return runtime._runtimePlayerId(this); },
+    get isPlayer() { return true; },
+    get player() { return this; },
+    get tags() { return this._tags; },
+    addTag(tag) { this._tags.add(String(tag)); },
+    removeTag(tag) { this._tags.delete(String(tag)); },
+    hasTag(tag) { return this._tags.has(String(tag)); },
+    onFluidEnter(handler) { return this._signals.fluidEnter.on(handler); },
+    nextFluidEnter(filter) { return this._signals.fluidEnter.next(filter); },
+    onFluidLeave(handler) { return this._signals.fluidLeave.on(handler); },
+    nextFluidLeave(filter) { return this._signals.fluidLeave.next(filter); },
+    onClick(handler) { return this._signals.click.on(handler); },
+    nextClick(filter) { return this._signals.click.next(filter); },
+    onPress(handler) { return this._signals.press.on(handler); },
+    nextPress(filter) { return this._signals.press.next(filter); },
+    onRelease(handler) { return this._signals.release.on(handler); },
+    nextRelease(filter) { return this._signals.release.next(filter); },
+    onKeyDown(handler) { return this._signals.keyDown.on(handler); },
+    onKeyUp(handler) { return this._signals.keyUp.on(handler); },
+    onRespawn(handler) { return this._signals.respawn.on(handler); },
+    nextRespawn(filter) { return this._signals.respawn.next(filter); },
+    onTakeDamage(handler) { return this._signals.takeDamage.on(handler); },
+    nextTakeDamage(filter) { return this._signals.takeDamage.next(filter); },
+    forceRespawn() { return runtime._forceRespawnPlayer(this); },
+    directMessage(message) { return runtime._messagePlayer(this, message); },
+    wearables(bodyPart) { return this._wearables.filter(item => item.bodyPart === bodyPart); },
+    addWearable(spec) { const wearable = { ...structuredClone(spec) }; this._wearables.push(wearable); return wearable; },
+    removeWearable(wearable) { const index = this._wearables.indexOf(wearable); if (index >= 0) this._wearables.splice(index, 1); },
+    dialog(config) { return runtime._dialogPlayer(this, config); },
+    cancelDialogs() { return runtime._cancelPlayerDialogs(this); },
     get name() { return this._name; },
     set name(value) { runtime._writePlayer(this, "name", value); },
     get position() { return this._body.position; },
@@ -422,6 +827,8 @@ function createRuntimePlayer(runtime, input) {
         collision: this._body.collisionSnapshot(),
         grounded: this.grounded,
         health: this.health,
+        spawnPoint: this.spawnPoint.toArray(),
+        color: { r: this.color.r, g: this.color.g, b: this.color.b },
         authority: this._authority,
         stateVersion: this._stateVersion,
         backendPlayerId: this._backendPlayerId,
@@ -436,11 +843,12 @@ function createRuntimePlayer(runtime, input) {
 export function createContactEvent(tick, entity, contact) {
   const collider = contact.collider;
   const axis = Vector3.from(contact.normal);
+  const force = Vector3.from(contact.force ?? [0, 0, 0]);
   const extension = {
     player: entity,
     collider: Object.freeze({ kind: collider.kind, id: collider.id, tags: collider.tags, material: collider.material }),
     normal: axis,
-    compatibility: contactCompatibility("force"),
+    compatibility: contactCompatibility(...(collider.kind === "voxel" ? [] : ["other"])),
   };
   if (collider.kind === "voxel") {
     return Object.freeze({
@@ -451,7 +859,7 @@ export function createContactEvent(tick, entity, contact) {
       z: collider.z,
       voxel: collider.blockId,
       axis,
-      force: null,
+      force,
       ...extension,
     });
   }
@@ -460,13 +868,13 @@ export function createContactEvent(tick, entity, contact) {
     entity,
     other: null,
     axis,
-    force: null,
+    force,
     ...extension,
   });
 }
 
 function contactCompatibility(...unresolved) {
-  return Object.freeze({ canonical: "partial", unresolved: Object.freeze(unresolved) });
+  return Object.freeze({ canonical: unresolved.length === 0 ? "compatible" : "partial", unresolved: Object.freeze(unresolved) });
 }
 
 function triggerEvent(player, trigger) {
@@ -474,6 +882,20 @@ function triggerEvent(player, trigger) {
     player,
     trigger: Object.freeze({ id: trigger.id, tags: trigger.tags, material: trigger.material }),
   });
+}
+
+function cloneJsonValue(value) {
+  const serialized = JSON.stringify(value);
+  if (serialized === undefined) throw new TypeError("RemoteChannel events must be JSON values");
+  return JSON.parse(serialized);
+}
+
+function formatRuntimeError(error) {
+  if (error && typeof error === "object") {
+    if (typeof error.stack === "string" && error.stack.length > 0) return error.stack;
+    if (typeof error.message === "string" && error.message.length > 0) return error.message;
+  }
+  return String(error);
 }
 
 function formatValue(value) {
@@ -493,4 +915,59 @@ export function createGameTickEvent(tick, prevTick, elapsedTimeMS, skip) {
 
 export function createGameEntityEvent(tick, entity) {
   return Object.freeze({ tick, entity, player: entity });
+}
+
+export function createGameDamageEvent(tick, entity, damage, attacker = null, damageType = "") {
+  return Object.freeze({ tick, entity, attacker, damage, damageType: damageType || "" });
+}
+
+function inputPermissionMask(player) {
+  let mask = 0xff;
+  for (const permission of PLAYER_INPUT_PERMISSIONS) {
+    if (!player[permission.property]) mask &= ~permission.mask;
+  }
+  return mask;
+}
+
+function updatePlayerButtonState(player, buttonState) {
+  player.action0Button = (buttonState & 1) !== 0;
+  player.action1Button = (buttonState & 2) !== 0;
+  player.jumpButton = (buttonState & 4) !== 0;
+  player.walkButton = (buttonState & 8) !== 0;
+  player.crouchButton = (buttonState & 16) !== 0;
+}
+
+export function createGameInputEvent(tick, entity, position, button, pressed, raycast) {
+  return Object.freeze({ tick, entity, position: Vector3.from(position), button, pressed: Boolean(pressed), raycast });
+}
+
+export function createGameClickEvent(tick, entity, clicker, button, distance, clickerPosition, raycast) {
+  return Object.freeze({ tick, entity, clicker, button, distance, clickerPosition: Vector3.from(clickerPosition), raycast });
+}
+
+function reconstructInputRaycast(runtime, event) {
+  const origin = Vector3.from(event.rayOrigin ?? [0, 0, 0]);
+  const rawDirection = Vector3.from(event.rayDirection ?? [0, 0, 0]);
+  const direction = rawDirection.sqrMag() > 1e-16 ? rawDirection.normalize() : new Vector3(0, 0, 0);
+  const distance = Number(event.rayTime) >= 0 ? Number(event.rayTime) : Infinity;
+  const hit = Number.isFinite(distance);
+  const hitEntity = hit ? runtime._entityByBackendId(event.rayHitEntity) : null;
+  const voxelIndex = new Vector3(event.rayHitVoxelX ?? 0, event.rayHitVoxelY ?? 0, event.rayHitVoxelZ ?? 0);
+  const hitVoxel = hit && !hitEntity ? runtime.voxels.getVoxel(voxelIndex.x, voxelIndex.y, voxelIndex.z) : 0;
+  return Object.freeze({
+    hit,
+    hitEntity,
+    hitVoxel,
+    voxel: hitVoxel,
+    origin,
+    direction,
+    distance,
+    hitPosition: hit ? origin.add(direction.scale(distance)) : origin.clone(),
+    normal: Vector3.from(event.rayHitNormal ?? [0, 0, 0]).normalize(),
+    voxelIndex,
+  });
+}
+
+function isByte(value) {
+  return Number.isInteger(value) && value >= 0 && value <= 255;
 }

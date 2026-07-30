@@ -5,8 +5,10 @@ import { fileURLToPath } from "node:url";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const local = await readJson("generated/local-server-runtime-analysis.json");
 const docs = await readJson("generated/docs-api-index.json");
+const origin = await readJson("generated/origin-server-api.json");
 const localEntries = new Map(local.entries.map(entry => [entry.id, entry]));
 const docsEntries = new Map(docs.entries.map(entry => [entry.id, entry]));
+const originEntries = new Map(origin.entries.map(entry => [entry.id, entry]));
 const specs = [
   partial("server.RuntimeEntity.id", "server.GameEntity.id", {
     access: ["Local RuntimeEntity.id is getter-only so the host entity index cannot diverge; canonical GameEntity.id is documented writable."],
@@ -19,6 +21,16 @@ const specs = [
     signature: ["Canonical position uses GameVector3; local RuntimeEntity exposes the smaller Vector3 compatibility type."],
     effect: ["Local writes update only the compatibility wrapper and are not yet connected to authoritative entity replication."],
   }),
+  partial("server.RuntimeEntity.onClick", "server.GameEntity.onClick", {
+    access: [],
+    signature: ["The recovered GameClickEvent fields are exposed; the historical optional listener filter remains unimplemented."],
+    effect: ["World and clicked-entity double dispatch is implemented when game-net supplies an authoritative entity binding."],
+  }),
+  originPartial("server.RuntimeEntity.nextClick", "server.GameEntity.nextClick", {
+    access: [],
+    signature: ["The historical optional filter remains unimplemented."],
+    effect: ["Resolution depends on an authoritative backend entity binding."],
+  }),
   partial("server.RuntimeEntity.tags", "server.GameEntity.tags", {
     access: ["Canonical tags is a method returning string[]; local tags is a readonly Set<string> property whose contents remain mutable."],
     signature: ["Property/method shape and collection type differ."],
@@ -29,7 +41,9 @@ const specs = [
 
 const members = specs.map(spec => {
   const localEntry = requireEntry(localEntries, spec.localId, "local runtime");
-  const canonical = spec.canonicalId ? requireEntry(docsEntries, spec.canonicalId, "documentation") : null;
+  const canonicalEntries = spec.canonicalSource === "origin" ? originEntries : docsEntries;
+  const canonicalSource = spec.canonicalSource === "origin" ? "origin declaration" : "documentation";
+  const canonical = spec.canonicalId ? requireEntry(canonicalEntries, spec.canonicalId, canonicalSource) : null;
   return {
     local: { id: localEntry.id, kind: localEntry.kind, signature: localEntry.signature, capability: localEntry.capability },
     canonicalTargets: canonical ? [{ id: canonical.id, kind: canonical.kind, signature: canonical.signature }] : [],
@@ -69,7 +83,11 @@ await writeFile(outputPath, `${JSON.stringify(output, null, 2)}\n`);
 console.log(`RuntimeEntity adapter map: ${output.summary.partial} partial, ${output.summary.extensions} extensions.`);
 
 function partial(localId, canonicalId, gaps) {
-  return { localId, canonicalId, status: "partial", gaps };
+  return { localId, canonicalId, canonicalSource: "docs", status: "partial", gaps };
+}
+
+function originPartial(localId, canonicalId, gaps) {
+  return { localId, canonicalId, canonicalSource: "origin", status: "partial", gaps };
 }
 
 function extension(localId, reason) {

@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-player-adapter-map",
   "version": 1,
-  "generatedAt": "2026-07-29T08:25:32.445Z",
+  "generatedAt": "2026-07-30T00:56:54.113Z",
   "contract": "nea-server-runtime/v1",
   "localObject": {
     "id": "server.object.RuntimePlayer",
@@ -226,6 +226,1188 @@
     },
     {
       "local": {
+        "id": "server.RuntimePlayer.walkButton",
+        "kind": "property",
+        "signature": {
+          "type": "boolean",
+          "readonly": false
+        },
+        "capability": "server.player"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.walkButton",
+          "kind": "property",
+          "signature": {
+            "type": "boolean",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "compatible",
+      "implements": [
+        "server.GamePlayerEntity.walkButton"
+      ],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": []
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "walkButton: boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.walkButton",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.crouchButton",
+        "kind": "property",
+        "signature": {
+          "type": "boolean",
+          "readonly": false
+        },
+        "capability": "server.player"
+      },
+      "canonicalTargets": [],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "The value is updated from masked game-net input events; current documentation extraction does not contain this origin-declared member."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.crouchButton",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.jumpButton",
+        "kind": "property",
+        "signature": {
+          "type": "boolean",
+          "readonly": false
+        },
+        "capability": "server.player"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.jumpButton",
+          "kind": "property",
+          "signature": {
+            "type": "boolean",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "compatible",
+      "implements": [
+        "server.GamePlayerEntity.jumpButton"
+      ],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": []
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "jumpButton: boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.jumpButton",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.action0Button",
+        "kind": "property",
+        "signature": {
+          "type": "boolean",
+          "readonly": false
+        },
+        "capability": "server.player"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.action0Button",
+          "kind": "property",
+          "signature": {
+            "type": "boolean",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "compatible",
+      "implements": [
+        "server.GamePlayerEntity.action0Button"
+      ],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": []
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "action0Button: boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.action0Button",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.action1Button",
+        "kind": "property",
+        "signature": {
+          "type": "boolean",
+          "readonly": false
+        },
+        "capability": "server.player"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.action1Button",
+          "kind": "property",
+          "signature": {
+            "type": "boolean",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "compatible",
+      "implements": [
+        "server.GamePlayerEntity.action1Button"
+      ],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": []
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "action1Button: boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.action1Button",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.enableAction0",
+        "kind": "property",
+        "signature": {
+          "type": "boolean",
+          "readonly": false
+        },
+        "capability": "server.player.write"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.enableAction0",
+          "kind": "property",
+          "signature": {
+            "type": "boolean",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "The server input bridge applies the recovered flag mask, but authoritative Player Public flags are not yet written back to the client."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "enableAction0: boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.enableAction0",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.enableAction1",
+        "kind": "property",
+        "signature": {
+          "type": "boolean",
+          "readonly": false
+        },
+        "capability": "server.player.write"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.enableAction1",
+          "kind": "property",
+          "signature": {
+            "type": "boolean",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "The server input bridge applies the recovered flag mask, but authoritative Player Public flags are not yet written back to the client."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "enableAction1: boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.enableAction1",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.enableJump",
+        "kind": "property",
+        "signature": {
+          "type": "boolean",
+          "readonly": false
+        },
+        "capability": "server.player.write"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.enableJump",
+          "kind": "property",
+          "signature": {
+            "type": "boolean",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "The server input bridge applies the recovered flag mask, but authoritative Player Public flags are not yet written back to the client."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "enableJump: boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.enableJump",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.enableDoubleJump",
+        "kind": "property",
+        "signature": {
+          "type": "boolean",
+          "readonly": false
+        },
+        "capability": "server.player.write"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.enableDoubleJump",
+          "kind": "property",
+          "signature": {
+            "type": "boolean",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "The server input bridge applies the recovered flag mask, but authoritative Player Public flags are not yet written back to the client."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "enableDoubleJump: boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.enableDoubleJump",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.enableCrouch",
+        "kind": "property",
+        "signature": {
+          "type": "boolean",
+          "readonly": false
+        },
+        "capability": "server.player.write"
+      },
+      "canonicalTargets": [],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "The server input bridge applies the recovered crouch mask, but authoritative Player Public flags are not yet written back to the client."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.enableCrouch",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.color",
+        "kind": "property",
+        "signature": {
+          "type": "GameRGBColor",
+          "readonly": false
+        },
+        "capability": "server.player.write"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.color",
+          "kind": "property",
+          "signature": {
+            "type": "GameRGBColor",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "The local Script Runtime value and mutation API are present; authoritative client rendering propagation remains unverified."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/appearance.md",
+          "symbol": "color: GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.color",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.spawnPoint",
+        "kind": "property",
+        "signature": {
+          "type": "GameVector3",
+          "readonly": false
+        },
+        "capability": "server.player.write"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.spawnPoint",
+          "kind": "property",
+          "signature": {
+            "type": "GameVector3",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "Canonical spawnPoint uses GameVector3; the local value uses the compatible Vector3 implementation."
+        ],
+        "effect": [
+          "The value drives local forceRespawn; native validation and automatic engine respawn integration remain unverified."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/fight.md",
+          "symbol": "spawnPoint:GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.spawnPoint",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.onRespawn",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "handler",
+              "type": "({tick,entity,player})=>void"
+            }
+          ],
+          "returns": "listener-token"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.onRespawn",
+          "kind": "event",
+          "signature": {
+            "parameters": [
+              {
+                "name": "handler",
+                "optional": false,
+                "type": "(event:GameRespawnEvent)=>void",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "function",
+                  "description": "监听玩家复活后的处理函数"
+                }
+              }
+            ],
+            "returns": "GameEventHandlerToken"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The local listener token is structurally compatible, while the complete native event scheduling contract is not recovered."
+        ],
+        "effect": [
+          "Local forceRespawn emits the recovered GameEntityEvent shape; automatic engine respawn triggers remain unverified."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/fight.md",
+          "symbol": "事件onRespawn(handler:(event:GameRespawnEvent)=>void):GameEventHandlerToken",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.onRespawn",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.nextRespawn",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "filter",
+              "type": "(event: {tick,entity,player}) => boolean",
+              "optional": true
+            }
+          ],
+          "returns": "Promise<{tick,entity,player}>"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The historical optional filter remains unimplemented."
+        ],
+        "effect": [
+          "Automatic engine respawn triggers remain unverified."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.nextRespawn",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.onClick",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "handler",
+              "type": "({tick,entity,clicker,button,distance,clickerPosition,raycast})=>void"
+            }
+          ],
+          "returns": "listener-token"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.onClick",
+          "kind": "event",
+          "signature": {
+            "parameters": [
+              {
+                "name": "handler",
+                "optional": false,
+                "type": "(event:GameClickEvent)=>void",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "function",
+                  "description": "监听到鼠标点击时的处理函数"
+                }
+              }
+            ],
+            "returns": "GameEventHandlerToken"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The recovered GameClickEvent fields are exposed; the historical optional listener filter remains unimplemented."
+        ],
+        "effect": [
+          "A clicked player receives the same event object after world.onClick when its backend entity id is authoritative."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/input.md",
+          "symbol": "事件onClick(handler:(event:GameClickEvent)=>void):GameEventHandlerToken",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.onClick",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.nextClick",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "filter",
+              "type": "(event: GameClickEvent) => boolean",
+              "optional": true
+            }
+          ],
+          "returns": "Promise<GameClickEvent>"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The historical optional filter remains unimplemented."
+        ],
+        "effect": [
+          "Resolution depends on an authoritative backend player id."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.nextClick",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.onPress",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "handler",
+              "type": "({tick,entity,position,button,pressed,raycast})=>void"
+            }
+          ],
+          "returns": "listener-token"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.onPress",
+          "kind": "event",
+          "signature": {
+            "parameters": [
+              {
+                "name": "handler",
+                "optional": false,
+                "type": "(event:GameInputEvent)=>void",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "function",
+                  "description": "监听到玩家按下按钮时的处理函数"
+                }
+              }
+            ],
+            "returns": "GameEventHandlerToken"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The recovered GameInputEvent fields and GameButtonType values are exposed."
+        ],
+        "effect": [
+          "The game-net bridge dispatches real Player input events after applying the recovered PlayerFlags mask; complete client-side Public flag propagation remains separate."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "事件onPress(handler:(event:GameInputEvent)=>void):GameEventHandlerToken",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.onPress",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.nextPress",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "filter",
+              "type": "(event: GameInputEvent) => boolean",
+              "optional": true
+            }
+          ],
+          "returns": "Promise<GameInputEvent>"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The historical optional filter remains unimplemented."
+        ],
+        "effect": [
+          "The recovered PlayerFlags mask is applied; the historical optional filter remains the only known gap."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.nextPress",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.onRelease",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "handler",
+              "type": "({tick,entity,position,button,pressed,raycast})=>void"
+            }
+          ],
+          "returns": "listener-token"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.onRelease",
+          "kind": "event",
+          "signature": {
+            "parameters": [
+              {
+                "name": "handler",
+                "optional": false,
+                "type": "(event:GameInputEvent)=>void",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "function",
+                  "description": "监听到玩家松开按钮时的处理函数"
+                }
+              }
+            ],
+            "returns": "GameEventHandlerToken"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The recovered GameInputEvent fields and GameButtonType values are exposed."
+        ],
+        "effect": [
+          "The game-net bridge dispatches real Player input events after applying the recovered PlayerFlags mask; complete client-side Public flag propagation remains separate."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "事件onRelease(handler:(event:GameInputEvent)=>void):GameEventHandlerToken",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.onRelease",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.nextRelease",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "filter",
+              "type": "(event: GameInputEvent) => boolean",
+              "optional": true
+            }
+          ],
+          "returns": "Promise<GameInputEvent>"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The historical optional filter remains unimplemented."
+        ],
+        "effect": [
+          "The recovered PlayerFlags mask is applied; the historical optional filter remains the only known gap."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.nextRelease",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.onTakeDamage",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "handler",
+              "type": "({tick,entity,attacker,damage,damageType})=>void"
+            }
+          ],
+          "returns": "listener-token"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.onTakeDamage",
+          "kind": "event",
+          "signature": {
+            "parameters": [
+              {
+                "name": "handler",
+                "optional": false,
+                "type": "(event:GameDamageEvent)=>void",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "function",
+                  "description": "监听到实体受到伤害时的处理函数"
+                }
+              }
+            ],
+            "returns": "GameEventHandlerToken"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The local listener token and recovered GameDamageEvent fields are present."
+        ],
+        "effect": [
+          "Existing local damage() calls dispatch entity and world events; native hurt producers, damage enablement, attacker propagation, and death scheduling remain unverified."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/fight.md",
+          "symbol": "事件onTakeDamage(handler:(event:GameDamageEvent)=>void):GameEventHandlerToken",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.onTakeDamage",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.nextTakeDamage",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "filter",
+              "type": "(event: {tick,entity,attacker,damage,damageType}) => boolean",
+              "optional": true
+            }
+          ],
+          "returns": "Promise<{tick,entity,attacker,damage,damageType}>"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The historical optional filter remains unimplemented."
+        ],
+        "effect": [
+          "Only locally produced damage() events are currently dispatched."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.nextTakeDamage",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.forceRespawn",
+        "kind": "method",
+        "signature": {
+          "parameters": [],
+          "returns": "void"
+        },
+        "capability": "server.player.write"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.forceRespawn",
+          "kind": "method",
+          "signature": {
+            "parameters": [],
+            "returns": "void"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "Position, velocity, contacts, triggers, backend state, and respawn events are updated; native death-state side effects remain unverified."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/fight.md",
+          "symbol": "forceRespawn(): void",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.forceRespawn",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
         "id": "server.RuntimePlayer.grounded",
         "kind": "property",
         "signature": {
@@ -283,7 +1465,7 @@
           "The local member is named health rather than hp."
         ],
         "effect": [
-          "Local health does not implement maxHp, enableDamage, death state, or damage events."
+          "Local health and damage-event dispatch exist, but maxHp, enableDamage, native hurt producers, and death state remain unimplemented."
         ]
       },
       "evidence": [
@@ -363,7 +1545,7 @@
         "access": [],
         "signature": [],
         "effect": [
-          "The local helper mutates health but does not reproduce GameEntity.hurt, GameDamageEvent, damage source/type, enableDamage, death, or respawn semantics."
+          "The local helper mutates health and dispatches the recovered default GameDamageEvent shape, but it is not the native GameEntity.hurt API and does not implement attacker/type input, enableDamage, death, or respawn semantics."
         ]
       },
       "evidence": [
@@ -500,12 +1682,36 @@
           "confidence": "direct"
         }
       ]
+    },
+    {
+      "localFactory": "createGameDamageEvent",
+      "canonicalObject": "server.GameDamageEvent",
+      "status": "partial",
+      "canonicalFields": [
+        "tick",
+        "entity",
+        "attacker",
+        "damage",
+        "damageType"
+      ],
+      "localAliases": [],
+      "gaps": [
+        "Fields and historical null/empty defaults are recovered, but only local damage() currently produces the event."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "createGameDamageEvent",
+          "confidence": "direct"
+        }
+      ]
     }
   ],
   "summary": {
-    "memberCount": 10,
-    "compatible": 0,
-    "partial": 6,
+    "memberCount": 33,
+    "compatible": 4,
+    "partial": 25,
     "extensions": 4
   }
 }
