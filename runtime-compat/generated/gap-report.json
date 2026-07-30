@@ -1,14 +1,14 @@
 {
   "format": "nea-runtime-gap-report",
   "version": 1,
-  "generatedAt": "2026-07-30T11:06:48.102Z",
+  "generatedAt": "2026-07-30T11:27:11.848Z",
   "summary": {
     "documentedDeclarations": 599,
-    "currentContractEntries": 309,
-    "recoveredContractEntries": 261,
-    "exactIdMatches": 229,
-    "documentedMissing": 370,
-    "localExtensions": 109,
+    "currentContractEntries": 313,
+    "recoveredContractEntries": 265,
+    "exactIdMatches": 231,
+    "documentedMissing": 368,
+    "localExtensions": 111,
     "bySide": {
       "client": {
         "declared": 126,
@@ -17,8 +17,8 @@
       },
       "server": {
         "declared": 346,
-        "compatible": 73,
-        "missing": 273
+        "compatible": 75,
+        "missing": 271
       },
       "shared": {
         "declared": 127,
@@ -36,15 +36,15 @@
         "confirmed/missing": 646,
         "declared/missing": 141,
         "confirmed/bridged": 5,
-        "confirmed/partial": 62,
+        "confirmed/partial": 66,
         "confirmed/compatible": 10
       }
     },
     "compatibilityStatus": {
       "native": 125,
-      "compatible": 71,
+      "compatible": 73,
       "partial": 33,
-      "recovered-only": 148,
+      "recovered-only": 146,
       "declared-only": 222
     }
   },
@@ -283,6 +283,8 @@
     "server.GameWorld.onClick",
     "server.GameWorld.onDie",
     "server.GameWorld.onEntityContact",
+    "server.GameWorld.onEntityCreate",
+    "server.GameWorld.onEntityDestroy",
     "server.GameWorld.onEntitySeparate",
     "server.GameWorld.onFluidEnter",
     "server.GameWorld.onFluidLeave",
@@ -556,8 +558,6 @@
     "server.GameWorld.getTempChatUsers",
     "server.GameWorld.lightMode",
     "server.GameWorld.maxFog",
-    "server.GameWorld.onEntityCreate",
-    "server.GameWorld.onEntityDestroy",
     "server.GameWorld.onInteract",
     "server.GameWorld.placeVoxelSound",
     "server.GameWorld.playerJoinSound",
@@ -795,6 +795,8 @@
     "server.RuntimePlayer.spawnPoint",
     "server.RuntimePlayer.velocity",
     "server.world.createEntity",
+    "server.world.nextEntityCreate",
+    "server.world.nextEntityDestroy",
     "server.world.nextPlayerJoin",
     "server.world.nextRespawn",
     "server.world.nextTakeDamage",

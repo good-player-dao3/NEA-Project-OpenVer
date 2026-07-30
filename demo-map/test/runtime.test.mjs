@@ -477,6 +477,81 @@ test("GameEntity destroy removes non-player entities once and despawns mapped re
   runtime.stop();
 });
 
+test("GameWorld.createEntity emits synchronously and projects captured runtime entity state", async () => {
+  const sourceRoot = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-create-entity-")), "project");
+  await importMapProject(sourceRoot, output);
+  await writeFile(join(output, "scripts", "server.js"), `
+    world.onEntityCreate(event => {
+      event.entity.creationEvent = {
+        tick: event.tick,
+        entity: event.entity.id,
+        playerAlias: event.player === event.entity,
+      };
+    });
+    world.onPlayerJoin(({ entity: player }) => {
+      const created = world.createEntity({
+        id: "runtime-projectile",
+        name: "Runtime Projectile",
+        tags: ["runtime-projectile"],
+        mesh: "captured-runtime-mesh",
+        position: [1, 2, 3],
+        velocity: [0, 1, 0],
+        collides: false,
+        fixed: true,
+        gravity: false,
+        mass: 2,
+        friction: 0.25,
+        restitution: 0.5,
+        meshScale: [2, 3, 4],
+        meshOrientation: [0, 0, 0, 1],
+        meshInvisible: true,
+        meshMetalness: 0.7,
+        meshEmissive: 0.2,
+        meshShininess: 0.9,
+        enableInteract: true,
+      });
+      player.runtimeCreate = {
+        id: created.id,
+        creationEvent: created.creationEvent,
+        selectorMatches: world.querySelector(".runtime-projectile") === created,
+      };
+      created.position = [10, 11, 12];
+      created.velocity = [3, 2, 1];
+    });
+  `, "utf8");
+  const creates = [];
+  const states = [];
+  const runtime = await ScriptRuntime.load(output, {
+    blockCatalog,
+    createEntity: entity => {
+      creates.push(structuredClone(entity));
+      return { entityId: 7002 };
+    },
+    writeEntityState: (entityId, state) => states.push({ entityId, state: structuredClone(state) }),
+    logger: { info() {}, warn() {}, error() {} },
+  });
+  await runtime.start();
+  const player = runtime.addPlayer({ id: "create-entity-player" });
+  await new Promise(resolveEvent => setTimeout(resolveEvent, 1));
+
+  assert.deepEqual({ ...player.runtimeCreate }, {
+    id: "runtime-projectile",
+    creationEvent: { tick: 0, entity: "runtime-projectile", playerAlias: true },
+    selectorMatches: true,
+  });
+  assert.deepEqual(creates, [{
+    position: [1, 2, 3], velocity: [0, 1, 0], name: "Runtime Projectile", tags: ["runtime-projectile"],
+    mesh: "captured-runtime-mesh", collides: false, fixed: true, gravity: false, mass: 2,
+    friction: 0.25, restitution: 0.5, meshScale: [2, 3, 4], meshOrientation: [0, 0, 0, 1],
+    meshInvisible: true, meshMetalness: 0.7, meshEmissive: 0.2, meshShininess: 0.9, enableInteract: true,
+  }]);
+  assert.deepEqual(states, [{ entityId: 7002, state: {
+    position: [10, 11, 12], velocity: [3, 2, 1], orientation: [0, 0, 0, 1],
+  } }]);
+  runtime.stop();
+});
+
 test("game-net input events reconstruct GameInputEvent press and release payloads", async () => {
   const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
   const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-input-events-")), "project");

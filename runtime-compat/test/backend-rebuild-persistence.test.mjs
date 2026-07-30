@@ -28,7 +28,7 @@ test("audited backend target hash matches the checked-in runtime bundle", () => 
   assert.equal(createHash("sha256").update(backend).digest("hex"), expected);
 });
 
-test("compatibility patch persists recovered UI, Dialog, and player-network behavior", () => {
+test("compatibility patch persists recovered UI, Dialog, player-network, and runtime-entity projection behavior", () => {
   assert.match(patch, /loadClientUiState/);
   assert.match(patch, /BOX3_CLIENT_UI_MANIFEST/);
   assert.match(patch, /BOX3_PLAYER_BODY_PROFILE/);
@@ -50,6 +50,9 @@ test("compatibility patch persists recovered UI, Dialog, and player-network beha
   assert.match(patch, /__nea\/control\/damage-state/);
   assert.match(patch, /destroyRuntimeEntity/);
   assert.match(patch, /__nea\/control\/entity-destroy/);
+  assert.match(patch, /resolveRuntimeMesh/);
+  assert.match(patch, /__nea\/control\/entity-create/);
+  assert.match(patch, /__nea\/control\/entity-state/);
 });
 
 test("runtime model projection accepts captured zero scale used by hidden entities", () => {

@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-abi",
   "version": 1,
-  "generatedAt": "2026-07-30T11:06:45.151Z",
+  "generatedAt": "2026-07-30T11:27:10.670Z",
   "entries": [
     {
       "id": "client.Audio.Audio",
@@ -12440,6 +12440,76 @@
       ]
     },
     {
+      "id": "server.world.nextEntityCreate",
+      "side": "server",
+      "kind": "event",
+      "owner": "world",
+      "name": "nextEntityCreate",
+      "signature": {
+        "parameters": [
+          {
+            "name": "filter",
+            "type": "(event: GameEntityEvent) => boolean",
+            "optional": true
+          }
+        ],
+        "returns": "Promise<GameEntityEvent>"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameWorld.nextEntityCreate"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.nextEntityDestroy",
+      "side": "server",
+      "kind": "event",
+      "owner": "world",
+      "name": "nextEntityDestroy",
+      "signature": {
+        "parameters": [
+          {
+            "name": "filter",
+            "type": "(event: GameEntityEvent) => boolean",
+            "optional": true
+          }
+        ],
+        "returns": "Promise<GameEntityEvent>"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameWorld.nextEntityDestroy"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
       "id": "server.world.nextPlayerJoin",
       "side": "server",
       "kind": "event",
@@ -12758,6 +12828,74 @@
       "since": "0.1.0",
       "implements": [
         "server.GameWorld.onEntityContact"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.onEntityCreate",
+      "side": "server",
+      "kind": "event",
+      "owner": "world",
+      "name": "onEntityCreate",
+      "signature": {
+        "parameters": [
+          {
+            "name": "handler",
+            "type": "({tick,entity,player})=>void"
+          }
+        ],
+        "returns": "listener-token"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameWorld.onEntityCreate"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.onEntityDestroy",
+      "side": "server",
+      "kind": "event",
+      "owner": "world",
+      "name": "onEntityDestroy",
+      "signature": {
+        "parameters": [
+          {
+            "name": "handler",
+            "type": "({tick,entity,player})=>void"
+          }
+        ],
+        "returns": "listener-token"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameWorld.onEntityDestroy"
       ],
       "notes": [
         "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."

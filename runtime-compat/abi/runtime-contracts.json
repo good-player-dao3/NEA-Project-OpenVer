@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-architecture-contract",
   "version": 1,
-  "generatedAt": "2026-07-30T11:06:45.863Z",
+  "generatedAt": "2026-07-30T11:27:11.345Z",
   "apiVersion": "0.1.0",
   "compatibilityLevel": "experimental",
   "layers": [
@@ -396,6 +396,8 @@
             "server.object.GameEventHandlerToken",
             "server.world.addZone",
             "server.world.currentTick",
+            "server.world.nextEntityCreate",
+            "server.world.nextEntityDestroy",
             "server.world.nextPlayerJoin",
             "server.world.nextRespawn",
             "server.world.nextTakeDamage",
@@ -405,6 +407,8 @@
             "server.world.onContactSeparate",
             "server.world.onDie",
             "server.world.onEntityContact",
+            "server.world.onEntityCreate",
+            "server.world.onEntityDestroy",
             "server.world.onFluidEnter",
             "server.world.onFluidLeave",
             "server.world.onPlayerJoin",
@@ -465,12 +469,12 @@
   "compatibilityMatrix": {
     "path": "runtime-compat/abi/compatibility-matrix.json",
     "declarations": 599,
-    "executable": 229,
+    "executable": 231,
     "byStatus": {
       "native": 125,
-      "compatible": 71,
+      "compatible": 73,
       "partial": 33,
-      "recovered-only": 148,
+      "recovered-only": 146,
       "declared-only": 222
     }
   },
@@ -899,6 +903,8 @@
           "server.world.addZone",
           "server.world.createEntity",
           "server.world.currentTick",
+          "server.world.nextEntityCreate",
+          "server.world.nextEntityDestroy",
           "server.world.nextPlayerJoin",
           "server.world.nextRespawn",
           "server.world.nextTakeDamage",
@@ -909,6 +915,8 @@
           "server.world.onContactSeparate",
           "server.world.onDie",
           "server.world.onEntityContact",
+          "server.world.onEntityCreate",
+          "server.world.onEntityDestroy",
           "server.world.onFluidEnter",
           "server.world.onFluidLeave",
           "server.world.onPlayerJoin",

@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-compatibility-matrix",
   "version": 1,
-  "generatedAt": "2026-07-30T11:06:45.617Z",
+  "generatedAt": "2026-07-30T11:27:11.143Z",
   "apiVersion": "0.1.0",
   "compatibilityLevel": "experimental",
   "contracts": [
@@ -53,9 +53,9 @@
     "entries": 599,
     "byStatus": {
       "native": 125,
-      "compatible": 71,
+      "compatible": 73,
       "partial": 33,
-      "recovered-only": 148,
+      "recovered-only": 146,
       "declared-only": 222
     },
     "bySide": {
@@ -70,9 +70,9 @@
       "server": {
         "total": 346,
         "native": 0,
-        "compatible": 41,
+        "compatible": 43,
         "partial": 32,
-        "recovered-only": 148,
+        "recovered-only": 146,
         "declared-only": 125
       },
       "shared": {
@@ -84,8 +84,8 @@
         "declared-only": 96
       }
     },
-    "executable": 229,
-    "nonExecutable": 370
+    "executable": 231,
+    "nonExecutable": 368
   },
   "entries": [
     {
@@ -11305,7 +11305,7 @@
           "status": "partial",
           "capability": "server.world.entities",
           "gaps": [
-            "effect: Non-player entities are removed from selectors immediately and mapped backend replicas are despawned; runtime-created entities have no backend replica until createEntity projection is implemented."
+            "effect: Non-player entities are removed from selectors immediately and mapped backend replicas are despawned. Captured-mesh runtime-created entities receive the same backend teardown; unknown mesh names remain script-local."
           ]
         },
         {
@@ -11389,7 +11389,7 @@
           "status": "partial",
           "capability": "server.world.entities",
           "gaps": [
-            "effect: The readonly flag changes once, destroy listeners fire once, and mapped authoritative replicas are despawned; runtime-created entities still depend on the separate createEntity projection gap."
+            "effect: The readonly flag changes once, destroy listeners fire once, and mapped authoritative replicas are despawned. Captured-mesh runtime-created replicas follow the same destruction path; unknown mesh names remain deliberately unprojected."
           ]
         },
         {
@@ -12112,7 +12112,7 @@
           "status": "partial",
           "capability": "server.world.entities",
           "gaps": [
-            "effect: Script writes, hurt, and healing propagate through the recovered replica.damage schema for mapped players and entities; runtime-created entity projection remains separate."
+            "effect: Script writes, hurt, and healing propagate through the recovered replica.damage schema for mapped players, static entities, and captured-mesh runtime-created entities. Unknown mesh names remain deliberately script-local."
           ]
         },
         {
@@ -12254,7 +12254,7 @@
           "capability": "server.world.events",
           "gaps": [
             "signature: The canonical options object is supported; a historical BedWars string damageType form is additionally accepted.",
-            "effect: Recovered hp, healing, attacker, damageType, damage, and death semantics are implemented; mapped targets also emit native replica.damage state and game-net hurt/die effects. Runtime-created entity projection remains separate."
+            "effect: Recovered hp, healing, attacker, damageType, damage, and death semantics are implemented; mapped targets, including captured-mesh runtime-created entities, also emit native replica.damage state and game-net hurt/die effects. Unknown mesh names remain deliberately script-local."
           ]
         },
         {
@@ -12965,7 +12965,7 @@
           "status": "partial",
           "capability": "server.world.entities",
           "gaps": [
-            "effect: The value caps healing and propagates through the recovered replica.damage schema for mapped players and entities; runtime-created entity projection remains separate."
+            "effect: The value caps healing and propagates through the recovered replica.damage schema for mapped players, static entities, and captured-mesh runtime-created entities. Unknown mesh names remain deliberately script-local."
           ]
         },
         {
@@ -15854,7 +15854,7 @@
           "capability": "server.world.entities",
           "gaps": [
             "signature: Canonical position uses GameVector3; local RuntimeEntity exposes the smaller Vector3 compatibility type.",
-            "effect: Local writes update only the compatibility wrapper and are not yet connected to authoritative entity replication."
+            "effect: Whole-value writes on captured-mesh runtime-created entities are queued to the authoritative backend projection. In-place Vector3 mutations and generic native physics simulation remain unverified."
           ]
         },
         {
@@ -16465,7 +16465,7 @@
           "status": "partial",
           "capability": "server.world.entities",
           "gaps": [
-            "effect: Mapped players and entities propagate the value through the recovered replica.damage schema to native client health-bar rendering; runtime-created entity projection remains separate."
+            "effect: Mapped players, static entities, and captured-mesh runtime-created entities propagate the value through the recovered replica.damage schema to native client health-bar rendering. Unknown mesh names remain deliberately script-local."
           ]
         },
         {
@@ -27345,7 +27345,8 @@
           "status": "partial",
           "capability": "server.world.entities",
           "gaps": [
-            "Local entity spec and returned wrapper expose only a small subset of GameEntity."
+            "Creation remains synchronous and emits the recovered entity-create lifecycle event. Captured mesh bindings can create an authoritative browser/backend replica with documented transform and model/body fields; unknown meshes deliberately remain script-local rather than receiving a fabricated placeholder.",
+            "Generic native gravity, collision response, and in-place Vector3 mutation replication are still unverified."
           ]
         }
       ],
@@ -29012,10 +29013,27 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.events",
+      "localBindings": [
+        {
+          "localId": "server.world.onEntityCreate",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.events",
+          "gaps": []
+        },
+        {
+          "localId": "server.world.onEntityCreate",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "The recovered GameEntityEvent is emitted for local script-created entities; independent native engine creation is not bridged."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -29035,6 +29053,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.onEntityCreate",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -29095,10 +29119,27 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.events",
+      "localBindings": [
+        {
+          "localId": "server.world.onEntityDestroy",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.events",
+          "gaps": []
+        },
+        {
+          "localId": "server.world.onEntityDestroy",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "The recovered GameEntityEvent is emitted for local script destruction; independent native engine destruction is not bridged."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -29118,6 +29159,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.onEntityDestroy",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]

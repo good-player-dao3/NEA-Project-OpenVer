@@ -1,7 +1,7 @@
-diff --git "a/D:\\Projects\\Gaming\\NEA-Project\\.workspace\\backend-rebuild-audit\\box3-server.input-baseline.cjs" "b/D:\\Projects\\Gaming\\NEA-Project\\local-player\\backend\\box3-server.cjs"
-index 29c44d4..3035ba8 100644
---- "a/D:\\Projects\\Gaming\\NEA-Project\\.workspace\\backend-rebuild-audit\\box3-server.input-baseline.cjs"
-+++ "b/D:\\Projects\\Gaming\\NEA-Project\\local-player\\backend\\box3-server.cjs"
+diff --git a/.workspace/backend-rebuild-audit/box3-server.input-baseline.cjs b/local-player/backend/box3-server.cjs
+index 29c44d4..1c6cf32 100644
+--- a/.workspace/backend-rebuild-audit/box3-server.input-baseline.cjs
++++ b/local-player/backend/box3-server.cjs
 @@ -8214,7 +8214,10 @@ var import_node_http2 = require("node:http");
  var import_node_crypto = require("node:crypto");
  var import_promises = require("node:fs/promises");
@@ -128,7 +128,84 @@ index 29c44d4..3035ba8 100644
    if (request.method === "GET" && url.pathname === "/") {
      const launcher = dependencies.clientRuntime.renderLauncher();
      if (launcher) {
-@@ -10369,7 +10401,7 @@ function parseModel(value, index) {
+@@ -10192,16 +10224,37 @@ function createProjectPackagePlayerProjection(project, bootstrap, descriptorValu
+   }
+   const frozenEntries = Object.freeze(entries.sort((left, right) => left.entityIndex - right.entityIndex));
+   const frozenDiagnostics = Object.freeze(diagnostics);
+-  const bindings = Object.freeze(descriptor.entities.map((mapping) => Object.freeze({
+-    bootstrapMeshIndex: mapping.mesh.bootstrapMeshIndex,
+-    bootstrapMeshHash: mapping.mesh.bootstrapMeshHash
+-  })));
++  const runtimeMeshes = /* @__PURE__ */ new Map();
++  for (const mesh of descriptor.meshes) {
++    if (runtimeMeshes.has(mesh.name)) throw new Error(`Duplicate local Player runtime mesh mapping: ${mesh.name}`);
++    const bootstrapEntry = bootstrap.meshHashes[mesh.bootstrapMeshIndex];
++    if (!bootstrapEntry || bootstrapEntry.hash !== mesh.bootstrapMeshHash) {
++      throw new Error(`Local Player runtime mesh bootstrap binding does not match: ${mesh.name}`);
++    }
++    runtimeMeshes.set(mesh.name, Object.freeze({
++      bounds: mesh.bounds,
++      meshId: mesh.bootstrapMeshIndex + 1
++    }));
++  }
++  const bindings = Object.freeze([
++    ...descriptor.entities.map((mapping) => Object.freeze({
++      bootstrapMeshIndex: mapping.mesh.bootstrapMeshIndex,
++      bootstrapMeshHash: mapping.mesh.bootstrapMeshHash
++    })),
++    ...descriptor.meshes.map((mesh) => Object.freeze({
++      bootstrapMeshIndex: mesh.bootstrapMeshIndex,
++      bootstrapMeshHash: mesh.bootstrapMeshHash
++    }))
++  ]);
+   const projection = Object.freeze({
+     packageId: project.manifest.packageId,
+     packageRootDirectory: project.rootDirectory,
+     descriptor,
+     entries: frozenEntries,
+     diagnostics: frozenDiagnostics,
++    resolveRuntimeMesh(name) {
++      return typeof name === "string" ? runtimeMeshes.get(name) : void 0;
++    },
+     matchesBootstrap(candidate) {
+       return Boolean(candidate) && Array.isArray(candidate.meshHashes) && bindings.every((binding) => candidate.meshHashes[binding.bootstrapMeshIndex]?.hash === binding.bootstrapMeshHash);
+     }
+@@ -10275,7 +10328,7 @@ function requireProjectionDescriptorPath(descriptorFile) {
+ }
+ function parseDescriptor(value) {
+   const record = requireRecord(value, "Local Player projection descriptor");
+-  requireExactKeys(record, ["format", "version", "packageId", "entities"], "Local Player projection descriptor");
++  requireAllowedKeys(record, ["format", "version", "packageId", "entities", "meshes"], ["format", "version", "packageId", "entities"], "Local Player projection descriptor");
+   if (record.format !== PROJECT_PACKAGE_PLAYER_PROJECTION_FORMAT) {
+     throw new Error("Unsupported local Player projection descriptor format");
+   }
+@@ -10286,11 +10339,24 @@ function parseDescriptor(value) {
+   if (!Array.isArray(record.entities) || record.entities.length > maxMappings) {
+     throw new Error("Local Player projection entities must be an array of at most 4096 mappings");
+   }
++  if (record.meshes !== void 0 && (!Array.isArray(record.meshes) || record.meshes.length > maxMappings)) {
++    throw new Error("Local Player projection meshes must be an array of at most 4096 mappings");
++  }
+   return Object.freeze({
+     format: PROJECT_PACKAGE_PLAYER_PROJECTION_FORMAT,
+     version: PROJECT_PACKAGE_PLAYER_PROJECTION_VERSION,
+     packageId,
+-    entities: Object.freeze(record.entities.map((entry, index) => parseMapping(entry, index)))
++    entities: Object.freeze(record.entities.map((entry, index) => parseMapping(entry, index))),
++    meshes: Object.freeze((record.meshes ?? []).map((entry, index) => parseRuntimeMesh(entry, index)))
++  });
++}
++function parseRuntimeMesh(value, index) {
++  const record = requireRecord(value, `Local Player runtime mesh ${index}`);
++  requireExactKeys(record, ["name", "bounds", "bootstrapMeshIndex", "bootstrapMeshHash"], `Local Player runtime mesh ${index}`);
++  return Object.freeze({
++    name: requireText(record.name, "Local Player runtime mesh name"),
++    bounds: requirePositiveVector(record.bounds, "Local Player runtime mesh bounds"),
++    ...parseMeshBinding(record, index)
+   });
+ }
+ function parseMapping(value, index) {
+@@ -10369,7 +10435,7 @@ function parseModel(value, index) {
    return Object.freeze({
      ...record.invisible === void 0 ? {} : { invisible: requireBoolean(record.invisible, "Local Player projection model invisible") },
      ...record.color === void 0 ? {} : { color: requireRgba(record.color, "Local Player projection model color") },
@@ -137,7 +214,7 @@ index 29c44d4..3035ba8 100644
      ...record.offset === void 0 ? {} : { offset: requireVector(record.offset, "Local Player projection model offset") },
      ...record.emissive === void 0 ? {} : { emissive: requireFinite(record.emissive, 0, 1, "Local Player projection model emissive") },
      ...record.shininess === void 0 ? {} : { shininess: requireFinite(record.shininess, 0, 1, "Local Player projection model shininess") },
-@@ -10527,6 +10559,8 @@ function snapshotRuntimePlayer(player) {
+@@ -10527,6 +10593,8 @@ function snapshotRuntimePlayer(player) {
      playerId: player.playerId,
      position: copyRuntimeVector(player.position),
      velocity: copyRuntimeVector(player.velocity),
@@ -146,7 +223,7 @@ index 29c44d4..3035ba8 100644
      inputState: player.inputState,
      inputAngle: player.inputAngle,
      inputPitch: player.inputPitch,
-@@ -10713,7 +10747,7 @@ function validateReplica(replica) {
+@@ -10713,7 +10781,7 @@ function validateReplica(replica) {
    }
    requireOptionalBoolean(model.invisible, "runtime entity model invisible");
    if (model.color !== void 0) requireRgba2(model.color, "runtime entity model color");
@@ -155,7 +232,7 @@ index 29c44d4..3035ba8 100644
    if (model.offset !== void 0) requireVector2(model.offset, "runtime entity model offset");
    requireOptionalFinite(model.emissive, "runtime entity model emissive", 0, 1);
    requireOptionalFinite(model.shininess, "runtime entity model shininess", 0, 1);
-@@ -10809,7 +10843,7 @@ var PlayerRegistry = class {
+@@ -10809,7 +10877,7 @@ var PlayerRegistry = class {
      validateRegistration(registration);
      const existing = this.playersBySession.get(registration.sessionId);
      if (existing) {
@@ -164,7 +241,7 @@ index 29c44d4..3035ba8 100644
          throw new Error("Authoritative player registration changed");
        }
        return snapshotPlayer(existing);
-@@ -10824,6 +10858,8 @@ var PlayerRegistry = class {
+@@ -10824,6 +10892,8 @@ var PlayerRegistry = class {
        spawn,
        position: spawn,
        velocity: copyRuntimeVector([0, 0, 0]),
@@ -173,7 +250,7 @@ index 29c44d4..3035ba8 100644
        inputState: defaultRuntimePlayerInputState,
        inputAngle: 0,
        inputPitch: 0,
-@@ -10894,6 +10930,8 @@ function snapshotPlayer(player) {
+@@ -10894,6 +10964,8 @@ function snapshotPlayer(player) {
      playerId: player.playerId,
      position: player.position,
      velocity: player.velocity,
@@ -182,7 +259,7 @@ index 29c44d4..3035ba8 100644
      inputState: player.inputState,
      inputAngle: player.inputAngle,
      inputPitch: player.inputPitch,
-@@ -10908,6 +10946,9 @@ function validateRegistration(registration) {
+@@ -10908,6 +10980,9 @@ function validateRegistration(registration) {
    if (registration.spawn.length !== 3 || registration.spawn.some((coordinate) => !Number.isFinite(coordinate))) {
      throw new RangeError("spawn must contain three finite coordinates");
    }
@@ -192,7 +269,7 @@ index 29c44d4..3035ba8 100644
  }
  function sameVector(left, right) {
    return left[0] === right[0] && left[1] === right[1] && left[2] === right[2];
-@@ -11254,7 +11295,9 @@ var quickInventorySize = 9;
+@@ -11254,7 +11329,9 @@ var quickInventorySize = 9;
  var maximumStackSize = 64;
  var RemoteChannelSessions = class {
    sessions = /* @__PURE__ */ new Map();
@@ -203,7 +280,7 @@ index 29c44d4..3035ba8 100644
    connect(client) {
      requireSessionId3(client.sessionId);
      const session = this.getOrCreate(client.sessionId);
-@@ -11278,7 +11321,12 @@ var RemoteChannelSessions = class {
+@@ -11278,7 +11355,12 @@ var RemoteChannelSessions = class {
      const session = this.sessions.get(client.sessionId);
      if (!session || session.client !== client) return false;
      if (!value || !Number.isSafeInteger(value.tick) || value.tick < 0 || typeof value.args !== "string") return false;
@@ -217,7 +294,7 @@ index 29c44d4..3035ba8 100644
    }
    disconnect(client) {
      const session = this.sessions.get(client.sessionId);
-@@ -11286,8 +11334,12 @@ var RemoteChannelSessions = class {
+@@ -11286,8 +11368,12 @@ var RemoteChannelSessions = class {
      session.client = void 0;
      return true;
    }
@@ -232,7 +309,7 @@ index 29c44d4..3035ba8 100644
    getOrCreate(sessionId) {
      const existing = this.sessions.get(sessionId);
      if (existing) return existing;
-@@ -11682,7 +11734,7 @@ var DialogSessions = class {
+@@ -11682,7 +11768,7 @@ var DialogSessions = class {
      return this.sessions.size;
    }
    hasActiveClient(sessionId) {
@@ -241,7 +318,7 @@ index 29c44d4..3035ba8 100644
    }
    connect(client) {
      requireSessionId4(client.sessionId);
-@@ -11694,7 +11746,7 @@ var DialogSessions = class {
+@@ -11694,7 +11780,7 @@ var DialogSessions = class {
    }
    open(sessionId, config) {
      requireSessionId4(sessionId);
@@ -250,7 +327,7 @@ index 29c44d4..3035ba8 100644
      const client = session?.client;
      if (!session || !client) throw new Error(`No active dialog client for session ${sessionId}`);
      const rpcId = allocateRpcId(session);
-@@ -11702,9 +11754,11 @@ var DialogSessions = class {
+@@ -11702,9 +11788,11 @@ var DialogSessions = class {
      const response = new Promise((resolve9, reject) => {
        pending = { resolve: resolve9, reject };
      });
@@ -263,7 +340,7 @@ index 29c44d4..3035ba8 100644
      } catch (error) {
        session.pending.delete(rpcId);
        pending.reject(asError(error));
-@@ -11723,7 +11777,7 @@ var DialogSessions = class {
+@@ -11723,7 +11811,7 @@ var DialogSessions = class {
      return true;
    }
    cancel(sessionId, rpcId) {
@@ -272,7 +349,7 @@ index 29c44d4..3035ba8 100644
      if (!session || !isRpcId(rpcId)) return false;
      const pending = session.pending.get(rpcId);
      if (!pending) return false;
-@@ -11733,7 +11787,7 @@ var DialogSessions = class {
+@@ -11733,7 +11821,7 @@ var DialogSessions = class {
      return true;
    }
    cancelAll(sessionId) {
@@ -281,7 +358,7 @@ index 29c44d4..3035ba8 100644
      if (!session || session.pending.size === 0) return 0;
      const pending = [...session.pending.values()];
      session.pending.clear();
-@@ -11760,10 +11814,16 @@ var DialogSessions = class {
+@@ -11760,10 +11848,16 @@ var DialogSessions = class {
    dispose() {
      for (const sessionId of [...this.sessions.keys()]) this.delete(sessionId);
    }
@@ -298,7 +375,7 @@ index 29c44d4..3035ba8 100644
        nextRpcId: 0,
        pending: /* @__PURE__ */ new Map()
      };
-@@ -11771,6 +11831,53 @@ var DialogSessions = class {
+@@ -11771,6 +11865,53 @@ var DialogSessions = class {
      return session;
    }
  };
@@ -352,7 +429,7 @@ index 29c44d4..3035ba8 100644
  function allocateRpcId(session) {
    for (let attempts = 0; attempts <= maximumRpcId; attempts++) {
      const rpcId = session.nextRpcId;
-@@ -11839,6 +11946,143 @@ function asError(value) {
+@@ -11839,6 +11980,143 @@ function asError(value) {
    return value instanceof Error ? value : new Error(String(value));
  }
  
@@ -496,7 +573,7 @@ index 29c44d4..3035ba8 100644
  // legacy/box3-compat/src/session/game-chat-sessions.ts
  var GameChatSessions = class {
    sessions = /* @__PURE__ */ new Map();
-@@ -12432,6 +12676,13 @@ var PlayerDisplaySchema = new import_schema2.MuStruct({
+@@ -12432,6 +12710,13 @@ var PlayerDisplaySchema = new import_schema2.MuStruct({
    attachments: unused
  });
  var PlayerDisplaySetSchema = new import_schema2.MuSortedArray(PlayerDisplaySchema, Infinity, compareId2);
@@ -510,7 +587,7 @@ index 29c44d4..3035ba8 100644
  var NetStateSchema = new import_schema2.MuStruct({
    players: PlayerSetSchema,
    playerInputs: PlayerInputSetSchema,
-@@ -12448,7 +12699,7 @@ var GameReplicaSchema = new import_schema2.MuStruct({
+@@ -12448,7 +12733,7 @@ var GameReplicaSchema = new import_schema2.MuStruct({
    models: NetModelSetSchema,
    players: PlayerDisplaySetSchema,
    particles: unused,
@@ -519,7 +596,7 @@ index 29c44d4..3035ba8 100644
    interactive: unused,
    entityName: EntityNameComponentSetSchema,
    sound: unused,
-@@ -12474,6 +12725,8 @@ function createNetPublicState(input2) {
+@@ -12474,6 +12759,8 @@ function createNetPublicState(input2) {
      seen.add(player.playerId);
      const [px, py, pz] = normalizeVector(player.position, "position");
      const [vx, vy, vz] = normalizeVector(player.velocity ?? [0, 0, 0], "velocity");
@@ -528,7 +605,7 @@ index 29c44d4..3035ba8 100644
      const inputState = player.inputState ?? defaultPlayerInputState;
      const inputAngle = player.inputAngle ?? 0;
      const inputPitch = player.inputPitch ?? 0;
-@@ -12497,6 +12750,12 @@ function createNetPublicState(input2) {
+@@ -12497,6 +12784,12 @@ function createNetPublicState(input2) {
      const body = RigidBodySchema.clone(RigidBodySchema.identity);
      body.id = player.playerId;
      body.flags = playerBodyFlags;
@@ -541,7 +618,7 @@ index 29c44d4..3035ba8 100644
      body.px = px;
      body.py = py;
      body.pz = pz;
-@@ -12533,6 +12792,9 @@ function createNetPublicState(input2) {
+@@ -12533,6 +12826,9 @@ function createNetPublicState(input2) {
      body.rx = rx;
      body.ry = ry;
      body.rz = rz;
@@ -551,7 +628,7 @@ index 29c44d4..3035ba8 100644
      body.px = px;
      body.py = py;
      body.pz = pz;
-@@ -12553,7 +12815,7 @@ function createNetPublicState(input2) {
+@@ -12553,7 +12849,7 @@ function createNetPublicState(input2) {
      model.green = green;
      model.blue = blue;
      model.alpha = alpha;
@@ -560,7 +637,7 @@ index 29c44d4..3035ba8 100644
      model.scaleX = scaleX;
      model.scaleY = scaleY;
      model.scaleZ = scaleZ;
-@@ -12578,11 +12840,24 @@ function createNetPublicState(input2) {
+@@ -12578,11 +12874,24 @@ function createNetPublicState(input2) {
      }
      target.replica.entities.push(entity.entityId);
    }
@@ -585,7 +662,7 @@ index 29c44d4..3035ba8 100644
    target.replica.entityName.sort(compareId2);
    target.replica.entities.sort(compareNumber);
    target.replica.running = true;
-@@ -12721,7 +12996,8 @@ function createAnonymousPlayersPublicState(input2) {
+@@ -12721,7 +13030,8 @@ function createAnonymousPlayersPublicState(input2) {
    return createNetPublicState({
      tick: input2.tick,
      players: input2.players,
@@ -595,7 +672,7 @@ index 29c44d4..3035ba8 100644
    });
  }
  function encodeNetPublicPacket(base, current, pauseCounter = 0) {
-@@ -12759,6 +13035,9 @@ function validatePlayers(players) {
+@@ -12759,6 +13069,9 @@ function validatePlayers(players) {
      if (!/^[\x20-\x7e]{1,64}$/.test(name)) throw new RangeError("name must be printable ASCII");
      for (const coordinate of player.position) quantizeCoordinate(coordinate);
      for (const coordinate of player.velocity ?? [0, 0, 0]) quantizeCoordinate(coordinate);
@@ -605,7 +682,7 @@ index 29c44d4..3035ba8 100644
      requireUint163(player.inputState ?? defaultPlayerInputState2, "inputState");
      requireByte2(player.inputAngle ?? 0, "inputAngle");
      requireByte2(player.inputPitch ?? 0, "inputPitch");
-@@ -12808,13 +13087,17 @@ var GameNetHandshakeSession = class {
+@@ -12808,13 +13121,17 @@ var GameNetHandshakeSession = class {
    initialTick;
    initialPauseCounter;
    initialSpawn;
@@ -624,7 +701,7 @@ index 29c44d4..3035ba8 100644
    }
    get initialPacketsIssued() {
      return this.initialPackets !== void 0;
-@@ -12828,11 +13111,15 @@ var GameNetHandshakeSession = class {
+@@ -12828,11 +13145,15 @@ var GameNetHandshakeSession = class {
          tick: this.initialTick,
          pauseCounter: this.initialPauseCounter,
          spawn: this.initialSpawn,
@@ -640,7 +717,7 @@ index 29c44d4..3035ba8 100644
            pauseCounter: this.initialPauseCounter
          })
        };
-@@ -12846,6 +13133,8 @@ var GameNetHandshakeSessions = class {
+@@ -12846,6 +13167,8 @@ var GameNetHandshakeSessions = class {
    currentTick;
    initialPauseCounter;
    initialSpawn;
@@ -649,7 +726,7 @@ index 29c44d4..3035ba8 100644
    spawnForSession;
    nextPlayerId;
    constructor(options = {}) {
-@@ -12858,6 +13147,8 @@ var GameNetHandshakeSessions = class {
+@@ -12858,6 +13181,8 @@ var GameNetHandshakeSessions = class {
        true
      );
      this.initialSpawn = normalizeSpawn(options.initialSpawn ?? defaultSpawn);
@@ -658,7 +735,7 @@ index 29c44d4..3035ba8 100644
      this.spawnForSession = options.spawnForSession;
    }
    get size() {
-@@ -12876,7 +13167,9 @@ var GameNetHandshakeSessions = class {
+@@ -12876,7 +13201,9 @@ var GameNetHandshakeSessions = class {
        this.nextPlayerId,
        initialTick2,
        this.initialPauseCounter,
@@ -669,7 +746,7 @@ index 29c44d4..3035ba8 100644
      );
      this.nextPlayerId += 1;
      this.sessions.set(sessionId, session);
-@@ -12919,6 +13212,10 @@ var GameNetPublicSessions = class {
+@@ -12919,6 +13246,10 @@ var GameNetPublicSessions = class {
    schedule;
    cancel;
    sessions = /* @__PURE__ */ new Map();
@@ -680,7 +757,7 @@ index 29c44d4..3035ba8 100644
    timer;
    constructor(options) {
      this.gameClock = options.gameClock;
-@@ -12935,7 +13232,9 @@ var GameNetPublicSessions = class {
+@@ -12935,7 +13266,9 @@ var GameNetPublicSessions = class {
      this.runtime.join({
        sessionId: client.sessionId,
        playerId: packets.playerId,
@@ -691,7 +768,7 @@ index 29c44d4..3035ba8 100644
      });
      session.client = client;
      const frame = this.advanceToCurrentTick();
-@@ -12983,9 +13282,62 @@ var GameNetPublicSessions = class {
+@@ -12983,9 +13316,62 @@ var GameNetPublicSessions = class {
      const command = decodeTemporaryLegacyPositionTransformCommand(input2, session.playerId);
      return command ? this.runtime.enqueueInput(sessionId, command) : false;
    }
@@ -755,7 +832,7 @@ index 29c44d4..3035ba8 100644
      let sent = false;
      try {
        for (const session of this.sessions.values()) {
-@@ -12994,7 +13346,7 @@ var GameNetPublicSessions = class {
+@@ -12994,7 +13380,7 @@ var GameNetPublicSessions = class {
          session.lastSentTick = frame.tick;
          sent = true;
        }
@@ -764,7 +841,7 @@ index 29c44d4..3035ba8 100644
      } finally {
        NetPublicSchema.free(current);
      }
-@@ -13004,6 +13356,10 @@ var GameNetPublicSessions = class {
+@@ -13004,6 +13390,10 @@ var GameNetPublicSessions = class {
      if (!session) return false;
      this.releaseSessionState(session);
      this.sessions.delete(sessionId);
@@ -775,7 +852,7 @@ index 29c44d4..3035ba8 100644
      this.runtime.leave(sessionId);
      if (this.sessions.size === 0) this.stopTimer();
      return true;
-@@ -13015,6 +13371,10 @@ var GameNetPublicSessions = class {
+@@ -13015,6 +13405,10 @@ var GameNetPublicSessions = class {
        this.runtime.leave(session.sessionId);
      }
      this.sessions.clear();
@@ -786,7 +863,7 @@ index 29c44d4..3035ba8 100644
    }
    resend(client) {
      const session = this.sessions.get(client.sessionId);
-@@ -13059,7 +13419,7 @@ var GameNetPublicSessions = class {
+@@ -13059,7 +13453,7 @@ var GameNetPublicSessions = class {
      return this.runtime.advanceTo(this.gameClock.currentTick());
    }
    sendIdentity(session, client, frame) {
@@ -795,7 +872,7 @@ index 29c44d4..3035ba8 100644
      try {
        this.sendCurrent(session, client, current, true);
      } finally {
-@@ -13118,7 +13478,17 @@ var GameNetPublicSessions = class {
+@@ -13118,7 +13512,17 @@ var GameNetPublicSessions = class {
      session.sentCheckpoints.clear();
    }
  };
@@ -814,7 +891,7 @@ index 29c44d4..3035ba8 100644
    const entities = [];
    for (const entity of frame.entities) {
      if (entity.replica === void 0) continue;
-@@ -13131,10 +13501,14 @@ function createPublicState(frame) {
+@@ -13131,10 +13535,14 @@ function createPublicState(frame) {
        ...entity.replica.nameplate === void 0 ? {} : { nameplate: entity.replica.nameplate }
      });
    }
@@ -830,7 +907,7 @@ index 29c44d4..3035ba8 100644
    });
  }
  function decodeTemporaryLegacyPositionTransformCommand(input2, playerId) {
-@@ -13304,6 +13678,11 @@ var ProjectBootstrapSessions = class {
+@@ -13304,6 +13712,11 @@ var ProjectBootstrapSessions = class {
      session.terrain = client;
      return this.flush(session);
    }
@@ -842,7 +919,7 @@ index 29c44d4..3035ba8 100644
    joinGameNet(client, afterBootstrap) {
      const session = this.getOrCreate(client.sessionId);
      session.gameNet = client;
-@@ -13323,6 +13702,7 @@ var ProjectBootstrapSessions = class {
+@@ -13323,6 +13736,7 @@ var ProjectBootstrapSessions = class {
      if (existing) return existing;
      const session = {
        joined: false,
@@ -850,7 +927,7 @@ index 29c44d4..3035ba8 100644
        modelsSent: this.options.bootstrap.meshHashes.length === 0,
        skinHashesSent: this.options.bootstrap.skinHashes.length === 0,
        initialSkinPartHashesSent: skinPartBatch(this.options.bootstrap, 0).length === 0,
-@@ -13343,6 +13723,7 @@ var ProjectBootstrapSessions = class {
+@@ -13343,6 +13757,7 @@ var ProjectBootstrapSessions = class {
      session.sound = void 0;
      session.terrain = void 0;
      session.joined = false;
@@ -858,7 +935,7 @@ index 29c44d4..3035ba8 100644
      session.modelsSent = this.options.bootstrap.meshHashes.length === 0;
      session.skinHashesSent = this.options.bootstrap.skinHashes.length === 0;
      session.initialSkinPartHashesSent = skinPartBatch(this.options.bootstrap, 0).length === 0;
-@@ -13356,7 +13737,7 @@ var ProjectBootstrapSessions = class {
+@@ -13356,7 +13771,7 @@ var ProjectBootstrapSessions = class {
      session.diagnosticsCompleted = false;
    }
    flush(session) {
@@ -867,7 +944,12 @@ index 29c44d4..3035ba8 100644
      if (!session.modelsSent && !session.models) return false;
      if (!session.skinHashesSent && !session.models) return false;
      if (!session.initialSkinPartHashesSent && !session.models) return false;
-@@ -14221,10 +14602,12 @@ var LegacyHistoricalProjectInstance = class {
+@@ -14217,14 +14632,17 @@ var LegacyHistoricalProjectInstance = class {
+     this.gameRuntime = new AuthoritativeGameRuntime({ gameClock: this.gameClock });
+     this.legacyProjectMount = mountLegacyProjectForInstance(options, this.gameRuntime);
+     this.projectPackagePlayerProjectionMount = mountProjectPackagePlayerProjectionForInstance(options, this.gameRuntime);
++    this.projectPackagePlayerProjection = options.projectPackagePlayerProjection?.projection;
+     this.gameNetPublicSessions = new GameNetPublicSessions({ gameClock: this.gameClock, runtime: this.gameRuntime });
      this.mutableTerrain = new MutableArchiveWorld(terrain, options.world);
      this.terrainSessions = new TerrainSessions();
      this.dialogSessions = new DialogSessions();
@@ -881,7 +963,7 @@ index 29c44d4..3035ba8 100644
      this.bedwarsMatch = bedwarsEnabled ? new BedwarsMatch() : void 0;
      this.bedwarsRemoteSessions = this.bedwarsMatch ? new BedwarsRemoteSessions({ match: this.bedwarsMatch }) : void 0;
      this.forgeResources = this.bedwarsMatch && this.bedwarsRemoteSessions ? new ForgeResourceService({
-@@ -14248,6 +14631,8 @@ var LegacyHistoricalProjectInstance = class {
+@@ -14248,6 +14666,8 @@ var LegacyHistoricalProjectInstance = class {
      this.gameNetHandshakes = new GameNetHandshakeSessions({
        currentTick: () => this.gameClock.currentTick(),
        initialSpawn: [terrain.positionX, terrain.positionY, terrain.positionZ],
@@ -890,7 +972,7 @@ index 29c44d4..3035ba8 100644
        ...this.bedwarsMatch ? { spawnForSession: (sessionId) => this.bedwarsMatch.spawnFor(sessionId) } : {}
      });
      this.keyboardInteraction = new KeyboardInteractionService({
-@@ -14259,13 +14644,16 @@ var LegacyHistoricalProjectInstance = class {
+@@ -14259,13 +14679,16 @@ var LegacyHistoricalProjectInstance = class {
      this.projectBootstrapSessions = new ProjectBootstrapSessions({
        bootstrap: options.projectBootstrap,
        clientScripts: options.clientScripts,
@@ -908,7 +990,12 @@ index 29c44d4..3035ba8 100644
        gameChatSessions: this.gameChatSessions,
        playerProtocolSessions: this.playerProtocolSessions,
        gameClock: this.gameClock,
-@@ -14291,6 +14679,7 @@ var LegacyHistoricalProjectInstance = class {
+@@ -14287,10 +14710,12 @@ var LegacyHistoricalProjectInstance = class {
+   gameRuntime;
+   legacyProjectMount;
+   projectPackagePlayerProjectionMount;
++  projectPackagePlayerProjection;
+   gameNetPublicSessions;
    mutableTerrain;
    terrainSessions;
    dialogSessions;
@@ -916,7 +1003,7 @@ index 29c44d4..3035ba8 100644
    gameChatSessions;
    playerProtocolSessions;
    remoteChannelSessions;
-@@ -14307,7 +14696,7 @@ var LegacyHistoricalProjectInstance = class {
+@@ -14307,7 +14732,7 @@ var LegacyHistoricalProjectInstance = class {
      const frame = this.gameRuntime.snapshot();
      const player = frame.players.find((candidate) => candidate.sessionId === sessionLabel || candidate.sessionId.length > 12 && candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === sessionLabel);
      if (!player) return void 0;
@@ -925,7 +1012,7 @@ index 29c44d4..3035ba8 100644
    }
    queuePlayerRuntimeState(sessionLabel, state) {
      const frame = this.gameRuntime.snapshot();
-@@ -14319,6 +14708,21 @@ var LegacyHistoricalProjectInstance = class {
+@@ -14319,6 +14744,62 @@ var LegacyHistoricalProjectInstance = class {
        velocity: state.velocity ?? player.velocity
      });
    }
@@ -944,10 +1031,51 @@ index 29c44d4..3035ba8 100644
 +    if (!Number.isSafeInteger(entityId) || entityId < 1) return false;
 +    return this.gameNetPublicSessions.destroyEntity(entityId);
 +  }
++  createRuntimeEntity(entity) {
++    if (!entity || typeof entity !== "object" || Array.isArray(entity) || typeof entity.mesh !== "string") return void 0;
++    const projection = this.projectPackagePlayerProjection;
++    if (!isProjectPackagePlayerProjection(projection)) return void 0;
++    const mesh = projection.resolveRuntimeMesh(entity.mesh);
++    if (!mesh) return void 0;
++    return this.gameRuntime.spawnEntity({
++      kind: "object",
++      position: entity.position,
++      ...entity.velocity === void 0 ? {} : { velocity: entity.velocity },
++      ...entity.name === void 0 ? {} : { name: entity.name },
++      ...entity.tags === void 0 ? {} : { tags: entity.tags },
++      ...entity.enableInteract === void 0 ? {} : { interactable: entity.enableInteract },
++      replica: {
++        body: {
++          bounds: mesh.bounds,
++          ...entity.meshOrientation === void 0 ? {} : { orientation: entity.meshOrientation },
++          ...entity.collides === void 0 ? {} : { collides: entity.collides },
++          ...entity.fixed === void 0 ? {} : { fixed: entity.fixed },
++          ...entity.gravity === void 0 ? {} : { gravity: entity.gravity },
++          ...entity.mass === void 0 ? {} : { mass: entity.mass },
++          ...entity.friction === void 0 ? {} : { friction: entity.friction },
++          ...entity.restitution === void 0 ? {} : { restitution: entity.restitution }
++        },
++        model: {
++          meshId: mesh.meshId,
++          ...entity.meshInvisible === void 0 ? {} : { invisible: entity.meshInvisible },
++          ...entity.meshColor === void 0 ? {} : { color: entity.meshColor },
++          ...entity.meshScale === void 0 ? {} : { scale: entity.meshScale },
++          ...entity.meshOffset === void 0 ? {} : { offset: entity.meshOffset },
++          ...entity.meshEmissive === void 0 ? {} : { emissive: entity.meshEmissive },
++          ...entity.meshShininess === void 0 ? {} : { shininess: entity.meshShininess },
++          ...entity.meshMetalness === void 0 ? {} : { metalness: entity.meshMetalness }
++        }
++      }
++    });
++  }
++  queueRuntimeEntityState(entityId, state) {
++    if (!Number.isSafeInteger(entityId) || entityId < 1) return false;
++    return this.gameRuntime.updateEntityTransform(entityId, state) !== void 0;
++  }
    /** Starts services whose timers must begin only after the gateway is listening. */
    start() {
      this.forgeResources?.start();
-@@ -14331,6 +14735,7 @@ var LegacyHistoricalProjectInstance = class {
+@@ -14331,6 +14812,7 @@ var LegacyHistoricalProjectInstance = class {
      this.remoteChannelSessions.delete(sessionId);
      this.bedwarsRemoteSessions?.delete(sessionId);
      this.dialogSessions.delete(sessionId);
@@ -955,7 +1083,7 @@ index 29c44d4..3035ba8 100644
      this.gameChatSessions.delete(sessionId);
      this.playerProtocolSessions.delete(sessionId);
      this.projectBootstrapSessions.delete(sessionId);
-@@ -14358,6 +14763,7 @@ var LegacyHistoricalProjectInstance = class {
+@@ -14358,6 +14840,7 @@ var LegacyHistoricalProjectInstance = class {
      this.remoteChannelSessions.dispose();
      this.bedwarsRemoteSessions?.dispose();
      this.dialogSessions.dispose();
@@ -963,7 +1091,7 @@ index 29c44d4..3035ba8 100644
      this.gameChatSessions.dispose();
      try {
        afterGameChat?.();
-@@ -14521,23 +14927,36 @@ var MuQuantizedVec3 = class {
+@@ -14521,23 +15004,36 @@ var MuQuantizedVec3 = class {
      if (qb0 === qt0 && qb1 === qt1 && qb2 === qt2) {
        return false;
      }
@@ -1010,7 +1138,7 @@ index 29c44d4..3035ba8 100644
      const inv = this.invPrecision;
      const prec = this.precision;
      const qb0 = Math.round(inv * base[0]) >> 0;
-@@ -14611,20 +15030,31 @@ var MuQuantizedVec2 = class {
+@@ -14611,20 +15107,31 @@ var MuQuantizedVec2 = class {
      const qt0 = Math.round(inv * target[0]) >> 0;
      const qt1 = Math.round(inv * target[1]) >> 0;
      if (qb0 === qt0 && qb1 === qt1) return false;
@@ -1049,7 +1177,7 @@ index 29c44d4..3035ba8 100644
      const inv = this.invPrecision;
      const prec = this.precision;
      const qb0 = Math.round(inv * base[0]) >> 0;
-@@ -15319,153 +15749,124 @@ var remoteChannel = {
+@@ -15319,153 +15826,124 @@ var remoteChannel = {
    }
  };
  function createGameUIProtocol() {
@@ -1205,13 +1333,7 @@ index 29c44d4..3035ba8 100644
 +    ...textStroke(),
 +    richText: new import_schema5.MuBoolean(false),
 +    rotation: rotation()
-   });
--  const elementUnion = new import_schema5.MuUnion({
--    box: boxSchema,
--    image: imageSchema,
--    text: textSchema,
--    scrollBox: scrollBoxSchema,
--    input: inputFieldSchema
++  });
 +  const imageSchema = new import_schema5.MuStruct({
 +    ...common([200, 200]),
 +    image: new import_schema5.MuUTF8(""),
@@ -1219,6 +1341,12 @@ index 29c44d4..3035ba8 100644
 +    imageDisplayMode: new import_schema5.MuUint8(0),
 +    rotation: rotation()
    });
+-  const elementUnion = new import_schema5.MuUnion({
+-    box: boxSchema,
+-    image: imageSchema,
+-    text: textSchema,
+-    scrollBox: scrollBoxSchema,
+-    input: inputFieldSchema
 +  const scrollBoxSchema = new import_schema5.MuStruct({
 +    ...common([300, 300], 1, true),
 +    scrollDirection: new import_schema5.MuUint8(1),
@@ -1232,7 +1360,7 @@ index 29c44d4..3035ba8 100644
 +    scrollCanvasSize: coord2d([500, 500], [0, 0]),
 +    scrollPosition: new MuQuantizedVec2(390625e-8, [0, 0]),
 +    rotation: rotation()
-+  });
+   });
 +  const elementUnion = new import_schema5.MuUnion({ box: boxSchema, image: imageSchema, text: textSchema, scrollBox: scrollBoxSchema, input: inputFieldSchema });
    return {
      name: "gameUI",
@@ -1293,7 +1421,7 @@ index 29c44d4..3035ba8 100644
        })
      },
      server: {}
-@@ -15532,6 +15933,23 @@ function createDialogHandlers(context) {
+@@ -15532,6 +16010,23 @@ function createDialogHandlers(context) {
  }
  
  // legacy/box3-compat/src/protocol/handlers/entity-interact.ts
@@ -1317,7 +1445,7 @@ index 29c44d4..3035ba8 100644
  function createEntityInteractHandlers(context) {
    return {
      interact(client) {
-@@ -15576,6 +15994,9 @@ function createGameNetHandlers(context) {
+@@ -15576,6 +16071,9 @@ function createGameNetHandlers(context) {
      input(client, data) {
        context.stats.record("game-net", "input");
        const accepted = context.gameNetPublicSessions.acceptInput(client.sessionId, data);
@@ -1327,7 +1455,7 @@ index 29c44d4..3035ba8 100644
        if (accepted) context.terrainInteraction.handleInput(client.sessionId, data);
      },
      sendKeyBoardEvent(client, data) {
-@@ -15682,9 +16103,9 @@ function registerProtocols(server, contexts) {
+@@ -15682,9 +16180,9 @@ function registerProtocols(server, contexts) {
          if (schema === models) context.projectBootstrapSessions.connectModels(client);
          if (schema === sound) context.projectBootstrapSessions.connectSound(client);
          if (schema === gameTerrain) context.projectBootstrapSessions.connectTerrain(client);
@@ -1339,7 +1467,7 @@ index 29c44d4..3035ba8 100644
              running: true,
              defaultScreenId: "DEFAULT_SCREEN_ID",
              pictureAssets: {},
-@@ -15695,7 +16116,7 @@ function registerProtocols(server, contexts) {
+@@ -15695,7 +16193,7 @@ function registerProtocols(server, contexts) {
                  id: "ROOT_ID",
                  name: "Root",
                  parentId: "",
@@ -1348,7 +1476,7 @@ index 29c44d4..3035ba8 100644
                },
                DEFAULT_SCREEN_ID: {
                  type: 2,
-@@ -15709,9 +16130,14 @@ function registerProtocols(server, contexts) {
+@@ -15709,9 +16207,14 @@ function registerProtocols(server, contexts) {
                  }
                }
              }
@@ -1364,7 +1492,7 @@ index 29c44d4..3035ba8 100644
          if (schema === gameChat) context.gameChatSessions.connect(client);
          if (schema === playerProtocol) context.playerProtocolSessions.connect(client);
          if (schema === remoteChannel) {
-@@ -15730,6 +16156,7 @@ function registerProtocols(server, contexts) {
+@@ -15730,6 +16233,7 @@ function registerProtocols(server, contexts) {
          if (schema === gameNet) context.gameNetPublicSessions.disconnect(client);
          if (schema === gameTerrain) context.terrainSessions.disconnect(client);
          if (schema === dialog) context.dialogSessions.disconnect(client);
@@ -1372,7 +1500,7 @@ index 29c44d4..3035ba8 100644
          if (schema === gameChat) context.gameChatSessions.disconnect(client);
          if (schema === playerProtocol) context.playerProtocolSessions.disconnect(client);
          if (schema === remoteChannel) {
-@@ -15743,6 +16170,7 @@ function registerProtocols(server, contexts) {
+@@ -15743,6 +16247,7 @@ function registerProtocols(server, contexts) {
  function specializedMessageHandler(schema, messageName, context) {
    if (schema === gameClock) return createClockHandlers(context)[messageName];
    if (schema === dialog) return createDialogHandlers(context)[messageName];
@@ -1380,7 +1508,7 @@ index 29c44d4..3035ba8 100644
    if (schema === entityInteract) return createEntityInteractHandlers(context)[messageName];
    if (schema === gameNet) return createGameNetHandlers(context)[messageName];
    if (schema === remoteChannel) return createRemoteChannelHandlers(context)[messageName];
-@@ -15998,9 +16426,11 @@ var Box3Server = class {
+@@ -15998,9 +16503,11 @@ var Box3Server = class {
    assetStore;
    clientRuntime;
    clientScripts;
@@ -1392,7 +1520,7 @@ index 29c44d4..3035ba8 100644
    testSessionRegistryOptions;
    httpServer;
    mudbServer;
-@@ -16017,6 +16447,7 @@ var Box3Server = class {
+@@ -16017,6 +16524,7 @@ var Box3Server = class {
      this.assetStore = options.assetStore ?? new FileArchiveAssetStore(this.config.assetRoot);
      this.clientRuntime = options.clientRuntime ?? emptyClientRuntime;
      this.clientScripts = options.clientScripts ?? Object.freeze({});
@@ -1400,7 +1528,7 @@ index 29c44d4..3035ba8 100644
      this.projectBootstrap = options.projectBootstrap ?? emptyProjectBootstrap;
      this.testSessionRegistryOptions = options.testSessionRegistryOptions;
      if (options.legacyProject && options.projectPackagePlayerProjection) {
-@@ -16024,6 +16455,7 @@ var Box3Server = class {
+@@ -16024,6 +16532,7 @@ var Box3Server = class {
      }
      this.legacyProject = options.legacyProject;
      this.projectPackagePlayerProjection = options.projectPackagePlayerProjection;
@@ -1408,7 +1536,7 @@ index 29c44d4..3035ba8 100644
    }
    get host() {
      return this.config.host;
-@@ -16058,6 +16490,14 @@ var Box3Server = class {
+@@ -16058,6 +16567,24 @@ var Box3Server = class {
      if (!this.running) return false;
      return this.historicalProjectInstance?.queuePlayerRuntimeState(sessionLabel, state) ?? false;
    }
@@ -1420,10 +1548,20 @@ index 29c44d4..3035ba8 100644
 +    if (!this.running) return false;
 +    return this.historicalProjectInstance?.destroyRuntimeEntity(entityId) ?? false;
 +  }
++  /** Loopback-only ingress used by the NEA Script Runtime entity projection bridge. */
++  createRuntimeEntity(entity) {
++    if (!this.running) return void 0;
++    return this.historicalProjectInstance?.createRuntimeEntity(entity);
++  }
++  /** Loopback-only ingress used by the NEA Script Runtime entity transform bridge. */
++  queueRuntimeEntityState(entityId, state) {
++    if (!this.running) return false;
++    return this.historicalProjectInstance?.queueRuntimeEntityState(entityId, state) ?? false;
++  }
    /**
     * Host-only ingress for the recovered player-protocol profile-dialog frame.
     * This is not an HTTP route, project API, profile service, or account bridge.
-@@ -16070,6 +16510,12 @@ var Box3Server = class {
+@@ -16070,6 +16597,12 @@ var Box3Server = class {
     * Host-only ingress for the recovered dialog.open transport. This is not a
     * dialog API bridge, project API, or Player UI implementation.
     */
@@ -1436,7 +1574,7 @@ index 29c44d4..3035ba8 100644
    openDialog(sessionId, config) {
      if (!this.running) return false;
      const dialogSessions = this.historicalProjectInstance?.dialogSessions;
-@@ -16115,11 +16561,13 @@ var Box3Server = class {
+@@ -16115,11 +16648,13 @@ var Box3Server = class {
      );
      const instance = new LegacyHistoricalProjectInstance({
        clientScripts: this.clientScripts,
@@ -1450,7 +1588,7 @@ index 29c44d4..3035ba8 100644
        stats: this.stats,
        world: this.world
      });
-@@ -16183,6 +16631,12 @@ var Box3Server = class {
+@@ -16183,6 +16718,12 @@ var Box3Server = class {
          `Local v1 Player entity projection: ${instance.projectPackagePlayerProjectionMount.spawned.length} mounted, ${instance.projectPackagePlayerProjectionMount.diagnostics.length} static entities unmapped`
        );
      }
@@ -1463,7 +1601,7 @@ index 29c44d4..3035ba8 100644
      const mudbReady = new Promise((resolve9, reject) => {
        mudbServer.start({
          ready: resolve9,
-@@ -16521,6 +16975,8 @@ async function main() {
+@@ -16521,6 +17062,8 @@ async function main() {
    const config = resolveServerConfig();
    const logger = createConsoleLogger();
    const projectRoot = process.env.BOX3_PROJECT_ROOT;
@@ -1472,7 +1610,7 @@ index 29c44d4..3035ba8 100644
    const projectionDescriptor = process.env.BOX3_PLAYER_PROJECTION_DESCRIPTOR;
    if (projectionDescriptor && !projectRoot) {
      throw new Error("BOX3_PLAYER_PROJECTION_DESCRIPTOR requires BOX3_PROJECT_ROOT");
-@@ -16528,16 +16984,21 @@ async function main() {
+@@ -16528,16 +17071,21 @@ async function main() {
    const projectWorld = projectRoot ? await loadProjectPackageCompatibilityWorld(projectRoot, config.assetRoot) : void 0;
    const world = projectWorld ?? await ArchiveWorld.load(config.assetRoot, config.worldManifest);
    const clientRuntime = await loadClientRuntime(config.assetRoot);
@@ -1494,7 +1632,7 @@ index 29c44d4..3035ba8 100644
      world,
      ...projectPackagePlayerProjection === void 0 ? {} : {
        projectPackagePlayerProjection: { projection: projectPackagePlayerProjection }
-@@ -16545,6 +17006,8 @@ async function main() {
+@@ -16545,6 +17093,8 @@ async function main() {
    }).start();
    const neaControlServer = await startNeaControlBridge(server, logger);
    if (projectRoot) logger.info(`Player compatibility project package: ${projectRoot}`);
@@ -1503,7 +1641,7 @@ index 29c44d4..3035ba8 100644
    if (projectionDescriptor) logger.info(`Local Player entity projection descriptor: ${projectionDescriptor}`);
    let stopping = false;
    const shutdown = async () => {
-@@ -16556,6 +17019,27 @@ async function main() {
+@@ -16556,6 +17106,27 @@ async function main() {
    process.once("SIGINT", shutdown);
    process.once("SIGTERM", shutdown);
  }
@@ -1531,7 +1669,7 @@ index 29c44d4..3035ba8 100644
  async function startNeaControlBridge(server, logger) {
    const token = process.env.BOX3_CONTROL_TOKEN;
    const portText = process.env.BOX3_CONTROL_PORT;
-@@ -16593,7 +17077,7 @@ async function startNeaControlBridge(server, logger) {
+@@ -16593,7 +17164,7 @@ async function startNeaControlBridge(server, logger) {
        }
        const body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
        if (request.method === "POST" && url.pathname === "/__nea/control/send-client-event") {
@@ -1540,7 +1678,7 @@ index 29c44d4..3035ba8 100644
            throw new Error("session and event are required");
          }
          const delivered = server.sendRemoteClientEvent(body.session, body.event);
-@@ -16601,6 +17085,36 @@ async function startNeaControlBridge(server, logger) {
+@@ -16601,6 +17172,36 @@ async function startNeaControlBridge(server, logger) {
          response.end(JSON.stringify(delivered ? { ok: true } : { ok: false, error: "session not connected" }));
          return;
        }
@@ -1577,7 +1715,7 @@ index 29c44d4..3035ba8 100644
        if (request.method === "POST" && url.pathname === "/__nea/control/player-state") {
          if (typeof body.session !== "string" || !body.state || typeof body.state !== "object" || Array.isArray(body.state)) {
            throw new Error("session and state are required");
-@@ -16613,6 +17127,31 @@ async function startNeaControlBridge(server, logger) {
+@@ -16613,6 +17214,49 @@ async function startNeaControlBridge(server, logger) {
          response.end(JSON.stringify(queued ? { ok: true, queued: true } : { ok: false, error: "player state not found" }));
          return;
        }
@@ -1604,6 +1742,24 @@ index 29c44d4..3035ba8 100644
 +        const destroyed = server.destroyRuntimeEntity(body.entityId);
 +        response.statusCode = destroyed ? 200 : 404;
 +        response.end(JSON.stringify(destroyed ? { ok: true, destroyed: true } : { ok: false, error: "entity not found" }));
++        return;
++      }
++      if (request.method === "POST" && url.pathname === "/__nea/control/entity-create") {
++        const created = server.createRuntimeEntity(body.entity);
++        if (!created) {
++          response.statusCode = 422;
++          response.end(JSON.stringify({ ok: false, error: "runtime entity mesh is not available" }));
++          return;
++        }
++        response.statusCode = 200;
++        response.end(JSON.stringify({ ok: true, entityId: created.entityId }));
++        return;
++      }
++      if (request.method === "POST" && url.pathname === "/__nea/control/entity-state") {
++        if (!Number.isSafeInteger(body.entityId) || body.entityId < 1) throw new Error("entityId must be a positive safe integer");
++        const queued = server.queueRuntimeEntityState(body.entityId, body.state);
++        response.statusCode = queued ? 202 : 404;
++        response.end(JSON.stringify(queued ? { ok: true, queued: true } : { ok: false, error: "entity not found" }));
 +        return;
 +      }
        response.statusCode = 404;

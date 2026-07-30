@@ -1,11 +1,11 @@
 {
   "format": "nea-local-server-runtime-analysis",
   "version": 1,
-  "generatedAt": "2026-07-30T11:06:40.422Z",
+  "generatedAt": "2026-07-30T11:25:47.281Z",
   "source": {
     "path": "demo-map/src/runtime/script-runtime.mjs",
-    "bytes": 52151,
-    "sha256": "6ec253e30d55c2d1c9bde89acef69adaa683e1c21a968a45b390090a2efba142"
+    "bytes": 56939,
+    "sha256": "e4fb2a6b8b2fea63f2ef0400481dbe254f7e770f85cda9ed5f69e976a59c7d57"
   },
   "eventTokenSource": {
     "path": "demo-map/src/runtime/event-signal.mjs",
@@ -657,6 +657,144 @@
       "compatibility": "emulated",
       "capability": "server.world.events",
       "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.onEntityCreate",
+      "side": "server",
+      "kind": "event",
+      "owner": "world",
+      "name": "onEntityCreate",
+      "signature": {
+        "parameters": [
+          {
+            "name": "handler",
+            "type": "({tick,entity,player})=>void"
+          }
+        ],
+        "returns": "listener-token"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameWorld.onEntityCreate"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.nextEntityCreate",
+      "side": "server",
+      "kind": "event",
+      "owner": "world",
+      "name": "nextEntityCreate",
+      "signature": {
+        "parameters": [
+          {
+            "name": "filter",
+            "type": "(event: GameEntityEvent) => boolean",
+            "optional": true
+          }
+        ],
+        "returns": "Promise<GameEntityEvent>"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameWorld.nextEntityCreate"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.onEntityDestroy",
+      "side": "server",
+      "kind": "event",
+      "owner": "world",
+      "name": "onEntityDestroy",
+      "signature": {
+        "parameters": [
+          {
+            "name": "handler",
+            "type": "({tick,entity,player})=>void"
+          }
+        ],
+        "returns": "listener-token"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameWorld.onEntityDestroy"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.nextEntityDestroy",
+      "side": "server",
+      "kind": "event",
+      "owner": "world",
+      "name": "nextEntityDestroy",
+      "signature": {
+        "parameters": [
+          {
+            "name": "filter",
+            "type": "(event: GameEntityEvent) => boolean",
+            "optional": true
+          }
+        ],
+        "returns": "Promise<GameEntityEvent>"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameWorld.nextEntityDestroy"
+      ],
       "notes": [
         "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
       ],
@@ -5314,7 +5452,40 @@
       "canonicalId": "server.GameWorld.createEntity",
       "status": "partial",
       "gaps": [
-        "Local entity spec and returned wrapper expose only a small subset of GameEntity."
+        "Creation remains synchronous and emits the recovered entity-create lifecycle event. Captured mesh bindings can create an authoritative browser/backend replica with documented transform and model/body fields; unknown meshes deliberately remain script-local rather than receiving a fabricated placeholder.",
+        "Generic native gravity, collision response, and in-place Vector3 mutation replication are still unverified."
+      ]
+    },
+    {
+      "localId": "server.world.onEntityCreate",
+      "canonicalId": "server.GameWorld.onEntityCreate",
+      "status": "partial",
+      "gaps": [
+        "The recovered GameEntityEvent is emitted for local script-created entities; independent native engine creation is not bridged."
+      ]
+    },
+    {
+      "localId": "server.world.nextEntityCreate",
+      "canonicalId": "server.GameWorld.nextEntityCreate",
+      "status": "partial",
+      "gaps": [
+        "The recovered optional filter resolves local script-created entity events; independent native engine creation is not bridged."
+      ]
+    },
+    {
+      "localId": "server.world.onEntityDestroy",
+      "canonicalId": "server.GameWorld.onEntityDestroy",
+      "status": "partial",
+      "gaps": [
+        "The recovered GameEntityEvent is emitted for local script destruction; independent native engine destruction is not bridged."
+      ]
+    },
+    {
+      "localId": "server.world.nextEntityDestroy",
+      "canonicalId": "server.GameWorld.nextEntityDestroy",
+      "status": "partial",
+      "gaps": [
+        "The recovered optional filter resolves local script destruction events; independent native engine destruction is not bridged."
       ]
     },
     {
@@ -5742,9 +5913,9 @@
     }
   ],
   "summary": {
-    "localEntries": 138,
+    "localEntries": 142,
     "compatibleAdapters": 31,
-    "partialAdapters": 54,
+    "partialAdapters": 58,
     "extensions": 53
   }
 }

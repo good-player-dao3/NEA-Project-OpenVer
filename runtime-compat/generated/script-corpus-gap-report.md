@@ -1,6 +1,6 @@
 # Script Corpus Compatibility Gap Report
 
-Generated: 2026-07-30T11:06:51.394Z
+Generated: 2026-07-30T11:27:12.090Z
 
 Private source paths, work identities, and event type names are excluded. Samples only prioritize unified ABI work.
 

@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-compatibility-phase-audit",
   "version": 1,
-  "generatedAt": "2026-07-30T11:06:53.537Z",
+  "generatedAt": "2026-07-30T11:27:12.402Z",
   "phase": 5,
   "overallStatus": "complete",
   "requirements": [
@@ -49,7 +49,7 @@
               },
               "catalogs": {
                 "client": 133,
-                "server": 916,
+                "server": 920,
                 "shared": 131
               },
               "compatibilityMatrix": {
@@ -74,9 +74,9 @@
             "declarations": 599,
             "byStatus": {
               "native": 125,
-              "compatible": 71,
+              "compatible": 73,
               "partial": 33,
-              "recovered-only": 148,
+              "recovered-only": 146,
               "declared-only": 222
             }
           }
@@ -415,12 +415,12 @@
         {
           "path": "runtime-compat/generated/gap-report.json",
           "finding": {
-            "executable": 229,
+            "executable": 231,
             "compatibilityStatus": {
               "native": 125,
-              "compatible": 71,
+              "compatible": 73,
               "partial": 33,
-              "recovered-only": 148,
+              "recovered-only": 146,
               "declared-only": 222
             }
           }

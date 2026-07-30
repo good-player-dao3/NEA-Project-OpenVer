@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-entity-adapter-map",
   "version": 1,
-  "generatedAt": "2026-07-30T11:06:41.109Z",
+  "generatedAt": "2026-07-30T11:27:10.476Z",
   "contract": "nea-server-runtime/v1",
   "localObject": {
     "id": "server.object.RuntimeEntity",
@@ -115,7 +115,7 @@
           "Canonical position uses GameVector3; local RuntimeEntity exposes the smaller Vector3 compatibility type."
         ],
         "effect": [
-          "Local writes update only the compatibility wrapper and are not yet connected to authoritative entity replication."
+          "Whole-value writes on captured-mesh runtime-created entities are queued to the authoritative backend projection. In-place Vector3 mutations and generic native physics simulation remain unverified."
         ]
       },
       "evidence": [
@@ -323,7 +323,7 @@
         "access": [],
         "signature": [],
         "effect": [
-          "The readonly flag changes once, destroy listeners fire once, and mapped authoritative replicas are despawned; runtime-created entities still depend on the separate createEntity projection gap."
+          "The readonly flag changes once, destroy listeners fire once, and mapped authoritative replicas are despawned. Captured-mesh runtime-created replicas follow the same destruction path; unknown mesh names remain deliberately unprojected."
         ]
       },
       "evidence": [
@@ -367,7 +367,7 @@
         "access": [],
         "signature": [],
         "effect": [
-          "Non-player entities are removed from selectors immediately and mapped backend replicas are despawned; runtime-created entities have no backend replica until createEntity projection is implemented."
+          "Non-player entities are removed from selectors immediately and mapped backend replicas are despawned. Captured-mesh runtime-created entities receive the same backend teardown; unknown mesh names remain script-local."
         ]
       },
       "evidence": [
@@ -567,7 +567,7 @@
         "access": [],
         "signature": [],
         "effect": [
-          "Mapped players and entities propagate the value through the recovered replica.damage schema to native client health-bar rendering; runtime-created entity projection remains separate."
+          "Mapped players, static entities, and captured-mesh runtime-created entities propagate the value through the recovered replica.damage schema to native client health-bar rendering. Unknown mesh names remain deliberately script-local."
         ]
       },
       "evidence": [
@@ -611,7 +611,7 @@
         "access": [],
         "signature": [],
         "effect": [
-          "Script writes, hurt, and healing propagate through the recovered replica.damage schema for mapped players and entities; runtime-created entity projection remains separate."
+          "Script writes, hurt, and healing propagate through the recovered replica.damage schema for mapped players, static entities, and captured-mesh runtime-created entities. Unknown mesh names remain deliberately script-local."
         ]
       },
       "evidence": [
@@ -655,7 +655,7 @@
         "access": [],
         "signature": [],
         "effect": [
-          "The value caps healing and propagates through the recovered replica.damage schema for mapped players and entities; runtime-created entity projection remains separate."
+          "The value caps healing and propagates through the recovered replica.damage schema for mapped players, static entities, and captured-mesh runtime-created entities. Unknown mesh names remain deliberately script-local."
         ]
       },
       "evidence": [
@@ -958,7 +958,7 @@
           "The canonical options object is supported; a historical BedWars string damageType form is additionally accepted."
         ],
         "effect": [
-          "Recovered hp, healing, attacker, damageType, damage, and death semantics are implemented; mapped targets also emit native replica.damage state and game-net hurt/die effects. Runtime-created entity projection remains separate."
+          "Recovered hp, healing, attacker, damageType, damage, and death semantics are implemented; mapped targets, including captured-mesh runtime-created entities, also emit native replica.damage state and game-net hurt/die effects. Unknown mesh names remain deliberately script-local."
         ]
       },
       "evidence": [

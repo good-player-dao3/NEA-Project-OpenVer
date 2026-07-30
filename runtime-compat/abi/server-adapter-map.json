@@ -1,7 +1,7 @@
 {
   "format": "nea-server-adapter-map",
   "version": 1,
-  "generatedAt": "2026-07-30T11:06:40.422Z",
+  "generatedAt": "2026-07-30T11:25:47.281Z",
   "contract": "nea-server-runtime/v1",
   "adapters": [
     {
@@ -205,7 +205,40 @@
       "canonicalId": "server.GameWorld.createEntity",
       "status": "partial",
       "gaps": [
-        "Local entity spec and returned wrapper expose only a small subset of GameEntity."
+        "Creation remains synchronous and emits the recovered entity-create lifecycle event. Captured mesh bindings can create an authoritative browser/backend replica with documented transform and model/body fields; unknown meshes deliberately remain script-local rather than receiving a fabricated placeholder.",
+        "Generic native gravity, collision response, and in-place Vector3 mutation replication are still unverified."
+      ]
+    },
+    {
+      "localId": "server.world.onEntityCreate",
+      "canonicalId": "server.GameWorld.onEntityCreate",
+      "status": "partial",
+      "gaps": [
+        "The recovered GameEntityEvent is emitted for local script-created entities; independent native engine creation is not bridged."
+      ]
+    },
+    {
+      "localId": "server.world.nextEntityCreate",
+      "canonicalId": "server.GameWorld.nextEntityCreate",
+      "status": "partial",
+      "gaps": [
+        "The recovered optional filter resolves local script-created entity events; independent native engine creation is not bridged."
+      ]
+    },
+    {
+      "localId": "server.world.onEntityDestroy",
+      "canonicalId": "server.GameWorld.onEntityDestroy",
+      "status": "partial",
+      "gaps": [
+        "The recovered GameEntityEvent is emitted for local script destruction; independent native engine destruction is not bridged."
+      ]
+    },
+    {
+      "localId": "server.world.nextEntityDestroy",
+      "canonicalId": "server.GameWorld.nextEntityDestroy",
+      "status": "partial",
+      "gaps": [
+        "The recovered optional filter resolves local script destruction events; independent native engine destruction is not bridged."
       ]
     },
     {

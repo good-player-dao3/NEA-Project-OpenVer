@@ -1,7 +1,7 @@
 {
   "format": "nea-api-abi-completeness",
   "version": 1,
-  "generatedAt": "2026-07-30T11:06:46.050Z",
+  "generatedAt": "2026-07-30T11:27:11.559Z",
   "status": "complete",
   "signatureModel": "member-variants-v1",
   "rules": {
@@ -65,7 +65,7 @@
     },
     "catalogs": {
       "client": 133,
-      "server": 916,
+      "server": 920,
       "shared": 131
     },
     "compatibilityMatrix": {

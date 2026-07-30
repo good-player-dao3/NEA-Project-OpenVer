@@ -76,6 +76,8 @@ export class ScriptRuntime {
     tick: new EventSignal(),
     playerJoin: new EventSignal(),
     playerLeave: new EventSignal(),
+    entityCreate: new EventSignal(),
+    entityDestroy: new EventSignal(),
     respawn: new EventSignal(),
     takeDamage: new EventSignal(),
     clientEvent: new EventSignal(),
@@ -119,6 +121,8 @@ export class ScriptRuntime {
     this.sendClientEvent = options.sendClientEvent ?? (() => {});
     this.writePlayerState = options.writePlayerState ?? (() => {});
     this.writeDamageState = options.writeDamageState ?? (() => {});
+    this.createEntity = options.createEntity ?? (() => null);
+    this.writeEntityState = options.writeEntityState ?? (() => {});
     this.destroyEntity = options.destroyEntity ?? (() => {});
     this.showDialog = options.showDialog ?? (() => Promise.reject(new Error("Dialog transport is not configured")));
     this.cancelDialogs = options.cancelDialogs ?? (() => false);
@@ -409,6 +413,10 @@ export class ScriptRuntime {
       onTick: handler => this.#listen("server.world.events", this.#signals.tick, handler),
       onPlayerJoin: handler => this.#listen("server.world.events", this.#signals.playerJoin, handler),
       onPlayerLeave: handler => this.#listen("server.world.events", this.#signals.playerLeave, handler),
+      onEntityCreate: handler => this.#listen("server.world.events", this.#signals.entityCreate, handler),
+      nextEntityCreate: filter => this.#next("server.world.events", this.#signals.entityCreate, filter),
+      onEntityDestroy: handler => this.#listen("server.world.events", this.#signals.entityDestroy, handler),
+      nextEntityDestroy: filter => this.#next("server.world.events", this.#signals.entityDestroy, filter),
       onRespawn: handler => this.#listen("server.world.events", this.#signals.respawn, handler),
       nextRespawn: filter => this.#next("server.world.events", this.#signals.respawn, filter),
       onTakeDamage: handler => this.#listen("server.world.events", this.#signals.takeDamage, handler),
@@ -454,14 +462,34 @@ export class ScriptRuntime {
           name: spec?.name,
           kind: spec?.kind ?? "entity",
           position: spec?.position ?? [0, 0, 0],
+          velocity: spec?.velocity,
           tags: spec?.tags ?? [],
           source: spec?.source,
+          mesh: spec?.mesh,
+          collides: spec?.collides,
+          fixed: spec?.fixed,
+          gravity: spec?.gravity,
+          mass: spec?.mass,
+          friction: spec?.friction,
+          restitution: spec?.restitution,
+          meshScale: spec?.meshScale,
+          meshOrientation: spec?.meshOrientation,
+          meshOffset: spec?.meshOffset,
+          meshColor: spec?.meshColor,
+          meshInvisible: spec?.meshInvisible,
+          meshMetalness: spec?.meshMetalness,
+          meshEmissive: spec?.meshEmissive,
+          meshShininess: spec?.meshShininess,
+          enableInteract: spec?.enableInteract,
           enableDamage: spec?.enableDamage,
           showHealthBar: spec?.showHealthBar,
           hp: spec?.hp,
           maxHp: spec?.maxHp,
         }, this);
         this.#entities.set(id, entity);
+        const event = createGameEntityEvent(this.currentTick, entity);
+        this.#signals.entityCreate.emit(event, error => this.#reportError("entityCreate", error));
+        this.#projectEntity(entity);
         return entity;
       },
       querySelector: selector => this.#query(selector)[0] ?? null,
@@ -766,6 +794,7 @@ export class ScriptRuntime {
     this.#entities.delete(entity._id);
     const event = createGameEntityEvent(this.currentTick, entity);
     entity._signals.destroy.emit(event, error => this.#reportError("entityDestroy", error));
+    this.#signals.entityDestroy.emit(event, error => this.#reportError("entityDestroy", error));
     if (Number.isSafeInteger(entity._backendEntityId) && entity._backendEntityId > 0) {
       Promise.resolve(this.destroyEntity(entity._backendEntityId)).catch(error => this.#reportError("entity-destroy", error));
     }
@@ -786,6 +815,69 @@ export class ScriptRuntime {
     };
     Promise.resolve(this.writeDamageState(target, state, structuredClone(events))).catch(error => this.#reportError("damage-state-write", error));
   }
+
+  #projectEntity(entity) {
+    if (typeof entity.mesh !== "string" || entity.mesh.length === 0) return;
+    Promise.resolve(this.createEntity(runtimeEntityProjectionPayload(entity))).then(result => {
+      const entityId = result?.entityId;
+      if (!Number.isSafeInteger(entityId) || entityId < 1) throw new Error("Backend entity projection returned an invalid entity id");
+      entity._backendEntityId = entityId;
+      if (entity.destroyed) {
+        return this.destroyEntity(entityId);
+      }
+      this.#queueEntityStateWrite(entity);
+      this.#queueDamageStateWrite(entity);
+      return undefined;
+    }).catch(error => this.#reportError("entity-create", error));
+  }
+
+  _entityTransformChanged(entity) {
+    this.#queueEntityStateWrite(entity);
+  }
+
+  #queueEntityStateWrite(entity) {
+    if (!Number.isSafeInteger(entity._backendEntityId) || entity._backendEntityId < 1) return;
+    const state = {
+      position: entity.position.toArray(),
+      velocity: entity.velocity.toArray(),
+      orientation: quaternionArray(entity.meshOrientation),
+    };
+    Promise.resolve(this.writeEntityState(entity._backendEntityId, state)).catch(error => this.#reportError("entity-state-write", error));
+  }
+}
+
+function runtimeEntityProjectionPayload(entity) {
+  return {
+    position: entity.position.toArray(),
+    velocity: entity.velocity.toArray(),
+    name: entity.name,
+    tags: [...entity.tags],
+    mesh: entity.mesh,
+    collides: entity.collides,
+    fixed: entity.fixed,
+    gravity: entity.gravity,
+    mass: entity.mass,
+    friction: entity.friction,
+    restitution: entity.restitution,
+    meshScale: entity.meshScale.toArray(),
+    meshOrientation: quaternionArray(entity.meshOrientation),
+    meshInvisible: entity.meshInvisible,
+    meshMetalness: entity.meshMetalness,
+    meshEmissive: entity.meshEmissive,
+    meshShininess: entity.meshShininess,
+    enableInteract: entity.enableInteract,
+  };
+}
+
+function quaternionFrom(value) {
+  if (value instanceof GameQuaternion) return value.clone();
+  if (Array.isArray(value) && value.length === 4) return new GameQuaternion(value[0], value[1], value[2], value[3]);
+  if (value && typeof value === "object") return new GameQuaternion(value.w, value.x, value.y, value.z);
+  throw new TypeError("Expected a GameQuaternion-compatible value");
+}
+
+function quaternionArray(value) {
+  return [value.w, value.x, value.y, value.z];
 }
 
 export function createRuntimeEntity(input, runtime = null) {
@@ -799,20 +891,28 @@ export function createRuntimeEntity(input, runtime = null) {
     _sourceIndex: Number.isSafeInteger(input.sourceIndex) ? input.sourceIndex : null,
     _backendEntityId: null,
     _position: position,
+    _velocity: Vector3.from(input.velocity ?? [0, 0, 0]),
     _runtime: runtime,
     _lastAttacker: null,
     _lastDamageType: "",
     bounds: Vector3.from(input.bounds ?? input.source?.bounds ?? [1, 1, 1]),
     mesh: input.mesh ?? input.source?.mesh ?? "",
-    meshInvisible: false,
-    meshScale: new Vector3(1 / 64, 1 / 64, 1 / 64),
-    meshOrientation: new GameQuaternion(0, 0, 0, 1),
-    meshOffset: new Vector3(0, 0, 0),
+    meshInvisible: Boolean(input.meshInvisible ?? false),
+    meshScale: Vector3.from(input.meshScale ?? [1 / 64, 1 / 64, 1 / 64]),
+    meshOrientation: quaternionFrom(input.meshOrientation ?? [0, 0, 0, 1]),
+    meshOffset: Vector3.from(input.meshOffset ?? [0, 0, 0]),
     meshColor: new GameRGBAColor(1, 1, 1, 1),
     meshMetalness: 0,
     meshEmissive: 0,
     meshShininess: 0,
     anchorOffset: new Vector3(0, 0, 0),
+    collides: Boolean(input.collides ?? true),
+    fixed: Boolean(input.fixed ?? false),
+    gravity: Boolean(input.gravity ?? true),
+    mass: Number(input.mass ?? 1),
+    friction: Number(input.friction ?? 0),
+    restitution: Number(input.restitution ?? 0),
+    enableInteract: Boolean(input.enableInteract ?? false),
     _tags: tags,
     _signals: { click: new EventSignal(), destroy: new EventSignal(), fluidEnter: new EventSignal(), fluidLeave: new EventSignal(), takeDamage: new EventSignal(), die: new EventSignal() },
     _destroyed: false,
@@ -835,7 +935,9 @@ export function createRuntimeEntity(input, runtime = null) {
     get maxHp() { return this._maxHp; },
     set maxHp(value) { this._maxHp = Number(value); this._runtime?._damageFieldChanged(this); },
     get position() { return this._position; },
-    set position(value) { this._position.copy(Vector3.from(value)); },
+    set position(value) { this._position.copy(Vector3.from(value)); this._runtime?._entityTransformChanged(this); },
+    get velocity() { return this._velocity; },
+    set velocity(value) { this._velocity.copy(Vector3.from(value)); this._runtime?._entityTransformChanged(this); },
     get tags() { return this._tags; },
     addTag(tag) { this._tags.add(String(tag)); },
     removeTag(tag) { this._tags.delete(String(tag)); },

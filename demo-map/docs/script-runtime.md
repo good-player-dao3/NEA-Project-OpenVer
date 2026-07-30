@@ -58,6 +58,12 @@ Players created from real MuDB sessions use `authority: "backend"`. Their positi
 
 This bridge is required for collision correctness as well as script compatibility: removing only the script wrapper would leave the projected rigid body in the authoritative runtime and produce an invisible collider. The implementation therefore uses the backend's existing despawn path rather than introducing a work-specific collision exception.
 
+## Runtime-created entity projection
+
+`world.createEntity()` still returns its `GameEntity` synchronously and emits the recovered entity-create event immediately. Its documented physics and render configuration (`position`, `velocity`, `collides`, `fixed`, `gravity`, `mass`, `friction`, `restitution`, `mesh`, `meshScale`, and `meshOrientation`) is then sent through a loopback-only bridge to the existing authoritative entity registry. Subsequent whole-value `position` and `velocity` assignments use the registry's existing transform-update path.
+
+The editor-package builder adds only captured model metadata/data to the Player bootstrap table and writes a validated mesh-name-to-bootstrap mapping. The backend refuses to project a mesh absent from that mapping; it does not substitute a model, derive bounds from a name, or turn an unknown mesh into a work-specific placeholder. Unmapped entities remain visible to server scripts but are explicitly not claimed to be browser/physics replicas.
+
 ## Damage ABI
 
 Writes to `showHealthBar`, `hp`, and `maxHp`, together with `GameEntity.hurt()` and `GamePlayer.forceRespawn()`, now use the recovered `replica.damage` state and `game-net` `scriptEvents.damage` transport. Hurt amounts for the same entity and server tick are aggregated before emission, matching the historical ScriptShell behavior. Death and respawn are emitted as the recovered entity-ID lists, while health-bar state remains in the public replica snapshot.
