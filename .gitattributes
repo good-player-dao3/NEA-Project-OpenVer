@@ -1,0 +1,22 @@
+# Keep source and generated text stable across Windows and CI.
+* text=auto
+
+*.cjs text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.mjs text eol=lf
+*.ps1 text eol=crlf
+*.ts text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+*.7z binary
+*.bin binary
+*.gif binary
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.woff binary
+*.woff2 binary

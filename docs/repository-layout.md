@@ -1,6 +1,6 @@
 # Repository Layout
 
-This repository contains both executable compatibility code and historical preservation evidence. The existing top-level directories are retained because tests, reports, and evidence records reference their paths directly.
+This repository contains executable compatibility code alongside historical preservation evidence. The existing top-level directories are retained because package scripts, generated reports, and evidence records reference their paths directly. Repository cleanup therefore means improving navigation, ownership, and publication boundaries?not moving evidence blindly.
 
 ## Active implementation
 
@@ -11,6 +11,8 @@ This repository contains both executable compatibility code and historical prese
 | `local-player/` | Recovered Player hosting, compatibility backend, launchers, Player-side adapters | `npm --prefix local-player test` when applicable |
 | `preservation-dump/` | Live capture and editor export tools | Individual `node --check` and self-tests |
 | `works/` | Local catalog for recovered works and import-development fixtures | Private work contents remain ignored |
+| `docs/` | Repository-wide layout, architecture, and open-version policy | Documentation review |
+| `tools/` | Small Windows-safe maintenance helpers | Tool-specific checks |
 
 New executable behavior should normally belong to one of these directories. Do not create another runtime or Player implementation at the repository root.
 
@@ -19,11 +21,11 @@ New executable behavior should normally belong to one of these directories. Do n
 | Path | Classification | Rules |
 | --- | --- | --- |
 | `dao3-docs-mirror/` | Public documentation mirror | Regenerate through its existing tools; do not hand-edit generated pages without recording why. |
-| `origin/` | Recovered server/runtime evidence and ignored external reference clones | Evidence only; do not make it the new architecture. |
+| `origin/` | Recovered server/runtime evidence | Evidence only; do not make it the new architecture. |
 | `mudb/` | Historical transport source | Preserve upstream structure and local provenance. |
-| `box-go/` | Ignored duplicate/reference worktree | The preserved snapshot under `Lokibox/box-go` remains the evidence source. |
-| `dump/` | Recovered assets and private live captures | Never commit `dump/private/`. |
-| `Lokibox/` | Private local Player/runtime evidence | Never publish or commit this directory. |
+| `dump/` | Vetted recovered assets and private live captures | Never commit `dump/private/`; audit new public assets before tracking. |
+
+Ignored local folders such as `Lokibox/` and `box-go/` are operator/reference worktrees, not part of the OpenVer repository contract. Never publish or commit them.
 
 ## Generated and local output
 
@@ -33,6 +35,7 @@ New executable behavior should normally belong to one of these directories. Do n
 - Keep the user-owned `NEA-Project.7z` at the root and ignored. Never modify, delete, unpack over the repository, or commit it.
 - Keep browser profiles, cookies, OAuth tokens, private maps, and token-bearing URLs only in their existing ignored private locations.
 - Keep recovered work exports under `works/private/<work-id>/`; retain their original capture paths as immutable provenance.
+- Keep public repository policy under `docs/open-version.md`; use it before pushing to the OpenVer remote.
 
 ## Naming rules
 
