@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-player-adapter-map",
   "version": 1,
-  "generatedAt": "2026-07-30T11:25:48.283Z",
+  "generatedAt": "2026-07-30T16:52:50.011Z",
   "contract": "nea-server-runtime/v1",
   "localObject": {
     "id": "server.object.RuntimePlayer",
@@ -2199,7 +2199,8 @@
           "Canonical directMessage accepts a string; local sendMessage accepts an unknown value and formats it for logging."
         ],
         "effect": [
-          "Local behavior records/logs a message; historical direct player delivery is not proven."
+          "Targeted delivery now uses the recovered Player game-chat.log packet with private=true through the bound MuDB session.",
+          "The historical MAX_CHATS_PER_TICK buffering/flush policy and Player display acknowledgement remain unimplemented."
         ]
       },
       "evidence": [

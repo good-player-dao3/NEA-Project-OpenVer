@@ -19,6 +19,8 @@ import { GameBodyPart } from "./game-body-part.mjs";
 import { raycastWorld } from "./game-raycast.mjs";
 
 const EMPTY_PLAYER_TAGS = Object.freeze(new Set());
+const GUI_CAPABILITY_MEMBERS = new Set(["init", "show", "remove", "getAttribute", "setAttribute", "onMessage", "ui"]);
+const WORLD_CONFIG_CAPABILITY_MEMBERS = new Set(["gravity", "airFriction", "fogColor"]);
 
 export const GameButtonType = Object.freeze({
   WALK: "walk",
@@ -54,6 +56,10 @@ const KNOWN_CAPABILITIES = new Set([
   "server.world.events",
   "server.world.chat",
   "server.world.entities",
+  "server.world.voxels",
+  "server.world.config",
+  "server.gui",
+  "server.storage",
   "server.player",
   "server.player.write",
   "server.remote-channel",
@@ -119,6 +125,7 @@ export class ScriptRuntime {
     this.playerBodyProfile = options.physics?.playerBody;
     if (!this.playerBodyProfile) throw new Error("Runtime requires an explicit player body profile");
     this.sendClientEvent = options.sendClientEvent ?? (() => {});
+    this.sendChatMessage = options.sendChatMessage ?? (() => {});
     this.writePlayerState = options.writePlayerState ?? (() => {});
     this.writeDamageState = options.writeDamageState ?? (() => {});
     this.createEntity = options.createEntity ?? (() => null);
@@ -191,6 +198,7 @@ export class ScriptRuntime {
       voxels: terrainSnapshot.voxels ?? [],
       logger: options.logger,
       sendClientEvent: options.sendClientEvent,
+      sendChatMessage: options.sendChatMessage,
       writePlayerState: options.writePlayerState,
       writeDamageState: options.writeDamageState,
       createEntity: options.createEntity,
@@ -411,7 +419,10 @@ export class ScriptRuntime {
   #createGlobals() {
     const worldProperties = {
       get currentTick() { return runtime.currentTick; },
-      get size() { return runtime.voxels.shape; },
+      get size() {
+        runtime.#require("server.world.voxels");
+        return runtime.voxels.shape;
+      },
       onTick: handler => this.#listen("server.world.events", this.#signals.tick, handler),
       onPlayerJoin: handler => this.#listen("server.world.events", this.#signals.playerJoin, handler),
       onPlayerLeave: handler => this.#listen("server.world.events", this.#signals.playerLeave, handler),
@@ -454,6 +465,7 @@ export class ScriptRuntime {
         const text = String(message);
         this.#messages.push({ tick: this.currentTick, text });
         this.logger.info(`[script:world] ${text}`);
+        Promise.resolve(this.sendChatMessage(undefined, { text, senderId: 0, private: false, duration: 0, hideFloat: false })).catch(error => this.#reportError("chat-send", error));
       },
       createEntity: spec => {
         this.#require("server.world.entities");
@@ -519,6 +531,7 @@ export class ScriptRuntime {
       collisionFilters: () => [...this.#collisionFilters.values()].map(pair => [...pair]),
     };
     const world = Object.defineProperties(new GameWorld(), Object.getOwnPropertyDescriptors(worldProperties));
+    const guardedWorld = createCapabilityFacade(world, () => this.#require("server.world.config"), WORLD_CONFIG_CAPABILITY_MEMBERS);
     const sendRemoteEvent = (player, event) => {
       const playerId = this.#playerIds.get(player);
       if (!playerId || !this.#players.has(playerId)) return;
@@ -545,12 +558,15 @@ export class ScriptRuntime {
       },
     });
     const runtime = this;
+    const voxels = createCapabilityFacade(this.voxels, () => this.#require("server.world.voxels"));
+    const gui = createCapabilityFacade(this.gui, () => this.#require("server.gui"), GUI_CAPABILITY_MEMBERS);
+    const storage = createCapabilityFacade(this.storage, () => this.#require("server.storage"));
     return {
-      world,
+      world: guardedWorld,
       remoteChannel,
-      storage: this.storage,
-      gui: this.gui,
-      voxels: this.voxels,
+      storage,
+      gui,
+      voxels,
       Vector3,
       GameVector3: Vector3,
       GameQuaternion,
@@ -702,6 +718,24 @@ export class ScriptRuntime {
     const text = String(message);
     this.#messages.push({ tick: this.currentTick, playerId: player.id, text });
     this.logger.info(`[script:player:${player.name}] ${text}`);
+    Promise.resolve(this.sendChatMessage(this.#playerIds.get(player), { text, senderId: 0, private: true, duration: 0, hideFloat: false })).catch(error => this.#reportError("chat-send", error));
+  }
+
+  _messageEntity(entity, message, options) {
+    this.#require("server.world.chat");
+    const text = String(message);
+    const duration = options?.duration ? options.duration === Infinity ? -1 : Number(options.duration) : 0;
+    const hideFloat = Boolean(options?.hideFloat);
+    this.#messages.push({ tick: this.currentTick, entityId: entity.id, text, duration, hideFloat });
+    this.logger.info(`[script:entity:${entity.id}] ${text}`);
+    if (!Number.isSafeInteger(entity._backendEntityId) || entity._backendEntityId < 1) return;
+    Promise.resolve(this.sendChatMessage(undefined, {
+      text,
+      senderId: entity._backendEntityId,
+      private: false,
+      duration,
+      hideFloat,
+    })).catch(error => this.#reportError("chat-send", error));
   }
 
   _applyImpulse(player, value) {
@@ -848,6 +882,24 @@ export class ScriptRuntime {
   }
 }
 
+function createCapabilityFacade(target, requireCapability, guardedMembers = null) {
+  const methods = new Map();
+  const requiresCapability = property => guardedMembers === null || guardedMembers.has(property);
+  return new Proxy(target, {
+    get(object, property, receiver) {
+      if (requiresCapability(property)) requireCapability();
+      const value = Reflect.get(object, property, object);
+      if (typeof value !== "function") return value;
+      if (!methods.has(property)) methods.set(property, value.bind(object));
+      return methods.get(property);
+    },
+    set(object, property, value, receiver) {
+      if (requiresCapability(property)) requireCapability();
+      return Reflect.set(object, property, value, object);
+    },
+  });
+}
+
 function runtimeEntityProjectionPayload(entity) {
   return {
     position: entity.position.toArray(),
@@ -944,6 +996,10 @@ export function createRuntimeEntity(input, runtime = null) {
     addTag(tag) { this._tags.add(String(tag)); },
     removeTag(tag) { this._tags.delete(String(tag)); },
     hasTag(tag) { return this._tags.has(String(tag)); },
+    say(message, options) {
+      if (!this._runtime) throw new Error("Entity is not attached to a Script Runtime");
+      this._runtime._messageEntity(this, message, options);
+    },
     onClick(handler) { return this._signals.click.on(handler); },
     nextClick(filter) { return this._signals.click.next(filter); },
     destroy() {

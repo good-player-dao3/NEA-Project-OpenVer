@@ -116,6 +116,66 @@ test("GameWorld.size exposes recovered maximum voxel indices", async () => {
   runtime.stop();
 });
 
+test("voxel globals require the dedicated runtime capability", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-voxel-capability-")), "project");
+  await importMapProject(source, output);
+  const project = JSON.parse(await readFile(join(output, "dao3.project.json"), "utf8"));
+  const scriptManifestPath = join(output, project.scripts);
+  const scriptManifest = JSON.parse(await readFile(scriptManifestPath, "utf8"));
+  scriptManifest.capabilities = scriptManifest.capabilities.filter(capability => capability !== "server.world.voxels");
+  await writeFile(scriptManifestPath, `${JSON.stringify(scriptManifest, null, 2)}\n`, "utf8");
+  await writeFile(join(output, "scripts", "server.js"), `voxels.getVoxelId(0, 0, 0);`, "utf8");
+  const runtime = await ScriptRuntime.load(output, { blockCatalog, logger: { info() {}, warn() {}, error() {} } });
+  await assert.rejects(() => runtime.start(), /Script capability not granted: server\.world\.voxels/);
+  runtime.stop();
+});
+
+test("declared GUI members require server.gui while custom GUI fields remain script-owned", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-gui-capability-")), "project");
+  await importMapProject(source, output);
+  const project = JSON.parse(await readFile(join(output, "dao3.project.json"), "utf8"));
+  const scriptManifestPath = join(output, project.scripts);
+  const scriptManifest = JSON.parse(await readFile(scriptManifestPath, "utf8"));
+  scriptManifest.capabilities = scriptManifest.capabilities.filter(capability => capability !== "server.gui");
+  await writeFile(scriptManifestPath, `${JSON.stringify(scriptManifest, null, 2)}\n`, "utf8");
+  await writeFile(join(output, "scripts", "server.js"), `gui.YELLOW = "#ffff00"; gui.message = () => gui.YELLOW; gui.remove(null, "#panel");`, "utf8");
+  const runtime = await ScriptRuntime.load(output, { blockCatalog, logger: { info() {}, warn() {}, error() {} } });
+  await assert.rejects(() => runtime.start(), /Script capability not granted: server\.gui/);
+  runtime.stop();
+});
+
+test("storage globals require the dedicated runtime capability", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-storage-capability-")), "project");
+  await importMapProject(source, output);
+  const project = JSON.parse(await readFile(join(output, "dao3.project.json"), "utf8"));
+  const scriptManifestPath = join(output, project.scripts);
+  const scriptManifest = JSON.parse(await readFile(scriptManifestPath, "utf8"));
+  scriptManifest.capabilities = scriptManifest.capabilities.filter(capability => capability !== "server.storage");
+  await writeFile(scriptManifestPath, `${JSON.stringify(scriptManifest, null, 2)}\n`, "utf8");
+  await writeFile(join(output, "scripts", "server.js"), `storage.getDataStorage("scores");`, "utf8");
+  const runtime = await ScriptRuntime.load(output, { blockCatalog, logger: { info() {}, warn() {}, error() {} } });
+  await assert.rejects(() => runtime.start(), /Script capability not granted: server\.storage/);
+  runtime.stop();
+});
+
+test("world configuration properties require the dedicated runtime capability", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-world-config-capability-")), "project");
+  await importMapProject(source, output);
+  const project = JSON.parse(await readFile(join(output, "dao3.project.json"), "utf8"));
+  const scriptManifestPath = join(output, project.scripts);
+  const scriptManifest = JSON.parse(await readFile(scriptManifestPath, "utf8"));
+  scriptManifest.capabilities = scriptManifest.capabilities.filter(capability => capability !== "server.world.config");
+  await writeFile(scriptManifestPath, `${JSON.stringify(scriptManifest, null, 2)}\n`, "utf8");
+  await writeFile(join(output, "scripts", "server.js"), `world.sharedState = 1; world.gravity = -0.2;`, "utf8");
+  const runtime = await ScriptRuntime.load(output, { blockCatalog, logger: { info() {}, warn() {}, error() {} } });
+  await assert.rejects(() => runtime.start(), /Script capability not granted: server\.world\.config/);
+  runtime.stop();
+});
+
 test("preserves captured source tags outside the project-package carrier grammar", async () => {
   const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
   const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-source-tags-")), "project");
@@ -286,6 +346,59 @@ test("provides recovered player-local events, stable identity, wearables, and di
   assert.deepEqual(player.spawnPoint.toArray(), [0, 0, 0]);
   assert.deepEqual(dialogs, [{ playerId: "stable-player", config: { type: "text", title: "Ready", content: "Ready" } }]);
   assert.ok(snapshot.messages.some(message => message.playerId === "stable-player" && message.text === "ready message"));
+});
+
+test("world.say and player.directMessage use separate recovered chat delivery scopes", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-chat-output-")), "project");
+  await importMapProject(source, output);
+  await writeFile(join(output, "scripts", "server.js"), `
+    world.onPlayerJoin(({ entity }) => {
+      world.say("broadcast");
+      entity.player.directMessage("private");
+    });
+  `, "utf8");
+  const deliveries = [];
+  const runtime = await ScriptRuntime.load(output, {
+    blockCatalog,
+    logger: { info() {}, warn() {}, error() {} },
+    sendChatMessage: (playerId, message) => deliveries.push({ playerId, message }),
+  });
+  await runtime.start();
+  runtime.addPlayer({ id: "chat-output-player" });
+  await new Promise(resolve => setImmediate(resolve));
+  runtime.stop();
+  assert.deepEqual(deliveries, [
+    { playerId: undefined, message: { text: "broadcast", senderId: 0, private: false, duration: 0, hideFloat: false } },
+    { playerId: "chat-output-player", message: { text: "private", senderId: 0, private: true, duration: 0, hideFloat: false } },
+  ]);
+});
+
+test("GameEntity.say projects recovered sender, duration, and hideFloat fields only for mapped entities", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-entity-chat-")), "project");
+  await importMapProject(source, output);
+  await writeFile(join(output, "scripts", "server.js"), "", "utf8");
+  const deliveries = [];
+  const runtime = await ScriptRuntime.load(output, {
+    blockCatalog,
+    logger: { info() {}, warn() {}, error() {} },
+    sendChatMessage: (playerId, message) => deliveries.push({ playerId, message }),
+  });
+  await runtime.start();
+  const mapped = runtime.querySelector("#terminal");
+  const local = runtime.createEntity({ id: "local-speaker" });
+  runtime.bindAuthoritativeEntity(mapped.id, 27);
+  mapped.say("mapped", { duration: Infinity, hideFloat: true });
+  local.say("local only", { duration: 2000 });
+  await new Promise(resolve => setImmediate(resolve));
+  const snapshot = runtime.snapshot();
+  runtime.stop();
+  assert.deepEqual(deliveries, [{
+    playerId: undefined,
+    message: { text: "mapped", senderId: 27, private: false, duration: -1, hideFloat: true },
+  }]);
+  assert.ok(snapshot.messages.some(message => message.entityId === "local-speaker" && message.text === "local only"));
 });
 
 test("GamePlayer color, spawnPoint, forceRespawn, and respawn events match recovered usage", async () => {

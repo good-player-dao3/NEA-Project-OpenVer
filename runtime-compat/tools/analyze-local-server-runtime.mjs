@@ -28,7 +28,11 @@ const requiredMarkers = [
   "dispatchInputEvents(playerId, packet) {",
   "const permissionMask = inputPermissionMask(player);",
   "enableAction0: true,",
-  "get size() { return runtime.voxels.shape; }",
+  "runtime.#require(\"server.world.voxels\")",
+  "const voxels = createCapabilityFacade(this.voxels",
+  "const gui = createCapabilityFacade(this.gui",
+  "const storage = createCapabilityFacade(this.storage",
+  "const guardedWorld = createCapabilityFacade(world",
   "onTick: handler => this.#listen(\"server.world.events\"",
   "onPlayerJoin: handler => this.#listen(\"server.world.events\"",
   "onPlayerLeave: handler => this.#listen(\"server.world.events\"",
@@ -170,11 +174,12 @@ const entries = [
   worldValueEntry("server.world.gravity", "gravity", "number"),
   worldValueEntry("server.world.airFriction", "airFriction", "number"),
   worldValueEntry("server.world.fogColor", "fogColor", "GameRGBColor"),
-  entry("server.object.RuntimeEntity", "object", null, "RuntimeEntity", { properties: ["id", "kind", "position", "tags", "destroyed", "enableDamage", "showHealthBar", "hp", "maxHp"], methods: ["destroy", "onDestroy", "nextDestroy", "onClick", "nextClick", "onTakeDamage", "nextTakeDamage", "onDie", "nextDie", "hurt", "snapshot"] }, "server.world.entities"),
+  entry("server.object.RuntimeEntity", "object", null, "RuntimeEntity", { properties: ["id", "kind", "position", "tags", "destroyed", "enableDamage", "showHealthBar", "hp", "maxHp"], methods: ["say", "destroy", "onDestroy", "nextDestroy", "onClick", "nextClick", "onTakeDamage", "nextTakeDamage", "onDie", "nextDie", "hurt", "snapshot"] }, "server.world.entities"),
   entry("server.RuntimeEntity.id", "property", "RuntimeEntity", "id", { type: "string", readonly: true }, "server.world.entities"),
   entry("server.RuntimeEntity.kind", "property", "RuntimeEntity", "kind", { type: "string", readonly: true }, "server.world.entities"),
   entry("server.RuntimeEntity.position", "property", "RuntimeEntity", "position", { type: "Vector3", readonly: false }, "server.world.entities"),
   entry("server.RuntimeEntity.tags", "property", "RuntimeEntity", "tags", { type: "Set<string>", readonly: true }, "server.world.entities"),
+  entry("server.RuntimeEntity.say", "method", "RuntimeEntity", "say", { parameters: [{ name: "message", type: "string" }, { name: "options", type: "Partial<{duration:number,hideFloat:boolean}>", optional: true }], returns: "void" }, "server.world.chat", "partial"),
   entry("server.RuntimeEntity.destroyed", "property", "RuntimeEntity", "destroyed", { type: "boolean", readonly: true }, "server.world.entities", "partial"),
   entry("server.RuntimeEntity.enableDamage", "property", "RuntimeEntity", "enableDamage", { type: "boolean", readonly: false }, "server.world.entities", "partial"),
   entry("server.RuntimeEntity.showHealthBar", "property", "RuntimeEntity", "showHealthBar", { type: "boolean", readonly: false }, "server.world.entities", "partial"),
@@ -267,7 +272,7 @@ const entries = [
   voxelEntry("server.GameVoxels.VoxelTypes", "property", "GameVoxels", "VoxelTypes", { type: "string[]", readonly: true }, 2),
   entry("server.remoteChannel.onClientEvent", "event", "remoteChannel", "onClientEvent", handler("{player,event}"), "server.remote-channel", "bridged"),
   entry("server.remoteChannel.nextClientEvent", "event", "remoteChannel", "nextClientEvent", { parameters: [], returns: "Promise<{player,event}>" }, "server.remote-channel", "bridged"),
-  entry("server.global.gui", "object", null, "gui", { type: "GameGUI" }, null, "partial"),
+  entry("server.global.gui", "object", null, "gui", { type: "GameGUI" }, "server.gui", "partial"),
   guiEntry("server.GameGUI.init", "method", "init", { parameters: [{ name: "entity", type: "GamePlayerEntity" }, { name: "config", type: "GUIConfig" }], returns: "Promise<void>" }),
   guiEntry("server.GameGUI.show", "method", "show", { parameters: [{ name: "entity", type: "GamePlayerEntity" }, { name: "name", type: "string" }, { name: "allowMultiple", type: "boolean", optional: true }], returns: "Promise<void>" }),
   guiEntry("server.GameGUI.remove", "method", "remove", { parameters: [{ name: "entity", type: "GamePlayerEntity" }, { name: "selector", type: "string" }], returns: "Promise<void>" }),
@@ -275,7 +280,7 @@ const entries = [
   guiEntry("server.GameGUI.setAttribute", "method", "setAttribute", { parameters: [{ name: "entity", type: "GamePlayerEntity" }, { name: "selector", type: "string" }, { name: "name", type: "string" }, { name: "value", type: "any" }], returns: "Promise<void>" }),
   guiEntry("server.GameGUI.onMessage", "event", "onMessage", handler("GameGUIEvent")),
   guiEntry("server.GameGUI.ui", "property", "ui", { type: "GameGUIElementFactory", readonly: true }),
-  entry("server.global.storage", "object", null, "storage", { type: "GameStorage" }, null, "partial"),
+  entry("server.global.storage", "object", null, "storage", { type: "GameStorage" }, "server.storage", "partial"),
   storageEntry("server.GameStorage.getDataStorage", "getDataStorage"),
   storageEntry("server.GameStorage.getGroupStorage", "getGroupStorage"),
   entry("server.remoteChannel.onServerEvent", "event", "remoteChannel", "onServerEvent", handler("{tick,entity,args}"), "server.remote-channel", "bridged"),
@@ -314,7 +319,7 @@ const adapters = [
   adapter("server.world.onContactSeparate", "server.GameWorld.onEntitySeparate", "partial", ["Local collider abstraction is not a historical GameEntityContactEvent."]),
   adapter("server.world.nextTick", "server.GameWorld.nextTick", "partial", ["The recovered optional filter and GameTickEvent resolution are implemented; elapsedTimeMS, skip, and delayed-tick timing retain the same gaps as world.onTick."]),
   adapter("server.world.nextPlayerJoin", "server.GameWorld.nextPlayerJoin", "partial", ["The recovered optional filter and GameEntityEvent fields are implemented; RuntimePlayer remains a subset of GamePlayerEntity."]),
-  adapter("server.world.say", "server.GameWorld.say", "partial", ["Local implementation records/logs messages but does not yet prove historical broadcast delivery and limits."]),
+  adapter("server.world.say", "server.GameWorld.say", "partial", ["Broadcast delivery now uses the recovered Player game-chat.log packet through connected MuDB sessions.", "The historical MAX_CHATS_PER_TICK buffering/flush policy and Player display acknowledgement remain unimplemented."]),
   adapter("server.world.createEntity", "server.GameWorld.createEntity", "partial", ["Creation remains synchronous and emits the recovered entity-create lifecycle event. Captured mesh bindings can create an authoritative browser/backend replica with documented transform and model/body fields; unknown meshes deliberately remain script-local rather than receiving a fabricated placeholder.", "Generic native gravity, collision response, and in-place Vector3 mutation replication are still unverified."]),
   adapter("server.world.onEntityCreate", "server.GameWorld.onEntityCreate", "partial", ["The recovered GameEntityEvent is emitted for local script-created entities; independent native engine creation is not bridged."]),
   adapter("server.world.nextEntityCreate", "server.GameWorld.nextEntityCreate", "partial", ["The recovered optional filter resolves local script-created entity events; independent native engine creation is not bridged."]),
@@ -328,6 +333,7 @@ const adapters = [
   adapter("server.world.gravity", "server.GameWorld.gravity", "partial", ["The recovered property is script-visible, but writes do not yet reconfigure the fixed-step physics engine."]),
   adapter("server.world.airFriction", "server.GameWorld.airFriction", "partial", ["The recovered property is script-visible, but writes do not yet reconfigure the fixed-step physics engine."]),
   adapter("server.world.fogColor", "server.GameWorld.fogColor", "partial", ["The recovered GameRGBColor property is script-visible; client rendering propagation remains unimplemented."]),
+  adapter("server.RuntimeEntity.say", "server.GameEntity.say", "partial", ["Mapped entities emit recovered game-chat.log sender, duration, and hideFloat fields.", "Unmapped entities remain script-local instead of receiving a fabricated Player id.", "Historical MAX_CHATS_PER_TICK buffering and Player display acknowledgement remain unimplemented."]),
   adapter("server.RuntimeEntity.onClick", "server.GameEntity.onClick", "partial", ["The declared GameClickEvent fields and world-to-target dispatch order are implemented when an authoritative entity binding exists."]),
   adapter("server.RuntimeEntity.nextClick", "server.GameEntity.nextClick", "partial", ["The recovered optional filter is implemented; resolution still depends on an authoritative entity binding."]),
   adapter("server.RuntimeEntity.destroy", "server.GameEntity.destroy", "partial", ["Local destruction removes mapped non-player entities and emits the recovered destroy lifecycle event; native engine-driven destruction remains unverified."]),
@@ -465,7 +471,7 @@ function worldSizeEntry() {
   const value = entry("server.world.size", "property", "world", "size", {
     type: "Readonly<{x:number,y:number,z:number}>",
     readonly: true,
-  }, null, "emulated");
+  }, "server.world.voxels", "emulated");
   value.notes = ["Recovered-only native surface: real scripts read x/y/z as inclusive maximum voxel coordinates; no public DAO3 declaration or historical GameWorld class member was found."];
   value.evidence = [
     { type: "local-source", path: relativeSourcePath, symbol: "world.size", confidence: "direct" },
@@ -477,7 +483,7 @@ function worldSizeEntry() {
 }
 
 function worldValueEntry(id, name, type) {
-  const value = entry(id, "property", "world", name, { type, readonly: false }, null, "partial", [`server.GameWorld.${name}`]);
+  const value = entry(id, "property", "world", name, { type, readonly: false }, "server.world.config", "partial", [`server.GameWorld.${name}`]);
   value.evidence = [
     { type: "local-source", path: relativeGameWorldPath, symbol: `GameWorld.${name}`, confidence: "direct" },
     { type: "origin-source", path: "origin/origin/origin/api/GameWorld.js", symbol: `GameWorld.${name}`, confidence: "direct" },
@@ -486,7 +492,7 @@ function worldValueEntry(id, name, type) {
 }
 
 function guiEntry(id, kind, name, signature) {
-  const value = entry(id, kind, "GameGUI", name, signature, null, "compatible", [id]);
+  const value = entry(id, kind, "GameGUI", name, signature, "server.gui", "compatible", [id]);
   value.evidence = [
     { type: "local-source", path: relativeGameGuiPath, symbol: `GameGuiRuntime.${name}`, confidence: "direct" },
     { type: "declaration", path: "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts", symbol: `GameGUI.${name}`, confidence: "direct" },
@@ -500,7 +506,7 @@ function guiEntry(id, kind, name, signature) {
 }
 
 function storageEntry(id, name) {
-  const value = entry(id, "method", "GameStorage", name, { parameters: [{ name: "key", type: "string" }], returns: "GameDataStorage" }, null, "partial", [id]);
+  const value = entry(id, "method", "GameStorage", name, { parameters: [{ name: "key", type: "string" }], returns: "GameDataStorage" }, "server.storage", "partial", [id]);
   value.evidence = [
     { type: "local-source", path: relativeGameStoragePath, symbol: `LocalGameStorage.${name}`, confidence: "direct" },
     { type: "origin-source", path: "origin/origin/origin/api/GameStorage.js", symbol: `GameStorage.${name}`, confidence: "direct" },
@@ -531,7 +537,7 @@ function raycastEntry() {
 }
 
 function voxelEntry(id, kind, owner, name, signature, phase = 1) {
-  const value = entry(id, kind, owner, name, signature, null, "emulated");
+  const value = entry(id, kind, owner, name, signature, "server.world.voxels", "emulated");
   value.notes = ["Implemented from the preserved BlockInfo catalog and historical ScriptVoxelSync behavior; see the phase-specific evidence map."];
   value.evidence = [
     { type: "local-source", path: relativeGameVoxelsPath, symbol: `GameVoxelsRuntime.${name}`, confidence: "direct" },

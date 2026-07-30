@@ -18,9 +18,11 @@ const sharedRuntime = JSON.parse(await readFile(resolve(root, "generated", "loca
 const projectPath = "demo-map/project/nea.map.json";
 const clientScriptPath = "demo-map/project/scripts/client.js";
 const serverScriptPath = "demo-map/project/scripts/server.js";
+const backendPath = "local-player/backend/box3-server.cjs";
 const projectSource = await readFile(resolve(repositoryRoot, projectPath), "utf8");
 const clientSource = await readFile(resolve(repositoryRoot, clientScriptPath), "utf8");
 const serverSource = await readFile(resolve(repositoryRoot, serverScriptPath), "utf8");
+const backendSource = await readFile(resolve(repositoryRoot, backendPath), "utf8");
 const project = JSON.parse(projectSource);
 
 const entriesBySide = groupBy(current.entries.filter(entry => ["client", "server"].includes(entry.side)), entry => entry.side);
@@ -44,7 +46,16 @@ for (const binding of demoBindings) {
 
 const remoteProtocol = protocols.protocols.find(protocol => protocol.id === "player.remote-channel");
 const gameNetProtocol = protocols.protocols.find(protocol => protocol.id === "player.game-net");
-if (!remoteProtocol || !gameNetProtocol) throw new Error("Required Player MuDB protocols were not found");
+const guiProtocol = protocols.protocols.find(protocol => protocol.id === "player.gui");
+if (!remoteProtocol || !gameNetProtocol || !guiProtocol) throw new Error("Required Player MuDB protocols were not found");
+for (const marker of ["function sendGuiCommandPacket", "function createGuiHandlers", "this.guiSessions = new GuiSessions()", "sendGuiCommand(sessionId, command)"]) {
+  if (!backendSource.includes(marker)) throw new Error(`Local backend no longer proves GUI transport: ${marker}`);
+}
+const guiFlowEvidence = [
+  { type: "protocol-schema", path: "runtime-compat/abi/protocols.json", symbol: "player.gui", confidence: "direct" },
+  { type: "local-source", path: backendPath, symbol: "GuiSessions / sendGuiCommandPacket / createGuiHandlers", confidence: "direct" },
+  { type: "test", path: "runtime-compat/test/backend-gui-transport.test.mjs", symbol: "Player GUI transport conformance", confidence: "direct" },
+];
 
 const architecture = {
   format: "nea-runtime-architecture-contract",
@@ -106,7 +117,7 @@ const architecture = {
   transport: {
     id: "mudb-transport/v1",
     protocolAbi: "nea-protocol-abi/v1",
-    requiredProtocols: [gameNetProtocol.id, remoteProtocol.id],
+    requiredProtocols: [gameNetProtocol.id, remoteProtocol.id, guiProtocol.id],
     remoteChannelEnvelope: { fields: ["tick", "args"], argsEncoding: "JSON-text" },
   },
   authoritativeRuntime: {
@@ -126,6 +137,7 @@ const architecture = {
     flow("client-module-delivery", "authoritative-game-runtime", "client-script-runtime", "player.game-net.syncClientScriptModules", "Dictionary of module source; entry clientIndex.js"),
     flow("client-event", "client-script-runtime", "server-script-runtime", "player.remote-channel.sendServerEvent", "MuDB {tick,args}; args is JSON text"),
     flow("server-event", "server-script-runtime", "client-script-runtime", "player.remote-channel.sendClientEvent", "MuDB {tick,args}; malformed JSON is dropped by Player"),
+    flow("gui-command", "server-script-runtime", "client-script-runtime", "player.gui", "Handle-based GUI init/show/remove/get/set commands with return, throw and sendMessage responses", guiFlowEvidence),
     flow("authoritative-state", "server-script-runtime", "authoritative-game-runtime", "nea-control.player-state", "Versioned position and velocity command"),
     flow("public-state", "authoritative-game-runtime", "client-script-runtime", "player.game-net.PUBLIC", "Player and RigidBody snapshots with explicit half extents"),
   ],
@@ -208,6 +220,10 @@ function serverUsageRules() {
     { capability: "server.world.events", pattern: /\bworld\.(?:on|next|currentTick)/, evidence: "world event/tick access" },
     { capability: "server.world.chat", pattern: /\bworld\.say\b|\.sendMessage\s*\(/, evidence: "world.say/player.sendMessage" },
     { capability: "server.world.entities", pattern: /\bworld\.(?:querySelector|querySelectorAll|createEntity)\b/, evidence: "world entity query/create" },
+    { capability: "server.world.voxels", pattern: /\bvoxels\.|\bworld\.size\b/, evidence: "voxels.* / world.size" },
+    { capability: "server.world.config", pattern: /\bworld\.(?:gravity|airFriction|fogColor)\b/, evidence: "world configuration" },
+    { capability: "server.gui", pattern: /\bgui\.(?:init|show|remove|getAttribute|setAttribute|onMessage|ui)\b/, evidence: "declared GameGUI member" },
+    { capability: "server.storage", pattern: /\bstorage\.(?:getDataStorage|getGroupStorage)\b/, evidence: "GameStorage access" },
     { capability: "server.player", pattern: /\bplayer\.(?:id|name|position|velocity|grounded|health|snapshot)\b/, evidence: "RuntimePlayer read" },
     { capability: "server.player.write", pattern: /\bplayer\.(?:name|position|velocity)\s*=|\bplayer\.(?:applyImpulse|damage)\s*\(/, evidence: "RuntimePlayer mutation" },
     { capability: "server.remote-channel", pattern: /\bremoteChannel\./, evidence: "remoteChannel.*" },
@@ -218,8 +234,8 @@ function layer(id, category, responsibility, contracts, evidence) {
   return { id, category, responsibility, contracts, evidence };
 }
 
-function flow(id, from, to, protocol, payload) {
-  return { id, from, to, protocol, payload };
+function flow(id, from, to, protocol, payload, evidence = []) {
+  return { id, from, to, protocol, payload, evidence };
 }
 
 function sourceDescriptor(path, source) {

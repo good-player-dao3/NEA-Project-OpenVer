@@ -1,6 +1,6 @@
 # NEA Runtime Compatibility Phase 5 Audit
 
-Generated: 2026-07-30T11:27:12.402Z
+Generated: 2026-07-30T16:52:51.980Z
 Overall status: **complete**
 
 ## Requirements
@@ -16,8 +16,8 @@ Client Script Runtime, Server Script Runtime, MuDB transport and authoritative s
 
 Every locally documented canonical declaration, kind-qualified member signature and recovered MuDB message has an explicit machine-readable record with availability, compatibility and evidence.
 
-- runtime-compat/generated/api-abi-completeness.json: {"status":"complete","summary":{"documentation":{"entries":599,"memberVariants":602,"byKind":{"method":245,"event":53,"property":265,"global":17,"object":22}},"catalogs":{"client":133,"server":920,"shared":131},"compatibilityMatrix":{"entries":599,"coveredDocumentationEntries":599},"protocols":{"catalogs":32,"messages":180,"byDirection":{"server-to-client":86,"client-to-server":94}},"gaps":0}}
-- runtime-compat/abi/compatibility-matrix.json: {"declarations":599,"byStatus":{"native":125,"compatible":73,"partial":33,"recovered-only":146,"declared-only":222}}
+- runtime-compat/generated/api-abi-completeness.json: {"status":"complete","summary":{"documentation":{"entries":599,"memberVariants":602,"byKind":{"method":245,"event":53,"property":265,"global":17,"object":22}},"catalogs":{"client":133,"server":921,"shared":131},"compatibilityMatrix":{"entries":599,"coveredDocumentationEntries":599},"protocols":{"catalogs":32,"messages":180,"byDirection":{"server-to-client":86,"client-to-server":94}},"gaps":0}}
+- runtime-compat/abi/compatibility-matrix.json: {"declarations":599,"byStatus":{"native":125,"compatible":50,"partial":57,"recovered-only":145,"unavailable":1,"declared-only":221}}
 - runtime-compat/abi/protocols.json: {"protocols":32,"messages":180,"byDirection":{"server-to-client":86,"client-to-server":94}}
 
 ### player-standing-body: complete
@@ -47,7 +47,7 @@ Terrain contact axes, grounded support selection, force fields and active Contac
 API version, runtime contracts, side-qualified capabilities, compatibility levels and conformance fixtures are enforced.
 
 - runtime-compat/abi/runtime-contracts.json: {"apiVersion":"0.1.0","contracts":["dao3-client-runtime/v1","nea-server-runtime/v1"]}
-- runtime-compat/abi/compatibility-matrix.json: {"native":"Executable in the historical runtime provider with direct evidence.","compatible":"Executable locally with conformance evidence sufficient for the documented contract.","partial":"Executable locally, but one or more access, signature or behavioral gaps remain.","recovered-only":"The historical declaration or implementation is recovered, but no local executable binding exists.","declared-only":"Only the documentation declaration is currently recovered."}
+- runtime-compat/abi/compatibility-matrix.json: {"native":"Executable in the historical runtime provider with direct evidence.","compatible":"Executable locally with conformance evidence sufficient for the documented contract.","partial":"Executable locally, but one or more access, signature or behavioral gaps remain.","recovered-only":"The historical declaration or implementation is recovered, but no local executable binding exists.","unavailable":"Direct runtime evidence proves that the selected historical provider does not expose this declaration to scripts.","declared-only":"Only the documentation declaration is currently recovered."}
 
 ### demo-contract-bindings: complete
 
@@ -59,7 +59,7 @@ Demo client.js and server.js bind separate declared runtime contracts and capabi
 
 The generated gap report uses the same canonical compatibility matrix classification.
 
-- runtime-compat/generated/gap-report.json: {"executable":231,"compatibilityStatus":{"native":125,"compatible":73,"partial":33,"recovered-only":146,"declared-only":222}}
+- runtime-compat/generated/gap-report.json: {"executable":232,"compatibilityStatus":{"native":125,"compatible":50,"partial":57,"recovered-only":145,"unavailable":1,"declared-only":221}}
 
 ## Deferred Evidence
 

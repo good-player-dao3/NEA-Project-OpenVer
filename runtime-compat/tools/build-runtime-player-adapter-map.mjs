@@ -191,7 +191,7 @@ const memberSpecs = [
   partial("server.RuntimePlayer.sendMessage", ["server.GamePlayerEntity.directMessage"], {
     access: [],
     signature: ["Canonical directMessage accepts a string; local sendMessage accepts an unknown value and formats it for logging."],
-    effect: ["Local behavior records/logs a message; historical direct player delivery is not proven."],
+    effect: ["Targeted delivery now uses the recovered Player game-chat.log packet with private=true through the bound MuDB session.", "The historical MAX_CHATS_PER_TICK buffering/flush policy and Player display acknowledgement remain unimplemented."],
   }, ["server.GamePlayer.directMessage"]),
   extension("server.RuntimePlayer.snapshot", "snapshot is a local diagnostics and synchronization helper with no documented canonical member."),
 ];

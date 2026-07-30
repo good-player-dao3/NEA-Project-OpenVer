@@ -17,13 +17,16 @@ export async function loadMapSource(rootDirectory) {
   const manifest = validateMapManifest(await readJson(root, "nea.map.json"));
   const terrain = validateTerrainSource(await readJson(root, manifest.world.terrain), manifest.world.shape);
   const entities = validateEntitySource(await readJson(root, manifest.world.entities), manifest.world.shape);
+  const assets = manifest.assets;
+  const ui = manifest.ui === null ? null : validateUiSource(await readJson(root, manifest.ui));
   const physics = manifest.world.physics === null
     ? defaultPhysicsSource()
     : validatePhysicsSource(await readJson(root, manifest.world.physics), manifest.world.shape);
-  await assertRegularFile(root, manifest.scripts.server);
-  if (manifest.scripts.client !== null) await assertRegularFile(root, manifest.scripts.client);
+  await Promise.all(manifest.scripts.serverModules.map(modulePath => assertRegularFile(root, modulePath)));
+  await Promise.all(manifest.scripts.clientModules.map(modulePath => assertRegularFile(root, modulePath)));
+  await Promise.all(assets.map(asset => assertRegularFile(root, asset.path)));
 
-  return Object.freeze({ root, manifest, terrain, entities, physics });
+  return Object.freeze({ root, manifest, terrain, entities, physics, assets, ui });
 }
 
 export function validateMapManifest(value) {
@@ -46,6 +49,14 @@ export function validateMapManifest(value) {
     scripts.serverCapabilities === undefined ? "/scripts/capabilities" : "/scripts/serverCapabilities",
   );
   const clientCapabilities = validateCapabilities(scripts.clientCapabilities ?? [], "/scripts/clientCapabilities");
+  const server = requirePackagePath(scripts.server, "/scripts/server");
+  const client = scripts.client === null || scripts.client === undefined
+    ? null
+    : requirePackagePath(scripts.client, "/scripts/client");
+  const serverModules = validateModulePaths(scripts.serverModules ?? [server], "/scripts/serverModules", server);
+  const clientModules = client === null
+    ? validateModulePaths(scripts.clientModules ?? [], "/scripts/clientModules", null)
+    : validateModulePaths(scripts.clientModules ?? [client], "/scripts/clientModules", client);
 
   return Object.freeze({
     formatVersion: MAP_FORMAT,
@@ -70,15 +81,69 @@ export function validateMapManifest(value) {
         ? null
         : requirePackagePath(world.physics, "/world/physics"),
     }),
+    assets: Object.freeze(validateAssetSource(record.assets ?? [], "/assets")),
+    ui: record.ui === undefined || record.ui === null ? null : requirePackagePath(record.ui, "/ui"),
     scripts: Object.freeze({
-      server: requirePackagePath(scripts.server, "/scripts/server"),
-      client: scripts.client === null || scripts.client === undefined
-        ? null
-        : requirePackagePath(scripts.client, "/scripts/client"),
+      server,
+      client,
+      serverModules: Object.freeze(serverModules),
+      clientModules: Object.freeze(clientModules),
       serverCapabilities: Object.freeze(serverCapabilities),
       clientCapabilities: Object.freeze(clientCapabilities),
     }),
   });
+}
+
+export function validateUiSource(value) {
+  const record = requireRecord(value, "/ui");
+  if (record.format !== "nea-recovered-client-ui" || record.version !== 1 || record.sourceMessage !== "gameUI.reset") throw new Error("Unsupported client UI source");
+  if (typeof record.running !== "boolean") throw new Error("/ui/running must be boolean");
+  const defaultScreenId = requireText(record.defaultScreenId, "/ui/defaultScreenId", 512);
+  const pictureAssets = requireRecord(record.pictureAssets, "/ui/pictureAssets");
+  const sourceTree = requireRecord(record.uiTree, "/ui/uiTree");
+  const uiTree = {};
+  for (const [id, value] of Object.entries(sourceTree)) {
+    const node = requireRecord(value, `/ui/uiTree/${id}`);
+    if (node.id !== id || !Number.isInteger(node.type) || typeof node.name !== "string" || typeof node.parentId !== "string" || !Array.isArray(node.childrenIds) || !node.childrenIds.every(childId => typeof childId === "string")) throw new Error(`Invalid client UI node: ${id}`);
+    uiTree[id] = Object.freeze({ ...node, childrenIds: Object.freeze([...node.childrenIds]) });
+  }
+  const root = uiTree.ROOT_ID;
+  if (!root || root.type !== 0 || root.parentId !== "") throw new Error("Client UI tree must contain ROOT_ID");
+  const defaultScreen = uiTree[defaultScreenId];
+  if (!defaultScreen || defaultScreen.parentId !== "ROOT_ID" || defaultScreen.value?.type !== "screen") throw new Error("Client UI default screen is missing or invalid");
+  for (const node of Object.values(uiTree)) {
+    for (const childId of node.childrenIds) if (!uiTree[childId] || uiTree[childId].parentId !== node.id) throw new Error(`Invalid client UI child link: ${node.id} -> ${childId}`);
+    if (node.id !== "ROOT_ID" && (!uiTree[node.parentId] || !uiTree[node.parentId].childrenIds.includes(node.id))) throw new Error(`Invalid client UI parent link: ${node.id}`);
+  }
+  const validatedPictures = {};
+  for (const [name, value] of Object.entries(pictureAssets)) {
+    const asset = requireRecord(value, `/ui/pictureAssets/${name}`);
+    if (typeof asset.hash !== "string" || typeof asset.metadataHash !== "string" || !Number.isInteger(asset.width) || !Number.isInteger(asset.height)) throw new Error(`Invalid client UI picture asset: ${name}`);
+    validatedPictures[name] = Object.freeze({ hash: asset.hash, metadataHash: asset.metadataHash, width: asset.width, height: asset.height });
+  }
+  return Object.freeze({ format: "nea-recovered-client-ui", version: 1, sourceMessage: "gameUI.reset", running: record.running, defaultScreenId, pictureAssets: Object.freeze(validatedPictures), uiTree: Object.freeze(uiTree) });
+}
+
+function validateAssetSource(value, path) {
+  if (!Array.isArray(value)) throw new Error(`${path} must be an array`);
+  const names = new Set();
+  return value.map((asset, index) => {
+    const record = requireRecord(asset, `${path}/${index}`);
+    const name = requireText(record.name, `${path}/${index}/name`, 512);
+    const assetPath = requirePackagePath(record.path, `${path}/${index}/path`);
+    if (names.has(name)) throw new Error(`${path} contains duplicate asset name: ${name}`);
+    names.add(name);
+    return Object.freeze({ name, path: assetPath, kind: record.kind === undefined ? null : requireText(record.kind, `${path}/${index}/kind`, 80) });
+  });
+}
+
+function validateModulePaths(value, path, entry) {
+  if (!Array.isArray(value)) throw new Error(`${path} must be an array of package paths`);
+  const modules = value.map((modulePath, index) => requirePackagePath(modulePath, `${path}/${index}`));
+  if (new Set(modules).size !== modules.length) throw new Error(`${path} contains duplicates`);
+  if (entry !== null && !modules.includes(entry)) throw new Error(`${path} must include its entry module`);
+  if (entry === null && modules.length > 0) throw new Error(`${path} requires a client entry`);
+  return modules;
 }
 
 function validateCapabilities(value, path) {
@@ -231,7 +296,8 @@ export function validateEntitySource(value, shape) {
     if (!["player", "entity", "prop"].includes(kind)) throw new Error(`Unsupported entity kind: ${kind}`);
     const tags = requireStringArray(entity.tags ?? [], `/entities/entities/${index}/tags`)
       .map((tag, tagIndex) => requireIdentifier(tag, `/entities/entities/${index}/tags/${tagIndex}`));
-    return Object.freeze({ id, kind, position, tags: Object.freeze([...new Set(tags)]) });
+    const mesh = entity.mesh === undefined || entity.mesh === null ? null : requireText(entity.mesh, `/entities/entities/${index}/mesh`, 512);
+    return Object.freeze({ id, kind, position, tags: Object.freeze([...new Set(tags)]), mesh });
   }));
 }
 

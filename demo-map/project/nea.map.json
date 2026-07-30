@@ -26,6 +26,10 @@
       "server.world.events",
       "server.world.chat",
       "server.world.entities",
+      "server.world.voxels",
+      "server.world.config",
+      "server.gui",
+      "server.storage",
       "server.player",
       "server.player.write",
       "server.remote-channel"

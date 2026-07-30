@@ -10,11 +10,11 @@ const localServer = JSON.parse(await readFile(resolve(root, "generated", "local-
 const localShared = JSON.parse(await readFile(resolve(root, "generated", "local-shared-runtime-analysis.json"), "utf8"));
 const current = JSON.parse(await readFile(resolve(root, "abi", "current-runtime.json"), "utf8"));
 
-await writeCatalog("client", docs.entries.filter(entry => entry.side === "client"), playerClient.entries, current.entries.filter(entry => entry.side === "client"));
+await writeCatalog("client", docs.entries.filter(entry => entry.side === "client"), playerClient.entries, current.entries.filter(entry => entry.side === "client"), playerClient.unavailable ?? []);
 await writeCatalog("server", docs.entries.filter(entry => entry.side === "server"), [...origin.entries, ...localServer.entries], current.entries.filter(entry => entry.side === "server"));
 await writeCatalog("shared", docs.entries.filter(entry => entry.side === "shared"), localShared.entries, current.entries.filter(entry => entry.side === "shared"));
 
-async function writeCatalog(side, declared, recovered, implemented) {
+async function writeCatalog(side, declared, recovered, implemented, unavailable = []) {
   const merged = new Map();
   for (const entry of [...declared, ...recovered, ...implemented]) {
     const previous = merged.get(entry.id);
@@ -29,6 +29,18 @@ async function writeCatalog(side, declared, recovered, implemented) {
       compatibility: strongestCompatibility(previous.compatibility, entry.compatibility),
       notes: [...new Set([...(previous.notes ?? []), ...(entry.notes ?? [])])],
       evidence: deduplicateEvidence([...(previous.evidence ?? []), ...(entry.evidence ?? [])]),
+    });
+  }
+  for (const item of unavailable) {
+    const previous = merged.get(item.id);
+    if (!previous) throw new Error(`Unavailable ${side} ABI entry is not declared: ${item.id}`);
+    merged.set(item.id, {
+      ...previous,
+      availability: "unsupported",
+      compatibility: "missing",
+      unavailableReason: item.reason,
+      notes: [...new Set([...(previous.notes ?? []), item.reason])],
+      evidence: deduplicateEvidence([...(previous.evidence ?? []), ...(item.evidence ?? [])]),
     });
   }
   const entries = [...merged.values()].sort((left, right) => left.id.localeCompare(right.id));

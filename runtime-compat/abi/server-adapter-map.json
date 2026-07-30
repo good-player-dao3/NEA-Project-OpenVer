@@ -1,7 +1,7 @@
 {
   "format": "nea-server-adapter-map",
   "version": 1,
-  "generatedAt": "2026-07-30T11:25:47.281Z",
+  "generatedAt": "2026-07-30T16:52:49.548Z",
   "contract": "nea-server-runtime/v1",
   "adapters": [
     {
@@ -197,7 +197,8 @@
       "canonicalId": "server.GameWorld.say",
       "status": "partial",
       "gaps": [
-        "Local implementation records/logs messages but does not yet prove historical broadcast delivery and limits."
+        "Broadcast delivery now uses the recovered Player game-chat.log packet through connected MuDB sessions.",
+        "The historical MAX_CHATS_PER_TICK buffering/flush policy and Player display acknowledgement remain unimplemented."
       ]
     },
     {
@@ -304,6 +305,16 @@
       "status": "partial",
       "gaps": [
         "The recovered GameRGBColor property is script-visible; client rendering propagation remains unimplemented."
+      ]
+    },
+    {
+      "localId": "server.RuntimeEntity.say",
+      "canonicalId": "server.GameEntity.say",
+      "status": "partial",
+      "gaps": [
+        "Mapped entities emit recovered game-chat.log sender, duration, and hideFloat fields.",
+        "Unmapped entities remain script-local instead of receiving a fabricated Player id.",
+        "Historical MAX_CHATS_PER_TICK buffering and Player display acknowledgement remain unimplemented."
       ]
     },
     {

@@ -36,6 +36,11 @@ const specs = [
     signature: ["Property/method shape and collection type differ."],
     effect: ["Canonical addTag/removeTag/hasTag behavior and replication are not implemented."],
   }),
+  partial("server.RuntimeEntity.say", "server.GameEntity.say", {
+    access: [],
+    signature: [],
+    effect: ["Mapped entities emit the recovered game-chat.log sender id, duration, and hideFloat fields to every connected Player session.", "Entities without an authoritative backend id remain script-local and do not receive a fabricated sender id or floating bubble.", "The historical MAX_CHATS_PER_TICK buffering and Player display acknowledgement remain unimplemented."],
+  }),
   partial("server.RuntimeEntity.destroyed", "server.GameEntity.destroyed", {
     access: [],
     signature: [],

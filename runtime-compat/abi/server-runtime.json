@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-abi",
   "version": 1,
-  "generatedAt": "2026-07-30T11:27:10.926Z",
+  "generatedAt": "2026-07-30T16:52:50.367Z",
   "side": "server",
   "entries": [
     {
@@ -7831,7 +7831,7 @@
       },
       "availability": "confirmed",
       "compatibility": "missing",
-      "capability": null,
+      "capability": "server.gui",
       "since": "0.1.0",
       "notes": [
         "Recovered from an origin class instance assignment.",
@@ -7906,7 +7906,7 @@
       },
       "availability": "confirmed",
       "compatibility": "missing",
-      "capability": null,
+      "capability": "server.gui",
       "since": "0.1.0",
       "notes": [
         "Recovered from an origin class instance assignment.",
@@ -7977,7 +7977,7 @@
       },
       "availability": "confirmed",
       "compatibility": "missing",
-      "capability": null,
+      "capability": "server.gui",
       "since": "0.1.0",
       "notes": [
         "Recovered from an origin class instance assignment.",
@@ -8052,7 +8052,7 @@
       },
       "availability": "confirmed",
       "compatibility": "missing",
-      "capability": null,
+      "capability": "server.gui",
       "since": "0.1.0",
       "notes": [
         "Recovered from an origin class instance assignment.",
@@ -8135,7 +8135,7 @@
       },
       "availability": "confirmed",
       "compatibility": "missing",
-      "capability": null,
+      "capability": "server.gui",
       "since": "0.1.0",
       "notes": [
         "Recovered from an origin class instance assignment.",
@@ -8215,7 +8215,7 @@
       },
       "availability": "confirmed",
       "compatibility": "missing",
-      "capability": null,
+      "capability": "server.gui",
       "since": "0.1.0",
       "notes": [
         "Recovered from an origin class instance assignment.",
@@ -8281,7 +8281,7 @@
       },
       "availability": "confirmed",
       "compatibility": "missing",
-      "capability": null,
+      "capability": "server.gui",
       "since": "0.1.0",
       "notes": [
         "Recovered from an origin class instance assignment.",
@@ -21582,7 +21582,7 @@
       },
       "availability": "confirmed",
       "compatibility": "missing",
-      "capability": null,
+      "capability": "server.storage",
       "since": "0.1.0",
       "notes": [
         "Recovered from an origin class instance assignment.",
@@ -21635,7 +21635,7 @@
       },
       "availability": "confirmed",
       "compatibility": "missing",
-      "capability": null,
+      "capability": "server.storage",
       "since": "0.1.0",
       "notes": [
         "Recovered from an origin class instance assignment.",
@@ -22795,7 +22795,7 @@
       },
       "availability": "confirmed",
       "compatibility": "emulated",
-      "capability": null,
+      "capability": "server.world.voxels",
       "since": "0.1.0",
       "notes": [
         "Declared by documentation page: 方块的操作",
@@ -22927,7 +22927,7 @@
       },
       "availability": "confirmed",
       "compatibility": "emulated",
-      "capability": null,
+      "capability": "server.world.voxels",
       "since": "0.1.0",
       "notes": [
         "Declared by documentation page: 方块的操作",
@@ -23059,7 +23059,7 @@
       },
       "availability": "confirmed",
       "compatibility": "emulated",
-      "capability": null,
+      "capability": "server.world.voxels",
       "since": "0.1.0",
       "notes": [
         "Declared by documentation page: 方块的操作",
@@ -23183,7 +23183,7 @@
       },
       "availability": "confirmed",
       "compatibility": "emulated",
-      "capability": null,
+      "capability": "server.world.voxels",
       "since": "0.1.0",
       "notes": [
         "Declared by documentation page: 方块的操作",
@@ -23285,7 +23285,7 @@
       },
       "availability": "confirmed",
       "compatibility": "emulated",
-      "capability": null,
+      "capability": "server.world.voxels",
       "since": "0.1.0",
       "notes": [
         "Declared by documentation page: 方块的操作",
@@ -23404,7 +23404,7 @@
       },
       "availability": "confirmed",
       "compatibility": "emulated",
-      "capability": null,
+      "capability": "server.world.voxels",
       "since": "0.1.0",
       "notes": [
         "Declared by documentation page: 方块的操作",
@@ -23562,7 +23562,7 @@
       },
       "availability": "confirmed",
       "compatibility": "emulated",
-      "capability": null,
+      "capability": "server.world.voxels",
       "since": "0.1.0",
       "notes": [
         "Declared by documentation page: 方块的操作",
@@ -23692,7 +23692,7 @@
       },
       "availability": "confirmed",
       "compatibility": "emulated",
-      "capability": null,
+      "capability": "server.world.voxels",
       "since": "0.1.0",
       "notes": [
         "Declared by documentation page: 方块的操作",
@@ -23777,7 +23777,7 @@
       },
       "availability": "confirmed",
       "compatibility": "emulated",
-      "capability": null,
+      "capability": "server.world.voxels",
       "since": "0.1.0",
       "notes": [
         "Declared by documentation page: 方块的操作",
@@ -31470,7 +31470,7 @@
       },
       "availability": "confirmed",
       "compatibility": "missing",
-      "capability": null,
+      "capability": "server.gui",
       "since": "0.1.0",
       "notes": [
         "Passed into createScriptAPI by the historical ScriptShell.",
@@ -31810,7 +31810,7 @@
       },
       "availability": "confirmed",
       "compatibility": "missing",
-      "capability": null,
+      "capability": "server.storage",
       "since": "0.1.0",
       "notes": [
         "Declared by documentation page: S-📈 游戏数据存储",
@@ -31869,7 +31869,7 @@
       },
       "availability": "confirmed",
       "compatibility": "emulated",
-      "capability": null,
+      "capability": "server.world.voxels",
       "since": "0.1.0",
       "notes": [
         "Declared by documentation page: S-🧱 游戏方块",
@@ -32446,6 +32446,7 @@
           "maxHp"
         ],
         "methods": [
+          "say",
           "destroy",
           "onDestroy",
           "nextDestroy",
@@ -33548,6 +33549,42 @@
       "availability": "confirmed",
       "compatibility": "emulated",
       "capability": "server.world.entities",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.say",
+      "side": "server",
+      "kind": "method",
+      "owner": "RuntimeEntity",
+      "name": "say",
+      "signature": {
+        "parameters": [
+          {
+            "name": "message",
+            "type": "string"
+          },
+          {
+            "name": "options",
+            "type": "Partial<{duration:number,hideFloat:boolean}>",
+            "optional": true
+          }
+        ],
+        "returns": "void"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.chat",
       "since": "0.1.0",
       "notes": [
         "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
@@ -35969,7 +36006,7 @@
       },
       "availability": "confirmed",
       "compatibility": "partial",
-      "capability": null,
+      "capability": "server.world.config",
       "since": "0.1.0",
       "implements": [
         "server.GameWorld.airFriction"
@@ -36064,7 +36101,7 @@
       },
       "availability": "confirmed",
       "compatibility": "partial",
-      "capability": null,
+      "capability": "server.world.config",
       "since": "0.1.0",
       "implements": [
         "server.GameWorld.fogColor"
@@ -36099,7 +36136,7 @@
       },
       "availability": "confirmed",
       "compatibility": "partial",
-      "capability": null,
+      "capability": "server.world.config",
       "since": "0.1.0",
       "implements": [
         "server.GameWorld.gravity"
@@ -37216,7 +37253,7 @@
       },
       "availability": "confirmed",
       "compatibility": "emulated",
-      "capability": null,
+      "capability": "server.world.voxels",
       "since": "0.1.0",
       "notes": [
         "Recovered-only native surface: real scripts read x/y/z as inclusive maximum voxel coordinates; no public DAO3 declaration or historical GameWorld class member was found."

@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-compatibility-phase-audit",
   "version": 1,
-  "generatedAt": "2026-07-30T11:27:12.402Z",
+  "generatedAt": "2026-07-30T16:52:51.980Z",
   "phase": 5,
   "overallStatus": "complete",
   "requirements": [
@@ -49,7 +49,7 @@
               },
               "catalogs": {
                 "client": 133,
-                "server": 920,
+                "server": 921,
                 "shared": 131
               },
               "compatibilityMatrix": {
@@ -74,10 +74,11 @@
             "declarations": 599,
             "byStatus": {
               "native": 125,
-              "compatible": 73,
-              "partial": 33,
-              "recovered-only": 146,
-              "declared-only": 222
+              "compatible": 50,
+              "partial": 57,
+              "recovered-only": 145,
+              "unavailable": 1,
+              "declared-only": 221
             }
           }
         },
@@ -380,6 +381,7 @@
             "compatible": "Executable locally with conformance evidence sufficient for the documented contract.",
             "partial": "Executable locally, but one or more access, signature or behavioral gaps remain.",
             "recovered-only": "The historical declaration or implementation is recovered, but no local executable binding exists.",
+            "unavailable": "Direct runtime evidence proves that the selected historical provider does not expose this declaration to scripts.",
             "declared-only": "Only the documentation declaration is currently recovered."
           }
         }
@@ -415,13 +417,14 @@
         {
           "path": "runtime-compat/generated/gap-report.json",
           "finding": {
-            "executable": 231,
+            "executable": 232,
             "compatibilityStatus": {
               "native": 125,
-              "compatible": 73,
-              "partial": 33,
-              "recovered-only": 146,
-              "declared-only": 222
+              "compatible": 50,
+              "partial": 57,
+              "recovered-only": 145,
+              "unavailable": 1,
+              "declared-only": 221
             }
           }
         }

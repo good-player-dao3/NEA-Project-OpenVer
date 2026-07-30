@@ -1,7 +1,8 @@
-import { copyFile, mkdir, open, readFile } from "node:fs/promises";
-import { dirname, join, relative, resolve } from "node:path";
+import { mkdir, open, readFile } from "node:fs/promises";
+import { dirname, extname, join, relative, resolve } from "node:path";
 import { createHash } from "node:crypto";
 import { expandTerrain, loadMapSource, RUNTIME_API_VERSION } from "./format.mjs";
+import { buildRepositoryProjectCapabilityManifest } from "./project-capability.mjs";
 
 export async function importMapProject(sourceRoot, outputRoot) {
   const source = await loadMapSource(sourceRoot);
@@ -16,8 +17,28 @@ export async function importMapProject(sourceRoot, outputRoot) {
     assets: join(destination, "assets", "index.json"),
     scripts: join(destination, "scripts", "manifest.json"),
     serverScript: join(destination, "scripts", "server.js"),
+    capabilityManifest: join(destination, "capabilities", "manifest.json"),
   };
-  await Promise.all([mkdir(join(destination, "world"), { recursive: true }), mkdir(join(destination, "assets"), { recursive: true }), mkdir(join(destination, "scripts"), { recursive: true })]);
+  await Promise.all([mkdir(join(destination, "world"), { recursive: true }), mkdir(join(destination, "assets"), { recursive: true }), mkdir(join(destination, "scripts"), { recursive: true }), mkdir(join(destination, "capabilities"), { recursive: true })]);
+
+  const serverModules = await readSourceModules(source.root, source.manifest.scripts.serverModules, modulePath => modulePath);
+  const clientModules = await readSourceModules(source.root, source.manifest.scripts.clientModules, modulePath => clientModuleName(source.manifest.scripts.client, modulePath));
+  const assets = await readSourceAssets(source.root, source.assets);
+  const serverScript = serverModules.find(module => module.sourcePath === source.manifest.scripts.server)?.source;
+  const clientScript = clientModules.find(module => module.sourcePath === source.manifest.scripts.client) ?? null;
+  const capabilityManifest = await buildRepositoryProjectCapabilityManifest({
+    apiVersion: source.manifest.runtime.apiVersion,
+    contracts: { client: source.manifest.runtime.clientContract, server: source.manifest.runtime.serverContract },
+    serverSource: serverScript,
+    clientSource: clientScript?.source.toString("utf8") ?? "",
+    serverModules: serverModules.map(module => ({ name: module.name, source: module.source.toString("utf8") })),
+    clientModules: clientModules.map(module => ({ name: module.name, source: module.source.toString("utf8") })),
+    serverCapabilities: source.manifest.scripts.serverCapabilities,
+    clientCapabilities: source.manifest.scripts.clientCapabilities,
+    assets,
+    entities: source.entities,
+    uiState: source.ui,
+  });
 
   await writeJson(files.manifest, {
     formatVersion: "dao3-project/v1",
@@ -33,6 +54,7 @@ export async function importMapProject(sourceRoot, outputRoot) {
     world: "world/world.json",
     assets: "assets/index.json",
     scripts: "scripts/manifest.json",
+    capabilities: "capabilities/manifest.json",
   });
   await writeJson(files.world, {
     shape: source.manifest.world.shape,
@@ -49,13 +71,19 @@ export async function importMapProject(sourceRoot, outputRoot) {
       kind: entity.kind,
       position: entity.position,
       tags: [...new Set([`id-${entity.id}`, ...entity.tags])].sort(),
+      mesh: entity.mesh,
     })),
   });
   await writeJson(files.physics, source.physics);
-  await writeJson(files.assets, { assets: [] });
+  await writeJson(files.assets, {
+    format: "nea-project-assets",
+    version: 1,
+    assets: assets.map(asset => ({ name: asset.name, kind: asset.kind, path: asset.packagePath, bytes: asset.bytes.byteLength, sha256: asset.sha256 })),
+  });
+  await writeJson(files.capabilityManifest, capabilityManifest);
   await writeJson(files.scripts, {
-    entry: "scripts/server.js",
-    modules: ["scripts/server.js"],
+    entry: source.manifest.scripts.server,
+    modules: serverModules.map(module => module.name),
     contract: {
       side: "server",
       id: source.manifest.runtime.serverContract,
@@ -63,11 +91,8 @@ export async function importMapProject(sourceRoot, outputRoot) {
     },
     capabilities: source.manifest.scripts.serverCapabilities,
   });
-  await copyFile(resolve(source.root, source.manifest.scripts.server), files.serverScript);
-
-  const clientScript = source.manifest.scripts.client === null
-    ? null
-    : await readFile(resolve(source.root, source.manifest.scripts.client));
+  await Promise.all(serverModules.map(module => writeFileInPlace(resolve(destination, module.name), module.source)));
+  await Promise.all(assets.map(asset => writeFileInPlace(resolve(destination, asset.packagePath), asset.bytes)));
 
   return Object.freeze({
     sourceRoot: source.root,
@@ -76,21 +101,28 @@ export async function importMapProject(sourceRoot, outputRoot) {
     physics: source.physics,
     voxelCount: terrain.length,
     entityCount: source.entities.length,
-    clientScript: clientScript === null ? null : Object.freeze({
-      name: "clientIndex.js",
-      bytes: clientScript,
-      sha256: createHash("sha256").update(clientScript).digest("hex"),
-    }),
+    assetCount: assets.length,
+    clientScript: clientScript === null ? null : Object.freeze({ name: clientScript.name, bytes: clientScript.source, sha256: clientScript.sha256 }),
+    clientModules: Object.freeze(clientModules.map(module => Object.freeze({ name: module.name, bytes: module.source, sha256: module.sha256 }))),
+    clientUiState: source.ui,
+    capabilityManifest,
   });
 }
 
+async function readSourceAssets(root, assets) {
+  return Promise.all(assets.map(async asset => {
+    const bytes = await readFile(resolve(root, asset.path));
+    const sha256 = createHash("sha256").update(bytes).digest("hex");
+    return Object.freeze({ ...asset, bytes, sha256, packagePath: `assets/files/${sha256}${extname(asset.path).toLowerCase()}` });
+  }));
+}
+
 export async function publishClientScript(importedProject, assetRoot) {
-  if (importedProject.clientScript === null) return null;
+  if (importedProject.clientModules.length === 0) return null;
   const relativeManifest = `project/${importedProject.manifest.id}/client-scripts/manifest.json`;
   const manifestPath = resolve(assetRoot, relativeManifest);
-  const modulePath = join(dirname(manifestPath), importedProject.clientScript.name);
   await mkdir(dirname(manifestPath), { recursive: true });
-  await writeFileInPlace(modulePath, importedProject.clientScript.bytes);
+  await Promise.all(importedProject.clientModules.map(module => writeFileInPlace(join(dirname(manifestPath), module.name), module.bytes)));
   await writeJson(manifestPath, {
     format: "nea-recovered-client-scripts",
     version: 1,
@@ -101,13 +133,32 @@ export async function publishClientScript(importedProject, assetRoot) {
     },
     capabilities: importedProject.manifest.scripts.clientCapabilities,
     sourceMessage: "gameNet.syncClientScriptModules",
-    files: [{
-      name: importedProject.clientScript.name,
-      bytes: importedProject.clientScript.bytes.byteLength,
-      sha256: importedProject.clientScript.sha256,
-    }],
+    files: importedProject.clientModules.map(module => ({ name: module.name, bytes: module.bytes.byteLength, sha256: module.sha256 })),
   });
   return relativeManifest.split("\\").join("/");
+}
+
+export async function publishClientUiState(importedProject, assetRoot) {
+  if (importedProject.clientUiState === null) return null;
+  const relativeManifest = `project/${importedProject.manifest.id}/client-ui/manifest.json`;
+  await writeJson(resolve(assetRoot, relativeManifest), importedProject.clientUiState);
+  return relativeManifest.split("\\").join("/");
+}
+
+async function readSourceModules(root, modulePaths, mapName) {
+  const modules = await Promise.all(modulePaths.map(async sourcePath => {
+    const source = await readFile(resolve(root, sourcePath));
+    return Object.freeze({ sourcePath, name: mapName(sourcePath), source, sha256: createHash("sha256").update(source).digest("hex") });
+  }));
+  if (new Set(modules.map(module => module.name)).size !== modules.length) throw new Error("Module paths produce duplicate synchronized module names");
+  return modules;
+}
+
+function clientModuleName(entryPath, modulePath) {
+  if (entryPath === modulePath) return "clientIndex.js";
+  const name = relative(dirname(entryPath), modulePath).replace(/\\/g, "/");
+  if (name === "" || name === ".." || name.startsWith("../")) throw new Error("Client modules must stay inside the client entry directory");
+  return name;
 }
 
 async function writeJson(path, value) {
@@ -116,6 +167,7 @@ async function writeJson(path, value) {
 }
 
 async function writeFileInPlace(path, value) {
+  await mkdir(dirname(path), { recursive: true });
   const handle = await openForRewrite(path);
   try {
     await handle.truncate(0);

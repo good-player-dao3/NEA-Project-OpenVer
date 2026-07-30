@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-entity-adapter-map",
   "version": 1,
-  "generatedAt": "2026-07-30T11:27:10.476Z",
+  "generatedAt": "2026-07-30T16:52:49.870Z",
   "contract": "nea-server-runtime/v1",
   "localObject": {
     "id": "server.object.RuntimeEntity",
@@ -293,6 +293,79 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameEntity/label.md",
           "symbol": "tags(): string[]",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.say",
+        "kind": "method",
+        "signature": {
+          "parameters": [
+            {
+              "name": "message",
+              "type": "string"
+            },
+            {
+              "name": "options",
+              "type": "Partial<{duration:number,hideFloat:boolean}>",
+              "optional": true
+            }
+          ],
+          "returns": "void"
+        },
+        "capability": "server.world.chat"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.say",
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "message",
+                "optional": false,
+                "type": "string",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "string",
+                  "description": "说话的内容"
+                }
+              },
+              {
+                "name": "options",
+                "optional": true,
+                "type": "Partial"
+              }
+            ],
+            "returns": "void"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "Mapped entities emit the recovered game-chat.log sender id, duration, and hideFloat fields to every connected Player session.",
+          "Entities without an authoritative backend id remain script-local and do not receive a fabricated sender id or floating bubble.",
+          "The historical MAX_CHATS_PER_TICK buffering and Player display acknowledgement remain unimplemented."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/input.md",
+          "symbol": "say(message:string,options?: Partial): void",
           "confidence": "direct"
         }
       ]
@@ -1007,8 +1080,8 @@
     }
   ],
   "summary": {
-    "memberCount": 20,
-    "partial": 18,
+    "memberCount": 21,
+    "partial": 19,
     "extensions": 2
   }
 }

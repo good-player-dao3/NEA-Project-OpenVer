@@ -1,11 +1,13 @@
 import { createHash } from "node:crypto";
-import { cp, mkdir, readFile, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { basename, join, resolve } from "node:path";
 
+import { buildRepositoryProjectCapabilityManifest, loadRepositoryRuntimeCompatibility, publicRuntimeCapabilities } from "../demo-map/src/project-capability.mjs";
 import { buildEditorRuntimeProjection } from "./editor-runtime-projection.mjs";
-const [workRootArg, captureRootArg, outputRootArg, templateArchiveArg] = process.argv.slice(2);
+const SERVER_CAPABILITIES = Object.freeze(["server.world.events", "server.world.chat", "server.world.entities", "server.world.voxels", "server.world.config", "server.gui", "server.storage", "server.player", "server.player.write", "server.remote-channel"]);
+const [workRootArg, captureRootArg, outputRootArg, templateArchiveArg, templateProjectIdArg, templateWorldManifestArg] = process.argv.slice(2);
 if (!workRootArg || !captureRootArg || !outputRootArg) {
-  throw new Error("Usage: node build-editor-runtime-package.mjs <work-root> <capture-root> <output-root> [template-archive]");
+  throw new Error("Usage: node build-editor-runtime-package.mjs <work-root> <capture-root> <output-root> [template-archive] [template-project-id] [template-world-manifest]");
 }
 
 const workRoot = resolve(workRootArg);
@@ -17,15 +19,22 @@ const sourceRoot = join(workRoot, "manual-cdp", "source");
 const project = JSON.parse(await readFile(join(projectSourceRoot, "project.json"), "utf8"));
 const extraProjectInfo = JSON.parse(await readFile(join(projectSourceRoot, "extra-project-info.json"), "utf8"));
 const publish = JSON.parse(await readFile(join(projectSourceRoot, "publish.json"), "utf8"));
-const templateWorld = JSON.parse(await readFile(join(templateArchive, "world-bedwars.json"), "utf8"));
+const runtimeCompatibility = await loadRepositoryRuntimeCompatibility();
+const clientCapabilities = publicRuntimeCapabilities(runtimeCompatibility.currentRuntime, "client");
+const runtimeTemplate = await discoverRuntimeTemplate(templateArchive, templateProjectIdArg, templateWorldManifestArg);
+const templateWorld = runtimeTemplate.world;
 const packageId = `captured-${publish.gameId}`;
 const archiveRoot = join(outputRoot, "archive");
 const packageRoot = join(outputRoot, "project");
+const archiveProjectRoot = join(archiveRoot, "project", packageId);
+const clientRuntimeManifestName = `project/${packageId}/client-runtime/manifest.json`;
+const projectBootstrapManifestName = `project/${packageId}/bootstrap/manifest.json`;
 
 await mkdir(outputRoot, { recursive: true });
-for (const directory of ["block", "avatar", "engine", "project"]) {
+for (const directory of ["block", "avatar", "engine"]) {
   await cp(join(templateArchive, directory), join(archiveRoot, directory), { recursive: true, force: true });
 }
+await cp(runtimeTemplate.clientRuntimeRoot, join(archiveProjectRoot, "client-runtime"), { recursive: true, force: true });
 
 const responseRows = (await readFile(join(captureRoot, "network", "response-bodies.jsonl"), "utf8"))
   .split(/\r?\n/)
@@ -52,6 +61,9 @@ for (const cid of new Set(project.voxels.chunks)) {
     decodedByCid.set(cid, decodeVoxelChunk(bytes));
   }
 }
+
+const capturedAudio = await packageCapturedAudioAssets({ project, bodyByCid, archiveRoot, packageRoot });
+const capturedPictures = await packageCapturedPictureAssets({ project, engineModelBodyByHash, archiveRoot, packageRoot });
 
 const shape = vector(project.voxels.shape);
 const chunkShape = shape.map(value => value / 32);
@@ -123,17 +135,12 @@ const clientManifestName = `project/${packageId}/client-scripts/manifest.json`;
 await writeJson(join(archiveRoot, clientManifestName), {
   format: "nea-recovered-client-scripts",
   version: 1,
+  capabilities: clientCapabilities,
   sourceMessage: "gameNet.syncClientScriptModules",
   files: clientManifestFiles,
 });
 
-const capturedPictureAssets = Object.fromEntries(Object.entries(project.pictureAssets ?? {}).filter(([, asset]) =>
-  asset && typeof asset === "object" &&
-  typeof asset.hash === "string" &&
-  typeof asset.metadataHash === "string" &&
-  Number.isInteger(asset.width) &&
-  Number.isInteger(asset.height)
-));
+const capturedPictureAssets = capturedPictures.uiAssets;
 const clientUiManifestName = `project/${packageId}/client-ui/manifest.json`;
 await writeJson(join(archiveRoot, clientUiManifestName), {
   format: "nea-recovered-client-ui",
@@ -145,7 +152,7 @@ await writeJson(join(archiveRoot, clientUiManifestName), {
   uiTree: project.uiTree,
 });
 
-const runtimeManifestPath = join(archiveRoot, "project", "bedwars", "client-runtime", "manifest.json");
+const runtimeManifestPath = join(archiveRoot, clientRuntimeManifestName);
 const runtimeManifest = JSON.parse(await readFile(runtimeManifestPath, "utf8"));
 runtimeManifest.pagePath = `/p/${packageId}`;
 runtimeManifest.gameName = packageId;
@@ -189,8 +196,8 @@ for (const asset of Object.values(extraProjectInfo.meshAssets ?? {})) {
     await writeFile(join(archiveRoot, "engine", "m", hash), await readFile(sourcePath));
   }
 }
-const bootstrapPath = join(archiveRoot, "project", "bedwars", "bootstrap", "bootstrap.json");
-const bootstrap = JSON.parse(await readFile(bootstrapPath, "utf8"));
+const bootstrapPath = join(archiveProjectRoot, "bootstrap", "bootstrap.json");
+const bootstrap = structuredClone(runtimeTemplate.bootstrap);
 const initialBootstrapMeshCount = bootstrap.meshHashes.length;
 const projection = buildEditorRuntimeProjection({
   packageId,
@@ -203,13 +210,40 @@ const projection = buildEditorRuntimeProjection({
 bootstrap.meshHashes = projection.meshHashes;
 const bootstrapBytes = Buffer.from(`${JSON.stringify(bootstrap, null, 2)}\n`);
 await writeFile(bootstrapPath, bootstrapBytes);
-await writeJson(join(archiveRoot, "project", "bedwars", "bootstrap", "manifest.json"), {
+await writeJson(join(archiveRoot, projectBootstrapManifestName), {
   format: "nea-recovered-project-bootstrap-manifest",
   version: 1,
   file: { name: "bootstrap.json", bytes: bootstrapBytes.length, sha256: createHash("sha256").update(bootstrapBytes).digest("hex") },
 });
 const playerProjectionDescriptor = "compat/player-entity-projection.json";
 await writeJson(join(packageRoot, playerProjectionDescriptor), projection.descriptor);
+const serverCapabilityModules = await Promise.all(serverFiles.map(async name => ({
+  name,
+  source: await readFile(join(sourceRoot, "server", name), "utf8"),
+})));
+const clientCapabilityModules = await Promise.all(clientFiles.map(async name => ({
+  name,
+  source: await readFile(join(sourceRoot, "client", name), "utf8"),
+})));
+const validatedMeshNames = new Set(projection.descriptor.meshes.map(mesh => mesh.name));
+const capabilityAssets = [
+  ...[...validatedMeshNames].sort().map(name => ({ name, kind: "mesh", runtimeBinding: "validated-mesh" })),
+  ...capturedAudio.capabilityAssets,
+  ...capturedPictures.capabilityAssets,
+];
+const capabilityManifest = await buildRepositoryProjectCapabilityManifest({
+  apiVersion: "0.1.0",
+  contracts: { client: "dao3-client-runtime/v1", server: "nea-server-runtime/v1" },
+  serverModules: serverCapabilityModules,
+  clientModules: clientCapabilityModules,
+  serverCapabilities: SERVER_CAPABILITIES,
+  clientCapabilities,
+  runtimeCompatibility,
+  assets: capabilityAssets,
+  entities: entities.map((entity, index) => ({ id: entityNodes[index]?.id, kind: entity.kind, mesh: entity.source?.mesh ?? "" })),
+  uiState: { defaultScreenId: project.defaultScreenId, uiTree: project.uiTree },
+});
+await writeJson(join(packageRoot, "capabilities", "manifest.json"), capabilityManifest);
 
 await writeJson(join(packageRoot, "dao3.project.json"), {
   formatVersion: "dao3-project/v1",
@@ -225,6 +259,7 @@ await writeJson(join(packageRoot, "dao3.project.json"), {
   world: "world/world.json",
   assets: "assets/index.json",
   scripts: "scripts/manifest.json",
+  capabilities: "capabilities/manifest.json",
 });
 await writeJson(join(packageRoot, "world", "world.json"), { shape, spawn, entities: "world/entities.json", terrain: "world/terrain.json", physics: "world/physics.json" });
 await writeJson(join(packageRoot, "world", "terrain.json"), { voxels: terrain });
@@ -244,12 +279,12 @@ await writeJson(join(packageRoot, "world", "physics.json"), {
   colliders: [],
   triggers: [],
 });
-await writeJson(join(packageRoot, "assets", "index.json"), { assets: [] });
+await writeJson(join(packageRoot, "assets", "index.json"), { assets: [...capturedAudio.packageAssets, ...capturedPictures.packageAssets] });
 await writeJson(join(packageRoot, "scripts", "manifest.json"), {
   entry: `scripts/${project.scriptIndex}`,
   modules: serverModules,
   contract: { side: "server", id: "nea-server-runtime/v1", apiVersion: "0.1.0" },
-  capabilities: ["server.world.events", "server.world.chat", "server.world.entities", "server.player", "server.player.write", "server.remote-channel"],
+  capabilities: SERVER_CAPABILITIES,
 });
 
 const summary = {
@@ -262,6 +297,8 @@ const summary = {
   worldManifest: worldManifestName,
   clientManifest: clientManifestName,
   clientUiManifest: clientUiManifestName,
+  clientRuntimeManifest: clientRuntimeManifestName,
+  projectBootstrapManifest: projectBootstrapManifestName,
   playerProjectionDescriptor,
   route: `/play/${packageId}`,
   terrainVoxels: terrain.length,
@@ -271,8 +308,17 @@ const summary = {
   supplementalMeshHashes: projection.meshHashes.length - initialBootstrapMeshCount,
   serverModules: serverModules.length,
   clientModules: clientManifestFiles.length,
+  clientCapabilities: clientCapabilities.length,
   clientUiNodes: Object.keys(project.uiTree ?? {}).length,
   clientUiPictureAssets: Object.keys(capturedPictureAssets).length,
+  declaredPictureAssets: Object.keys(project.pictureAssets ?? {}).length,
+  packagedPictureAssets: Object.keys(capturedPictureAssets).length,
+  unresolvedPictureAssets: capturedPictures.missing,
+  packagedAudioAssets: capturedAudio.packageAssets.length,
+  audioAssetAliases: capturedAudio.capabilityAssets.length,
+  missingAudioAssets: capturedAudio.missing,
+  capabilityStatus: capabilityManifest.status,
+  capabilitySummary: capabilityManifest.summary,
 };
 await writeJson(join(outputRoot, "runtime-package.json"), summary);
 console.log(JSON.stringify(summary, null, 2));
@@ -280,6 +326,166 @@ console.log(JSON.stringify(summary, null, 2));
 async function javascriptFiles(root) {
   const entries = await import("node:fs/promises").then(module => module.readdir(root, { withFileTypes: true }));
   return entries.filter(entry => entry.isFile() && entry.name.endsWith(".js") && basename(entry.name) === entry.name).map(entry => entry.name).sort();
+}
+
+async function discoverRuntimeTemplate(archiveRoot, requestedProjectId, requestedWorldManifest) {
+  const projectRoot = join(archiveRoot, "project");
+  const projectEntries = (await readdir(projectRoot, { withFileTypes: true })).filter(entry => entry.isDirectory());
+  const candidates = [];
+  for (const entry of projectEntries) {
+    if (requestedProjectId && entry.name !== requestedProjectId) continue;
+    const candidateRoot = join(projectRoot, entry.name);
+    try {
+      const clientRuntime = JSON.parse(await readFile(join(candidateRoot, "client-runtime", "manifest.json"), "utf8"));
+      const bootstrapManifest = JSON.parse(await readFile(join(candidateRoot, "bootstrap", "manifest.json"), "utf8"));
+      if (clientRuntime.format !== "nea-recovered-client-runtime" || clientRuntime.version !== 1) continue;
+      if (bootstrapManifest.format !== "nea-recovered-project-bootstrap-manifest" || bootstrapManifest.version !== 1) continue;
+      const bootstrap = JSON.parse(await readFile(join(candidateRoot, "bootstrap", bootstrapManifest.file.name), "utf8"));
+      candidates.push({ projectId: entry.name, clientRuntimeRoot: join(candidateRoot, "client-runtime"), bootstrap });
+    } catch (error) {
+      if (error?.code !== "ENOENT") throw error;
+    }
+  }
+  if (candidates.length !== 1) throw new Error(`Expected exactly one compatible Player runtime template, found ${candidates.length}; pass [template-project-id] to select one`);
+
+  const worldFiles = (await readdir(archiveRoot, { withFileTypes: true }))
+    .filter(entry => entry.isFile() && entry.name.endsWith(".json") && (!requestedWorldManifest || entry.name === requestedWorldManifest));
+  const worlds = [];
+  for (const entry of worldFiles) {
+    const value = JSON.parse(await readFile(join(archiveRoot, entry.name), "utf8"));
+    if (value.format === "nea-recovered-world" && value.version === 1 && typeof value.provenance?.blockInfo === "string") worlds.push({ name: entry.name, value });
+  }
+  if (worlds.length !== 1) throw new Error(`Expected exactly one compatible world template, found ${worlds.length}; pass [template-world-manifest] to select one`);
+  return Object.freeze({ ...candidates[0], worldManifest: worlds[0].name, world: worlds[0].value });
+}
+
+async function packageCapturedAudioAssets({ project, bodyByCid, archiveRoot, packageRoot }) {
+  const packageAssets = [];
+  const capabilityAssets = [];
+  const packagedByHash = new Map();
+  let missing = 0;
+  for (const [name, asset] of Object.entries(project.audioAssets ?? {}).sort(([left], [right]) => left.localeCompare(right))) {
+    const hash = asset?.hash;
+    if (typeof hash !== "string" || !/^Qm[1-9A-HJ-NP-Za-km-z]{44}$/.test(hash)) {
+      missing += 1;
+      continue;
+    }
+    let packaged = packagedByHash.get(hash);
+    if (!packaged) {
+      let bytes;
+      try {
+        bytes = await readFile(join(archiveRoot, "block", hash));
+      } catch (error) {
+        if (error?.code !== "ENOENT") throw error;
+        if (!bodyByCid.has(hash)) {
+          missing += 1;
+          continue;
+        }
+        bytes = await readFile(bodyByCid.get(hash));
+      }
+      if (!isMp3(bytes) || cidV0(bytes) !== hash) {
+        missing += 1;
+        continue;
+      }
+      const source = `assets/content/${hash}.mp3`;
+      await mkdir(join(packageRoot, "assets", "content"), { recursive: true });
+      await writeFile(join(packageRoot, source), bytes);
+      await writeFile(join(archiveRoot, "block", hash), bytes);
+      packaged = Object.freeze({
+        logicalPath: `audio/${hash}.mp3`,
+        source,
+        sha256: createHash("sha256").update(bytes).digest("hex"),
+        mimeType: "audio/mpeg",
+        bytes: bytes.length,
+      });
+      packagedByHash.set(hash, packaged);
+      packageAssets.push(packaged);
+    }
+    capabilityAssets.push(Object.freeze({ name, kind: "audio", contentAddress: hash, path: packaged.source, runtimeBinding: "player-block-audio" }));
+  }
+  return Object.freeze({ packageAssets: Object.freeze(packageAssets), capabilityAssets: Object.freeze(capabilityAssets), missing });
+}
+
+function isMp3(bytes) {
+  return bytes.length >= 3 && (bytes.subarray(0, 3).equals(Buffer.from("ID3")) || bytes[0] === 0xff && (bytes[1] & 0xe0) === 0xe0);
+}
+
+async function packageCapturedPictureAssets({ project, engineModelBodyByHash, archiveRoot, packageRoot }) {
+  const uiAssets = {};
+  const packageAssets = [];
+  const capabilityAssets = [];
+  const packagedFiles = new Set();
+  let missing = 0;
+  for (const [name, asset] of Object.entries(project.pictureAssets ?? {}).sort(([left], [right]) => left.localeCompare(right))) {
+    const metadataHash = asset?.hash;
+    const declaredImageHash = asset?.previewImage;
+    const metadataPath = typeof metadataHash === "string" ? engineModelBodyByHash.get(metadataHash) : null;
+    const imagePath = typeof declaredImageHash === "string" ? engineModelBodyByHash.get(declaredImageHash) : null;
+    if (!metadataPath || !imagePath) {
+      missing += 1;
+      continue;
+    }
+    const metadataBytes = await readFile(metadataPath);
+    const imageBytes = await readFile(imagePath);
+    let metadata;
+    try {
+      metadata = JSON.parse(metadataBytes.toString("utf8"));
+    } catch {
+      missing += 1;
+      continue;
+    }
+    const image = detectImage(imageBytes);
+    if (!/^[A-Za-z0-9_-]{43}$/.test(metadataHash) || !/^[A-Za-z0-9_-]{43}$/.test(declaredImageHash) ||
+        createHash("sha256").update(metadataBytes).digest("base64url") !== metadataHash ||
+        createHash("sha256").update(imageBytes).digest("base64url") !== declaredImageHash ||
+        metadata.hash !== declaredImageHash || !Number.isInteger(metadata.width) || metadata.width <= 0 ||
+        !Number.isInteger(metadata.height) || metadata.height <= 0 || image === null) {
+      missing += 1;
+      continue;
+    }
+    await writeFile(join(archiveRoot, "engine", "m", metadataHash), metadataBytes);
+    await writeFile(join(archiveRoot, "engine", "m", declaredImageHash), imageBytes);
+    for (const file of [
+      { hash: metadataHash, bytes: metadataBytes, extension: "json", mimeType: "application/json" },
+      { hash: declaredImageHash, bytes: imageBytes, extension: image.extension, mimeType: image.mimeType },
+    ]) {
+      const source = `assets/content/${file.hash}.${file.extension}`;
+      if (!packagedFiles.has(source)) {
+        await mkdir(join(packageRoot, "assets", "content"), { recursive: true });
+        await writeFile(join(packageRoot, source), file.bytes);
+        packageAssets.push(Object.freeze({ logicalPath: `picture/${file.hash}.${file.extension}`, source, sha256: createHash("sha256").update(file.bytes).digest("hex"), mimeType: file.mimeType, bytes: file.bytes.length }));
+        packagedFiles.add(source);
+      }
+    }
+    uiAssets[name] = Object.freeze({ metadataHash, hash: declaredImageHash, width: metadata.width, height: metadata.height });
+    capabilityAssets.push(Object.freeze({ name, kind: "image", contentAddress: declaredImageHash, metadataHash, runtimeBinding: "player-picture-image" }));
+  }
+  return Object.freeze({ uiAssets: Object.freeze(uiAssets), packageAssets: Object.freeze(packageAssets), capabilityAssets: Object.freeze(capabilityAssets), missing });
+}
+
+function detectImage(bytes) {
+  if (bytes.length >= 8 && bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) return Object.freeze({ extension: "png", mimeType: "image/png" });
+  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return Object.freeze({ extension: "jpg", mimeType: "image/jpeg" });
+  if (bytes.length >= 12 && bytes.toString("ascii", 0, 4) === "RIFF" && bytes.toString("ascii", 8, 12) === "WEBP") return Object.freeze({ extension: "webp", mimeType: "image/webp" });
+  if (bytes.length >= 6 && ["GIF87a", "GIF89a"].includes(bytes.toString("ascii", 0, 6))) return Object.freeze({ extension: "gif", mimeType: "image/gif" });
+  return null;
+}
+
+function cidV0(bytes) {
+  const alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+  const multihash = Buffer.concat([Buffer.from([0x12, 0x20]), createHash("sha256").update(bytes).digest()]);
+  let value = BigInt(`0x${multihash.toString("hex")}`);
+  let encoded = "";
+  while (value > 0n) {
+    const remainder = Number(value % 58n);
+    encoded = alphabet[remainder] + encoded;
+    value /= 58n;
+  }
+  for (const byte of multihash) {
+    if (byte !== 0) break;
+    encoded = alphabet[0] + encoded;
+  }
+  return encoded;
 }
 
 function vector(value) {

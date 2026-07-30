@@ -1,5 +1,5 @@
 diff --git a/.workspace/backend-rebuild-audit/box3-server.input-baseline.cjs b/local-player/backend/box3-server.cjs
-index 29c44d4..1c6cf32 100644
+index 29c44d4..1f4c5cf 100644
 --- a/.workspace/backend-rebuild-audit/box3-server.input-baseline.cjs
 +++ b/local-player/backend/box3-server.cjs
 @@ -8214,7 +8214,10 @@ var import_node_http2 = require("node:http");
@@ -573,7 +573,52 @@ index 29c44d4..1c6cf32 100644
  // legacy/box3-compat/src/session/game-chat-sessions.ts
  var GameChatSessions = class {
    sessions = /* @__PURE__ */ new Map();
-@@ -12432,6 +12710,13 @@ var PlayerDisplaySchema = new import_schema2.MuStruct({
+@@ -11860,6 +12138,22 @@ var GameChatSessions = class {
+     client.message.globalNotice(copyGlobalNotice(notice));
+     return true;
+   }
++  sendLog(sessionId, message) {
++    requireSessionId5(sessionId);
++    const client = this.sessions.get(sessionId)?.client;
++    if (!client) return false;
++    client.message.log(copyChatLog(message));
++    return true;
++  }
++  broadcastLog(message) {
++    const packet = copyChatLog(message);
++    let delivered = 0;
++    for (const { client } of this.sessions.values()) {
++      client.message.log(packet);
++      delivered += 1;
++    }
++    return delivered;
++  }
+   /** A stale physical socket cannot detach a later replacement. */
+   disconnect(client) {
+     const session = this.sessions.get(client.sessionId);
+@@ -11880,6 +12174,21 @@ function copyGlobalNotice(notice) {
+     title: notice.title
+   });
+ }
++function copyChatLog(message) {
++  if (!message || typeof message !== "object" || Array.isArray(message)) throw new TypeError("chat message must be an object");
++  if (typeof message.text !== "string") throw new TypeError("chat message text must be a string");
++  return Object.freeze({
++    duration: Number.isInteger(message.duration) ? message.duration : 0,
++    id: Number.isSafeInteger(message.senderId) && message.senderId >= 0 ? message.senderId : 0,
++    msgType: 0,
++    hideFloat: message.hideFloat === true,
++    private: message.private === true,
++    valid: true,
++    i18nPrefix: "",
++    i18nSuffix: "",
++    text: message.text
++  });
++}
+ function requireSessionId5(sessionId) {
+   if (!sessionId) throw new Error("sessionId must not be empty");
+ }
+@@ -12432,6 +12741,13 @@ var PlayerDisplaySchema = new import_schema2.MuStruct({
    attachments: unused
  });
  var PlayerDisplaySetSchema = new import_schema2.MuSortedArray(PlayerDisplaySchema, Infinity, compareId2);
@@ -587,7 +632,7 @@ index 29c44d4..1c6cf32 100644
  var NetStateSchema = new import_schema2.MuStruct({
    players: PlayerSetSchema,
    playerInputs: PlayerInputSetSchema,
-@@ -12448,7 +12733,7 @@ var GameReplicaSchema = new import_schema2.MuStruct({
+@@ -12448,7 +12764,7 @@ var GameReplicaSchema = new import_schema2.MuStruct({
    models: NetModelSetSchema,
    players: PlayerDisplaySetSchema,
    particles: unused,
@@ -596,7 +641,7 @@ index 29c44d4..1c6cf32 100644
    interactive: unused,
    entityName: EntityNameComponentSetSchema,
    sound: unused,
-@@ -12474,6 +12759,8 @@ function createNetPublicState(input2) {
+@@ -12474,6 +12790,8 @@ function createNetPublicState(input2) {
      seen.add(player.playerId);
      const [px, py, pz] = normalizeVector(player.position, "position");
      const [vx, vy, vz] = normalizeVector(player.velocity ?? [0, 0, 0], "velocity");
@@ -605,7 +650,7 @@ index 29c44d4..1c6cf32 100644
      const inputState = player.inputState ?? defaultPlayerInputState;
      const inputAngle = player.inputAngle ?? 0;
      const inputPitch = player.inputPitch ?? 0;
-@@ -12497,6 +12784,12 @@ function createNetPublicState(input2) {
+@@ -12497,6 +12815,12 @@ function createNetPublicState(input2) {
      const body = RigidBodySchema.clone(RigidBodySchema.identity);
      body.id = player.playerId;
      body.flags = playerBodyFlags;
@@ -618,7 +663,7 @@ index 29c44d4..1c6cf32 100644
      body.px = px;
      body.py = py;
      body.pz = pz;
-@@ -12533,6 +12826,9 @@ function createNetPublicState(input2) {
+@@ -12533,6 +12857,9 @@ function createNetPublicState(input2) {
      body.rx = rx;
      body.ry = ry;
      body.rz = rz;
@@ -628,7 +673,7 @@ index 29c44d4..1c6cf32 100644
      body.px = px;
      body.py = py;
      body.pz = pz;
-@@ -12553,7 +12849,7 @@ function createNetPublicState(input2) {
+@@ -12553,7 +12880,7 @@ function createNetPublicState(input2) {
      model.green = green;
      model.blue = blue;
      model.alpha = alpha;
@@ -637,7 +682,7 @@ index 29c44d4..1c6cf32 100644
      model.scaleX = scaleX;
      model.scaleY = scaleY;
      model.scaleZ = scaleZ;
-@@ -12578,11 +12874,24 @@ function createNetPublicState(input2) {
+@@ -12578,11 +12905,24 @@ function createNetPublicState(input2) {
      }
      target.replica.entities.push(entity.entityId);
    }
@@ -662,7 +707,7 @@ index 29c44d4..1c6cf32 100644
    target.replica.entityName.sort(compareId2);
    target.replica.entities.sort(compareNumber);
    target.replica.running = true;
-@@ -12721,7 +13030,8 @@ function createAnonymousPlayersPublicState(input2) {
+@@ -12721,7 +13061,8 @@ function createAnonymousPlayersPublicState(input2) {
    return createNetPublicState({
      tick: input2.tick,
      players: input2.players,
@@ -672,7 +717,7 @@ index 29c44d4..1c6cf32 100644
    });
  }
  function encodeNetPublicPacket(base, current, pauseCounter = 0) {
-@@ -12759,6 +13069,9 @@ function validatePlayers(players) {
+@@ -12759,6 +13100,9 @@ function validatePlayers(players) {
      if (!/^[\x20-\x7e]{1,64}$/.test(name)) throw new RangeError("name must be printable ASCII");
      for (const coordinate of player.position) quantizeCoordinate(coordinate);
      for (const coordinate of player.velocity ?? [0, 0, 0]) quantizeCoordinate(coordinate);
@@ -682,7 +727,7 @@ index 29c44d4..1c6cf32 100644
      requireUint163(player.inputState ?? defaultPlayerInputState2, "inputState");
      requireByte2(player.inputAngle ?? 0, "inputAngle");
      requireByte2(player.inputPitch ?? 0, "inputPitch");
-@@ -12808,13 +13121,17 @@ var GameNetHandshakeSession = class {
+@@ -12808,13 +13152,17 @@ var GameNetHandshakeSession = class {
    initialTick;
    initialPauseCounter;
    initialSpawn;
@@ -701,7 +746,7 @@ index 29c44d4..1c6cf32 100644
    }
    get initialPacketsIssued() {
      return this.initialPackets !== void 0;
-@@ -12828,11 +13145,15 @@ var GameNetHandshakeSession = class {
+@@ -12828,11 +13176,15 @@ var GameNetHandshakeSession = class {
          tick: this.initialTick,
          pauseCounter: this.initialPauseCounter,
          spawn: this.initialSpawn,
@@ -717,7 +762,7 @@ index 29c44d4..1c6cf32 100644
            pauseCounter: this.initialPauseCounter
          })
        };
-@@ -12846,6 +13167,8 @@ var GameNetHandshakeSessions = class {
+@@ -12846,6 +13198,8 @@ var GameNetHandshakeSessions = class {
    currentTick;
    initialPauseCounter;
    initialSpawn;
@@ -726,7 +771,7 @@ index 29c44d4..1c6cf32 100644
    spawnForSession;
    nextPlayerId;
    constructor(options = {}) {
-@@ -12858,6 +13181,8 @@ var GameNetHandshakeSessions = class {
+@@ -12858,6 +13212,8 @@ var GameNetHandshakeSessions = class {
        true
      );
      this.initialSpawn = normalizeSpawn(options.initialSpawn ?? defaultSpawn);
@@ -735,7 +780,7 @@ index 29c44d4..1c6cf32 100644
      this.spawnForSession = options.spawnForSession;
    }
    get size() {
-@@ -12876,7 +13201,9 @@ var GameNetHandshakeSessions = class {
+@@ -12876,7 +13232,9 @@ var GameNetHandshakeSessions = class {
        this.nextPlayerId,
        initialTick2,
        this.initialPauseCounter,
@@ -746,7 +791,7 @@ index 29c44d4..1c6cf32 100644
      );
      this.nextPlayerId += 1;
      this.sessions.set(sessionId, session);
-@@ -12919,6 +13246,10 @@ var GameNetPublicSessions = class {
+@@ -12919,6 +13277,10 @@ var GameNetPublicSessions = class {
    schedule;
    cancel;
    sessions = /* @__PURE__ */ new Map();
@@ -757,7 +802,7 @@ index 29c44d4..1c6cf32 100644
    timer;
    constructor(options) {
      this.gameClock = options.gameClock;
-@@ -12935,7 +13266,9 @@ var GameNetPublicSessions = class {
+@@ -12935,7 +13297,9 @@ var GameNetPublicSessions = class {
      this.runtime.join({
        sessionId: client.sessionId,
        playerId: packets.playerId,
@@ -768,7 +813,7 @@ index 29c44d4..1c6cf32 100644
      });
      session.client = client;
      const frame = this.advanceToCurrentTick();
-@@ -12983,9 +13316,62 @@ var GameNetPublicSessions = class {
+@@ -12983,9 +13347,62 @@ var GameNetPublicSessions = class {
      const command = decodeTemporaryLegacyPositionTransformCommand(input2, session.playerId);
      return command ? this.runtime.enqueueInput(sessionId, command) : false;
    }
@@ -832,7 +877,7 @@ index 29c44d4..1c6cf32 100644
      let sent = false;
      try {
        for (const session of this.sessions.values()) {
-@@ -12994,7 +13380,7 @@ var GameNetPublicSessions = class {
+@@ -12994,7 +13411,7 @@ var GameNetPublicSessions = class {
          session.lastSentTick = frame.tick;
          sent = true;
        }
@@ -841,7 +886,7 @@ index 29c44d4..1c6cf32 100644
      } finally {
        NetPublicSchema.free(current);
      }
-@@ -13004,6 +13390,10 @@ var GameNetPublicSessions = class {
+@@ -13004,6 +13421,10 @@ var GameNetPublicSessions = class {
      if (!session) return false;
      this.releaseSessionState(session);
      this.sessions.delete(sessionId);
@@ -852,7 +897,7 @@ index 29c44d4..1c6cf32 100644
      this.runtime.leave(sessionId);
      if (this.sessions.size === 0) this.stopTimer();
      return true;
-@@ -13015,6 +13405,10 @@ var GameNetPublicSessions = class {
+@@ -13015,6 +13436,10 @@ var GameNetPublicSessions = class {
        this.runtime.leave(session.sessionId);
      }
      this.sessions.clear();
@@ -863,7 +908,7 @@ index 29c44d4..1c6cf32 100644
    }
    resend(client) {
      const session = this.sessions.get(client.sessionId);
-@@ -13059,7 +13453,7 @@ var GameNetPublicSessions = class {
+@@ -13059,7 +13484,7 @@ var GameNetPublicSessions = class {
      return this.runtime.advanceTo(this.gameClock.currentTick());
    }
    sendIdentity(session, client, frame) {
@@ -872,7 +917,7 @@ index 29c44d4..1c6cf32 100644
      try {
        this.sendCurrent(session, client, current, true);
      } finally {
-@@ -13118,7 +13512,17 @@ var GameNetPublicSessions = class {
+@@ -13118,7 +13543,17 @@ var GameNetPublicSessions = class {
      session.sentCheckpoints.clear();
    }
  };
@@ -891,7 +936,7 @@ index 29c44d4..1c6cf32 100644
    const entities = [];
    for (const entity of frame.entities) {
      if (entity.replica === void 0) continue;
-@@ -13131,10 +13535,14 @@ function createPublicState(frame) {
+@@ -13131,10 +13566,14 @@ function createPublicState(frame) {
        ...entity.replica.nameplate === void 0 ? {} : { nameplate: entity.replica.nameplate }
      });
    }
@@ -907,7 +952,7 @@ index 29c44d4..1c6cf32 100644
    });
  }
  function decodeTemporaryLegacyPositionTransformCommand(input2, playerId) {
-@@ -13304,6 +13712,11 @@ var ProjectBootstrapSessions = class {
+@@ -13304,6 +13743,11 @@ var ProjectBootstrapSessions = class {
      session.terrain = client;
      return this.flush(session);
    }
@@ -919,7 +964,7 @@ index 29c44d4..1c6cf32 100644
    joinGameNet(client, afterBootstrap) {
      const session = this.getOrCreate(client.sessionId);
      session.gameNet = client;
-@@ -13323,6 +13736,7 @@ var ProjectBootstrapSessions = class {
+@@ -13323,6 +13767,7 @@ var ProjectBootstrapSessions = class {
      if (existing) return existing;
      const session = {
        joined: false,
@@ -927,7 +972,7 @@ index 29c44d4..1c6cf32 100644
        modelsSent: this.options.bootstrap.meshHashes.length === 0,
        skinHashesSent: this.options.bootstrap.skinHashes.length === 0,
        initialSkinPartHashesSent: skinPartBatch(this.options.bootstrap, 0).length === 0,
-@@ -13343,6 +13757,7 @@ var ProjectBootstrapSessions = class {
+@@ -13343,6 +13788,7 @@ var ProjectBootstrapSessions = class {
      session.sound = void 0;
      session.terrain = void 0;
      session.joined = false;
@@ -935,7 +980,7 @@ index 29c44d4..1c6cf32 100644
      session.modelsSent = this.options.bootstrap.meshHashes.length === 0;
      session.skinHashesSent = this.options.bootstrap.skinHashes.length === 0;
      session.initialSkinPartHashesSent = skinPartBatch(this.options.bootstrap, 0).length === 0;
-@@ -13356,7 +13771,7 @@ var ProjectBootstrapSessions = class {
+@@ -13356,7 +13802,7 @@ var ProjectBootstrapSessions = class {
      session.diagnosticsCompleted = false;
    }
    flush(session) {
@@ -944,7 +989,7 @@ index 29c44d4..1c6cf32 100644
      if (!session.modelsSent && !session.models) return false;
      if (!session.skinHashesSent && !session.models) return false;
      if (!session.initialSkinPartHashesSent && !session.models) return false;
-@@ -14217,14 +14632,17 @@ var LegacyHistoricalProjectInstance = class {
+@@ -14217,14 +14663,17 @@ var LegacyHistoricalProjectInstance = class {
      this.gameRuntime = new AuthoritativeGameRuntime({ gameClock: this.gameClock });
      this.legacyProjectMount = mountLegacyProjectForInstance(options, this.gameRuntime);
      this.projectPackagePlayerProjectionMount = mountProjectPackagePlayerProjectionForInstance(options, this.gameRuntime);
@@ -963,7 +1008,7 @@ index 29c44d4..1c6cf32 100644
      this.bedwarsMatch = bedwarsEnabled ? new BedwarsMatch() : void 0;
      this.bedwarsRemoteSessions = this.bedwarsMatch ? new BedwarsRemoteSessions({ match: this.bedwarsMatch }) : void 0;
      this.forgeResources = this.bedwarsMatch && this.bedwarsRemoteSessions ? new ForgeResourceService({
-@@ -14248,6 +14666,8 @@ var LegacyHistoricalProjectInstance = class {
+@@ -14248,6 +14697,8 @@ var LegacyHistoricalProjectInstance = class {
      this.gameNetHandshakes = new GameNetHandshakeSessions({
        currentTick: () => this.gameClock.currentTick(),
        initialSpawn: [terrain.positionX, terrain.positionY, terrain.positionZ],
@@ -972,7 +1017,7 @@ index 29c44d4..1c6cf32 100644
        ...this.bedwarsMatch ? { spawnForSession: (sessionId) => this.bedwarsMatch.spawnFor(sessionId) } : {}
      });
      this.keyboardInteraction = new KeyboardInteractionService({
-@@ -14259,13 +14679,16 @@ var LegacyHistoricalProjectInstance = class {
+@@ -14259,13 +14710,16 @@ var LegacyHistoricalProjectInstance = class {
      this.projectBootstrapSessions = new ProjectBootstrapSessions({
        bootstrap: options.projectBootstrap,
        clientScripts: options.clientScripts,
@@ -990,7 +1035,7 @@ index 29c44d4..1c6cf32 100644
        gameChatSessions: this.gameChatSessions,
        playerProtocolSessions: this.playerProtocolSessions,
        gameClock: this.gameClock,
-@@ -14287,10 +14710,12 @@ var LegacyHistoricalProjectInstance = class {
+@@ -14287,10 +14741,12 @@ var LegacyHistoricalProjectInstance = class {
    gameRuntime;
    legacyProjectMount;
    projectPackagePlayerProjectionMount;
@@ -1003,7 +1048,7 @@ index 29c44d4..1c6cf32 100644
    gameChatSessions;
    playerProtocolSessions;
    remoteChannelSessions;
-@@ -14307,7 +14732,7 @@ var LegacyHistoricalProjectInstance = class {
+@@ -14307,7 +14763,7 @@ var LegacyHistoricalProjectInstance = class {
      const frame = this.gameRuntime.snapshot();
      const player = frame.players.find((candidate) => candidate.sessionId === sessionLabel || candidate.sessionId.length > 12 && candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === sessionLabel);
      if (!player) return void 0;
@@ -1012,7 +1057,7 @@ index 29c44d4..1c6cf32 100644
    }
    queuePlayerRuntimeState(sessionLabel, state) {
      const frame = this.gameRuntime.snapshot();
-@@ -14319,6 +14744,62 @@ var LegacyHistoricalProjectInstance = class {
+@@ -14319,6 +14775,62 @@ var LegacyHistoricalProjectInstance = class {
        velocity: state.velocity ?? player.velocity
      });
    }
@@ -1075,7 +1120,7 @@ index 29c44d4..1c6cf32 100644
    /** Starts services whose timers must begin only after the gateway is listening. */
    start() {
      this.forgeResources?.start();
-@@ -14331,6 +14812,7 @@ var LegacyHistoricalProjectInstance = class {
+@@ -14331,6 +14843,7 @@ var LegacyHistoricalProjectInstance = class {
      this.remoteChannelSessions.delete(sessionId);
      this.bedwarsRemoteSessions?.delete(sessionId);
      this.dialogSessions.delete(sessionId);
@@ -1083,7 +1128,17 @@ index 29c44d4..1c6cf32 100644
      this.gameChatSessions.delete(sessionId);
      this.playerProtocolSessions.delete(sessionId);
      this.projectBootstrapSessions.delete(sessionId);
-@@ -14358,6 +14840,7 @@ var LegacyHistoricalProjectInstance = class {
+@@ -14338,6 +14851,9 @@ var LegacyHistoricalProjectInstance = class {
+   sendGlobalNotice(sessionId, notice) {
+     return this.gameChatSessions.sendGlobalNotice(sessionId, notice);
+   }
++  sendChatMessage(sessionId, message) {
++    return sessionId === void 0 ? this.gameChatSessions.broadcastLog(message) : this.gameChatSessions.sendLog(sessionId, message);
++  }
+   openUserProfile(sessionId, userId) {
+     return this.playerProtocolSessions.openUserProfile(sessionId, userId);
+   }
+@@ -14358,6 +14874,7 @@ var LegacyHistoricalProjectInstance = class {
      this.remoteChannelSessions.dispose();
      this.bedwarsRemoteSessions?.dispose();
      this.dialogSessions.dispose();
@@ -1091,7 +1146,7 @@ index 29c44d4..1c6cf32 100644
      this.gameChatSessions.dispose();
      try {
        afterGameChat?.();
-@@ -14521,23 +15004,36 @@ var MuQuantizedVec3 = class {
+@@ -14521,23 +15038,36 @@ var MuQuantizedVec3 = class {
      if (qb0 === qt0 && qb1 === qt1 && qb2 === qt2) {
        return false;
      }
@@ -1138,7 +1193,7 @@ index 29c44d4..1c6cf32 100644
      const inv = this.invPrecision;
      const prec = this.precision;
      const qb0 = Math.round(inv * base[0]) >> 0;
-@@ -14611,20 +15107,31 @@ var MuQuantizedVec2 = class {
+@@ -14611,20 +15141,31 @@ var MuQuantizedVec2 = class {
      const qt0 = Math.round(inv * target[0]) >> 0;
      const qt1 = Math.round(inv * target[1]) >> 0;
      if (qb0 === qt0 && qb1 === qt1) return false;
@@ -1177,7 +1232,7 @@ index 29c44d4..1c6cf32 100644
      const inv = this.invPrecision;
      const prec = this.precision;
      const qb0 = Math.round(inv * base[0]) >> 0;
-@@ -15319,153 +15826,124 @@ var remoteChannel = {
+@@ -15319,153 +15860,124 @@ var remoteChannel = {
    }
  };
  function createGameUIProtocol() {
@@ -1421,7 +1476,7 @@ index 29c44d4..1c6cf32 100644
        })
      },
      server: {}
-@@ -15532,6 +16010,23 @@ function createDialogHandlers(context) {
+@@ -15532,6 +16044,23 @@ function createDialogHandlers(context) {
  }
  
  // legacy/box3-compat/src/protocol/handlers/entity-interact.ts
@@ -1445,7 +1500,7 @@ index 29c44d4..1c6cf32 100644
  function createEntityInteractHandlers(context) {
    return {
      interact(client) {
-@@ -15576,6 +16071,9 @@ function createGameNetHandlers(context) {
+@@ -15576,6 +16105,9 @@ function createGameNetHandlers(context) {
      input(client, data) {
        context.stats.record("game-net", "input");
        const accepted = context.gameNetPublicSessions.acceptInput(client.sessionId, data);
@@ -1455,7 +1510,7 @@ index 29c44d4..1c6cf32 100644
        if (accepted) context.terrainInteraction.handleInput(client.sessionId, data);
      },
      sendKeyBoardEvent(client, data) {
-@@ -15682,9 +16180,9 @@ function registerProtocols(server, contexts) {
+@@ -15682,9 +16214,9 @@ function registerProtocols(server, contexts) {
          if (schema === models) context.projectBootstrapSessions.connectModels(client);
          if (schema === sound) context.projectBootstrapSessions.connectSound(client);
          if (schema === gameTerrain) context.projectBootstrapSessions.connectTerrain(client);
@@ -1467,7 +1522,7 @@ index 29c44d4..1c6cf32 100644
              running: true,
              defaultScreenId: "DEFAULT_SCREEN_ID",
              pictureAssets: {},
-@@ -15695,7 +16193,7 @@ function registerProtocols(server, contexts) {
+@@ -15695,7 +16227,7 @@ function registerProtocols(server, contexts) {
                  id: "ROOT_ID",
                  name: "Root",
                  parentId: "",
@@ -1476,7 +1531,7 @@ index 29c44d4..1c6cf32 100644
                },
                DEFAULT_SCREEN_ID: {
                  type: 2,
-@@ -15709,9 +16207,14 @@ function registerProtocols(server, contexts) {
+@@ -15709,9 +16241,14 @@ function registerProtocols(server, contexts) {
                  }
                }
              }
@@ -1492,7 +1547,7 @@ index 29c44d4..1c6cf32 100644
          if (schema === gameChat) context.gameChatSessions.connect(client);
          if (schema === playerProtocol) context.playerProtocolSessions.connect(client);
          if (schema === remoteChannel) {
-@@ -15730,6 +16233,7 @@ function registerProtocols(server, contexts) {
+@@ -15730,6 +16267,7 @@ function registerProtocols(server, contexts) {
          if (schema === gameNet) context.gameNetPublicSessions.disconnect(client);
          if (schema === gameTerrain) context.terrainSessions.disconnect(client);
          if (schema === dialog) context.dialogSessions.disconnect(client);
@@ -1500,7 +1555,7 @@ index 29c44d4..1c6cf32 100644
          if (schema === gameChat) context.gameChatSessions.disconnect(client);
          if (schema === playerProtocol) context.playerProtocolSessions.disconnect(client);
          if (schema === remoteChannel) {
-@@ -15743,6 +16247,7 @@ function registerProtocols(server, contexts) {
+@@ -15743,6 +16281,7 @@ function registerProtocols(server, contexts) {
  function specializedMessageHandler(schema, messageName, context) {
    if (schema === gameClock) return createClockHandlers(context)[messageName];
    if (schema === dialog) return createDialogHandlers(context)[messageName];
@@ -1508,7 +1563,7 @@ index 29c44d4..1c6cf32 100644
    if (schema === entityInteract) return createEntityInteractHandlers(context)[messageName];
    if (schema === gameNet) return createGameNetHandlers(context)[messageName];
    if (schema === remoteChannel) return createRemoteChannelHandlers(context)[messageName];
-@@ -15998,9 +16503,11 @@ var Box3Server = class {
+@@ -15998,9 +16537,11 @@ var Box3Server = class {
    assetStore;
    clientRuntime;
    clientScripts;
@@ -1520,7 +1575,7 @@ index 29c44d4..1c6cf32 100644
    testSessionRegistryOptions;
    httpServer;
    mudbServer;
-@@ -16017,6 +16524,7 @@ var Box3Server = class {
+@@ -16017,6 +16558,7 @@ var Box3Server = class {
      this.assetStore = options.assetStore ?? new FileArchiveAssetStore(this.config.assetRoot);
      this.clientRuntime = options.clientRuntime ?? emptyClientRuntime;
      this.clientScripts = options.clientScripts ?? Object.freeze({});
@@ -1528,7 +1583,7 @@ index 29c44d4..1c6cf32 100644
      this.projectBootstrap = options.projectBootstrap ?? emptyProjectBootstrap;
      this.testSessionRegistryOptions = options.testSessionRegistryOptions;
      if (options.legacyProject && options.projectPackagePlayerProjection) {
-@@ -16024,6 +16532,7 @@ var Box3Server = class {
+@@ -16024,6 +16566,7 @@ var Box3Server = class {
      }
      this.legacyProject = options.legacyProject;
      this.projectPackagePlayerProjection = options.projectPackagePlayerProjection;
@@ -1536,7 +1591,7 @@ index 29c44d4..1c6cf32 100644
    }
    get host() {
      return this.config.host;
-@@ -16058,6 +16567,24 @@ var Box3Server = class {
+@@ -16058,6 +16601,24 @@ var Box3Server = class {
      if (!this.running) return false;
      return this.historicalProjectInstance?.queuePlayerRuntimeState(sessionLabel, state) ?? false;
    }
@@ -1561,7 +1616,7 @@ index 29c44d4..1c6cf32 100644
    /**
     * Host-only ingress for the recovered player-protocol profile-dialog frame.
     * This is not an HTTP route, project API, profile service, or account bridge.
-@@ -16070,6 +16597,12 @@ var Box3Server = class {
+@@ -16070,6 +16631,12 @@ var Box3Server = class {
     * Host-only ingress for the recovered dialog.open transport. This is not a
     * dialog API bridge, project API, or Player UI implementation.
     */
@@ -1574,7 +1629,7 @@ index 29c44d4..1c6cf32 100644
    openDialog(sessionId, config) {
      if (!this.running) return false;
      const dialogSessions = this.historicalProjectInstance?.dialogSessions;
-@@ -16115,11 +16648,13 @@ var Box3Server = class {
+@@ -16115,11 +16682,13 @@ var Box3Server = class {
      );
      const instance = new LegacyHistoricalProjectInstance({
        clientScripts: this.clientScripts,
@@ -1588,7 +1643,7 @@ index 29c44d4..1c6cf32 100644
        stats: this.stats,
        world: this.world
      });
-@@ -16183,6 +16718,12 @@ var Box3Server = class {
+@@ -16183,6 +16752,12 @@ var Box3Server = class {
          `Local v1 Player entity projection: ${instance.projectPackagePlayerProjectionMount.spawned.length} mounted, ${instance.projectPackagePlayerProjectionMount.diagnostics.length} static entities unmapped`
        );
      }
@@ -1601,7 +1656,7 @@ index 29c44d4..1c6cf32 100644
      const mudbReady = new Promise((resolve9, reject) => {
        mudbServer.start({
          ready: resolve9,
-@@ -16521,6 +17062,8 @@ async function main() {
+@@ -16521,6 +17096,8 @@ async function main() {
    const config = resolveServerConfig();
    const logger = createConsoleLogger();
    const projectRoot = process.env.BOX3_PROJECT_ROOT;
@@ -1610,16 +1665,20 @@ index 29c44d4..1c6cf32 100644
    const projectionDescriptor = process.env.BOX3_PLAYER_PROJECTION_DESCRIPTOR;
    if (projectionDescriptor && !projectRoot) {
      throw new Error("BOX3_PLAYER_PROJECTION_DESCRIPTOR requires BOX3_PROJECT_ROOT");
-@@ -16528,16 +17071,21 @@ async function main() {
+@@ -16528,16 +17105,23 @@ async function main() {
    const projectWorld = projectRoot ? await loadProjectPackageCompatibilityWorld(projectRoot, config.assetRoot) : void 0;
    const world = projectWorld ?? await ArchiveWorld.load(config.assetRoot, config.worldManifest);
-   const clientRuntime = await loadClientRuntime(config.assetRoot);
+-  const clientRuntime = await loadClientRuntime(config.assetRoot);
++  const clientRuntimeManifest = process.env.BOX3_CLIENT_RUNTIME_MANIFEST;
++  const clientRuntime = await loadClientRuntime(config.assetRoot, clientRuntimeManifest);
 +  if (projectWorld) clientRuntime.bindProjectIdentity(projectWorld.project.manifest.packageId, projectWorld.project.manifest.display?.name ?? projectWorld.project.manifest.packageId);
    const clientScriptManifest = process.env.BOX3_CLIENT_SCRIPT_MANIFEST;
    const clientScripts = projectRoot && !clientScriptManifest ? Object.freeze({}) : await loadClientScriptModules(config.assetRoot, clientScriptManifest);
 +  const clientUiManifest = process.env.BOX3_CLIENT_UI_MANIFEST;
 +  const clientUiState = await loadClientUiState(config.assetRoot, clientUiManifest);
-   const projectBootstrap = await loadProjectBootstrap(config.assetRoot);
+-  const projectBootstrap = await loadProjectBootstrap(config.assetRoot);
++  const projectBootstrapManifest = process.env.BOX3_PROJECT_BOOTSTRAP_MANIFEST;
++  const projectBootstrap = await loadProjectBootstrap(config.assetRoot, projectBootstrapManifest);
    const projectPackagePlayerProjection = projectionDescriptor && projectWorld ? await loadProjectPackagePlayerProjection(projectWorld.project, projectBootstrap, projectionDescriptor) : void 0;
    const server = await new Box3Server({
      ...config,
@@ -1632,7 +1691,7 @@ index 29c44d4..1c6cf32 100644
      world,
      ...projectPackagePlayerProjection === void 0 ? {} : {
        projectPackagePlayerProjection: { projection: projectPackagePlayerProjection }
-@@ -16545,6 +17093,8 @@ async function main() {
+@@ -16545,6 +17127,8 @@ async function main() {
    }).start();
    const neaControlServer = await startNeaControlBridge(server, logger);
    if (projectRoot) logger.info(`Player compatibility project package: ${projectRoot}`);
@@ -1641,7 +1700,7 @@ index 29c44d4..1c6cf32 100644
    if (projectionDescriptor) logger.info(`Local Player entity projection descriptor: ${projectionDescriptor}`);
    let stopping = false;
    const shutdown = async () => {
-@@ -16556,6 +17106,27 @@ async function main() {
+@@ -16556,6 +17140,27 @@ async function main() {
    process.once("SIGINT", shutdown);
    process.once("SIGTERM", shutdown);
  }
@@ -1669,7 +1728,7 @@ index 29c44d4..1c6cf32 100644
  async function startNeaControlBridge(server, logger) {
    const token = process.env.BOX3_CONTROL_TOKEN;
    const portText = process.env.BOX3_CONTROL_PORT;
-@@ -16593,7 +17164,7 @@ async function startNeaControlBridge(server, logger) {
+@@ -16593,7 +17198,7 @@ async function startNeaControlBridge(server, logger) {
        }
        const body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
        if (request.method === "POST" && url.pathname === "/__nea/control/send-client-event") {
@@ -1678,7 +1737,7 @@ index 29c44d4..1c6cf32 100644
            throw new Error("session and event are required");
          }
          const delivered = server.sendRemoteClientEvent(body.session, body.event);
-@@ -16601,6 +17172,36 @@ async function startNeaControlBridge(server, logger) {
+@@ -16601,6 +17206,48 @@ async function startNeaControlBridge(server, logger) {
          response.end(JSON.stringify(delivered ? { ok: true } : { ok: false, error: "session not connected" }));
          return;
        }
@@ -1712,10 +1771,22 @@ index 29c44d4..1c6cf32 100644
 +        response.end(JSON.stringify({ ok: true, result }));
 +        return;
 +      }
++      if (request.method === "POST" && url.pathname === "/__nea/control/chat-message") {
++        if (body.session !== void 0 && typeof body.session !== "string") throw new Error("chat session must be a string");
++        const delivered = server.sendChatMessage(body.session, body.message);
++        if (body.session !== void 0 && delivered === false) {
++          response.statusCode = 404;
++          response.end(JSON.stringify({ ok: false, error: "chat client not connected" }));
++          return;
++        }
++        response.statusCode = 200;
++        response.end(JSON.stringify({ ok: true, delivered: body.session === void 0 ? delivered : 1 }));
++        return;
++      }
        if (request.method === "POST" && url.pathname === "/__nea/control/player-state") {
          if (typeof body.session !== "string" || !body.state || typeof body.state !== "object" || Array.isArray(body.state)) {
            throw new Error("session and state are required");
-@@ -16613,6 +17214,49 @@ async function startNeaControlBridge(server, logger) {
+@@ -16613,6 +17260,49 @@ async function startNeaControlBridge(server, logger) {
          response.end(JSON.stringify(queued ? { ok: true, queued: true } : { ok: false, error: "player state not found" }));
          return;
        }

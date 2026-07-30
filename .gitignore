@@ -2,6 +2,20 @@
 /dump/private/
 /local-player/.profile/
 /preservation-dump/authorize-arenapro.mjs
+**/browser-profile/
+**/browser-profiles/
+**/user-data-dir/
+**/Session Storage/
+**/Local Storage/
+**/IndexedDB/
+**/Network/Cookies
+**/Cookies
+**/Cookies-journal
+**/Login Data
+**/Login Data-journal
+**/Web Data
+**/Web Data-journal
+**/Local State
 
 # Dependency trees
 **/node_modules/
@@ -45,8 +59,10 @@ Thumbs.db
 
 # Local environment files; the checked dev-bypass profile is intentional
 **/.env
-**/.env.local
-**/.env.*.local
+**/.env.*
+!**/.env.example
+!**/.env.sample
+!**/.env.template
 
 
 # Confidential local material
@@ -55,6 +71,8 @@ Thumbs.db
 # User-owned archives and local workspace organization
 /NEA-Project.7z
 /.workspace/
+/HANDOFF.md
+/NEXT_AI_PROMPT.md
 
 # Private imported works and recovered map sources
 /works/private/

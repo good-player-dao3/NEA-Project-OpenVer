@@ -70,6 +70,11 @@ test("transport and authoritative flows remain separate from script contracts", 
   assert.deepEqual(architecture.contracts.map(contract => contract.side).sort(), ["client", "server"]);
   assert.ok(architecture.transport.requiredProtocols.includes("player.game-net"));
   assert.ok(architecture.transport.requiredProtocols.includes("player.remote-channel"));
+  assert.ok(architecture.transport.requiredProtocols.includes("player.gui"));
+  const gui = architecture.flows.find(flow => flow.id === "gui-command");
+  assert.equal(gui.from, "server-script-runtime");
+  assert.equal(gui.to, "client-script-runtime");
+  assert.equal(gui.protocol, "player.gui");
   const publicState = architecture.flows.find(flow => flow.id === "public-state");
   assert.equal(publicState.from, "authoritative-game-runtime");
   assert.equal(publicState.to, "client-script-runtime");

@@ -2,7 +2,17 @@
 
 The Demo runtime executes trusted local server scripts in a Node `vm` context without `process`, `require`, dynamic code generation, or WebAssembly. It is a compatibility prototype, not yet a hardened hostile-code sandbox.
 
-The project format binds `server.js` and `client.js` to separate contracts and separate capability lists. Server capabilities gate the Node VM globals below. Client capabilities are published with `clientIndex.js` for Player-side negotiation and are never treated as server grants.
+The project format binds server and client entry modules to separate contracts, complete module lists, and separate capability lists. Server capabilities gate the Node VM globals below. The importer preserves all declared server CommonJS modules in the project package and publishes all declared client modules with `clientIndex.js` as the Player entry identity; client grants are never treated as server grants.
+
+The server module loader supports the recovered CommonJS substrate: cached relative, package-root absolute, directory `index.js`, and bundled `node_modules` resolution, including circular partial exports and native module metadata. It does not execute ESM syntax. Capability generation therefore blocks server `import`/`export` syntax rather than claiming that dependency analysis alone makes it runnable.
+
+Project assets are content-addressed and hashed during import, but packaging is separate from runtime consumption. The local server has no executable binding for the recovered `resources` global, and generic client `asset:` URL translation is not implemented. Capability generation therefore reports packaged images/audio as `partial`, missing assets as `blocked`, and mesh projection as `blocked` unless a capture-derived validated mesh binding is supplied by the runtime-package path.
+
+Entity projection uses separate launch semantics. Static project entities are required world content, so an unvalidated mesh blocks startup. Script-created entities are allowed to remain local Runtime objects; an unknown mesh produces a `partial` projection record and does not fabricate a backend entity, mesh ID, bounds, collider, or physics body. A validated captured mesh binding is the only path that promotes the projection to `ready`.
+
+Static client UI uses the recovered `gameUI.reset` state already accepted by the Player backend. When a source project supplies that state, the importer validates and republishes it and the launcher passes its manifest instead of enabling the minimal `gameUI` identity. Capability generation verifies literal global/default-screen `findChildByName` calls against the tree, blocks dynamic or missing lookups, and leaves uncertain receiver-subtree lookups `partial` rather than assuming a match.
+
+Before either Runtime starts, the importer produces `capabilities/manifest.json`. The launcher rejects missing grants and declarations without executable bindings, warns for explicitly partial surfaces, and never widens capabilities to make a script start.
 
 The Demo client requests `client.core`, `client.ui`, and `client.remote-channel`. Its `client.js` creates a historical Player `UiText` status panel and updates it from server events, making the independent SES client Runtime visible in-game rather than only through console logs.
 
@@ -16,14 +26,24 @@ The Demo client requests `client.core`, `client.ui`, and `client.remote-channel`
 
 ## Capabilities
 
-- `world.events`
-- `world.chat`
-- `world.entities`
+- `server.world.events`
+- `server.world.chat`
+- `server.world.entities`
+- `server.world.voxels`
+- `server.world.config`
+- `server.gui`
+- `server.storage`
 - `server.player`
 - `server.player.write`
-- `remote-channel`
+- `server.remote-channel`
 
-Every privileged API checks its declared capability at call time. Missing grants fail the script instead of silently widening access.
+Every privileged API checks its declared capability at call time. `server.world.voxels` independently gates the `voxels` facade and the recovered `world.size` projection; possessing `server.world.entities` does not grant terrain reads or writes. Missing grants fail the script instead of silently widening access.
+
+`server.gui` gates the documented `GameGUI` command/event/factory members. Projects may still attach their own state, constants, or helper functions to the shared `world` and `gui` globals. A surface established by a static assignment anywhere in the project module graph is reported as `script-owned`, not promoted into the DAO3 ABI and not rejected as an unknown Runtime member.
+
+`server.storage` gates `storage.getDataStorage()` and `storage.getGroupStorage()` at both launch analysis and runtime access. Local single-map spaces preserve the recovered asynchronous key/value surface and durable project-local file storage. Group storage remains explicitly partial and returns `undefined` unless a group-capable provider is configured; granting the capability does not fabricate cross-map persistence.
+
+`server.world.config` gates the currently projected historical configuration properties `world.gravity`, `world.airFriction`, and `world.fogColor`. Unknown project-owned `world.*` fields remain unaffected. These properties stay `partial` after authorization: their script-visible values are preserved, but gravity and friction writes do not yet reconfigure the fixed-step authoritative solver, and fog changes are not yet proven to propagate to every Player session.
 
 ## Voxel ABI
 
@@ -89,3 +109,11 @@ Client `sendMessage` packets are emitted by the backend as a structured loopback
 ## Current bridge boundary
 
 The runtime observes real Player joins and receives opted-in client events through a structured backend log bridge. Outbound events use a random-token, loopback-only HTTP control bridge and are injected into the matching remote-channel MuDB session. The Demo also reconstructs the historical `gameUI` identity required before Player client modules can start.
+
+## Chat output ABI
+
+`world.say(message)` and `GamePlayer.directMessage(message)` now cross the Server Script Runtime boundary into the preserved Player's recovered `game-chat.log` MuDB protocol. World messages are delivered to every connected game-chat session; direct messages are sent only to the target player's bound session with the recovered private flag. The packet uses the directly recovered text-message defaults (`id=0`, `msgType=0`, `duration=0`, empty i18n fields, `valid=true`).
+
+`GameEntity.say(message, options?)` uses the same native packet with the entity's authoritative backend id, recovered `duration` conversion (`Infinity` becomes `-1`), and `hideFloat`. This projection is intentionally available only for entities that already have an authoritative binding. A script-local entity with an unknown or unprojected mesh keeps its local call record but does not receive a fabricated Player id or floating bubble.
+
+This does not complete chat compatibility. The historical `MAX_CHATS_PER_TICK` buffering and drain timing are not reproduced, Player rendering is delivery-only rather than acknowledged, and browser-to-server chat ingress for `world.onChat` remains unrecovered.

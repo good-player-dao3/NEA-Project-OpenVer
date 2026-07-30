@@ -12138,6 +12138,22 @@ var GameChatSessions = class {
     client.message.globalNotice(copyGlobalNotice(notice));
     return true;
   }
+  sendLog(sessionId, message) {
+    requireSessionId5(sessionId);
+    const client = this.sessions.get(sessionId)?.client;
+    if (!client) return false;
+    client.message.log(copyChatLog(message));
+    return true;
+  }
+  broadcastLog(message) {
+    const packet = copyChatLog(message);
+    let delivered = 0;
+    for (const { client } of this.sessions.values()) {
+      client.message.log(packet);
+      delivered += 1;
+    }
+    return delivered;
+  }
   /** A stale physical socket cannot detach a later replacement. */
   disconnect(client) {
     const session = this.sessions.get(client.sessionId);
@@ -12156,6 +12172,21 @@ function copyGlobalNotice(notice) {
   return Object.freeze({
     detail: notice.detail,
     title: notice.title
+  });
+}
+function copyChatLog(message) {
+  if (!message || typeof message !== "object" || Array.isArray(message)) throw new TypeError("chat message must be an object");
+  if (typeof message.text !== "string") throw new TypeError("chat message text must be a string");
+  return Object.freeze({
+    duration: Number.isInteger(message.duration) ? message.duration : 0,
+    id: Number.isSafeInteger(message.senderId) && message.senderId >= 0 ? message.senderId : 0,
+    msgType: 0,
+    hideFloat: message.hideFloat === true,
+    private: message.private === true,
+    valid: true,
+    i18nPrefix: "",
+    i18nSuffix: "",
+    text: message.text
   });
 }
 function requireSessionId5(sessionId) {
@@ -14820,6 +14851,9 @@ var LegacyHistoricalProjectInstance = class {
   sendGlobalNotice(sessionId, notice) {
     return this.gameChatSessions.sendGlobalNotice(sessionId, notice);
   }
+  sendChatMessage(sessionId, message) {
+    return sessionId === void 0 ? this.gameChatSessions.broadcastLog(message) : this.gameChatSessions.sendLog(sessionId, message);
+  }
   openUserProfile(sessionId, userId) {
     return this.playerProtocolSessions.openUserProfile(sessionId, userId);
   }
@@ -17070,13 +17104,15 @@ async function main() {
   }
   const projectWorld = projectRoot ? await loadProjectPackageCompatibilityWorld(projectRoot, config.assetRoot) : void 0;
   const world = projectWorld ?? await ArchiveWorld.load(config.assetRoot, config.worldManifest);
-  const clientRuntime = await loadClientRuntime(config.assetRoot);
+  const clientRuntimeManifest = process.env.BOX3_CLIENT_RUNTIME_MANIFEST;
+  const clientRuntime = await loadClientRuntime(config.assetRoot, clientRuntimeManifest);
   if (projectWorld) clientRuntime.bindProjectIdentity(projectWorld.project.manifest.packageId, projectWorld.project.manifest.display?.name ?? projectWorld.project.manifest.packageId);
   const clientScriptManifest = process.env.BOX3_CLIENT_SCRIPT_MANIFEST;
   const clientScripts = projectRoot && !clientScriptManifest ? Object.freeze({}) : await loadClientScriptModules(config.assetRoot, clientScriptManifest);
   const clientUiManifest = process.env.BOX3_CLIENT_UI_MANIFEST;
   const clientUiState = await loadClientUiState(config.assetRoot, clientUiManifest);
-  const projectBootstrap = await loadProjectBootstrap(config.assetRoot);
+  const projectBootstrapManifest = process.env.BOX3_PROJECT_BOOTSTRAP_MANIFEST;
+  const projectBootstrap = await loadProjectBootstrap(config.assetRoot, projectBootstrapManifest);
   const projectPackagePlayerProjection = projectionDescriptor && projectWorld ? await loadProjectPackagePlayerProjection(projectWorld.project, projectBootstrap, projectionDescriptor) : void 0;
   const server = await new Box3Server({
     ...config,
@@ -17200,6 +17236,18 @@ async function startNeaControlBridge(server, logger) {
         const result = await pending;
         response.statusCode = 200;
         response.end(JSON.stringify({ ok: true, result }));
+        return;
+      }
+      if (request.method === "POST" && url.pathname === "/__nea/control/chat-message") {
+        if (body.session !== void 0 && typeof body.session !== "string") throw new Error("chat session must be a string");
+        const delivered = server.sendChatMessage(body.session, body.message);
+        if (body.session !== void 0 && delivered === false) {
+          response.statusCode = 404;
+          response.end(JSON.stringify({ ok: false, error: "chat client not connected" }));
+          return;
+        }
+        response.statusCode = 200;
+        response.end(JSON.stringify({ ok: true, delivered: body.session === void 0 ? delivered : 1 }));
         return;
       }
       if (request.method === "POST" && url.pathname === "/__nea/control/player-state") {

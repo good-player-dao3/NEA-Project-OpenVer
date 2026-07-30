@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-architecture-contract",
   "version": 1,
-  "generatedAt": "2026-07-30T11:27:11.345Z",
+  "generatedAt": "2026-07-30T16:52:50.892Z",
   "apiVersion": "0.1.0",
   "compatibilityLevel": "experimental",
   "layers": [
@@ -276,6 +276,21 @@
       "compatibilityLevel": "experimental",
       "capabilities": [
         {
+          "id": "server.gui",
+          "availability": "confirmed",
+          "compatibility": "native",
+          "entries": [
+            "server.GameGUI.getAttribute",
+            "server.GameGUI.init",
+            "server.GameGUI.onMessage",
+            "server.GameGUI.remove",
+            "server.GameGUI.setAttribute",
+            "server.GameGUI.show",
+            "server.GameGUI.ui",
+            "server.global.gui"
+          ]
+        },
+        {
           "id": "server.player",
           "availability": "confirmed",
           "compatibility": "emulated",
@@ -330,13 +345,34 @@
           ]
         },
         {
+          "id": "server.storage",
+          "availability": "confirmed",
+          "compatibility": "native",
+          "entries": [
+            "server.GameStorage.getDataStorage",
+            "server.GameStorage.getGroupStorage",
+            "server.global.storage"
+          ]
+        },
+        {
           "id": "server.world.chat",
           "availability": "confirmed",
           "compatibility": "emulated",
           "entries": [
+            "server.RuntimeEntity.say",
             "server.RuntimePlayer.sendMessage",
             "server.world.onChat",
             "server.world.say"
+          ]
+        },
+        {
+          "id": "server.world.config",
+          "availability": "confirmed",
+          "compatibility": "native",
+          "entries": [
+            "server.world.airFriction",
+            "server.world.fogColor",
+            "server.world.gravity"
           ]
         },
         {
@@ -424,6 +460,24 @@
             "server.world.onVoxelContact",
             "server.world.onVoxelSeparate"
           ]
+        },
+        {
+          "id": "server.world.voxels",
+          "availability": "confirmed",
+          "compatibility": "emulated",
+          "entries": [
+            "server.GameVoxels.VoxelTypes",
+            "server.GameVoxels.getVoxel",
+            "server.GameVoxels.getVoxelId",
+            "server.GameVoxels.getVoxelRotation",
+            "server.GameVoxels.id",
+            "server.GameVoxels.name",
+            "server.GameVoxels.setVoxel",
+            "server.GameVoxels.setVoxelId",
+            "server.GameVoxels.shape",
+            "server.global.voxels",
+            "server.world.size"
+          ]
         }
       ],
       "uncategorizedEntries": [
@@ -435,47 +489,23 @@
         "server.GameButtonType.JUMP",
         "server.GameButtonType.RUN",
         "server.GameButtonType.WALK",
-        "server.GameGUI.getAttribute",
-        "server.GameGUI.init",
-        "server.GameGUI.onMessage",
-        "server.GameGUI.remove",
-        "server.GameGUI.setAttribute",
-        "server.GameGUI.show",
-        "server.GameGUI.ui",
-        "server.GameStorage.getDataStorage",
-        "server.GameStorage.getGroupStorage",
-        "server.GameVoxels.VoxelTypes",
-        "server.GameVoxels.getVoxel",
-        "server.GameVoxels.getVoxelId",
-        "server.GameVoxels.getVoxelRotation",
-        "server.GameVoxels.id",
-        "server.GameVoxels.name",
-        "server.GameVoxels.setVoxel",
-        "server.GameVoxels.setVoxelId",
-        "server.GameVoxels.shape",
         "server.authoritativeRuntime.contract",
         "server.global.GameButtonType",
-        "server.global.gui",
-        "server.global.storage",
-        "server.global.voxels",
-        "server.runtime.contract",
-        "server.world.airFriction",
-        "server.world.fogColor",
-        "server.world.gravity",
-        "server.world.size"
+        "server.runtime.contract"
       ]
     }
   ],
   "compatibilityMatrix": {
     "path": "runtime-compat/abi/compatibility-matrix.json",
     "declarations": 599,
-    "executable": 231,
+    "executable": 232,
     "byStatus": {
       "native": 125,
-      "compatible": 73,
-      "partial": 33,
-      "recovered-only": 146,
-      "declared-only": 222
+      "compatible": 50,
+      "partial": 57,
+      "recovered-only": 145,
+      "unavailable": 1,
+      "declared-only": 221
     }
   },
   "scriptRuntimes": {
@@ -558,7 +588,8 @@
     "protocolAbi": "nea-protocol-abi/v1",
     "requiredProtocols": [
       "player.game-net",
-      "player.remote-channel"
+      "player.remote-channel",
+      "player.gui"
     ],
     "remoteChannelEnvelope": {
       "fields": [
@@ -591,42 +622,74 @@
       "from": "authoritative-game-runtime",
       "to": "client-script-runtime",
       "protocol": "player.game-net.syncClientScriptModules",
-      "payload": "Dictionary of module source; entry clientIndex.js"
+      "payload": "Dictionary of module source; entry clientIndex.js",
+      "evidence": []
     },
     {
       "id": "client-event",
       "from": "client-script-runtime",
       "to": "server-script-runtime",
       "protocol": "player.remote-channel.sendServerEvent",
-      "payload": "MuDB {tick,args}; args is JSON text"
+      "payload": "MuDB {tick,args}; args is JSON text",
+      "evidence": []
     },
     {
       "id": "server-event",
       "from": "server-script-runtime",
       "to": "client-script-runtime",
       "protocol": "player.remote-channel.sendClientEvent",
-      "payload": "MuDB {tick,args}; malformed JSON is dropped by Player"
+      "payload": "MuDB {tick,args}; malformed JSON is dropped by Player",
+      "evidence": []
+    },
+    {
+      "id": "gui-command",
+      "from": "server-script-runtime",
+      "to": "client-script-runtime",
+      "protocol": "player.gui",
+      "payload": "Handle-based GUI init/show/remove/get/set commands with return, throw and sendMessage responses",
+      "evidence": [
+        {
+          "type": "protocol-schema",
+          "path": "runtime-compat/abi/protocols.json",
+          "symbol": "player.gui",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "local-player/backend/box3-server.cjs",
+          "symbol": "GuiSessions / sendGuiCommandPacket / createGuiHandlers",
+          "confidence": "direct"
+        },
+        {
+          "type": "test",
+          "path": "runtime-compat/test/backend-gui-transport.test.mjs",
+          "symbol": "Player GUI transport conformance",
+          "confidence": "direct"
+        }
+      ]
     },
     {
       "id": "authoritative-state",
       "from": "server-script-runtime",
       "to": "authoritative-game-runtime",
       "protocol": "nea-control.player-state",
-      "payload": "Versioned position and velocity command"
+      "payload": "Versioned position and velocity command",
+      "evidence": []
     },
     {
       "id": "public-state",
       "from": "authoritative-game-runtime",
       "to": "client-script-runtime",
       "protocol": "player.game-net.PUBLIC",
-      "payload": "Player and RigidBody snapshots with explicit half extents"
+      "payload": "Player and RigidBody snapshots with explicit half extents",
+      "evidence": []
     }
   ],
   "demo": {
     "project": {
       "path": "demo-map/project/nea.map.json",
-      "bytes": 1048,
-      "sha256": "7399d2b7c899fe69b0d3d368c87d120818bba103f75a6f260b787d6d5d3a2904"
+      "bytes": 1111,
+      "sha256": "42c85a03cbfa069724309b69ae5fb955abd430144238d46034374ef61efec70d"
     },
     "scripts": {
       "client": {
@@ -785,6 +848,10 @@
           "server.world.events",
           "server.world.chat",
           "server.world.entities",
+          "server.world.voxels",
+          "server.world.config",
+          "server.gui",
+          "server.storage",
           "server.player",
           "server.player.write",
           "server.remote-channel"
@@ -827,6 +894,24 @@
           ]
         },
         "resolvedEntries": [
+          "server.GameGUI.getAttribute",
+          "server.GameGUI.init",
+          "server.GameGUI.onMessage",
+          "server.GameGUI.remove",
+          "server.GameGUI.setAttribute",
+          "server.GameGUI.show",
+          "server.GameGUI.ui",
+          "server.GameStorage.getDataStorage",
+          "server.GameStorage.getGroupStorage",
+          "server.GameVoxels.VoxelTypes",
+          "server.GameVoxels.getVoxel",
+          "server.GameVoxels.getVoxelId",
+          "server.GameVoxels.getVoxelRotation",
+          "server.GameVoxels.id",
+          "server.GameVoxels.name",
+          "server.GameVoxels.setVoxel",
+          "server.GameVoxels.setVoxelId",
+          "server.GameVoxels.shape",
           "server.RuntimeEntity.destroy",
           "server.RuntimeEntity.destroyed",
           "server.RuntimeEntity.enableDamage",
@@ -844,6 +929,7 @@
           "server.RuntimeEntity.onDie",
           "server.RuntimeEntity.onTakeDamage",
           "server.RuntimeEntity.position",
+          "server.RuntimeEntity.say",
           "server.RuntimeEntity.showHealthBar",
           "server.RuntimeEntity.snapshot",
           "server.RuntimeEntity.tags",
@@ -891,6 +977,9 @@
           "server.RuntimePlayer.spawnPoint",
           "server.RuntimePlayer.velocity",
           "server.RuntimePlayer.walkButton",
+          "server.global.gui",
+          "server.global.storage",
+          "server.global.voxels",
           "server.object.GameEventHandlerToken",
           "server.object.RuntimeEntity",
           "server.object.RuntimePlayer",
@@ -901,8 +990,11 @@
           "server.remoteChannel.sendClientEvent",
           "server.world.addCollisionFilter",
           "server.world.addZone",
+          "server.world.airFriction",
           "server.world.createEntity",
           "server.world.currentTick",
+          "server.world.fogColor",
+          "server.world.gravity",
           "server.world.nextEntityCreate",
           "server.world.nextEntityDestroy",
           "server.world.nextPlayerJoin",
@@ -934,7 +1026,8 @@
           "server.world.querySelector",
           "server.world.querySelectorAll",
           "server.world.raycast",
-          "server.world.say"
+          "server.world.say",
+          "server.world.size"
         ],
         "errors": [],
         "resolved": true

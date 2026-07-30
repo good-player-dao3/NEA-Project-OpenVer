@@ -4,10 +4,11 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { createInterface } from "node:readline";
 import { fileURLToPath } from "node:url";
-import { formatImportSummary, importMapProject, publishClientScript } from "./import-project.mjs";
+import { formatImportSummary, importMapProject, publishClientScript, publishClientUiState } from "./import-project.mjs";
 import { parseBackendEvent } from "./backend-events.mjs";
-import { createEntityOnBackend, destroyEntityOnBackend, getPlayerStateFromBackend, openDialogOnBackend, queueDamageStateToBackend, queueEntityStateToBackend, queuePlayerStateToBackend, sendClientEventToBackend, sendGuiCommandToBackend } from "./control-client.mjs";
+import { createEntityOnBackend, destroyEntityOnBackend, getPlayerStateFromBackend, openDialogOnBackend, queueDamageStateToBackend, queueEntityStateToBackend, queuePlayerStateToBackend, sendChatMessageToBackend, sendClientEventToBackend, sendGuiCommandToBackend } from "./control-client.mjs";
 import { ScriptRuntime } from "./runtime/script-runtime.mjs";
+import { validateRuntimePackage } from "./runtime-package.mjs";
 import { loadPreservedBlockCatalog } from "../../local-player/src/block-info.mjs";
 
 process.on("unhandledRejection", error => {
@@ -33,32 +34,42 @@ let assetRoot = defaultAssetRoot;
 let worldManifestName = process.env.BOX3_WORLD_MANIFEST ?? "world-bedwars.json";
 let clientManifest = null;
 let clientUiManifest = null;
+let clientRuntimeManifest = null;
+let projectBootstrapManifest = null;
 let playerProjectionDescriptor = null;
 let spawnPoint;
 let playerBodyProfile;
+let capabilityManifest;
 let playerRoute = "/play/nea-script-lab?contentId=100110008";
 let runtimeLabel = "demo project";
 if (runtimePackagePath) {
-  const runtimePackage = JSON.parse(await readFile(resolve(runtimePackagePath), "utf8"));
+  const runtimePackage = validateRuntimePackage(JSON.parse(await readFile(resolve(runtimePackagePath), "utf8")));
   buildRoot = resolve(runtimePackage.projectRoot);
   assetRoot = resolve(runtimePackage.archiveRoot);
   worldManifestName = runtimePackage.worldManifest;
   clientManifest = runtimePackage.clientManifest;
-  clientUiManifest = runtimePackage.clientUiManifest ?? null;
-  playerProjectionDescriptor = runtimePackage.playerProjectionDescriptor ?? null;
+  clientUiManifest = runtimePackage.clientUiManifest;
+  clientRuntimeManifest = runtimePackage.clientRuntimeManifest;
+  projectBootstrapManifest = runtimePackage.projectBootstrapManifest;
+  playerProjectionDescriptor = runtimePackage.playerProjectionDescriptor;
   playerRoute = `${runtimePackage.route}?contentId=${runtimePackage.contentId}`;
   runtimeLabel = `${runtimePackage.packageId} (${runtimePackage.contentId})`;
   const projectManifest = JSON.parse(await readFile(resolve(buildRoot, "dao3.project.json"), "utf8"));
+  if (typeof projectManifest.capabilities !== "string") throw new Error("Runtime package predates the required project capability manifest; rebuild it with the current importer");
+  capabilityManifest = JSON.parse(await readFile(resolve(buildRoot, projectManifest.capabilities), "utf8"));
   const world = JSON.parse(await readFile(resolve(buildRoot, projectManifest.world), "utf8"));
   const physics = world.physics ? JSON.parse(await readFile(resolve(buildRoot, world.physics), "utf8")) : {};
   spawnPoint = world.spawn;
   playerBodyProfile = physics.playerBody;
 } else {
   imported = await importMapProject(sourceRoot, buildRoot);
+  capabilityManifest = imported.capabilityManifest;
   clientManifest = await publishClientScript(imported, assetRoot);
+  clientUiManifest = await publishClientUiState(imported, assetRoot);
   spawnPoint = imported.manifest.world.spawn;
   playerBodyProfile = imported.physics.playerBody;
 }
+assertProjectCapabilities(capabilityManifest);
 const blockCatalog = await loadPreservedBlockCatalog(assetRoot, worldManifestName);
 const runtime = await ScriptRuntime.load(buildRoot, {
   logger: runtimeLogger(),
@@ -73,6 +84,11 @@ const runtime = await ScriptRuntime.load(buildRoot, {
     const session = playerSessions.get(playerId);
     if (!session) throw new Error(`No backend session is bound to ${playerId}`);
     await sendClientEventWithRetry({ port: controlPort, token: controlToken, session, event });
+  },
+  sendChatMessage: async (playerId, message) => {
+    const session = playerId === undefined ? undefined : playerSessions.get(playerId);
+    if (playerId !== undefined && !session) throw new Error(`No backend session is bound to ${playerId}`);
+    await sendChatMessageToBackend({ port: controlPort, token: controlToken, session, message });
   },
   showDialog: async (playerId, config) => {
     const session = playerSessions.get(playerId);
@@ -111,6 +127,8 @@ const child = spawn(process.execPath, [backendPath], {
     BOX3_ASSET_ROOT: assetRoot,
     ...(runtimePackagePath && playerProjectionDescriptor ? { BOX3_PROJECT_ROOT: buildRoot, BOX3_PLAYER_PROJECTION_DESCRIPTOR: playerProjectionDescriptor } : runtimePackagePath ? {} : { BOX3_PROJECT_ROOT: buildRoot }),
     BOX3_WORLD_MANIFEST: worldManifestName,
+    ...(clientRuntimeManifest === null ? {} : { BOX3_CLIENT_RUNTIME_MANIFEST: clientRuntimeManifest }),
+    ...(projectBootstrapManifest === null ? {} : { BOX3_PROJECT_BOOTSTRAP_MANIFEST: projectBootstrapManifest }),
     BOX3_LOG_REMOTE_EVENTS: "1",
     BOX3_LOG_NET_EVENTS: "1",
     BOX3_LOG_SCRIPT_INPUT_EVENTS: "1",
@@ -292,4 +310,28 @@ function integerEnv(name, fallback) {
   const number = Number(value);
   if (!Number.isInteger(number) || number < 1 || number > 65535) throw new Error(`${name} must be a valid TCP port`);
   return number;
+}
+
+function assertProjectCapabilities(manifest) {
+  if (!manifest || manifest.format !== "nea-project-capability-manifest") throw new Error("Project capability manifest is missing or invalid");
+  if (manifest.status === "blocked") {
+    const blocked = [
+      ...manifest.requirements.filter(item => item.state === "blocked").map(item => `${item.side}:${item.module}:${item.usage}`),
+      ...(manifest.modules ?? []).filter(item => item.state === "blocked").map(item => `${item.side}:${item.module}->${item.specifier}`),
+      ...(manifest.resources ?? []).filter(item => item.state === "blocked").map(item => `${item.kind}:${item.reference}`),
+      ...(manifest.ui ?? []).filter(item => item.state === "blocked").map(item => `client-ui:${item.module ?? "project"}:${item.lookupName ?? item.name ?? item.variable}`),
+      ...(manifest.entities ?? []).filter(item => item.state === "blocked").map(item => `${item.source}:${item.id ?? item.module ?? "unknown"}:mesh`),
+      ...(manifest.diagnostics ?? []).filter(item => item.state === "blocked").map(item => `${item.side}:${item.module}:${item.code}`),
+    ].join(", ");
+    throw new Error(`Project launch blocked by unavailable capabilities: ${blocked}`);
+  }
+  if (manifest.status === "partial") {
+    const partial = [
+      ...manifest.requirements.filter(item => item.state === "partial").map(item => `${item.side}:${item.usage}`),
+      ...(manifest.resources ?? []).filter(item => item.state === "partial").map(item => `${item.kind}:${item.reference}`),
+      ...(manifest.ui ?? []).filter(item => item.state === "partial").map(item => `client-ui:${item.module ?? "project"}:${item.lookupName ?? item.name ?? item.variable}`),
+      ...(manifest.entities ?? []).filter(item => item.state === "partial").map(item => `${item.source}:${item.id ?? item.module ?? "unknown"}:entity`),
+    ].join(", ");
+    console.warn(`[demo] project uses partial compatibility surfaces: ${partial}`);
+  }
 }

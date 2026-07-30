@@ -15,6 +15,8 @@ test("unified Runtime and conformance code contain no private work branches", as
     "runtime-compat/conformance/client-remote-channel.mjs",
     "runtime-compat/conformance/client-ui-tree.mjs",
     "runtime-compat/tools/build-script-corpus-gap-report.mjs",
+    "runtime-compat/tools/build-capability-gate-audit.mjs",
+    "preservation-dump/build-editor-runtime-package.mjs",
   ];
   for (const path of paths) {
     const source = await readFile(resolve(repositoryRoot, path), "utf8");

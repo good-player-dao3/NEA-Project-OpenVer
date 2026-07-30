@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-compatibility-matrix",
   "version": 1,
-  "generatedAt": "2026-07-30T11:27:11.143Z",
+  "generatedAt": "2026-07-30T16:52:50.645Z",
   "apiVersion": "0.1.0",
   "compatibilityLevel": "experimental",
   "contracts": [
@@ -47,16 +47,18 @@
     "compatible": "Executable locally with conformance evidence sufficient for the documented contract.",
     "partial": "Executable locally, but one or more access, signature or behavioral gaps remain.",
     "recovered-only": "The historical declaration or implementation is recovered, but no local executable binding exists.",
+    "unavailable": "Direct runtime evidence proves that the selected historical provider does not expose this declaration to scripts.",
     "declared-only": "Only the documentation declaration is currently recovered."
   },
   "summary": {
     "entries": 599,
     "byStatus": {
       "native": 125,
-      "compatible": 73,
-      "partial": 33,
-      "recovered-only": 146,
-      "declared-only": 222
+      "compatible": 50,
+      "partial": 57,
+      "recovered-only": 145,
+      "unavailable": 1,
+      "declared-only": 221
     },
     "bySide": {
       "client": {
@@ -65,14 +67,16 @@
         "compatible": 0,
         "partial": 0,
         "recovered-only": 0,
-        "declared-only": 1
+        "unavailable": 1,
+        "declared-only": 0
       },
       "server": {
         "total": 346,
         "native": 0,
-        "compatible": 43,
-        "partial": 32,
-        "recovered-only": 146,
+        "compatible": 20,
+        "partial": 56,
+        "recovered-only": 145,
+        "unavailable": 0,
         "declared-only": 125
       },
       "shared": {
@@ -81,11 +85,12 @@
         "compatible": 30,
         "partial": 1,
         "recovered-only": 0,
+        "unavailable": 0,
         "declared-only": 96
       }
     },
-    "executable": 231,
-    "nonExecutable": 368
+    "executable": 232,
+    "nonExecutable": 367
   },
   "entries": [
     {
@@ -147,6 +152,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.media",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Audio.Audio",
@@ -220,6 +226,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.media",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Audio.ended",
@@ -317,6 +324,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.media",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Audio.error",
@@ -396,6 +404,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.media",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Audio.load",
@@ -469,6 +478,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.media",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Audio.loadeddata",
@@ -542,6 +552,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.media",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Audio.pause",
@@ -615,6 +626,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.media",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Audio.play",
@@ -688,6 +700,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.media",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Audio.src",
@@ -761,6 +774,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.media",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Audio.volume",
@@ -880,6 +894,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.http",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.ClientHttp.fetch",
@@ -959,6 +974,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.media",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.ClientMedia.playAudio",
@@ -1026,6 +1042,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.media",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.ClientMedia.startRecording",
@@ -1093,6 +1110,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.media",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.ClientMedia.stopPlayAudio",
@@ -1160,6 +1178,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.media",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.ClientMedia.stopRecording",
@@ -1227,6 +1246,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.navigator",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.ClientNavigator.getDeviceInfo",
@@ -1294,6 +1314,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.navigator",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.ClientNavigator.language",
@@ -1361,6 +1382,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.navigator",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.ClientNavigator.userAgent",
@@ -1428,6 +1450,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.ClientScreen.resize",
@@ -1495,6 +1518,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.world",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.ClientWorld.rendering3d",
@@ -1586,6 +1610,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Coord2.create",
@@ -1659,6 +1684,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Coord2.offset",
@@ -1732,6 +1758,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Coord2.scale",
@@ -1851,6 +1878,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.EventEmitter.add",
@@ -1970,6 +1998,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.EventEmitter.emit",
@@ -2089,6 +2118,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.EventEmitter.off",
@@ -2208,6 +2238,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.EventEmitter.on",
@@ -2327,6 +2358,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.EventEmitter.once",
@@ -2446,6 +2478,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.EventEmitter.remove",
@@ -2565,6 +2598,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.EventEmitter.removeAll",
@@ -2636,6 +2670,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.core",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.global.http",
@@ -2707,6 +2742,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.core",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.global.input",
@@ -2778,6 +2814,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.core",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.global.media",
@@ -2843,6 +2880,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.core",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.global.navigator",
@@ -2908,6 +2946,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.remote-channel",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.global.remoteChannel",
@@ -2973,6 +3012,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.core",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.global.screen",
@@ -3038,6 +3078,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.core",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.global.screenHeight",
@@ -3103,6 +3144,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.core",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.global.screenWidth",
@@ -3180,6 +3222,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.global.ui",
@@ -3257,6 +3300,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.core",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.global.world",
@@ -3324,6 +3368,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.input.lockPointer",
@@ -3391,6 +3436,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.input.pointerdown",
@@ -3458,6 +3504,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.input.pointerlockchange",
@@ -3525,6 +3572,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.input.pointerlockerror",
@@ -3592,6 +3640,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.input.pointerup",
@@ -3659,6 +3708,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.input.unlockPointer",
@@ -3726,6 +3776,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.media",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.MediaError.code",
@@ -3845,6 +3896,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.media",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.MediaError.MediaError",
@@ -3918,6 +3970,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.media",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.MediaError.message",
@@ -3989,6 +4042,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.http",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.object.ClientHttp",
@@ -4054,6 +4108,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.media",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.object.ClientMedia",
@@ -4119,6 +4174,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.navigator",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.object.ClientNavigator",
@@ -4184,6 +4240,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.script",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.object.ClientRemoteChannel",
@@ -4249,6 +4306,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.object.ClientScreen",
@@ -4314,6 +4372,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.world",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.object.ClientWorld",
@@ -4379,6 +4438,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.object.Coord2",
@@ -4450,6 +4510,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.object.InputSystem",
@@ -4515,6 +4576,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.object.UiNode",
@@ -4586,6 +4648,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.object.UiScale",
@@ -4657,6 +4720,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.object.Vec2",
@@ -4728,6 +4792,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.object.Vec3",
@@ -4825,6 +4890,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.remote-channel",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.remoteChannel.onClientEvent",
@@ -4916,6 +4982,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.remote-channel",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.remoteChannel.sendServerEvent",
@@ -4983,6 +5050,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiBox.create",
@@ -5056,6 +5124,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiImage.complete",
@@ -5129,6 +5198,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiImage.create",
@@ -5202,6 +5272,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiImage.image",
@@ -5275,6 +5346,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiImage.imageDisplayMode",
@@ -5348,6 +5420,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiImage.imageOpacity",
@@ -5421,6 +5494,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiImage.load",
@@ -5518,6 +5592,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiInput.blur",
@@ -5597,6 +5672,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiInput.create",
@@ -5694,6 +5770,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiInput.focus",
@@ -5773,6 +5850,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiInput.isFocus",
@@ -5846,6 +5924,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiInput.placeholder",
@@ -5919,6 +5998,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiInput.placeholderColor",
@@ -5989,15 +6069,17 @@
         "type": "number",
         "readonly": true
       },
-      "status": "declared-only",
+      "status": "unavailable",
       "executable": false,
       "capability": null,
+      "unavailableReason": "The archived Player stores placeholderOpacity on the underlying UiInput renderable, but module 21031 exposes no public getter and module 93474 hardens the UiInput constructor, so delivered map scripts cannot add a compatible wrapper without replacing the historical runtime provider.",
       "localBindings": [],
       "recovery": {
-        "availability": "declared",
+        "availability": "unsupported",
         "compatibility": "missing",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "player-bundle"
         ]
       },
       "evidence": [
@@ -6005,6 +6087,24 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/ClientUI/node/UiInput.md",
           "symbol": "只读placeholderOpacity: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/734.8dcb480d99773395.js",
+          "symbol": "module 21031 UiInput wrapper and input focus events",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/734.8dcb480d99773395.js",
+          "symbol": "underlying UiInput renderable placeholderOpacity state",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/474.c17d0cc8a4489c84.js",
+          "symbol": "module 93474 hardened UiInput global",
           "confidence": "direct"
         }
       ]
@@ -6044,6 +6144,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiNode.children",
@@ -6117,6 +6218,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiNode.clone",
@@ -6190,6 +6292,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiNode.events",
@@ -6287,6 +6390,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiNode.findChildByName",
@@ -6360,6 +6464,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiNode.name",
@@ -6433,6 +6538,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiNode.parent",
@@ -6506,6 +6612,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiNode.uiScale",
@@ -6579,6 +6686,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiRenderable.anchor",
@@ -6652,6 +6760,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiRenderable.autoResize",
@@ -6725,6 +6834,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiRenderable.backgroundColor",
@@ -6798,6 +6908,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiRenderable.backgroundOpacity",
@@ -6871,6 +6982,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiRenderable.pointerEventBehavior",
@@ -6944,6 +7056,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiRenderable.position",
@@ -7017,6 +7130,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiRenderable.rotation",
@@ -7090,6 +7204,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiRenderable.size",
@@ -7163,6 +7278,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiRenderable.visible",
@@ -7236,6 +7352,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiRenderable.zIndex",
@@ -7309,6 +7426,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiScale.create",
@@ -7382,6 +7500,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiScale.scale",
@@ -7455,6 +7574,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiScreen.create",
@@ -7528,6 +7648,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiScreen.getAllScreen",
@@ -7601,6 +7722,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiScreen.visible",
@@ -7674,6 +7796,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiScreen.zIndex",
@@ -7747,6 +7870,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiScrollBox.create",
@@ -7820,6 +7944,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiScrollBox.scrollPosition",
@@ -7893,6 +8018,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiText.autoWordWrap",
@@ -7966,6 +8092,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiText.create",
@@ -8039,6 +8166,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiText.richText",
@@ -8112,6 +8240,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiText.textColor",
@@ -8185,6 +8314,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiText.textContent",
@@ -8258,6 +8388,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiText.textFontFamily",
@@ -8331,6 +8462,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiText.textFontSize",
@@ -8404,6 +8536,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiText.textLineHeight",
@@ -8477,6 +8610,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiText.textStrokeColor",
@@ -8550,6 +8684,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiText.textStrokeOpacity",
@@ -8623,6 +8758,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiText.textStrokeThickness",
@@ -8696,6 +8832,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiText.textXAlignment",
@@ -8769,6 +8906,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.UiText.textYAlignment",
@@ -8866,6 +9004,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Vec2.copy",
@@ -8963,6 +9102,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Vec2.create",
@@ -9036,6 +9176,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Vec2.x",
@@ -9109,6 +9250,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Vec2.y",
@@ -9182,6 +9324,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Vec3.b",
@@ -9279,6 +9422,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Vec3.copy",
@@ -9376,6 +9520,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Vec3.create",
@@ -9449,6 +9594,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Vec3.g",
@@ -9522,6 +9668,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Vec3.r",
@@ -9595,6 +9742,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Vec3.x",
@@ -9668,6 +9816,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Vec3.y",
@@ -9741,6 +9890,7 @@
       "status": "native",
       "executable": true,
       "capability": "client.ui",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "client.Vec3.z",
@@ -9838,6 +9988,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -9890,6 +10041,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -9973,6 +10125,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -10056,6 +10209,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -10132,6 +10286,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -10230,6 +10385,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -10289,6 +10445,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -10372,6 +10529,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -10455,6 +10613,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -10560,6 +10719,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -10665,6 +10825,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -10748,6 +10909,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -10807,6 +10969,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -10912,6 +11075,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -10971,6 +11135,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -11030,6 +11195,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -11089,6 +11255,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -11148,6 +11315,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -11207,6 +11375,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -11263,24 +11432,11 @@
         "parameters": [],
         "returns": "void"
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
       "capability": "server.world.entities",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.RuntimeEntity.destroy",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.entities",
-          "gaps": []
-        },
-        {
-          "localId": "server.RuntimePlayer.destroy",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.entities",
-          "gaps": []
-        },
         {
           "localId": "server.RuntimeEntity.destroy",
           "relation": "adapter",
@@ -11382,6 +11538,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.entities",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.RuntimeEntity.destroyed",
@@ -11466,6 +11623,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -11525,6 +11683,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.entities",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.RuntimeEntity.enableDamage",
@@ -11609,6 +11768,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -11668,6 +11828,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -11727,6 +11888,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -11786,6 +11948,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -11845,6 +12008,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -11904,6 +12068,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -11963,6 +12128,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -12046,6 +12212,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -12105,6 +12272,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.entities",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.RuntimeEntity.hp",
@@ -12246,6 +12414,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.RuntimeEntity.hurt",
@@ -12332,6 +12501,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -12391,6 +12561,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.entities",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.RuntimeEntity.id",
@@ -12477,6 +12648,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -12536,6 +12708,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -12595,6 +12768,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -12654,6 +12828,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -12713,6 +12888,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -12840,6 +13016,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -12899,6 +13076,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -12958,6 +13136,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.entities",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.RuntimeEntity.maxHp",
@@ -13042,6 +13221,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -13101,6 +13281,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -13160,6 +13341,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -13219,6 +13401,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -13278,6 +13461,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -13337,6 +13521,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -13396,6 +13581,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -13461,6 +13647,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -13526,6 +13713,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -13585,6 +13773,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -13644,6 +13833,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -13703,6 +13893,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -13783,24 +13974,11 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.RuntimeEntity.onClick",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.events",
-          "gaps": []
-        },
-        {
-          "localId": "server.RuntimePlayer.onClick",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.events",
-          "gaps": []
-        },
         {
           "localId": "server.RuntimeEntity.onClick",
           "relation": "adapter",
@@ -13925,24 +14103,11 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.RuntimeEntity.onDestroy",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.events",
-          "gaps": []
-        },
-        {
-          "localId": "server.RuntimePlayer.onDestroy",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.events",
-          "gaps": []
-        },
         {
           "localId": "server.RuntimeEntity.onDestroy",
           "relation": "adapter",
@@ -14068,6 +14233,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.RuntimeEntity.onDie",
@@ -14176,6 +14342,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -14259,6 +14426,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -14342,6 +14510,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -14425,6 +14594,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -14508,6 +14678,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -14591,6 +14762,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.RuntimePlayer.onTakeDamage",
@@ -14708,6 +14880,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -14791,6 +14964,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -14850,6 +15024,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -14909,6 +15084,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -14968,6 +15144,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -15027,6 +15204,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -15086,6 +15264,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -15145,6 +15324,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -15204,6 +15384,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -15263,6 +15444,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -15322,6 +15504,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -15381,6 +15564,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -15440,6 +15624,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -15499,6 +15684,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -15558,6 +15744,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -15617,6 +15804,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -15676,6 +15864,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -15735,6 +15924,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -15794,6 +15984,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -15846,6 +16037,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.entities",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.RuntimeEntity.position",
@@ -15956,6 +16148,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -16015,6 +16208,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -16142,6 +16336,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -16232,10 +16427,34 @@
         ],
         "returns": "void"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.chat",
+      "unavailableReason": null,
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.say",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.chat",
+          "gaps": [
+            "Mapped entities emit recovered game-chat.log sender, duration, and hideFloat fields.",
+            "Unmapped entities remain script-local instead of receiving a fabricated Player id.",
+            "Historical MAX_CHATS_PER_TICK buffering and Player display acknowledgement remain unimplemented."
+          ]
+        },
+        {
+          "localId": "server.RuntimeEntity.say",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.chat",
+          "gaps": [
+            "effect: Mapped entities emit the recovered game-chat.log sender id, duration, and hideFloat fields to every connected Player session.",
+            "effect: Entities without an authoritative backend id remain script-local and do not receive a fabricated sender id or floating bubble.",
+            "effect: The historical MAX_CHATS_PER_TICK buffering and Player display acknowledgement remain unimplemented."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -16255,6 +16474,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.say",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -16340,6 +16565,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -16399,6 +16625,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -16458,6 +16685,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.entities",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.RuntimeEntity.showHealthBar",
@@ -16566,6 +16794,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -16625,6 +16854,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.entities",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.RuntimeEntity.tags",
@@ -16702,6 +16932,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.player.write",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.RuntimePlayer.velocity",
@@ -16778,6 +17009,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -16837,6 +17069,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -16889,6 +17122,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -16987,6 +17221,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -17046,6 +17281,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -17098,6 +17334,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -17150,6 +17387,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -17202,6 +17440,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -17254,6 +17493,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -17306,6 +17546,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -17358,6 +17599,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -17434,6 +17676,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -17517,6 +17760,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -17569,6 +17813,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -17628,6 +17873,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -17680,6 +17926,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -17763,6 +18010,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -17822,6 +18070,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -17874,14 +18123,8 @@
       "status": "compatible",
       "executable": true,
       "capability": "server.player",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.RuntimePlayer.action0Button",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.player",
-          "gaps": []
-        },
         {
           "localId": "server.RuntimePlayer.action0Button",
           "relation": "adapter",
@@ -17960,6 +18203,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -18012,14 +18256,8 @@
       "status": "compatible",
       "executable": true,
       "capability": "server.player",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.RuntimePlayer.action1Button",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.player",
-          "gaps": []
-        },
         {
           "localId": "server.RuntimePlayer.action1Button",
           "relation": "adapter",
@@ -18098,6 +18336,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -18174,6 +18413,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -18272,6 +18512,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -18324,6 +18565,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -18376,6 +18618,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -18428,6 +18671,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -18480,6 +18724,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -18532,6 +18777,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -18584,6 +18830,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -18636,6 +18883,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -18688,6 +18936,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -18740,6 +18989,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -18792,6 +19042,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -18844,6 +19095,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -18896,6 +19148,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -18948,6 +19201,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -19000,6 +19254,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -19052,6 +19307,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -19104,6 +19360,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.player.write",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.RuntimePlayer.color",
@@ -19178,6 +19435,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -19230,6 +19488,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -19282,6 +19541,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -19334,6 +19594,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -19386,6 +19647,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -19462,6 +19724,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -19538,6 +19801,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.chat",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.RuntimePlayer.sendMessage",
@@ -19546,7 +19810,8 @@
           "capability": "server.world.chat",
           "gaps": [
             "signature: Canonical directMessage accepts a string; local sendMessage accepts an unknown value and formats it for logging.",
-            "effect: Local behavior records/logs a message; historical direct player delivery is not proven."
+            "effect: Targeted delivery now uses the recovered Player game-chat.log packet with private=true through the bound MuDB session.",
+            "effect: The historical MAX_CHATS_PER_TICK buffering/flush policy and Player display acknowledgement remain unimplemented."
           ]
         }
       ],
@@ -19613,6 +19878,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -19665,6 +19931,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -19717,6 +19984,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -19769,6 +20037,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -19821,6 +20090,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -19870,17 +20140,11 @@
         "type": "boolean",
         "readonly": false
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
       "capability": "server.player.write",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.RuntimePlayer.enableAction0",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.player.write",
-          "gaps": []
-        },
         {
           "localId": "server.RuntimePlayer.enableAction0",
           "relation": "adapter",
@@ -19960,17 +20224,11 @@
         "type": "boolean",
         "readonly": false
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
       "capability": "server.player.write",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.RuntimePlayer.enableAction1",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.player.write",
-          "gaps": []
-        },
         {
           "localId": "server.RuntimePlayer.enableAction1",
           "relation": "adapter",
@@ -20050,17 +20308,11 @@
         "type": "boolean",
         "readonly": false
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
       "capability": "server.player.write",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.RuntimePlayer.enableDoubleJump",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.player.write",
-          "gaps": []
-        },
         {
           "localId": "server.RuntimePlayer.enableDoubleJump",
           "relation": "adapter",
@@ -20140,17 +20392,11 @@
         "type": "boolean",
         "readonly": false
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
       "capability": "server.player.write",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.RuntimePlayer.enableJump",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.player.write",
-          "gaps": []
-        },
         {
           "localId": "server.RuntimePlayer.enableJump",
           "relation": "adapter",
@@ -20233,6 +20479,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -20285,6 +20532,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -20337,6 +20585,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -20389,6 +20638,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -20441,6 +20691,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.player.write",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.RuntimePlayer.forceRespawn",
@@ -20515,6 +20766,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -20567,6 +20819,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -20619,6 +20872,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -20671,6 +20925,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -20723,6 +20978,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -20775,6 +21031,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -20827,14 +21084,8 @@
       "status": "compatible",
       "executable": true,
       "capability": "server.player",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.RuntimePlayer.jumpButton",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.player",
-          "gaps": []
-        },
         {
           "localId": "server.RuntimePlayer.jumpButton",
           "relation": "adapter",
@@ -20913,6 +21164,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -20965,6 +21217,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -21017,6 +21270,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -21069,6 +21323,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -21121,6 +21376,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -21173,6 +21429,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -21259,6 +21516,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -21311,6 +21569,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -21363,6 +21622,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -21415,6 +21675,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -21467,6 +21728,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -21519,6 +21781,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.player.write",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.RuntimePlayer.name",
@@ -21618,6 +21881,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -21694,6 +21958,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -21770,6 +22035,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -21846,6 +22112,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.RuntimePlayer.onPress",
@@ -21945,6 +22212,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.RuntimePlayer.onRelease",
@@ -22044,6 +22312,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.RuntimePlayer.onRespawn",
@@ -22143,6 +22412,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -22219,6 +22489,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -22295,6 +22566,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -22347,6 +22619,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -22423,6 +22696,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -22475,6 +22749,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -22527,6 +22802,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -22579,6 +22855,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -22631,6 +22908,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -22683,6 +22961,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -22759,6 +23038,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -22835,6 +23115,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -22911,6 +23192,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -22987,6 +23269,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -23039,6 +23322,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -23091,6 +23375,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -23143,6 +23428,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -23195,6 +23481,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -23247,6 +23534,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -23323,6 +23611,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -23375,6 +23664,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.player.write",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.RuntimePlayer.spawnPoint",
@@ -23450,6 +23740,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -23502,6 +23793,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -23554,6 +23846,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -23606,6 +23899,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -23658,6 +23952,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -23710,6 +24005,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -23762,6 +24058,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -23814,6 +24111,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -23866,6 +24164,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -23918,6 +24217,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -23970,6 +24270,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -24022,6 +24323,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -24074,6 +24376,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -24126,14 +24429,8 @@
       "status": "compatible",
       "executable": true,
       "capability": "server.player",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.RuntimePlayer.walkButton",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.player",
-          "gaps": []
-        },
         {
           "localId": "server.RuntimePlayer.walkButton",
           "relation": "adapter",
@@ -24212,6 +24509,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -24264,6 +24562,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -24340,6 +24639,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -24416,6 +24716,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -24492,6 +24793,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -24551,6 +24853,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -24627,6 +24930,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -24679,6 +24983,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -24755,6 +25060,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -24831,6 +25137,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -24907,6 +25214,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -25005,6 +25313,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -25081,6 +25390,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -25200,20 +25510,21 @@
       },
       "status": "compatible",
       "executable": true,
-      "capability": null,
+      "capability": "server.world.voxels",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.GameVoxels.getVoxel",
           "relation": "exact",
           "status": "compatible",
-          "capability": null,
+          "capability": "server.world.voxels",
           "gaps": []
         },
         {
           "localId": "server.GameVoxels.getVoxel",
           "relation": "adapter",
           "status": "compatible",
-          "capability": null,
+          "capability": "server.world.voxels",
           "gaps": []
         }
       ],
@@ -25375,20 +25686,21 @@
       },
       "status": "compatible",
       "executable": true,
-      "capability": null,
+      "capability": "server.world.voxels",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.GameVoxels.getVoxelId",
           "relation": "exact",
           "status": "compatible",
-          "capability": null,
+          "capability": "server.world.voxels",
           "gaps": []
         },
         {
           "localId": "server.GameVoxels.getVoxelId",
           "relation": "adapter",
           "status": "compatible",
-          "capability": null,
+          "capability": "server.world.voxels",
           "gaps": []
         }
       ],
@@ -25550,20 +25862,21 @@
       },
       "status": "compatible",
       "executable": true,
-      "capability": null,
+      "capability": "server.world.voxels",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.GameVoxels.getVoxelRotation",
           "relation": "exact",
           "status": "compatible",
-          "capability": null,
+          "capability": "server.world.voxels",
           "gaps": []
         },
         {
           "localId": "server.GameVoxels.getVoxelRotation",
           "relation": "adapter",
           "status": "compatible",
-          "capability": null,
+          "capability": "server.world.voxels",
           "gaps": []
         }
       ],
@@ -25681,20 +25994,21 @@
       },
       "status": "compatible",
       "executable": true,
-      "capability": null,
+      "capability": "server.world.voxels",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.GameVoxels.id",
           "relation": "exact",
           "status": "compatible",
-          "capability": null,
+          "capability": "server.world.voxels",
           "gaps": []
         },
         {
           "localId": "server.GameVoxels.id",
           "relation": "adapter",
           "status": "compatible",
-          "capability": null,
+          "capability": "server.world.voxels",
           "gaps": []
         }
       ],
@@ -25812,20 +26126,21 @@
       },
       "status": "compatible",
       "executable": true,
-      "capability": null,
+      "capability": "server.world.voxels",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.GameVoxels.name",
           "relation": "exact",
           "status": "compatible",
-          "capability": null,
+          "capability": "server.world.voxels",
           "gaps": []
         },
         {
           "localId": "server.GameVoxels.name",
           "relation": "adapter",
           "status": "compatible",
-          "capability": null,
+          "capability": "server.world.voxels",
           "gaps": []
         }
       ],
@@ -26031,20 +26346,21 @@
       },
       "status": "compatible",
       "executable": true,
-      "capability": null,
+      "capability": "server.world.voxels",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.GameVoxels.setVoxel",
           "relation": "exact",
           "status": "compatible",
-          "capability": null,
+          "capability": "server.world.voxels",
           "gaps": []
         },
         {
           "localId": "server.GameVoxels.setVoxel",
           "relation": "adapter",
           "status": "compatible",
-          "capability": null,
+          "capability": "server.world.voxels",
           "gaps": [
             "Four Chinese string rotation aliases remain unresolved because the recovered historical source contains mojibake at those switch cases."
           ]
@@ -26230,20 +26546,21 @@
       },
       "status": "compatible",
       "executable": true,
-      "capability": null,
+      "capability": "server.world.voxels",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.GameVoxels.setVoxelId",
           "relation": "exact",
           "status": "compatible",
-          "capability": null,
+          "capability": "server.world.voxels",
           "gaps": []
         },
         {
           "localId": "server.GameVoxels.setVoxelId",
           "relation": "adapter",
           "status": "compatible",
-          "capability": null,
+          "capability": "server.world.voxels",
           "gaps": []
         }
       ],
@@ -26337,20 +26654,21 @@
       },
       "status": "compatible",
       "executable": true,
-      "capability": null,
+      "capability": "server.world.voxels",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.GameVoxels.shape",
           "relation": "exact",
           "status": "compatible",
-          "capability": null,
+          "capability": "server.world.voxels",
           "gaps": []
         },
         {
           "localId": "server.GameVoxels.shape",
           "relation": "adapter",
           "status": "compatible",
-          "capability": null,
+          "capability": "server.world.voxels",
           "gaps": []
         }
       ],
@@ -26444,20 +26762,21 @@
       },
       "status": "compatible",
       "executable": true,
-      "capability": null,
+      "capability": "server.world.voxels",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.GameVoxels.VoxelTypes",
           "relation": "exact",
           "status": "compatible",
-          "capability": null,
+          "capability": "server.world.voxels",
           "gaps": []
         },
         {
           "localId": "server.GameVoxels.VoxelTypes",
           "relation": "adapter",
           "status": "compatible",
-          "capability": null,
+          "capability": "server.world.voxels",
           "gaps": []
         }
       ],
@@ -26595,17 +26914,11 @@
         ],
         "returns": "void"
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
       "capability": "server.world.entities",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.world.addCollisionFilter",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.entities",
-          "gaps": []
-        },
         {
           "localId": "server.world.addCollisionFilter",
           "relation": "adapter",
@@ -26726,6 +27039,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -26806,17 +27120,11 @@
         ],
         "returns": "GameZone"
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.world.addZone",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.events",
-          "gaps": []
-        },
         {
           "localId": "server.world.addZone",
           "relation": "adapter",
@@ -26888,22 +27196,16 @@
         "type": "number",
         "readonly": false
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
-      "capability": null,
+      "capability": "server.world.config",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.world.airFriction",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": null,
-          "gaps": []
-        },
         {
           "localId": "server.world.airFriction",
           "relation": "adapter",
           "status": "partial",
-          "capability": null,
+          "capability": "server.world.config",
           "gaps": [
             "The recovered property is script-visible, but writes do not yet reconfigure the fixed-step physics engine."
           ]
@@ -26973,6 +27275,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -27078,6 +27381,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -27137,6 +27441,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -27196,6 +27501,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -27255,6 +27561,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -27338,6 +27645,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.entities",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.world.createEntity",
@@ -27438,6 +27746,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -27497,14 +27806,8 @@
       "status": "compatible",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.world.currentTick",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.events",
-          "gaps": []
-        },
         {
           "localId": "server.world.currentTick",
           "relation": "adapter",
@@ -27601,6 +27904,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -27660,6 +27964,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -27716,22 +28021,16 @@
         "type": "GameRGBColor",
         "readonly": false
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
-      "capability": null,
+      "capability": "server.world.config",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.world.fogColor",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": null,
-          "gaps": []
-        },
         {
           "localId": "server.world.fogColor",
           "relation": "adapter",
           "status": "partial",
-          "capability": null,
+          "capability": "server.world.config",
           "gaps": [
             "The recovered GameRGBColor property is script-visible; client rendering propagation remains unimplemented."
           ]
@@ -27801,6 +28100,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -27860,6 +28160,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -27919,6 +28220,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -27978,6 +28280,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -28037,6 +28340,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -28096,6 +28400,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -28155,6 +28460,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -28214,6 +28520,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -28297,6 +28604,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -28353,22 +28661,16 @@
         "type": "number",
         "readonly": false
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
-      "capability": null,
+      "capability": "server.world.config",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.world.gravity",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": null,
-          "gaps": []
-        },
         {
           "localId": "server.world.gravity",
           "relation": "adapter",
           "status": "partial",
-          "capability": null,
+          "capability": "server.world.config",
           "gaps": [
             "The recovered property is script-visible, but writes do not yet reconfigure the fixed-step physics engine."
           ]
@@ -28438,6 +28740,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -28497,6 +28800,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -28577,17 +28881,11 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
       "capability": "server.world.chat",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.world.onChat",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.chat",
-          "gaps": []
-        },
         {
           "localId": "server.world.onChat",
           "relation": "adapter",
@@ -28683,17 +28981,11 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.world.onClick",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.events",
-          "gaps": []
-        },
         {
           "localId": "server.world.onClick",
           "relation": "adapter",
@@ -28793,6 +29085,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.world.onDie",
@@ -28898,17 +29191,11 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.world.onEntityContact",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.events",
-          "gaps": []
-        },
         {
           "localId": "server.world.onEntityContact",
           "relation": "adapter",
@@ -29013,17 +29300,11 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.world.onEntityCreate",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.events",
-          "gaps": []
-        },
         {
           "localId": "server.world.onEntityCreate",
           "relation": "adapter",
@@ -29119,17 +29400,11 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.world.onEntityDestroy",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.events",
-          "gaps": []
-        },
         {
           "localId": "server.world.onEntityDestroy",
           "relation": "adapter",
@@ -29228,6 +29503,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.world.onContactSeparate",
@@ -29324,17 +29600,11 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.world.onFluidEnter",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.events",
-          "gaps": []
-        },
         {
           "localId": "server.world.onFluidEnter",
           "relation": "adapter",
@@ -29430,17 +29700,11 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.world.onFluidLeave",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.events",
-          "gaps": []
-        },
         {
           "localId": "server.world.onFluidLeave",
           "relation": "adapter",
@@ -29539,6 +29803,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -29622,6 +29887,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.world.onPlayerJoin",
@@ -29721,6 +29987,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.world.onPlayerLeave",
@@ -29817,17 +30084,11 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.world.onPlayerPurchaseSuccess",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.events",
-          "gaps": []
-        },
         {
           "localId": "server.world.onPlayerPurchaseSuccess",
           "relation": "adapter",
@@ -29926,14 +30187,8 @@
       "status": "compatible",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.world.onPress",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.events",
-          "gaps": []
-        },
         {
           "localId": "server.world.onPress",
           "relation": "adapter",
@@ -30030,14 +30285,8 @@
       "status": "compatible",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.world.onRelease",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.events",
-          "gaps": []
-        },
         {
           "localId": "server.world.onRelease",
           "relation": "adapter",
@@ -30131,17 +30380,11 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.world.onRespawn",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.events",
-          "gaps": []
-        },
         {
           "localId": "server.world.onRespawn",
           "relation": "adapter",
@@ -30240,6 +30483,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.world.onTakeDamage",
@@ -30339,6 +30583,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.world.onTick",
@@ -30439,6 +30684,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.world.onVoxelContact",
@@ -30538,6 +30784,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.events",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.world.onVoxelSeparate",
@@ -30613,6 +30860,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -30672,6 +30920,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -30731,6 +30980,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -30790,6 +31040,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -30873,6 +31124,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.entities",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.world.querySelector",
@@ -30972,6 +31224,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.entities",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.world.querySelectorAll",
@@ -31047,6 +31300,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -31106,6 +31360,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -31165,6 +31420,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -31224,6 +31480,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -31283,6 +31540,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -31342,6 +31600,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -31401,6 +31660,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -31525,17 +31785,11 @@
         ],
         "returns": "GameRaycastResult"
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
       "capability": "server.world.entities",
+      "unavailableReason": null,
       "localBindings": [
-        {
-          "localId": "server.world.raycast",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.entities",
-          "gaps": []
-        },
         {
           "localId": "server.world.raycast",
           "relation": "adapter",
@@ -31681,6 +31935,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -31786,6 +32041,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -31869,6 +32125,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -31952,6 +32209,7 @@
       "status": "partial",
       "executable": true,
       "capability": "server.world.chat",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.world.say",
@@ -31959,7 +32217,8 @@
           "status": "partial",
           "capability": "server.world.chat",
           "gaps": [
-            "Local implementation records/logs messages but does not yet prove historical broadcast delivery and limits."
+            "Broadcast delivery now uses the recovered Player game-chat.log packet through connected MuDB sessions.",
+            "The historical MAX_CHATS_PER_TICK buffering/flush policy and Player display acknowledgement remain unimplemented."
           ]
         }
       ],
@@ -32051,6 +32310,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -32110,6 +32370,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -32169,6 +32430,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -32228,6 +32490,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -32287,6 +32550,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -32346,6 +32610,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -32405,6 +32670,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -32464,6 +32730,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -32523,6 +32790,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -32582,6 +32850,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -32641,6 +32910,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -32700,6 +32970,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -32759,6 +33030,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -32818,6 +33090,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -32901,6 +33174,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -32960,6 +33234,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -33019,6 +33294,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -33078,6 +33354,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -33137,6 +33414,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -33264,6 +33542,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -33323,6 +33602,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -33382,6 +33662,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -33441,6 +33722,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -33500,6 +33782,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -33557,6 +33840,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -33614,6 +33898,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -33671,6 +33956,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -33728,6 +34014,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -33782,15 +34069,16 @@
       "signature": {
         "type": "GameStorage"
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
-      "capability": null,
+      "capability": "server.storage",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.global.storage",
           "relation": "exact",
-          "status": "compatible",
-          "capability": null,
+          "status": "partial",
+          "capability": "server.storage",
           "gaps": []
         }
       ],
@@ -33856,20 +34144,21 @@
       },
       "status": "compatible",
       "executable": true,
-      "capability": null,
+      "capability": "server.world.voxels",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.global.voxels",
           "relation": "exact",
           "status": "compatible",
-          "capability": null,
+          "capability": "server.world.voxels",
           "gaps": []
         },
         {
           "localId": "server.global.voxels",
           "relation": "adapter",
           "status": "compatible",
-          "capability": null,
+          "capability": "server.world.voxels",
           "gaps": []
         }
       ],
@@ -33962,6 +34251,7 @@
       "status": "recovered-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "confirmed",
@@ -34019,6 +34309,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -34069,6 +34360,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -34119,6 +34411,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -34169,6 +34462,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -34219,6 +34513,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -34269,6 +34564,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -34319,6 +34615,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -34369,6 +34666,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -34419,6 +34717,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -34469,6 +34768,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -34545,6 +34845,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "server.remote-channel",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.remoteChannel.broadcastClientEvent",
@@ -34645,6 +34946,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "server.remote-channel",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.remoteChannel.onServerEvent",
@@ -34765,6 +35067,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "server.remote-channel",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "server.remoteChannel.sendClientEvent",
@@ -34841,6 +35144,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -34893,6 +35197,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -34945,6 +35250,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -35021,6 +35327,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -35097,6 +35404,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -35173,6 +35481,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -35225,6 +35534,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -35277,6 +35587,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -35329,6 +35640,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -35381,6 +35693,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -35457,6 +35770,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -35533,6 +35847,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -35609,6 +35924,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -35675,6 +35991,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -35773,6 +36090,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -35825,6 +36143,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -35901,6 +36220,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -35977,6 +36297,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -36029,6 +36350,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -36215,6 +36537,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -36267,6 +36590,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -36319,6 +36643,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -36371,6 +36696,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -36423,6 +36749,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -36499,6 +36826,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -36575,6 +36903,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -36627,6 +36956,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -36703,6 +37033,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -36779,6 +37110,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -36855,6 +37187,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -36931,6 +37264,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -37029,6 +37363,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -37149,6 +37484,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -37291,6 +37627,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -37367,6 +37704,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -37419,6 +37757,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -37471,6 +37810,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -37547,6 +37887,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -37599,6 +37940,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -37675,6 +38017,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -37751,6 +38094,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -37827,6 +38171,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -37925,6 +38270,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -38067,6 +38413,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -38165,6 +38512,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -38217,6 +38565,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -38293,6 +38642,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -38345,6 +38695,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -38397,6 +38748,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -38449,6 +38801,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -38501,6 +38854,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -38553,6 +38907,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -38605,6 +38960,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -38681,6 +39037,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -38757,6 +39114,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -38809,6 +39167,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -38885,6 +39244,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -38937,6 +39297,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -39013,6 +39374,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -39089,6 +39451,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -39165,6 +39528,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -39241,6 +39605,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -39293,6 +39658,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -39435,6 +39801,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -39533,6 +39900,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -39609,6 +39977,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -39685,6 +40054,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -39737,6 +40107,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -39879,6 +40250,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -39955,6 +40327,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -40031,6 +40404,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -40083,6 +40457,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -40159,6 +40534,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -40235,6 +40611,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -40287,6 +40664,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -40339,6 +40717,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -40415,6 +40794,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -40491,6 +40871,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -40567,6 +40948,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -40643,6 +41025,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -40695,6 +41078,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -40815,6 +41199,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -40913,6 +41298,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -40989,6 +41375,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -41065,6 +41452,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -41117,6 +41505,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -41169,6 +41558,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -41289,6 +41679,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -41365,6 +41756,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -41441,6 +41833,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -41493,6 +41886,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -41545,6 +41939,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -41621,6 +42016,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.add",
@@ -41719,6 +42115,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.addEq",
@@ -41817,6 +42214,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.angle",
@@ -41891,6 +42289,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.clone",
@@ -41989,6 +42388,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.copy",
@@ -42087,6 +42487,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.cross",
@@ -42185,6 +42586,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.distance",
@@ -42283,6 +42685,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.div",
@@ -42381,6 +42784,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.divEq",
@@ -42479,6 +42883,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.dot",
@@ -42577,6 +42982,7 @@
       "status": "partial",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.equals",
@@ -42682,6 +43088,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.exactEquals",
@@ -42824,6 +43231,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.fromPolar",
@@ -42966,6 +43374,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.GameVector3",
@@ -43086,6 +43495,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.lerp",
@@ -43160,6 +43570,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.mag",
@@ -43258,6 +43669,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.max",
@@ -43356,6 +43768,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.min",
@@ -43454,6 +43867,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.mul",
@@ -43552,6 +43966,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.mulEq",
@@ -43626,6 +44041,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.normalize",
@@ -43724,6 +44140,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.scale",
@@ -43866,6 +44283,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.set",
@@ -43940,6 +44358,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.sqrMag",
@@ -44038,6 +44457,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.sub",
@@ -44136,6 +44556,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.subEq",
@@ -44210,6 +44631,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.toString",
@@ -44308,6 +44730,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.towards",
@@ -44382,6 +44805,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.x",
@@ -44456,6 +44880,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.y",
@@ -44530,6 +44955,7 @@
       "status": "compatible",
       "executable": true,
       "capability": "shared.math",
+      "unavailableReason": null,
       "localBindings": [
         {
           "localId": "shared.GameVector3.z",
@@ -44604,6 +45030,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -44680,6 +45107,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -44756,6 +45184,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",
@@ -44808,6 +45237,7 @@
       "status": "declared-only",
       "executable": false,
       "capability": null,
+      "unavailableReason": null,
       "localBindings": [],
       "recovery": {
         "availability": "declared",

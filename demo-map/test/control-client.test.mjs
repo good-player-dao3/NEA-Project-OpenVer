@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import test from "node:test";
-import { getPlayerStateFromBackend, queuePlayerStateToBackend, sendClientEventToBackend, sendGuiCommandToBackend } from "../src/control-client.mjs";
+import { getPlayerStateFromBackend, queuePlayerStateToBackend, sendChatMessageToBackend, sendClientEventToBackend, sendGuiCommandToBackend } from "../src/control-client.mjs";
 
 test("control client rejects an invalid token and accepts an authenticated delivery", async () => {
   const received = [];
@@ -45,6 +45,26 @@ test("control client sends GUI commands and propagates native results", async ()
   await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
   assert.deepEqual(result, { text: "3" });
   assert.deepEqual(received, [{ url: "/__nea/control/gui-command", body: { session: "local...0003", command: { operation: "getAttribute", selector: "#score", name: "text" } } }]);
+});
+
+test("control client sends broadcast and private chat messages", async () => {
+  const received = [];
+  const server = createServer(async (request, response) => {
+    const chunks = [];
+    for await (const chunk of request) chunks.push(chunk);
+    received.push({ url: request.url, body: JSON.parse(Buffer.concat(chunks).toString("utf8")) });
+    response.setHeader("content-type", "application/json");
+    response.end(JSON.stringify({ ok: true, delivered: 1 }));
+  });
+  await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
+  const port = server.address().port;
+  await sendChatMessageToBackend({ port, token: "expected", message: { text: "broadcast", senderId: 0, private: false, duration: 0, hideFloat: false } });
+  await sendChatMessageToBackend({ port, token: "expected", session: "local...0004", message: { text: "private", senderId: 0, private: true, duration: 0, hideFloat: false } });
+  await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
+  assert.deepEqual(received, [
+    { url: "/__nea/control/chat-message", body: { message: { text: "broadcast", senderId: 0, private: false, duration: 0, hideFloat: false } } },
+    { url: "/__nea/control/chat-message", body: { session: "local...0004", message: { text: "private", senderId: 0, private: true, duration: 0, hideFloat: false } } },
+  ]);
 });
 
 test("control client reads and queues authoritative player state", async () => {

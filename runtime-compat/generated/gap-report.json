@@ -1,14 +1,14 @@
 {
   "format": "nea-runtime-gap-report",
   "version": 1,
-  "generatedAt": "2026-07-30T11:27:11.848Z",
+  "generatedAt": "2026-07-30T16:52:51.445Z",
   "summary": {
     "documentedDeclarations": 599,
-    "currentContractEntries": 313,
-    "recoveredContractEntries": 265,
-    "exactIdMatches": 231,
-    "documentedMissing": 368,
-    "localExtensions": 111,
+    "currentContractEntries": 314,
+    "recoveredContractEntries": 266,
+    "exactIdMatches": 232,
+    "documentedMissing": 367,
+    "localExtensions": 112,
     "bySide": {
       "client": {
         "declared": 126,
@@ -17,8 +17,8 @@
       },
       "server": {
         "declared": 346,
-        "compatible": 75,
-        "missing": 271
+        "compatible": 76,
+        "missing": 270
       },
       "shared": {
         "declared": 127,
@@ -29,23 +29,24 @@
     "catalogStatus": {
       "client": {
         "confirmed/native": 132,
-        "declared/missing": 1
+        "unsupported/missing": 1
       },
       "server": {
         "confirmed/emulated": 52,
         "confirmed/missing": 646,
         "declared/missing": 141,
         "confirmed/bridged": 5,
-        "confirmed/partial": 66,
+        "confirmed/partial": 67,
         "confirmed/compatible": 10
       }
     },
     "compatibilityStatus": {
       "native": 125,
-      "compatible": 73,
-      "partial": 33,
-      "recovered-only": 146,
-      "declared-only": 222
+      "compatible": 50,
+      "partial": 57,
+      "recovered-only": 145,
+      "unavailable": 1,
+      "declared-only": 221
     }
   },
   "warnings": [
@@ -104,7 +105,7 @@
     "Recover ContactBinding or equivalent server source to determine GameEntity.contactForce aggregation and active contact object reuse.",
     "Integrate the recovered per-contact impulse force formula only with a compatible authoritative solver, not the current sweep approximation.",
     "Bind recovered origin GameEntity and GamePlayer surfaces to server runtime adapters only after behavior matches.",
-    "Resolve the remaining client UiInput.placeholderOpacity wrapper or retain it as explicitly unavailable."
+    "Search other evidence-compatible historical Player providers before changing the confirmed-unavailable UiInput.placeholderOpacity classification for the selected archived provider."
   ],
   "covered": [
     "client.Audio.Audio",
@@ -244,6 +245,7 @@
     "server.GameEntity.onDie",
     "server.GameEntity.onTakeDamage",
     "server.GameEntity.position",
+    "server.GameEntity.say",
     "server.GameEntity.showHealthBar",
     "server.GameEntity.tags",
     "server.GameEntity.velocity",
@@ -416,7 +418,6 @@
     "server.GameEntity.removeTag",
     "server.GameEntity.restitution",
     "server.GameEntity.rotateLocal",
-    "server.GameEntity.say",
     "server.GameEntity.scaleLocal",
     "server.GameEntity.showEntityName",
     "server.GameEntity.sound",
@@ -758,6 +759,7 @@
     "server.RuntimeEntity.onDie",
     "server.RuntimeEntity.onTakeDamage",
     "server.RuntimeEntity.position",
+    "server.RuntimeEntity.say",
     "server.RuntimeEntity.showHealthBar",
     "server.RuntimeEntity.snapshot",
     "server.RuntimeEntity.tags",

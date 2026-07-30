@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-abi",
   "version": 1,
-  "generatedAt": "2026-07-30T11:27:10.907Z",
+  "generatedAt": "2026-07-30T16:52:50.339Z",
   "side": "client",
   "entries": [
     {
@@ -5155,18 +5155,37 @@
         "type": "number",
         "readonly": true
       },
-      "availability": "declared",
+      "availability": "unsupported",
       "compatibility": "missing",
       "capability": null,
       "since": null,
       "notes": [
-        "Declared by documentation page: UI 输入"
+        "Declared by documentation page: UI 输入",
+        "The archived Player stores placeholderOpacity on the underlying UiInput renderable, but module 21031 exposes no public getter and module 93474 hardens the UiInput constructor, so delivered map scripts cannot add a compatible wrapper without replacing the historical runtime provider."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/ClientUI/node/UiInput.md",
           "symbol": "只读placeholderOpacity: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/734.8dcb480d99773395.js",
+          "symbol": "module 21031 UiInput wrapper and input focus events",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/734.8dcb480d99773395.js",
+          "symbol": "underlying UiInput renderable placeholderOpacity state",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/474.c17d0cc8a4489c84.js",
+          "symbol": "module 93474 hardened UiInput global",
           "confidence": "direct"
         }
       ],
@@ -5190,7 +5209,8 @@
             }
           ]
         }
-      ]
+      ],
+      "unavailableReason": "The archived Player stores placeholderOpacity on the underlying UiInput renderable, but module 21031 exposes no public getter and module 93474 hardens the UiInput constructor, so delivered map scripts cannot add a compatible wrapper without replacing the historical runtime provider."
     },
     {
       "id": "client.UiNode.children",
