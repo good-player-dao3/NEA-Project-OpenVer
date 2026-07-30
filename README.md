@@ -1,6 +1,6 @@
-# OpenVer
+# NEA Project OpenVer
 
-OpenVer is a preservation and compatibility effort for the discontinued dao3.fun game runtime. It provides a self-hostable research and implementation base for importing preserved projects, running map scripts, and validating recovered runtime behavior.
+NEA Project OpenVer is a preservation and compatibility effort for the discontinued dao3.fun game runtime. It provides a self-hostable research and implementation base for importing preserved projects, running map scripts, and validating recovered runtime behavior.
 
 The `beta` branch remains the evidence-first development line. It separates the project package, client Script Runtime, server Script Runtime, MuDB transport, and authoritative game runtime instead of treating the archived Player as a complete server implementation.
 
@@ -14,7 +14,7 @@ The root intentionally separates executable code from preserved evidence:
 - `preservation-dump/`: bounded capture and export tools; private output stays under `dump/private/`.
 - `works/`: local work catalog; actual recovered works stay under ignored `works/private/`.
 - `dao3-docs-mirror/`, `origin/`, `mudb/`, and `box-go/`: historical or third-party evidence, not new application architecture.
-- `dump/` and `Lokibox/`: preserved local evidence. Treat private or packaged contents as non-publishable.
+- `dump/`: preserved local evidence. Treat private or packaged contents as non-publishable.
 - `tools/`: repository maintenance helpers.
 - `.workspace/`: ignored local logs and transient operator output.
 
@@ -54,8 +54,7 @@ http://127.0.0.1:4322/play/nea-script-lab?contentId=100110008
 
 ## Evidence safety
 
-Private browser profiles, cookies, login databases, session state, tokens, logs, dependency trees, packaged desktop binaries, and private captured scripts are intentionally excluded from version control. Generated reports record evidence classifications and gaps without publishing private session material.
+Private browser profiles, cookies, login databases, session state, tokens, logs, dependency trees, packaged desktop binaries, and private captured scripts are intentionally excluded from version control. Generated reports record evidence classifications and gaps without publishing private session material。
 
-## License
-
-This repository is source-available under the [PolyForm Noncommercial License 1.0.0](LICENSE.md). Commercial use is not permitted under that license.
+项目乱得要死，待会整理。
+这是我电脑文件夹内的内容。
