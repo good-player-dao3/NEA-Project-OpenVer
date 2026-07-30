@@ -6,6 +6,7 @@ const DEFAULT_MATERIAL = Object.freeze({ solid: true, friction: 8, restitution: 
 
 export class VoxelCollisionWorld {
   #chunks = new Map();
+  #chunkCount = 0;
   #voxelIds = new Map();
   #materials = new Map();
   #colliders = [];
@@ -31,25 +32,24 @@ export class VoxelCollisionWorld {
   }
 
   getVoxelId(x, y, z) {
-    return this.#voxelIds.get(key(x, y, z)) ?? 0;
+    return getNested(this.#voxelIds, x, y, z) ?? 0;
   }
 
   setVoxelId(x, y, z, fullId) {
-    const cellKey = key(x, y, z);
-    const previous = this.#voxelIds.get(cellKey) ?? 0;
+    const previous = getNested(this.#voxelIds, x, y, z) ?? 0;
     if (previous === fullId) return fullId;
     if (previous !== 0) this.#removeCollisionCell(x, y, z);
     if (fullId === 0) {
-      this.#voxelIds.delete(cellKey);
+      deleteNested(this.#voxelIds, x, y, z);
       return 0;
     }
-    this.#voxelIds.set(cellKey, fullId);
+    setNested(this.#voxelIds, x, y, z, fullId);
     const blockId = fullId & 0x3fff;
     const material = this.materialFor(blockId);
     if (!material.solid || blockId === 0) return fullId;
     const cell = Object.freeze({
       kind: "voxel",
-      id: cellKey,
+      id: key(x, y, z),
       x,
       y,
       z,
@@ -59,21 +59,31 @@ export class VoxelCollisionWorld {
       material,
       tags: Object.freeze([]),
     });
-    const chunkKey = key(Math.floor(x / CHUNK_SIZE), Math.floor(y / CHUNK_SIZE), Math.floor(z / CHUNK_SIZE));
-    const chunk = this.#chunks.get(chunkKey) ?? [];
+    const chunkX = Math.floor(x / CHUNK_SIZE);
+    const chunkY = Math.floor(y / CHUNK_SIZE);
+    const chunkZ = Math.floor(z / CHUNK_SIZE);
+    let chunk = getNested(this.#chunks, chunkX, chunkY, chunkZ);
+    if (!chunk) {
+      chunk = [];
+      setNested(this.#chunks, chunkX, chunkY, chunkZ, chunk);
+      this.#chunkCount += 1;
+    }
     chunk.push(cell);
-    this.#chunks.set(chunkKey, chunk);
     return fullId;
   }
 
   #removeCollisionCell(x, y, z) {
-    const chunkKey = key(Math.floor(x / CHUNK_SIZE), Math.floor(y / CHUNK_SIZE), Math.floor(z / CHUNK_SIZE));
-    const chunk = this.#chunks.get(chunkKey);
+    const chunkX = Math.floor(x / CHUNK_SIZE);
+    const chunkY = Math.floor(y / CHUNK_SIZE);
+    const chunkZ = Math.floor(z / CHUNK_SIZE);
+    const chunk = getNested(this.#chunks, chunkX, chunkY, chunkZ);
     if (!chunk) return;
-    const cellKey = key(x, y, z);
-    const index = chunk.findIndex(cell => cell.id === cellKey);
+    const index = chunk.findIndex(cell => cell.x === x && cell.y === y && cell.z === z);
     if (index >= 0) chunk.splice(index, 1);
-    if (chunk.length === 0) this.#chunks.delete(chunkKey);
+    if (chunk.length === 0) {
+      deleteNested(this.#chunks, chunkX, chunkY, chunkZ);
+      this.#chunkCount -= 1;
+    }
   }
 
   sweep(body, axis, amount) {
@@ -85,10 +95,13 @@ export class VoxelCollisionWorld {
     this.#diagnostics.candidates += candidates.length;
     let allowed = amount;
     const hits = [];
+    const upper = axis.toUpperCase();
+    const boxMin = shapeBox[`min${upper}`];
+    const boxMax = shapeBox[`max${upper}`];
 
     for (const collider of candidates) {
       if (!overlapsOtherAxes(shapeBox, collider, axis)) continue;
-      const limit = movementLimit(shapeBox, collider, axis, amount);
+      const limit = movementLimit(boxMin, boxMax, collider, axis, amount);
       if (limit === undefined) continue;
       if (amount > 0 ? limit < allowed : limit > allowed) {
         allowed = limit;
@@ -115,7 +128,7 @@ export class VoxelCollisionWorld {
   diagnostics() {
     return Object.freeze({
       ...this.#diagnostics,
-      chunks: this.#chunks.size,
+      chunks: this.#chunkCount,
       colliders: this.#colliders.length,
       triggers: this.#triggers.length,
     });
@@ -137,7 +150,7 @@ export class VoxelCollisionWorld {
       for (let chunkY = Math.floor(minY / CHUNK_SIZE); chunkY <= Math.floor(maxY / CHUNK_SIZE); chunkY += 1) {
         for (let chunkZ = Math.floor(minZ / CHUNK_SIZE); chunkZ <= Math.floor(maxZ / CHUNK_SIZE); chunkZ += 1) {
           this.#diagnostics.chunkQueries += 1;
-          for (const voxel of this.#chunks.get(key(chunkX, chunkY, chunkZ)) ?? []) {
+          for (const voxel of getNested(this.#chunks, chunkX, chunkY, chunkZ) ?? []) {
             if (voxel.max.x < minX || voxel.min.x > maxX + 1) continue;
             if (voxel.max.y < minY || voxel.min.y > maxY + 1) continue;
             if (voxel.max.z < minZ || voxel.min.z > maxZ + 1) continue;
@@ -192,10 +205,7 @@ function overlapsOtherAxes(box, collider, axis) {
   return true;
 }
 
-function movementLimit(box, collider, axis, amount) {
-  const upper = axis.toUpperCase();
-  const min = box[`min${upper}`];
-  const max = box[`max${upper}`];
+function movementLimit(min, max, collider, axis, amount) {
   const colliderMin = collider.min[axis];
   const colliderMax = collider.max[axis];
   if (amount > 0) {
@@ -219,4 +229,35 @@ function axisNormal(axis, amount) {
 
 function key(x, y, z) {
   return `${x},${y},${z}`;
+}
+
+// Coordinates are unbounded (the world shape may grow past today's limit), so cells are
+// indexed through nested integer-keyed Maps instead of a bound-dependent packed number or
+// a per-lookup string key.
+function getNested(map, x, y, z) {
+  return map.get(x)?.get(y)?.get(z);
+}
+
+function setNested(map, x, y, z, value) {
+  let byY = map.get(x);
+  if (!byY) {
+    byY = new Map();
+    map.set(x, byY);
+  }
+  let byZ = byY.get(y);
+  if (!byZ) {
+    byZ = new Map();
+    byY.set(y, byZ);
+  }
+  byZ.set(z, value);
+}
+
+function deleteNested(map, x, y, z) {
+  const byY = map.get(x);
+  if (!byY) return;
+  const byZ = byY.get(y);
+  if (!byZ) return;
+  byZ.delete(z);
+  if (byZ.size === 0) byY.delete(y);
+  if (byY.size === 0) map.delete(x);
 }

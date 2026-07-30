@@ -295,8 +295,9 @@ export class ScriptRuntime {
     const signal = this.#signals[type];
     const player = this.#players.get(playerId);
     if (!signal || !player) return false;
-    signal.emit(Object.freeze({ tick: this.currentTick, entity: player, player, ...structuredClone(details) }), error => this.#reportError(type, error));
-    player._signals?.[type]?.emit(Object.freeze({ tick: this.currentTick, entity: player, player, ...structuredClone(details) }), error => this.#reportError(type, error));
+    const clonedDetails = structuredClone(details);
+    signal.emit(Object.freeze({ tick: this.currentTick, entity: player, player, ...clonedDetails }), error => this.#reportError(type, error));
+    player._signals?.[type]?.emit(Object.freeze({ tick: this.currentTick, entity: player, player, ...clonedDetails }), error => this.#reportError(type, error));
     return true;
   }
 
@@ -768,8 +769,12 @@ export class ScriptRuntime {
 
   #resolveHurtAttacker(attacker) {
     if (!attacker || typeof attacker !== "object") return null;
-    if ([...this.#players.values()].includes(attacker)) return attacker;
-    if ([...this.#entities.values()].includes(attacker)) return attacker;
+    for (const player of this.#players.values()) {
+      if (player === attacker) return attacker;
+    }
+    for (const entity of this.#entities.values()) {
+      if (entity === attacker) return attacker;
+    }
     return null;
   }
 
