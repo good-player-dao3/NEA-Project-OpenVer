@@ -75,6 +75,36 @@ export async function destroyEntityOnBackend(options) {
   return result;
 }
 
+export async function createEntityOnBackend(options) {
+  const response = await fetch(`http://127.0.0.1:${options.port}/__nea/control/entity-create`, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${options.token}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ entity: options.entity }),
+    signal: options.signal,
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || result.ok !== true) throw new Error(result.error ?? `Backend entity create bridge failed with HTTP ${response.status}`);
+  return result;
+}
+
+export async function queueEntityStateToBackend(options) {
+  const response = await fetch(`http://127.0.0.1:${options.port}/__nea/control/entity-state`, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${options.token}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ entityId: options.entityId, state: options.state }),
+    signal: options.signal,
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || result.ok !== true) throw new Error(result.error ?? `Backend entity state bridge failed with HTTP ${response.status}`);
+  return result;
+}
+
 export async function sendGuiCommandToBackend(options) {
   const response = await fetch(`http://127.0.0.1:${options.port}/__nea/control/gui-command`, {
     method: "POST",

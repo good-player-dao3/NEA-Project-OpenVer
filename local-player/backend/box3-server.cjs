@@ -14796,6 +14796,10 @@ var LegacyHistoricalProjectInstance = class {
       }
     });
   }
+  queueRuntimeEntityState(entityId, state) {
+    if (!Number.isSafeInteger(entityId) || entityId < 1) return false;
+    return this.gameRuntime.updateEntityTransform(entityId, state) !== void 0;
+  }
   /** Starts services whose timers must begin only after the gateway is listening. */
   start() {
     this.forgeResources?.start();
@@ -16571,6 +16575,16 @@ var Box3Server = class {
     if (!this.running) return false;
     return this.historicalProjectInstance?.destroyRuntimeEntity(entityId) ?? false;
   }
+  /** Loopback-only ingress used by the NEA Script Runtime entity projection bridge. */
+  createRuntimeEntity(entity) {
+    if (!this.running) return void 0;
+    return this.historicalProjectInstance?.createRuntimeEntity(entity);
+  }
+  /** Loopback-only ingress used by the NEA Script Runtime entity transform bridge. */
+  queueRuntimeEntityState(entityId, state) {
+    if (!this.running) return false;
+    return this.historicalProjectInstance?.queueRuntimeEntityState(entityId, state) ?? false;
+  }
   /**
    * Host-only ingress for the recovered player-protocol profile-dialog frame.
    * This is not an HTTP route, project API, profile service, or account bridge.
@@ -17223,6 +17237,24 @@ async function startNeaControlBridge(server, logger) {
         const destroyed = server.destroyRuntimeEntity(body.entityId);
         response.statusCode = destroyed ? 200 : 404;
         response.end(JSON.stringify(destroyed ? { ok: true, destroyed: true } : { ok: false, error: "entity not found" }));
+        return;
+      }
+      if (request.method === "POST" && url.pathname === "/__nea/control/entity-create") {
+        const created = server.createRuntimeEntity(body.entity);
+        if (!created) {
+          response.statusCode = 422;
+          response.end(JSON.stringify({ ok: false, error: "runtime entity mesh is not available" }));
+          return;
+        }
+        response.statusCode = 200;
+        response.end(JSON.stringify({ ok: true, entityId: created.entityId }));
+        return;
+      }
+      if (request.method === "POST" && url.pathname === "/__nea/control/entity-state") {
+        if (!Number.isSafeInteger(body.entityId) || body.entityId < 1) throw new Error("entityId must be a positive safe integer");
+        const queued = server.queueRuntimeEntityState(body.entityId, body.state);
+        response.statusCode = queued ? 202 : 404;
+        response.end(JSON.stringify(queued ? { ok: true, queued: true } : { ok: false, error: "entity not found" }));
         return;
       }
       response.statusCode = 404;
