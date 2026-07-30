@@ -302,7 +302,13 @@ test("GamePlayer color, spawnPoint, forceRespawn, and respawn events match recov
     });
   `, "utf8");
   const writes = [];
-  const runtime = await ScriptRuntime.load(output, { blockCatalog, writePlayerState: async (playerId, state) => writes.push({ playerId, state }), logger: { info() {}, warn() {}, error() {} } });
+  const damageWrites = [];
+  const runtime = await ScriptRuntime.load(output, {
+    blockCatalog,
+    writePlayerState: async (playerId, state) => writes.push({ playerId, state }),
+    writeDamageState: async (target, state, events) => damageWrites.push({ target, state, events }),
+    logger: { info() {}, warn() {}, error() {} },
+  });
   await runtime.start();
   const player = runtime.addPlayer({ id: "respawn-player", position: [1, 2, 3], authority: "backend" });
   await new Promise(resolveEvent => setTimeout(resolveEvent, 1));
@@ -313,6 +319,7 @@ test("GamePlayer color, spawnPoint, forceRespawn, and respawn events match recov
   assert.equal(player.playerRespawnObserved, true);
   assert.equal(writes.at(-1)?.playerId, "respawn-player");
   assert.deepEqual(writes.at(-1)?.state.position, [10, 20, 30]);
+  assert.equal(damageWrites.some(write => write.target.playerId === "respawn-player" && write.events.respawn === true), true);
   runtime.stop();
 });
 
@@ -349,6 +356,124 @@ test("GamePlayer damage dispatches documented entity and world damage events", a
   const expected = { tick: 0, entity: "damage-player", attacker: null, damage: 25, damageType: "" };
   assert.deepEqual({ ...player.playerDamage }, expected);
   assert.deepEqual({ ...player.worldDamage }, expected);
+  runtime.stop();
+});
+
+test("GameEntity hurt follows recovered damage, healing, death, and client-event semantics", async () => {
+  const sourceRoot = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-hurt-")), "project");
+  await importMapProject(sourceRoot, output);
+  await writeFile(join(output, "scripts", "server.js"), `
+    const dummy = world.createEntity({ id: "damage-dummy", enableDamage: true, hp: 10, maxHp: 10 });
+    dummy.damageEvents = [];
+    dummy.dieEvents = [];
+    dummy.onTakeDamage(event => dummy.damageEvents.push({ damage: event.damage, attacker: event.attacker && event.attacker.id, damageType: event.damageType }));
+    dummy.onDie(event => dummy.dieEvents.push({ attacker: event.attacker && event.attacker.id, damageType: event.damageType }));
+    world.onTakeDamage(event => {
+      if (event.entity.isPlayer) remoteChannel.sendClientEvent([event.entity], {
+        type: "health-update", hp: event.entity.hp, damage: event.damage,
+        attacker: event.attacker && event.attacker.id, damageType: event.damageType,
+      });
+    });
+    world.onDie(event => {
+      if (event.entity.isPlayer) remoteChannel.sendClientEvent([event.entity], {
+        type: "death", attacker: event.attacker && event.attacker.id, damageType: event.damageType,
+      });
+    });
+    world.onPlayerJoin(({ entity }) => {
+      entity.enableDamage = true;
+      entity.maxHp = 20;
+      entity.hp = 20;
+      entity.damageDummy = dummy;
+      entity.damageEvents = [];
+      entity.dieEvents = [];
+      entity.onTakeDamage(event => entity.damageEvents.push({ damage: event.damage, attacker: event.attacker && event.attacker.id, damageType: event.damageType }));
+      entity.onDie(event => entity.dieEvents.push({ attacker: event.attacker && event.attacker.id, damageType: event.damageType }));
+    });
+  `, "utf8");
+  const delivered = [];
+  const damageWrites = [];
+  const runtime = await ScriptRuntime.load(output, {
+    blockCatalog,
+    logger: { info() {}, warn() {}, error() {} },
+    sendClientEvent: (playerId, event) => delivered.push({ playerId, event }),
+    writeDamageState: (target, state, events) => damageWrites.push({ target, state, events }),
+  });
+  await runtime.start();
+  const attacker = runtime.addPlayer({ id: "hurt-attacker" });
+  const target = runtime.addPlayer({ id: "hurt-target" });
+  delivered.length = 0;
+  damageWrites.length = 0;
+
+  assert.equal(target.hurt(5, { attacker, damageType: "melee" }), undefined);
+  target.hurt(-2, { attacker, damageType: "ignored-heal-source" });
+  target.hurt(50, "void");
+  target.hurt(1);
+  target.damageDummy.hurt(4, { attacker, damageType: "golem" });
+  target.damageDummy.hurt(6, { attacker, damageType: "golem" });
+
+  assert.equal(target.hp, 0);
+  assert.deepEqual(JSON.parse(JSON.stringify(target.damageEvents)), [
+    { damage: 5, attacker: "hurt-attacker", damageType: "melee" },
+    { damage: -2, attacker: null, damageType: "" },
+    { damage: 50, attacker: null, damageType: "void" },
+  ]);
+  assert.deepEqual(JSON.parse(JSON.stringify(target.dieEvents)), [{ attacker: null, damageType: "void" }]);
+  assert.deepEqual(JSON.parse(JSON.stringify(target.damageDummy.damageEvents)), [
+    { damage: 4, attacker: "hurt-attacker", damageType: "golem" },
+    { damage: 6, attacker: "hurt-attacker", damageType: "golem" },
+  ]);
+  assert.deepEqual(JSON.parse(JSON.stringify(target.damageDummy.dieEvents)), [{ attacker: "hurt-attacker", damageType: "golem" }]);
+  assert.deepEqual(delivered, [
+    { playerId: "hurt-target", event: { type: "health-update", hp: 15, damage: 5, attacker: "hurt-attacker", damageType: "melee" } },
+    { playerId: "hurt-target", event: { type: "health-update", hp: 17, damage: -2, attacker: null, damageType: "" } },
+    { playerId: "hurt-target", event: { type: "health-update", hp: 0, damage: 50, attacker: null, damageType: "void" } },
+    { playerId: "hurt-target", event: { type: "death", attacker: null, damageType: "void" } },
+  ]);
+  assert.deepEqual(damageWrites, [
+    { target: { playerId: "hurt-target" }, state: { showHealthBar: true, hp: 15, maxHp: 20 }, events: { hurt: 5, die: false } },
+    { target: { playerId: "hurt-target" }, state: { showHealthBar: true, hp: 17, maxHp: 20 }, events: { hurt: -2, die: false } },
+    { target: { playerId: "hurt-target" }, state: { showHealthBar: true, hp: 0, maxHp: 20 }, events: { hurt: 50, die: true } },
+  ]);
+  runtime.stop();
+});
+
+test("GameEntity destroy removes non-player entities once and despawns mapped replicas", async () => {
+  const sourceRoot = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-destroy-")), "project");
+  await importMapProject(sourceRoot, output);
+  await writeFile(join(output, "scripts", "server.js"), `
+    world.onPlayerJoin(({ entity }) => {
+      const target = world.querySelector(".interactable");
+      let destroyEvents = 0;
+      target.onDestroy(event => {
+        destroyEvents += 1;
+        entity.destroyEventMatches = event.entity === target && event.player === target;
+      });
+      target.destroy();
+      target.destroy();
+      entity.destroy();
+      entity.destroyResult = {
+        destroyed: target.destroyed,
+        queryMissing: world.querySelector(".interactable") === null,
+        destroyEvents,
+        playerSurvived: entity.destroyed === false,
+      };
+    });
+  `, "utf8");
+  const destroyed = [];
+  const runtime = await ScriptRuntime.load(output, {
+    blockCatalog,
+    destroyEntity: entityId => destroyed.push(entityId),
+    logger: { info() {}, warn() {}, error() {} },
+  });
+  await runtime.start();
+  assert.equal(runtime.bindBackendEntities([{ sourceId: "central-beacon", entityId: 1000042 }]), 1);
+  const player = runtime.addPlayer({ id: "destroy-player" });
+  await new Promise(resolveEvent => setTimeout(resolveEvent, 1));
+  assert.deepEqual({ ...player.destroyResult }, { destroyed: true, queryMissing: true, destroyEvents: 1, playerSurvived: true });
+  assert.equal(player.destroyEventMatches, true);
+  assert.deepEqual(destroyed, [1000042]);
   runtime.stop();
 });
 
@@ -583,6 +708,11 @@ test("RuntimeEntity properties and snapshots cannot diverge", () => {
     kind: "prop",
     position: [4, 5, 6],
     tags: ["active", "initial"],
+    destroyed: false,
+    enableDamage: false,
+    showHealthBar: true,
+    hp: 100,
+    maxHp: 100,
   });
 });
 

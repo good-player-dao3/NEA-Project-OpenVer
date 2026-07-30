@@ -45,6 +45,11 @@ test("compatibility patch persists recovered UI, Dialog, and player-network beha
   assert.match(patch, /scale: requireVector\(record\.scale/);
   assert.match(patch, /model\.scale !== void 0\) requireVector2\(model\.scale/);
   assert.match(patch, /normalizeVector\(entity\.model\.scale \?\? \[1, 1, 1\], "entity model scale"\)/);
+  assert.match(patch, /damage: DamageSetSchema/);
+  assert.match(patch, /pendingDamageHurt/);
+  assert.match(patch, /__nea\/control\/damage-state/);
+  assert.match(patch, /destroyRuntimeEntity/);
+  assert.match(patch, /__nea\/control\/entity-destroy/);
 });
 
 test("runtime model projection accepts captured zero scale used by hidden entities", () => {

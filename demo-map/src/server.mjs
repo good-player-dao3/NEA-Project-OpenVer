@@ -6,7 +6,7 @@ import { createInterface } from "node:readline";
 import { fileURLToPath } from "node:url";
 import { formatImportSummary, importMapProject, publishClientScript } from "./import-project.mjs";
 import { parseBackendEvent } from "./backend-events.mjs";
-import { getPlayerStateFromBackend, openDialogOnBackend, queuePlayerStateToBackend, sendClientEventToBackend, sendGuiCommandToBackend } from "./control-client.mjs";
+import { destroyEntityOnBackend, getPlayerStateFromBackend, openDialogOnBackend, queueDamageStateToBackend, queuePlayerStateToBackend, sendClientEventToBackend, sendGuiCommandToBackend } from "./control-client.mjs";
 import { ScriptRuntime } from "./runtime/script-runtime.mjs";
 import { loadPreservedBlockCatalog } from "../../local-player/src/block-info.mjs";
 
@@ -83,6 +83,14 @@ const runtime = await ScriptRuntime.load(buildRoot, {
     const session = playerSessions.get(playerId);
     if (!session) throw new Error(`No backend session is bound to ${playerId}`);
     await queuePlayerStateToBackend({ port: controlPort, token: controlToken, session, state });
+  },
+  writeDamageState: async (target, state, events) => {
+    const session = target.playerId === undefined ? undefined : playerSessions.get(target.playerId);
+    if (target.playerId !== undefined && !session) throw new Error(`No backend session is bound to ${target.playerId}`);
+    await queueDamageStateToBackend({ port: controlPort, token: controlToken, session, entityId: target.entityId, state, events });
+  },
+  destroyEntity: async entityId => {
+    await destroyEntityOnBackend({ port: controlPort, token: controlToken, entityId });
   },
 });
 await runtime.start();

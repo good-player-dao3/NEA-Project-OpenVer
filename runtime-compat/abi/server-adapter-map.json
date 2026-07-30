@@ -1,7 +1,7 @@
 {
   "format": "nea-server-adapter-map",
   "version": 1,
-  "generatedAt": "2026-07-30T00:56:53.642Z",
+  "generatedAt": "2026-07-30T11:06:40.422Z",
   "contract": "nea-server-runtime/v1",
   "adapters": [
     {
@@ -31,7 +31,7 @@
       "canonicalId": "server.GameWorld.onTakeDamage",
       "status": "partial",
       "gaps": [
-        "Existing local RuntimePlayer.damage calls emit the recovered GameDamageEvent fields; native hurt producers, damage enablement, death scheduling, attacker propagation, and transport-created damage remain unverified."
+        "Script-produced GameEntity.hurt calls preserve enableDamage, healing, attacker, damageType, hp transitions, recovered GameDamageEvent fields, native replica.damage state, and game-net hurt effects; non-script engine damage ingress remains unverified."
       ]
     },
     {
@@ -39,7 +39,15 @@
       "canonicalId": "server.GameWorld.nextTakeDamage",
       "status": "partial",
       "gaps": [
-        "The recovered optional filter is implemented; native damage producers remain unverified."
+        "The recovered optional filter, script-produced hurt events, and native client damage transport are implemented; non-script engine damage ingress remains unverified."
+      ]
+    },
+    {
+      "localId": "server.world.onDie",
+      "canonicalId": "server.GameWorld.onDie",
+      "status": "partial",
+      "gaps": [
+        "Script-produced hurt emits one GameDieEvent when hp crosses from positive to zero and queues the native game-net die effect; non-script engine death transitions remain unverified."
       ]
     },
     {
@@ -282,6 +290,54 @@
       ]
     },
     {
+      "localId": "server.RuntimeEntity.destroy",
+      "canonicalId": "server.GameEntity.destroy",
+      "status": "partial",
+      "gaps": [
+        "Local destruction removes mapped non-player entities and emits the recovered destroy lifecycle event; native engine-driven destruction remains unverified."
+      ]
+    },
+    {
+      "localId": "server.RuntimeEntity.onDestroy",
+      "canonicalId": "server.GameEntity.onDestroy",
+      "status": "partial",
+      "gaps": [
+        "The lifecycle event is emitted exactly once for local destruction; non-script engine destruction remains unverified."
+      ]
+    },
+    {
+      "localId": "server.RuntimeEntity.nextDestroy",
+      "canonicalId": "server.GameEntity.nextDestroy",
+      "status": "partial",
+      "gaps": [
+        "The recovered optional filter resolves local destruction events; non-script engine destruction remains unverified."
+      ]
+    },
+    {
+      "localId": "server.RuntimePlayer.destroy",
+      "canonicalId": "server.GameEntity.destroy",
+      "status": "partial",
+      "gaps": [
+        "Player destruction uses the same lifecycle contract while preserving player identity; native disconnect and engine destruction semantics remain unverified."
+      ]
+    },
+    {
+      "localId": "server.RuntimePlayer.onDestroy",
+      "canonicalId": "server.GameEntity.onDestroy",
+      "status": "partial",
+      "gaps": [
+        "The player lifecycle event is emitted for local destruction; native disconnect and engine destruction semantics remain unverified."
+      ]
+    },
+    {
+      "localId": "server.RuntimePlayer.nextDestroy",
+      "canonicalId": "server.GameEntity.nextDestroy",
+      "status": "partial",
+      "gaps": [
+        "The recovered optional filter resolves local player destruction events; native disconnect and engine destruction semantics remain unverified."
+      ]
+    },
+    {
       "localId": "server.RuntimePlayer.onClick",
       "canonicalId": "server.GameEntity.onClick",
       "status": "partial",
@@ -414,7 +470,7 @@
       "canonicalId": "server.GameEntity.onTakeDamage",
       "status": "partial",
       "gaps": [
-        "Existing local RuntimePlayer.damage calls emit the recovered GameDamageEvent fields; native hurt producers and full damage/death state remain unverified."
+        "Script-produced events are compatible; authoritative backend DamageBinding ingress remains unverified."
       ]
     },
     {
@@ -422,7 +478,7 @@
       "canonicalId": "server.GameEntity.nextTakeDamage",
       "status": "partial",
       "gaps": [
-        "The recovered optional filter is implemented; native damage producers remain unverified."
+        "Script-produced events and filters are implemented; authoritative backend DamageBinding ingress remains unverified."
       ]
     },
     {

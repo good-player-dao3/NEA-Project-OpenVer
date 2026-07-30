@@ -36,6 +36,71 @@ const specs = [
     signature: ["Property/method shape and collection type differ."],
     effect: ["Canonical addTag/removeTag/hasTag behavior and replication are not implemented."],
   }),
+  partial("server.RuntimeEntity.destroyed", "server.GameEntity.destroyed", {
+    access: [],
+    signature: [],
+    effect: ["The readonly flag changes once, destroy listeners fire once, and mapped authoritative replicas are despawned; runtime-created entities still depend on the separate createEntity projection gap."],
+  }),
+  partial("server.RuntimeEntity.destroy", "server.GameEntity.destroy", {
+    access: [],
+    signature: [],
+    effect: ["Non-player entities are removed from selectors immediately and mapped backend replicas are despawned; runtime-created entities have no backend replica until createEntity projection is implemented."],
+  }),
+  partial("server.RuntimeEntity.onDestroy", "server.GameEntity.onDestroy", {
+    access: [],
+    signature: [],
+    effect: ["The local destroy path emits one recovered GameEntityEvent; destroy events originating independently inside the historical engine are not bridged."],
+  }),
+  originPartial("server.RuntimeEntity.nextDestroy", "server.GameEntity.nextDestroy", {
+    access: [],
+    signature: [],
+    effect: ["The optional filter and local destroy event are supported; independent engine-originated destroy events are not bridged."],
+  }),
+  partial("server.RuntimeEntity.enableDamage", "server.GameEntity.enableDamage", {
+    access: [],
+    signature: [],
+    effect: ["The flag gates script-produced hurt calls; it is script-only in the recovered shell and is not part of the Player replica.damage schema."],
+  }),
+  partial("server.RuntimeEntity.showHealthBar", "server.GameEntity.showHealthBar", {
+    access: [],
+    signature: [],
+    effect: ["Mapped players and entities propagate the value through the recovered replica.damage schema to native client health-bar rendering; runtime-created entity projection remains separate."],
+  }),
+  partial("server.RuntimeEntity.hp", "server.GameEntity.hp", {
+    access: [],
+    signature: [],
+    effect: ["Script writes, hurt, and healing propagate through the recovered replica.damage schema for mapped players and entities; runtime-created entity projection remains separate."],
+  }),
+  partial("server.RuntimeEntity.maxHp", "server.GameEntity.maxHp", {
+    access: [],
+    signature: [],
+    effect: ["The value caps healing and propagates through the recovered replica.damage schema for mapped players and entities; runtime-created entity projection remains separate."],
+  }),
+  partial("server.RuntimeEntity.onTakeDamage", "server.GameEntity.onTakeDamage", {
+    access: [],
+    signature: [],
+    effect: ["Script-produced hurt dispatches the recovered GameDamageEvent; authoritative backend DamageBinding ingress remains unimplemented."],
+  }),
+  originPartial("server.RuntimeEntity.nextTakeDamage", "server.GameEntity.nextTakeDamage", {
+    access: [],
+    signature: [],
+    effect: ["Script-produced events and optional filters are supported; authoritative backend DamageBinding ingress remains unimplemented."],
+  }),
+  partial("server.RuntimeEntity.onDie", "server.GameEntity.onDie", {
+    access: [],
+    signature: [],
+    effect: ["Script-produced hurt emits one GameDieEvent when hp crosses to zero; authoritative backend death transitions remain unimplemented."],
+  }),
+  originPartial("server.RuntimeEntity.nextDie", "server.GameEntity.nextDie", {
+    access: [],
+    signature: [],
+    effect: ["Script-produced death events and optional filters are supported; authoritative backend death transitions remain unimplemented."],
+  }),
+  partial("server.RuntimeEntity.hurt", "server.GameEntity.hurt", {
+    access: [],
+    signature: ["The canonical options object is supported; a historical BedWars string damageType form is additionally accepted."],
+    effect: ["Recovered hp, healing, attacker, damageType, damage, and death semantics are implemented; mapped targets also emit native replica.damage state and game-net hurt/die effects. Runtime-created entity projection remains separate."],
+  }),
   extension("server.RuntimeEntity.snapshot", "snapshot is a local diagnostics helper with no documented canonical member."),
 ];
 
@@ -67,7 +132,7 @@ const output = {
     id: "server.object.RuntimeEntity",
     status: "extension",
     canonicalTarget: "server.object.GameEntity",
-    notes: ["RuntimeEntity is a small local subset and does not implement the canonical GameEntity lifecycle, physics, events, animation, damage, audio, or replication surface."],
+    notes: ["RuntimeEntity implements the recovered script-side damage subset, but does not implement the complete canonical lifecycle, physics, animation, audio, or authoritative replication surface."],
   },
   members,
   summary: {

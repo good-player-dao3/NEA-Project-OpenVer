@@ -118,6 +118,8 @@ export class ScriptRuntime {
     if (!this.playerBodyProfile) throw new Error("Runtime requires an explicit player body profile");
     this.sendClientEvent = options.sendClientEvent ?? (() => {});
     this.writePlayerState = options.writePlayerState ?? (() => {});
+    this.writeDamageState = options.writeDamageState ?? (() => {});
+    this.destroyEntity = options.destroyEntity ?? (() => {});
     this.showDialog = options.showDialog ?? (() => Promise.reject(new Error("Dialog transport is not configured")));
     this.cancelDialogs = options.cancelDialogs ?? (() => false);
     this.collisionWorld = new VoxelCollisionWorld({
@@ -133,7 +135,7 @@ export class ScriptRuntime {
     for (const capability of this.capabilities) {
       if (!KNOWN_CAPABILITIES.has(capability)) throw new Error(`Unknown runtime capability: ${capability}`);
     }
-    for (const entity of options.entities ?? []) this.#entities.set(entity.id, createRuntimeEntity(entity));
+    for (const entity of options.entities ?? []) this.#entities.set(entity.id, createRuntimeEntity(entity, this));
   }
 
   static async load(projectRoot, options = {}) {
@@ -157,6 +159,10 @@ export class ScriptRuntime {
         tags: [...new Set([...sourceTags, ...packageTags])],
         source: entity.source,
         sourceIndex: index,
+        enableDamage: entity.enableDamage ?? entity.source?.enableDamage,
+        showHealthBar: entity.showHealthBar ?? entity.source?.showHealthBar,
+        hp: entity.hp ?? entity.source?.hp,
+        maxHp: entity.maxHp ?? entity.source?.maxHp,
       };
     });
     if (scriptManifest.entry === null) throw new Error("Project has no server script entry");
@@ -182,6 +188,8 @@ export class ScriptRuntime {
       logger: options.logger,
       sendClientEvent: options.sendClientEvent,
       writePlayerState: options.writePlayerState,
+      writeDamageState: options.writeDamageState,
+      destroyEntity: options.destroyEntity,
       sendGuiCommand: options.sendGuiCommand,
       showDialog: options.showDialog,
       cancelDialogs: options.cancelDialogs,
@@ -265,6 +273,7 @@ export class ScriptRuntime {
     this.#playerIds.set(player, id);
     this.#players.set(id, player);
     this.#signals.playerJoin.emit(createGameEntityEvent(this.currentTick, player), error => this.#reportError("playerJoin", error));
+    this.#queueDamageStateWrite(player);
     return player;
   }
 
@@ -300,6 +309,7 @@ export class ScriptRuntime {
       }
       if (!entity) continue;
       entity._backendEntityId = backendEntityId;
+      this.#queueDamageStateWrite(entity);
       bound += 1;
     }
     return bound;
@@ -439,7 +449,18 @@ export class ScriptRuntime {
         this.#require("server.world.entities");
         const id = spec?.id ?? `runtime-entity-${this.#entities.size + 1}`;
         if (this.#entities.has(id)) throw new Error(`Entity already exists: ${id}`);
-        const entity = createRuntimeEntity({ id, name: spec?.name, kind: spec?.kind ?? "entity", position: spec?.position ?? [0, 0, 0], tags: spec?.tags ?? [], source: spec?.source });
+        const entity = createRuntimeEntity({
+          id,
+          name: spec?.name,
+          kind: spec?.kind ?? "entity",
+          position: spec?.position ?? [0, 0, 0],
+          tags: spec?.tags ?? [],
+          source: spec?.source,
+          enableDamage: spec?.enableDamage,
+          showHealthBar: spec?.showHealthBar,
+          hp: spec?.hp,
+          maxHp: spec?.maxHp,
+        }, this);
         this.#entities.set(id, entity);
         return entity;
       },
@@ -670,20 +691,56 @@ export class ScriptRuntime {
     player._body.contacts.clear();
     player._body.triggers.clear();
     this.#queuePlayerStateWrite(player);
+    this.#queueDamageStateWrite(player, { respawn: true });
     const event = createGameEntityEvent(this.currentTick, player);
     player._signals.respawn.emit(event, error => this.#reportError("playerRespawn", error));
     this.#signals.respawn.emit(event, error => this.#reportError("respawn", error));
   }
 
+  _hurtEntity(entity, amount, options) {
+    this.#require("server.world.events");
+    const damage = Number(amount);
+    if (entity.destroyed || Number.isNaN(damage) || !entity.enableDamage || Number(entity.hp) <= 0) return;
+    const normalized = normalizeHurtOptions(options);
+    const attacker = damage < 0 ? null : this.#resolveHurtAttacker(normalized.attacker);
+    const damageType = damage < 0 ? "" : normalized.damageType;
+    const previousHp = Number(entity.hp);
+    if (damage < 0) {
+      if (Number(entity.hp) < Number(entity.maxHp)) entity._hp = Math.min(Number(entity.maxHp), Number(entity.hp) - damage);
+    } else {
+      entity._hp = Math.max(0, Number(entity.hp) - damage);
+    }
+    entity._lastAttacker = attacker;
+    entity._lastDamageType = damageType;
+    const damageEvent = createGameDamageEvent(this.currentTick, entity, damage, attacker, damageType);
+    entity._signals.takeDamage.emit(damageEvent, error => this.#reportError("entityTakeDamage", error));
+    this.#signals.takeDamage.emit(damageEvent, error => this.#reportError("takeDamage", error));
+    const died = previousHp > 0 && Number(entity.hp) <= 0;
+    if (died) {
+      const dieEvent = createGameDieEvent(this.currentTick, entity, attacker, damageType);
+      entity._signals.die.emit(dieEvent, error => this.#reportError("entityDie", error));
+      this.#signals.die.emit(dieEvent, error => this.#reportError("die", error));
+    }
+    this.#queueDamageStateWrite(entity, { hurt: damage, die: died });
+  }
+
   _damagePlayer(player, amount) {
     this.#require("server.player.write");
-    const damage = Number(amount);
-    if (!Number.isFinite(damage) || damage < 0) throw new TypeError("Damage must be a non-negative finite number");
-    player._health = Math.max(0, player._health - damage);
-    const event = createGameDamageEvent(this.currentTick, player, damage);
-    player._signals.takeDamage.emit(event, error => this.#reportError("playerTakeDamage", error));
-    this.#signals.takeDamage.emit(event, error => this.#reportError("takeDamage", error));
-    return player._health;
+    const enabled = player.enableDamage;
+    player.enableDamage = true;
+    try {
+      this._hurtEntity(player, amount);
+      return player.hp;
+    } finally {
+      player.enableDamage = enabled;
+    }
+  }
+
+  #resolveHurtAttacker(attacker) {
+    if (!attacker || typeof attacker !== "object") return null;
+    if ([...this.#players.values()].includes(attacker)) return attacker;
+    if ([...this.#entities.values()].includes(attacker)) return attacker;
+    return null;
   }
 
   #queuePlayerStateWrite(player) {
@@ -697,9 +754,41 @@ export class ScriptRuntime {
     };
     Promise.resolve(this.writePlayerState(this.#playerIds.get(player), state)).catch(error => this.#reportError("state-write", error));
   }
+
+  _damageFieldChanged(entity) {
+    this.#queueDamageStateWrite(entity);
+  }
+
+  _destroyEntity(entity) {
+    this.#require("server.world.entities");
+    if (entity.isPlayer || entity.destroyed) return;
+    entity._destroyed = true;
+    this.#entities.delete(entity._id);
+    const event = createGameEntityEvent(this.currentTick, entity);
+    entity._signals.destroy.emit(event, error => this.#reportError("entityDestroy", error));
+    if (Number.isSafeInteger(entity._backendEntityId) && entity._backendEntityId > 0) {
+      Promise.resolve(this.destroyEntity(entity._backendEntityId)).catch(error => this.#reportError("entity-destroy", error));
+    }
+  }
+
+  #queueDamageStateWrite(entity, events = {}) {
+    const playerId = this.#playerIds.get(entity);
+    const target = playerId !== undefined
+      ? { playerId }
+      : Number.isSafeInteger(entity._backendEntityId) && entity._backendEntityId > 0
+        ? { entityId: entity._backendEntityId }
+        : null;
+    if (!target) return;
+    const state = {
+      showHealthBar: Boolean(entity.showHealthBar),
+      hp: Number(entity.hp),
+      maxHp: Number(entity.maxHp),
+    };
+    Promise.resolve(this.writeDamageState(target, state, structuredClone(events))).catch(error => this.#reportError("damage-state-write", error));
+  }
 }
 
-export function createRuntimeEntity(input) {
+export function createRuntimeEntity(input, runtime = null) {
   const tags = new Set(input.tags ?? []);
   const position = Vector3.from(input.position ?? [0, 0, 0]);
   return {
@@ -710,6 +799,9 @@ export function createRuntimeEntity(input) {
     _sourceIndex: Number.isSafeInteger(input.sourceIndex) ? input.sourceIndex : null,
     _backendEntityId: null,
     _position: position,
+    _runtime: runtime,
+    _lastAttacker: null,
+    _lastDamageType: "",
     bounds: Vector3.from(input.bounds ?? input.source?.bounds ?? [1, 1, 1]),
     mesh: input.mesh ?? input.source?.mesh ?? "",
     meshInvisible: false,
@@ -722,12 +814,26 @@ export function createRuntimeEntity(input) {
     meshShininess: 0,
     anchorOffset: new Vector3(0, 0, 0),
     _tags: tags,
-    _signals: { click: new EventSignal(), fluidEnter: new EventSignal(), fluidLeave: new EventSignal() },
+    _signals: { click: new EventSignal(), destroy: new EventSignal(), fluidEnter: new EventSignal(), fluidLeave: new EventSignal(), takeDamage: new EventSignal(), die: new EventSignal() },
+    _destroyed: false,
+    _enableDamage: Boolean(input.enableDamage ?? false),
+    _showHealthBar: Boolean(input.showHealthBar ?? true),
+    _hp: Number(input.hp ?? 100),
+    _maxHp: Number(input.maxHp ?? 100),
     get id() { return this._id; },
     get kind() { return this._kind; },
     get name() { return this._name; },
     get source() { return this._source; },
     get isPlayer() { return false; },
+    get destroyed() { return this._destroyed; },
+    get enableDamage() { return this._enableDamage; },
+    set enableDamage(value) { this._enableDamage = Boolean(value); },
+    get showHealthBar() { return this._showHealthBar; },
+    set showHealthBar(value) { this._showHealthBar = Boolean(value); this._runtime?._damageFieldChanged(this); },
+    get hp() { return this._hp; },
+    set hp(value) { this._hp = Number(value); this._runtime?._damageFieldChanged(this); },
+    get maxHp() { return this._maxHp; },
+    set maxHp(value) { this._maxHp = Number(value); this._runtime?._damageFieldChanged(this); },
     get position() { return this._position; },
     set position(value) { this._position.copy(Vector3.from(value)); },
     get tags() { return this._tags; },
@@ -736,12 +842,26 @@ export function createRuntimeEntity(input) {
     hasTag(tag) { return this._tags.has(String(tag)); },
     onClick(handler) { return this._signals.click.on(handler); },
     nextClick(filter) { return this._signals.click.next(filter); },
+    destroy() {
+      if (!this._runtime) throw new Error("Entity is not attached to a Script Runtime");
+      this._runtime._destroyEntity(this);
+    },
+    onDestroy(handler) { return this._signals.destroy.on(handler); },
+    nextDestroy(filter) { return this._signals.destroy.next(filter); },
     onFluidEnter(handler) { return this._signals.fluidEnter.on(handler); },
     nextFluidEnter(filter) { return this._signals.fluidEnter.next(filter); },
     onFluidLeave(handler) { return this._signals.fluidLeave.on(handler); },
     nextFluidLeave(filter) { return this._signals.fluidLeave.next(filter); },
+    onTakeDamage(handler) { return this._signals.takeDamage.on(handler); },
+    nextTakeDamage(filter) { return this._signals.takeDamage.next(filter); },
+    onDie(handler) { return this._signals.die.on(handler); },
+    nextDie(filter) { return this._signals.die.next(filter); },
+    hurt(amount, options) {
+      if (!this._runtime) throw new Error("Entity is not attached to a Script Runtime");
+      this._runtime._hurtEntity(this, amount, options);
+    },
     snapshot() {
-      return Object.freeze({ id: this.id, name: this.name, kind: this.kind, position: this.position.toArray(), tags: [...this.tags].sort() });
+      return Object.freeze({ id: this.id, name: this.name, kind: this.kind, position: this.position.toArray(), tags: [...this.tags].sort(), destroyed: this.destroyed, enableDamage: this.enableDamage, showHealthBar: this.showHealthBar, hp: this.hp, maxHp: this.maxHp });
     },
   };
 }
@@ -752,15 +872,21 @@ function createRuntimePlayer(runtime, input) {
     _id: String(input.id),
     _name: String(input.name),
     _body: body,
-    _health: 100,
+    _lastAttacker: null,
+    _lastDamageType: "",
     _authority: input.authority,
     _stateVersion: 0,
     _backendPlayerId: null,
     _lastBackendTick: 0,
     _writeBarrierTick: 0,
     _tags: new Set(),
-    _signals: { click: new EventSignal(), fluidEnter: new EventSignal(), fluidLeave: new EventSignal(), press: new EventSignal(), release: new EventSignal(), keyDown: new EventSignal(), keyUp: new EventSignal(), respawn: new EventSignal(), takeDamage: new EventSignal() },
+    _signals: { click: new EventSignal(), destroy: new EventSignal(), fluidEnter: new EventSignal(), fluidLeave: new EventSignal(), press: new EventSignal(), release: new EventSignal(), keyDown: new EventSignal(), keyUp: new EventSignal(), respawn: new EventSignal(), takeDamage: new EventSignal(), die: new EventSignal() },
     _wearables: [],
+    _destroyed: false,
+    _enableDamage: false,
+    _showHealthBar: true,
+    _hp: 100,
+    _maxHp: 100,
     spawnPoint: Vector3.from(input.position ?? [0, 0, 0]),
     color: new GameRGBColor(1, 1, 1),
     skin: Object.fromEntries(Object.values(GameBodyPart).map(part => [part, undefined])),
@@ -780,6 +906,15 @@ function createRuntimePlayer(runtime, input) {
     get id() { return runtime._runtimePlayerId(this); },
     get isPlayer() { return true; },
     get player() { return this; },
+    get destroyed() { return this._destroyed; },
+    get enableDamage() { return this._enableDamage; },
+    set enableDamage(value) { this._enableDamage = Boolean(value); },
+    get showHealthBar() { return this._showHealthBar; },
+    set showHealthBar(value) { this._showHealthBar = Boolean(value); runtime._damageFieldChanged(this); },
+    get hp() { return this._hp; },
+    set hp(value) { this._hp = Number(value); runtime._damageFieldChanged(this); },
+    get maxHp() { return this._maxHp; },
+    set maxHp(value) { this._maxHp = Number(value); runtime._damageFieldChanged(this); },
     get tags() { return this._tags; },
     addTag(tag) { this._tags.add(String(tag)); },
     removeTag(tag) { this._tags.delete(String(tag)); },
@@ -790,6 +925,9 @@ function createRuntimePlayer(runtime, input) {
     nextFluidLeave(filter) { return this._signals.fluidLeave.next(filter); },
     onClick(handler) { return this._signals.click.on(handler); },
     nextClick(filter) { return this._signals.click.next(filter); },
+    destroy() { return runtime._destroyEntity(this); },
+    onDestroy(handler) { return this._signals.destroy.on(handler); },
+    nextDestroy(filter) { return this._signals.destroy.next(filter); },
     onPress(handler) { return this._signals.press.on(handler); },
     nextPress(filter) { return this._signals.press.next(filter); },
     onRelease(handler) { return this._signals.release.on(handler); },
@@ -800,6 +938,8 @@ function createRuntimePlayer(runtime, input) {
     nextRespawn(filter) { return this._signals.respawn.next(filter); },
     onTakeDamage(handler) { return this._signals.takeDamage.on(handler); },
     nextTakeDamage(filter) { return this._signals.takeDamage.next(filter); },
+    onDie(handler) { return this._signals.die.on(handler); },
+    nextDie(filter) { return this._signals.die.next(filter); },
     forceRespawn() { return runtime._forceRespawnPlayer(this); },
     directMessage(message) { return runtime._messagePlayer(this, message); },
     wearables(bodyPart) { return this._wearables.filter(item => item.bodyPart === bodyPart); },
@@ -814,8 +954,9 @@ function createRuntimePlayer(runtime, input) {
     get velocity() { return this._body.velocity; },
     set velocity(value) { runtime._writePlayer(this, "velocity", value); },
     get grounded() { return this._body.grounded; },
-    get health() { return this._health; },
+    get health() { return this.hp; },
     applyImpulse(value) { runtime._applyImpulse(this, value); },
+    hurt(amount, options) { runtime._hurtEntity(this, amount, options); },
     damage(amount) { return runtime._damagePlayer(this, amount); },
     sendMessage(message) { runtime._messagePlayer(this, message); },
     snapshot() {
@@ -827,6 +968,10 @@ function createRuntimePlayer(runtime, input) {
         collision: this._body.collisionSnapshot(),
         grounded: this.grounded,
         health: this.health,
+        hp: this.hp,
+        maxHp: this.maxHp,
+        enableDamage: this.enableDamage,
+        showHealthBar: this.showHealthBar,
         spawnPoint: this.spawnPoint.toArray(),
         color: { r: this.color.r, g: this.color.g, b: this.color.b },
         authority: this._authority,
@@ -919,6 +1064,17 @@ export function createGameEntityEvent(tick, entity) {
 
 export function createGameDamageEvent(tick, entity, damage, attacker = null, damageType = "") {
   return Object.freeze({ tick, entity, attacker, damage, damageType: damageType || "" });
+}
+
+export function createGameDieEvent(tick, entity, attacker = null, damageType = "") {
+  return Object.freeze({ tick, entity, attacker, damageType: damageType || "" });
+}
+
+function normalizeHurtOptions(options) {
+  if (options === undefined || options === null) return Object.freeze({ attacker: null, damageType: "" });
+  if (typeof options === "string") return Object.freeze({ attacker: null, damageType: options });
+  if (typeof options !== "object" || Array.isArray(options)) throw new TypeError("GameHurtOptions must be an object");
+  return Object.freeze({ attacker: options.attacker ?? null, damageType: String(options.damageType ?? "") });
 }
 
 function inputPermissionMask(player) {

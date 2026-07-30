@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-compatibility-matrix",
   "version": 1,
-  "generatedAt": "2026-07-30T00:56:56.162Z",
+  "generatedAt": "2026-07-30T11:06:45.617Z",
   "apiVersion": "0.1.0",
   "compatibilityLevel": "experimental",
   "contracts": [
@@ -53,9 +53,9 @@
     "entries": 599,
     "byStatus": {
       "native": 125,
-      "compatible": 72,
-      "partial": 24,
-      "recovered-only": 156,
+      "compatible": 71,
+      "partial": 33,
+      "recovered-only": 148,
       "declared-only": 222
     },
     "bySide": {
@@ -70,9 +70,9 @@
       "server": {
         "total": 346,
         "native": 0,
-        "compatible": 42,
-        "partial": 23,
-        "recovered-only": 156,
+        "compatible": 41,
+        "partial": 32,
+        "recovered-only": 148,
         "declared-only": 125
       },
       "shared": {
@@ -84,8 +84,8 @@
         "declared-only": 96
       }
     },
-    "executable": 221,
-    "nonExecutable": 378
+    "executable": 229,
+    "nonExecutable": 370
   },
   "entries": [
     {
@@ -11263,10 +11263,61 @@
         "parameters": [],
         "returns": "void"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.entities",
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.destroy",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.entities",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.destroy",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.entities",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimeEntity.destroy",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "Local destruction removes mapped non-player entities and emits the recovered destroy lifecycle event; native engine-driven destruction remains unverified."
+          ]
+        },
+        {
+          "localId": "server.RuntimePlayer.destroy",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "Player destruction uses the same lifecycle contract while preserving player identity; native disconnect and engine destruction semantics remain unverified."
+          ]
+        },
+        {
+          "localId": "server.RuntimeEntity.destroy",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "effect: Non-player entities are removed from selectors immediately and mapped backend replicas are despawned; runtime-created entities have no backend replica until createEntity projection is implemented."
+          ]
+        },
+        {
+          "localId": "server.RuntimePlayer.destroy",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "effect: The call is a no-op for players, matching the recovered ScriptEntitySync non-player destroy guard."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -11286,6 +11337,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.destroy",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -11322,10 +11379,29 @@
         "type": "boolean",
         "readonly": false
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.destroyed",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "effect: The readonly flag changes once, destroy listeners fire once, and mapped authoritative replicas are despawned; runtime-created entities still depend on the separate createEntity projection gap."
+          ]
+        },
+        {
+          "localId": "server.RuntimePlayer.destroyed",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.player",
+          "gaps": [
+            "effect: The flag is readonly and player.destroy follows the recovered non-player guard; disconnect-driven wrapper destruction is not exposed on retained script references."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -11345,6 +11421,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.destroyed",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -11440,10 +11522,29 @@
         "type": "boolean",
         "readonly": false
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.enableDamage",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "effect: The flag gates script-produced hurt calls; it is script-only in the recovered shell and is not part of the Player replica.damage schema."
+          ]
+        },
+        {
+          "localId": "server.RuntimePlayer.enableDamage",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.player.write",
+          "gaps": [
+            "effect: The flag gates script-produced hurt calls; it is script-only in the recovered shell and is not part of replica.damage."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -11463,6 +11564,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.enableDamage",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -11997,8 +12104,26 @@
       },
       "status": "partial",
       "executable": true,
-      "capability": "server.player",
+      "capability": "server.world.entities",
       "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.hp",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "effect: Script writes, hurt, and healing propagate through the recovered replica.damage schema for mapped players and entities; runtime-created entity projection remains separate."
+          ]
+        },
+        {
+          "localId": "server.RuntimePlayer.hp",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.player.write",
+          "gaps": [
+            "effect: Script writes, hurt, and healing propagate through the recovered replica.damage schema."
+          ]
+        },
         {
           "localId": "server.RuntimePlayer.health",
           "relation": "object-adapter",
@@ -12007,7 +12132,7 @@
           "gaps": [
             "access: Local health is getter-only, while canonical GameEntity.hp is writable.",
             "signature: The local member is named health rather than hp.",
-            "effect: Local health and damage-event dispatch exist, but maxHp, enableDamage, native hurt producers, and death state remain unimplemented."
+            "effect: health aliases hp, which propagates through the recovered replica.damage schema."
           ]
         }
       ],
@@ -12118,10 +12243,31 @@
         ],
         "returns": "void"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.events",
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.hurt",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "signature: The canonical options object is supported; a historical BedWars string damageType form is additionally accepted.",
+            "effect: Recovered hp, healing, attacker, damageType, damage, and death semantics are implemented; mapped targets also emit native replica.damage state and game-net hurt/die effects. Runtime-created entity projection remains separate."
+          ]
+        },
+        {
+          "localId": "server.RuntimePlayer.hurt",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "signature: The canonical options object is supported; a historical BedWars string damageType form is additionally accepted.",
+            "effect: Recovered hp, healing, attacker, damageType, damage, and death semantics are implemented together with native replica.damage state and game-net hurt/die effects."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -12141,6 +12287,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.hurt",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -12803,10 +12955,29 @@
         "type": "number",
         "readonly": false
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.maxHp",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "effect: The value caps healing and propagates through the recovered replica.damage schema for mapped players and entities; runtime-created entity projection remains separate."
+          ]
+        },
+        {
+          "localId": "server.RuntimePlayer.maxHp",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.player.write",
+          "gaps": [
+            "effect: The value caps healing and propagates through the recovered replica.damage schema."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -12826,6 +12997,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.maxHp",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -13748,10 +13925,61 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.events",
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.onDestroy",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.events",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.onDestroy",
+          "relation": "implements",
+          "status": "compatible",
+          "capability": "server.world.events",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimeEntity.onDestroy",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "The lifecycle event is emitted exactly once for local destruction; non-script engine destruction remains unverified."
+          ]
+        },
+        {
+          "localId": "server.RuntimePlayer.onDestroy",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "The player lifecycle event is emitted for local destruction; native disconnect and engine destruction semantics remain unverified."
+          ]
+        },
+        {
+          "localId": "server.RuntimeEntity.onDestroy",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "effect: The local destroy path emits one recovered GameEntityEvent; destroy events originating independently inside the historical engine are not bridged."
+          ]
+        },
+        {
+          "localId": "server.RuntimePlayer.onDestroy",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "effect: Player destroy is guarded as a no-op; disconnect-driven destroy notification remains unimplemented."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -13771,6 +13999,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.onDestroy",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -13831,10 +14065,29 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.events",
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.onDie",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "effect: Script-produced hurt emits one GameDieEvent when hp crosses to zero; authoritative backend death transitions remain unimplemented."
+          ]
+        },
+        {
+          "localId": "server.RuntimePlayer.onDie",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "effect: Script-produced hurt emits one GameDieEvent when hp crosses to zero; authoritative backend death transitions remain unimplemented."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -13854,6 +14107,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.onDie",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -14329,24 +14588,26 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
       "capability": "server.world.events",
       "localBindings": [
-        {
-          "localId": "server.RuntimePlayer.onTakeDamage",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.events",
-          "gaps": []
-        },
         {
           "localId": "server.RuntimePlayer.onTakeDamage",
           "relation": "adapter",
           "status": "partial",
           "capability": "server.world.events",
           "gaps": [
-            "Existing local RuntimePlayer.damage calls emit the recovered GameDamageEvent fields; native hurt producers and full damage/death state remain unverified."
+            "Script-produced events are compatible; authoritative backend DamageBinding ingress remains unverified."
+          ]
+        },
+        {
+          "localId": "server.RuntimeEntity.onTakeDamage",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.events",
+          "gaps": [
+            "effect: Script-produced hurt dispatches the recovered GameDamageEvent; authoritative backend DamageBinding ingress remains unimplemented."
           ]
         },
         {
@@ -14355,8 +14616,7 @@
           "status": "partial",
           "capability": "server.world.events",
           "gaps": [
-            "signature: The local listener token and recovered GameDamageEvent fields are present.",
-            "effect: Existing local damage() calls dispatch entity and world events; native hurt producers, damage enablement, attacker propagation, and death scheduling remain unverified."
+            "effect: Script-produced hurt dispatches entity and world GameDamageEvent values; authoritative backend DamageBinding ingress remains unimplemented."
           ]
         }
       ],
@@ -16195,10 +16455,29 @@
         "type": "boolean",
         "readonly": false
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
-      "localBindings": [],
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.showHealthBar",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "effect: Mapped players and entities propagate the value through the recovered replica.damage schema to native client health-bar rendering; runtime-created entity projection remains separate."
+          ]
+        },
+        {
+          "localId": "server.RuntimePlayer.showHealthBar",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.player.write",
+          "gaps": [
+            "effect: The value propagates through the recovered replica.damage schema to native client health-bar rendering."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -16218,6 +16497,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.showHealthBar",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -20163,7 +20448,7 @@
           "status": "partial",
           "capability": "server.player.write",
           "gaps": [
-            "effect: Position, velocity, contacts, triggers, backend state, and respawn events are updated; native death-state side effects remain unverified."
+            "effect: Position, velocity, contacts, triggers, backend state, script events, and the native game-net respawn effect are updated; automatic hp restoration remains script-controlled as in the recovered shell."
           ]
         }
       ],
@@ -28504,16 +28789,18 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
       "capability": "server.world.events",
       "localBindings": [
         {
           "localId": "server.world.onDie",
-          "relation": "implements",
-          "status": "compatible",
+          "relation": "adapter",
+          "status": "partial",
           "capability": "server.world.events",
-          "gaps": []
+          "gaps": [
+            "Script-produced hurt emits one GameDieEvent when hp crosses from positive to zero and queues the native game-net die effect; non-script engine death transitions remain unverified."
+          ]
         },
         {
           "localId": "server.world.onDie",
@@ -29903,24 +30190,17 @@
         ],
         "returns": "GameEventHandlerToken"
       },
-      "status": "compatible",
+      "status": "partial",
       "executable": true,
       "capability": "server.world.events",
       "localBindings": [
-        {
-          "localId": "server.world.onTakeDamage",
-          "relation": "implements",
-          "status": "compatible",
-          "capability": "server.world.events",
-          "gaps": []
-        },
         {
           "localId": "server.world.onTakeDamage",
           "relation": "adapter",
           "status": "partial",
           "capability": "server.world.events",
           "gaps": [
-            "Existing local RuntimePlayer.damage calls emit the recovered GameDamageEvent fields; native hurt producers, damage enablement, death scheduling, attacker propagation, and transport-created damage remain unverified."
+            "Script-produced GameEntity.hurt calls preserve enableDamage, healing, attacker, damageType, hp transitions, recovered GameDamageEvent fields, native replica.damage state, and game-net hurt effects; non-script engine damage ingress remains unverified."
           ]
         }
       ],

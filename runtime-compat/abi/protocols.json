@@ -1,7 +1,7 @@
 {
   "format": "nea-protocol-abi",
   "version": 1,
-  "generatedAt": "2026-07-30T00:56:53.032Z",
+  "generatedAt": "2026-07-30T11:06:39.214Z",
   "topology": {
     "url": "{socketServerUrl}?sid={sessionId}",
     "sockets": 3,

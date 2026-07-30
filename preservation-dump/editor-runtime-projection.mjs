@@ -7,7 +7,26 @@ export function buildEditorRuntimeProjection({ packageId, entities, entityNodes,
   const meshHashes = bootstrapMeshHashes.map(entry => structuredClone(entry));
   const meshIndexByHash = new Map(meshHashes.map((entry, index) => [entry.hash, index]));
   const mappings = [];
+  const meshes = [];
   const diagnostics = [];
+  const resolveMesh = (meshName, asset, metadata) => {
+    const meshBounds = vector(metadata.bounds, "model metadata bounds");
+    let bootstrapMeshIndex = meshIndexByHash.get(asset.hash);
+    if (bootstrapMeshIndex === undefined) {
+      const renderBoxOffset = metadata.renderBoxOffset === undefined ? [0, 0, 0] : vector(metadata.renderBoxOffset, "model renderBoxOffset");
+      bootstrapMeshIndex = meshHashes.length;
+      meshIndexByHash.set(asset.hash, bootstrapMeshIndex);
+      meshHashes.push(Object.freeze({
+        bodyBX: meshBounds[0], bodyBY: meshBounds[1], bodyBZ: meshBounds[2],
+        bodyOffsetX: 0, bodyOffsetY: 0, bodyOffsetZ: 0,
+        meshBX: meshBounds[0], meshBY: meshBounds[1], meshBZ: meshBounds[2],
+        renderBoxOffsetX: renderBoxOffset[0], renderBoxOffsetY: renderBoxOffset[1], renderBoxOffsetZ: renderBoxOffset[2],
+        hash: asset.hash,
+        hashType: "",
+      }));
+    }
+    return Object.freeze({ name: meshName, bounds: meshBounds, bootstrapMeshIndex, bootstrapMeshHash: asset.hash });
+  };
   for (let entityIndex = 0; entityIndex < entityNodes.length; entityIndex += 1) {
     const node = entityNodes[entityIndex];
     const entity = entities[entityIndex];
@@ -19,22 +38,8 @@ export function buildEditorRuntimeProjection({ packageId, entities, entityNodes,
       continue;
     }
     const bodyBounds = vector(node.value.bounds, "entity bounds");
-    const meshBounds = vector(metadata.bounds, "model metadata bounds");
-    if (!sameVector(bodyBounds, meshBounds, 1e-5)) throw new Error(`Captured model bounds do not match project entity ${node.id}`);
-    let bootstrapMeshIndex = meshIndexByHash.get(asset.hash);
-    if (bootstrapMeshIndex === undefined) {
-      const renderBoxOffset = metadata.renderBoxOffset === undefined ? [0, 0, 0] : vector(metadata.renderBoxOffset, "model renderBoxOffset");
-      bootstrapMeshIndex = meshHashes.length;
-      meshIndexByHash.set(asset.hash, bootstrapMeshIndex);
-      meshHashes.push(Object.freeze({
-        bodyBX: bodyBounds[0], bodyBY: bodyBounds[1], bodyBZ: bodyBounds[2],
-        bodyOffsetX: 0, bodyOffsetY: 0, bodyOffsetZ: 0,
-        meshBX: meshBounds[0], meshBY: meshBounds[1], meshBZ: meshBounds[2],
-        renderBoxOffsetX: renderBoxOffset[0], renderBoxOffsetY: renderBoxOffset[1], renderBoxOffsetZ: renderBoxOffset[2],
-        hash: asset.hash,
-        hashType: "",
-      }));
-    }
+    const resolvedMesh = resolveMesh(meshName, asset, metadata);
+    if (!sameVector(bodyBounds, resolvedMesh.bounds, 1e-5)) throw new Error(`Captured model bounds do not match project entity ${node.id}`);
     const sourceFingerprint = createHash("sha256").update(JSON.stringify({
       kind: entity.kind,
       position: [...entity.position],
@@ -54,7 +59,7 @@ export function buildEditorRuntimeProjection({ packageId, entities, entityNodes,
         friction: optionalFinite(node.value.friction),
         restitution: optionalFinite(node.value.restitution),
       }),
-      mesh: Object.freeze({ bootstrapMeshIndex, bootstrapMeshHash: asset.hash }),
+      mesh: Object.freeze({ bootstrapMeshIndex: resolvedMesh.bootstrapMeshIndex, bootstrapMeshHash: resolvedMesh.bootstrapMeshHash }),
       model: compactObject({
         color: optionalColor(node.value.tint),
         scale: optionalVector(node.value.scale),
@@ -65,9 +70,14 @@ export function buildEditorRuntimeProjection({ packageId, entities, entityNodes,
       }),
     }));
   }
+  for (const [meshName, asset] of Object.entries(meshAssets ?? {}).sort(([left], [right]) => left.localeCompare(right))) {
+    const metadata = asset?.hash ? modelMetadataByHash.get(asset.hash) : undefined;
+    if (!asset?.hash || !metadata) continue;
+    meshes.push(resolveMesh(meshName, asset, metadata));
+  }
   return Object.freeze({
     meshHashes: Object.freeze(meshHashes),
-    descriptor: Object.freeze({ format: "nea-local-player-entity-projection", version: 1, packageId, entities: Object.freeze(mappings) }),
+    descriptor: Object.freeze({ format: "nea-local-player-entity-projection", version: 1, packageId, entities: Object.freeze(mappings), meshes: Object.freeze(meshes) }),
     diagnostics: Object.freeze(diagnostics),
   });
 }

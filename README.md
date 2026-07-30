@@ -1,8 +1,8 @@
-# NEA Project
+# OpenVer
 
-NEA Project is a local preservation and compatibility effort for the discontinued dao3.fun game runtime. The repository is being built from locally archived Player assets, the developer API documentation mirror, server-runtime source, Lokibox/box-go evidence, MuDB sources, and locally captured compatibility data.
+OpenVer is a preservation and compatibility effort for the discontinued dao3.fun game runtime. It provides a self-hostable research and implementation base for importing preserved projects, running map scripts, and validating recovered runtime behavior.
 
-The current `beta` branch is an evidence-first work in progress. It separates the project package, client Script Runtime, server Script Runtime, MuDB transport, and authoritative game runtime instead of treating the archived Player as a complete server implementation.
+The `beta` branch remains the evidence-first development line. It separates the project package, client Script Runtime, server Script Runtime, MuDB transport, and authoritative game runtime instead of treating the archived Player as a complete server implementation.
 
 ## Repository layout
 
@@ -54,5 +54,5 @@ http://127.0.0.1:4322/play/nea-script-lab?contentId=100110008
 
 ## Evidence safety
 
-Private browser profiles, cookies, login databases, session state, tokens, logs, dependency trees, and packaged desktop binaries are intentionally excluded from version control. Generated reports record evidence classifications and gaps without publishing private session material.
+Private browser profiles, cookies, login databases, session state, tokens, logs, dependency trees, packaged desktop binaries, and private captured scripts are intentionally excluded from version control. Generated reports record evidence classifications and gaps without publishing private session material.
 

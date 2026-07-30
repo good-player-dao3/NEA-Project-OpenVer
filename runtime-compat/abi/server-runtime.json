@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-abi",
   "version": 1,
-  "generatedAt": "2026-07-30T00:56:56.020Z",
+  "generatedAt": "2026-07-30T11:06:45.377Z",
   "side": "server",
   "entries": [
     {
@@ -32438,11 +32438,24 @@
           "id",
           "kind",
           "position",
-          "tags"
+          "tags",
+          "destroyed",
+          "enableDamage",
+          "showHealthBar",
+          "hp",
+          "maxHp"
         ],
         "methods": [
+          "destroy",
+          "onDestroy",
+          "nextDestroy",
           "onClick",
           "nextClick",
+          "onTakeDamage",
+          "nextTakeDamage",
+          "onDie",
+          "nextDie",
+          "hurt",
           "snapshot"
         ]
       },
@@ -32476,6 +32489,11 @@
           "velocity",
           "grounded",
           "health",
+          "destroyed",
+          "enableDamage",
+          "showHealthBar",
+          "hp",
+          "maxHp",
           "walkButton",
           "crouchButton",
           "jumpButton",
@@ -32488,7 +32506,11 @@
           "enableCrouch"
         ],
         "methods": [
+          "destroy",
+          "onDestroy",
+          "nextDestroy",
           "applyImpulse",
+          "hurt",
           "damage",
           "sendMessage",
           "snapshot"
@@ -33029,6 +33051,149 @@
       ]
     },
     {
+      "id": "server.RuntimeEntity.destroy",
+      "side": "server",
+      "kind": "method",
+      "owner": "RuntimeEntity",
+      "name": "destroy",
+      "signature": {
+        "parameters": [],
+        "returns": "void"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.destroy"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.destroyed",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "destroyed",
+      "signature": {
+        "type": "boolean",
+        "readonly": true
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.enableDamage",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "enableDamage",
+      "signature": {
+        "type": "boolean",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.hp",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "hp",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.hurt",
+      "side": "server",
+      "kind": "method",
+      "owner": "RuntimeEntity",
+      "name": "hurt",
+      "signature": {
+        "parameters": [
+          {
+            "name": "amount",
+            "type": "number"
+          },
+          {
+            "name": "options",
+            "type": "Partial<GameHurtOptions> | string",
+            "optional": true
+          }
+        ],
+        "returns": "void"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
       "id": "server.RuntimeEntity.id",
       "side": "server",
       "kind": "property",
@@ -33081,6 +33246,32 @@
       ]
     },
     {
+      "id": "server.RuntimeEntity.maxHp",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "maxHp",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
       "id": "server.RuntimeEntity.nextClick",
       "side": "server",
       "kind": "event",
@@ -33103,6 +33294,105 @@
       "implements": [
         "server.GameEntity.nextClick"
       ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.nextDestroy",
+      "side": "server",
+      "kind": "event",
+      "owner": "RuntimeEntity",
+      "name": "nextDestroy",
+      "signature": {
+        "parameters": [
+          {
+            "name": "filter",
+            "type": "(event: GameEntityEvent) => boolean",
+            "optional": true
+          }
+        ],
+        "returns": "Promise<GameEntityEvent>"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.nextDestroy"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.nextDie",
+      "side": "server",
+      "kind": "event",
+      "owner": "RuntimeEntity",
+      "name": "nextDie",
+      "signature": {
+        "parameters": [
+          {
+            "name": "filter",
+            "type": "(event: GameDieEvent) => boolean",
+            "optional": true
+          }
+        ],
+        "returns": "Promise<GameDieEvent>"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.nextTakeDamage",
+      "side": "server",
+      "kind": "event",
+      "owner": "RuntimeEntity",
+      "name": "nextTakeDamage",
+      "signature": {
+        "parameters": [
+          {
+            "name": "filter",
+            "type": "(event: GameDamageEvent) => boolean",
+            "optional": true
+          }
+        ],
+        "returns": "Promise<GameDamageEvent>"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.events",
+      "since": "0.1.0",
       "notes": [
         "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
       ],
@@ -33150,6 +33440,102 @@
       ]
     },
     {
+      "id": "server.RuntimeEntity.onDestroy",
+      "side": "server",
+      "kind": "event",
+      "owner": "RuntimeEntity",
+      "name": "onDestroy",
+      "signature": {
+        "parameters": [
+          {
+            "name": "handler",
+            "type": "(GameEntityEvent)=>void"
+          }
+        ],
+        "returns": "listener-token"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.onDestroy"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.onDie",
+      "side": "server",
+      "kind": "event",
+      "owner": "RuntimeEntity",
+      "name": "onDie",
+      "signature": {
+        "parameters": [
+          {
+            "name": "handler",
+            "type": "(GameDieEvent)=>void"
+          }
+        ],
+        "returns": "listener-token"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.onTakeDamage",
+      "side": "server",
+      "kind": "event",
+      "owner": "RuntimeEntity",
+      "name": "onTakeDamage",
+      "signature": {
+        "parameters": [
+          {
+            "name": "handler",
+            "type": "(GameDamageEvent)=>void"
+          }
+        ],
+        "returns": "listener-token"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
       "id": "server.RuntimeEntity.position",
       "side": "server",
       "kind": "property",
@@ -33161,6 +33547,32 @@
       },
       "availability": "confirmed",
       "compatibility": "emulated",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.showHealthBar",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "showHealthBar",
+      "signature": {
+        "type": "boolean",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
       "capability": "server.world.entities",
       "since": "0.1.0",
       "notes": [
@@ -33403,6 +33815,61 @@
       ]
     },
     {
+      "id": "server.RuntimePlayer.destroy",
+      "side": "server",
+      "kind": "method",
+      "owner": "RuntimePlayer",
+      "name": "destroy",
+      "signature": {
+        "parameters": [],
+        "returns": "void"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.destroy"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.destroyed",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "destroyed",
+      "signature": {
+        "type": "boolean",
+        "readonly": true
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.player",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
       "id": "server.RuntimePlayer.enableAction0",
       "side": "server",
       "kind": "property",
@@ -33466,6 +33933,32 @@
       "kind": "property",
       "owner": "RuntimePlayer",
       "name": "enableCrouch",
+      "signature": {
+        "type": "boolean",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.player.write",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.enableDamage",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "enableDamage",
       "signature": {
         "type": "boolean",
         "readonly": false
@@ -33626,6 +34119,68 @@
       ]
     },
     {
+      "id": "server.RuntimePlayer.hp",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "hp",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.player.write",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.hurt",
+      "side": "server",
+      "kind": "method",
+      "owner": "RuntimePlayer",
+      "name": "hurt",
+      "signature": {
+        "parameters": [
+          {
+            "name": "amount",
+            "type": "number"
+          },
+          {
+            "name": "options",
+            "type": "Partial<GameHurtOptions> | string",
+            "optional": true
+          }
+        ],
+        "returns": "void"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
       "id": "server.RuntimePlayer.id",
       "side": "server",
       "kind": "property",
@@ -33668,6 +34223,32 @@
       "implements": [
         "server.GamePlayerEntity.jumpButton"
       ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.maxHp",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "maxHp",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.player.write",
+      "since": "0.1.0",
       "notes": [
         "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
       ],
@@ -33729,6 +34310,73 @@
       "implements": [
         "server.GameEntity.nextClick"
       ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.nextDestroy",
+      "side": "server",
+      "kind": "event",
+      "owner": "RuntimePlayer",
+      "name": "nextDestroy",
+      "signature": {
+        "parameters": [
+          {
+            "name": "filter",
+            "type": "(event: GameEntityEvent) => boolean",
+            "optional": true
+          }
+        ],
+        "returns": "Promise<GameEntityEvent>"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.nextDestroy"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.nextDie",
+      "side": "server",
+      "kind": "event",
+      "owner": "RuntimePlayer",
+      "name": "nextDie",
+      "signature": {
+        "parameters": [
+          {
+            "name": "filter",
+            "type": "(event: GameDieEvent) => boolean",
+            "optional": true
+          }
+        ],
+        "returns": "Promise<GameDieEvent>"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.events",
+      "since": "0.1.0",
       "notes": [
         "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
       ],
@@ -33856,19 +34504,16 @@
         "parameters": [
           {
             "name": "filter",
-            "type": "(event: {tick,entity,attacker,damage,damageType}) => boolean",
+            "type": "(event: GameDamageEvent) => boolean",
             "optional": true
           }
         ],
-        "returns": "Promise<{tick,entity,attacker,damage,damageType}>"
+        "returns": "Promise<GameDamageEvent>"
       },
       "availability": "confirmed",
       "compatibility": "partial",
       "capability": "server.world.events",
       "since": "0.1.0",
-      "implements": [
-        "server.GameEntity.nextTakeDamage"
-      ],
       "notes": [
         "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
       ],
@@ -33903,6 +34548,71 @@
       "implements": [
         "server.GameEntity.onClick"
       ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.onDestroy",
+      "side": "server",
+      "kind": "event",
+      "owner": "RuntimePlayer",
+      "name": "onDestroy",
+      "signature": {
+        "parameters": [
+          {
+            "name": "handler",
+            "type": "(GameEntityEvent)=>void"
+          }
+        ],
+        "returns": "listener-token"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.events",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.onDestroy"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.onDie",
+      "side": "server",
+      "kind": "event",
+      "owner": "RuntimePlayer",
+      "name": "onDie",
+      "signature": {
+        "parameters": [
+          {
+            "name": "handler",
+            "type": "(GameDieEvent)=>void"
+          }
+        ],
+        "returns": "listener-token"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.events",
+      "since": "0.1.0",
       "notes": [
         "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
       ],
@@ -34027,7 +34737,7 @@
         "parameters": [
           {
             "name": "handler",
-            "type": "({tick,entity,attacker,damage,damageType})=>void"
+            "type": "(GameDamageEvent)=>void"
           }
         ],
         "returns": "listener-token"
@@ -34036,9 +34746,6 @@
       "compatibility": "partial",
       "capability": "server.world.events",
       "since": "0.1.0",
-      "implements": [
-        "server.GameEntity.onTakeDamage"
-      ],
       "notes": [
         "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
       ],
@@ -34095,6 +34802,32 @@
       "availability": "confirmed",
       "compatibility": "emulated",
       "capability": "server.world.chat",
+      "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.showHealthBar",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "showHealthBar",
+      "signature": {
+        "type": "boolean",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.player.write",
       "since": "0.1.0",
       "notes": [
         "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
@@ -35479,9 +36212,6 @@
       "compatibility": "partial",
       "capability": "server.world.events",
       "since": "0.1.0",
-      "implements": [
-        "server.GameWorld.nextTakeDamage"
-      ],
       "notes": [
         "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
       ],
@@ -35669,7 +36399,7 @@
         "parameters": [
           {
             "name": "handler",
-            "type": "({tick,entity,player})=>void"
+            "type": "(GameDieEvent)=>void"
           }
         ],
         "returns": "listener-token"
@@ -35678,9 +36408,6 @@
       "compatibility": "partial",
       "capability": "server.world.events",
       "since": "0.1.0",
-      "implements": [
-        "server.GameWorld.onDie"
-      ],
       "notes": [
         "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
       ],
@@ -36003,7 +36730,7 @@
         "parameters": [
           {
             "name": "handler",
-            "type": "({tick,entity,attacker,damage,damageType})=>void"
+            "type": "(GameDamageEvent)=>void"
           }
         ],
         "returns": "listener-token"
@@ -36012,9 +36739,6 @@
       "compatibility": "partial",
       "capability": "server.world.events",
       "since": "0.1.0",
-      "implements": [
-        "server.GameWorld.onTakeDamage"
-      ],
       "notes": [
         "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
       ],

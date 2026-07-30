@@ -1,6 +1,6 @@
 # NEA Runtime Compatibility Phase 5 Audit
 
-Generated: 2026-07-30T00:56:59.011Z
+Generated: 2026-07-30T11:06:53.537Z
 Overall status: **complete**
 
 ## Requirements
@@ -16,8 +16,8 @@ Client Script Runtime, Server Script Runtime, MuDB transport and authoritative s
 
 Every locally documented canonical declaration, kind-qualified member signature and recovered MuDB message has an explicit machine-readable record with availability, compatibility and evidence.
 
-- runtime-compat/generated/api-abi-completeness.json: {"status":"complete","summary":{"documentation":{"entries":599,"memberVariants":602,"byKind":{"method":245,"event":53,"property":265,"global":17,"object":22}},"catalogs":{"client":133,"server":892,"shared":131},"compatibilityMatrix":{"entries":599,"coveredDocumentationEntries":599},"protocols":{"catalogs":32,"messages":180,"byDirection":{"server-to-client":86,"client-to-server":94}},"gaps":0}}
-- runtime-compat/abi/compatibility-matrix.json: {"declarations":599,"byStatus":{"native":125,"compatible":72,"partial":24,"recovered-only":156,"declared-only":222}}
+- runtime-compat/generated/api-abi-completeness.json: {"status":"complete","summary":{"documentation":{"entries":599,"memberVariants":602,"byKind":{"method":245,"event":53,"property":265,"global":17,"object":22}},"catalogs":{"client":133,"server":916,"shared":131},"compatibilityMatrix":{"entries":599,"coveredDocumentationEntries":599},"protocols":{"catalogs":32,"messages":180,"byDirection":{"server-to-client":86,"client-to-server":94}},"gaps":0}}
+- runtime-compat/abi/compatibility-matrix.json: {"declarations":599,"byStatus":{"native":125,"compatible":71,"partial":33,"recovered-only":148,"declared-only":222}}
 - runtime-compat/abi/protocols.json: {"protocols":32,"messages":180,"byDirection":{"server-to-client":86,"client-to-server":94}}
 
 ### player-standing-body: complete
@@ -59,7 +59,7 @@ Demo client.js and server.js bind separate declared runtime contracts and capabi
 
 The generated gap report uses the same canonical compatibility matrix classification.
 
-- runtime-compat/generated/gap-report.json: {"executable":221,"compatibilityStatus":{"native":125,"compatible":72,"partial":24,"recovered-only":156,"declared-only":222}}
+- runtime-compat/generated/gap-report.json: {"executable":229,"compatibilityStatus":{"native":125,"compatible":71,"partial":33,"recovered-only":148,"declared-only":222}}
 
 ## Deferred Evidence
 

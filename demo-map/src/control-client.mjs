@@ -40,6 +40,41 @@ export async function queuePlayerStateToBackend(options) {
   return result;
 }
 
+export async function queueDamageStateToBackend(options) {
+  const response = await fetch(`http://127.0.0.1:${options.port}/__nea/control/damage-state`, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${options.token}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      ...(options.session === undefined ? {} : { session: options.session }),
+      ...(options.entityId === undefined ? {} : { entityId: options.entityId }),
+      state: options.state,
+      events: options.events,
+    }),
+    signal: options.signal,
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || result.ok !== true) throw new Error(result.error ?? `Backend damage bridge failed with HTTP ${response.status}`);
+  return result;
+}
+
+export async function destroyEntityOnBackend(options) {
+  const response = await fetch(`http://127.0.0.1:${options.port}/__nea/control/entity-destroy`, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${options.token}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ entityId: options.entityId }),
+    signal: options.signal,
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || result.ok !== true) throw new Error(result.error ?? `Backend entity destroy bridge failed with HTTP ${response.status}`);
+  return result;
+}
+
 export async function sendGuiCommandToBackend(options) {
   const response = await fetch(`http://127.0.0.1:${options.port}/__nea/control/gui-command`, {
     method: "POST",

@@ -10224,16 +10224,37 @@ function createProjectPackagePlayerProjection(project, bootstrap, descriptorValu
   }
   const frozenEntries = Object.freeze(entries.sort((left, right) => left.entityIndex - right.entityIndex));
   const frozenDiagnostics = Object.freeze(diagnostics);
-  const bindings = Object.freeze(descriptor.entities.map((mapping) => Object.freeze({
-    bootstrapMeshIndex: mapping.mesh.bootstrapMeshIndex,
-    bootstrapMeshHash: mapping.mesh.bootstrapMeshHash
-  })));
+  const runtimeMeshes = /* @__PURE__ */ new Map();
+  for (const mesh of descriptor.meshes) {
+    if (runtimeMeshes.has(mesh.name)) throw new Error(`Duplicate local Player runtime mesh mapping: ${mesh.name}`);
+    const bootstrapEntry = bootstrap.meshHashes[mesh.bootstrapMeshIndex];
+    if (!bootstrapEntry || bootstrapEntry.hash !== mesh.bootstrapMeshHash) {
+      throw new Error(`Local Player runtime mesh bootstrap binding does not match: ${mesh.name}`);
+    }
+    runtimeMeshes.set(mesh.name, Object.freeze({
+      bounds: mesh.bounds,
+      meshId: mesh.bootstrapMeshIndex + 1
+    }));
+  }
+  const bindings = Object.freeze([
+    ...descriptor.entities.map((mapping) => Object.freeze({
+      bootstrapMeshIndex: mapping.mesh.bootstrapMeshIndex,
+      bootstrapMeshHash: mapping.mesh.bootstrapMeshHash
+    })),
+    ...descriptor.meshes.map((mesh) => Object.freeze({
+      bootstrapMeshIndex: mesh.bootstrapMeshIndex,
+      bootstrapMeshHash: mesh.bootstrapMeshHash
+    }))
+  ]);
   const projection = Object.freeze({
     packageId: project.manifest.packageId,
     packageRootDirectory: project.rootDirectory,
     descriptor,
     entries: frozenEntries,
     diagnostics: frozenDiagnostics,
+    resolveRuntimeMesh(name) {
+      return typeof name === "string" ? runtimeMeshes.get(name) : void 0;
+    },
     matchesBootstrap(candidate) {
       return Boolean(candidate) && Array.isArray(candidate.meshHashes) && bindings.every((binding) => candidate.meshHashes[binding.bootstrapMeshIndex]?.hash === binding.bootstrapMeshHash);
     }
@@ -10307,7 +10328,7 @@ function requireProjectionDescriptorPath(descriptorFile) {
 }
 function parseDescriptor(value) {
   const record = requireRecord(value, "Local Player projection descriptor");
-  requireExactKeys(record, ["format", "version", "packageId", "entities"], "Local Player projection descriptor");
+  requireAllowedKeys(record, ["format", "version", "packageId", "entities", "meshes"], ["format", "version", "packageId", "entities"], "Local Player projection descriptor");
   if (record.format !== PROJECT_PACKAGE_PLAYER_PROJECTION_FORMAT) {
     throw new Error("Unsupported local Player projection descriptor format");
   }
@@ -10318,11 +10339,24 @@ function parseDescriptor(value) {
   if (!Array.isArray(record.entities) || record.entities.length > maxMappings) {
     throw new Error("Local Player projection entities must be an array of at most 4096 mappings");
   }
+  if (record.meshes !== void 0 && (!Array.isArray(record.meshes) || record.meshes.length > maxMappings)) {
+    throw new Error("Local Player projection meshes must be an array of at most 4096 mappings");
+  }
   return Object.freeze({
     format: PROJECT_PACKAGE_PLAYER_PROJECTION_FORMAT,
     version: PROJECT_PACKAGE_PLAYER_PROJECTION_VERSION,
     packageId,
-    entities: Object.freeze(record.entities.map((entry, index) => parseMapping(entry, index)))
+    entities: Object.freeze(record.entities.map((entry, index) => parseMapping(entry, index))),
+    meshes: Object.freeze((record.meshes ?? []).map((entry, index) => parseRuntimeMesh(entry, index)))
+  });
+}
+function parseRuntimeMesh(value, index) {
+  const record = requireRecord(value, `Local Player runtime mesh ${index}`);
+  requireExactKeys(record, ["name", "bounds", "bootstrapMeshIndex", "bootstrapMeshHash"], `Local Player runtime mesh ${index}`);
+  return Object.freeze({
+    name: requireText(record.name, "Local Player runtime mesh name"),
+    bounds: requirePositiveVector(record.bounds, "Local Player runtime mesh bounds"),
+    ...parseMeshBinding(record, index)
   });
 }
 function parseMapping(value, index) {
@@ -12676,6 +12710,13 @@ var PlayerDisplaySchema = new import_schema2.MuStruct({
   attachments: unused
 });
 var PlayerDisplaySetSchema = new import_schema2.MuSortedArray(PlayerDisplaySchema, Infinity, compareId2);
+var DamageSchema = new import_schema2.MuStruct({
+  id: new import_schema2.MuVarint(0),
+  showHealthBar: new import_schema2.MuBoolean(true),
+  hp: new import_schema2.MuQuantizedFloat(1 / 256, 100),
+  maxHp: new import_schema2.MuQuantizedFloat(1 / 256, 100)
+});
+var DamageSetSchema = new import_schema2.MuSortedArray(DamageSchema, Infinity, compareId2);
 var NetStateSchema = new import_schema2.MuStruct({
   players: PlayerSetSchema,
   playerInputs: PlayerInputSetSchema,
@@ -12692,7 +12733,7 @@ var GameReplicaSchema = new import_schema2.MuStruct({
   models: NetModelSetSchema,
   players: PlayerDisplaySetSchema,
   particles: unused,
-  damage: unused,
+  damage: DamageSetSchema,
   interactive: unused,
   entityName: EntityNameComponentSetSchema,
   sound: unused,
@@ -12833,11 +12874,24 @@ function createNetPublicState(input2) {
     }
     target.replica.entities.push(entity.entityId);
   }
+  for (const damage of input2.damage ?? []) {
+    requireEntityId2(damage.id);
+    if (!seen.has(damage.id)) throw new RangeError("damage state must reference a visible player or entity");
+    if (typeof damage.showHealthBar !== "boolean") throw new RangeError("damage showHealthBar must be boolean");
+    if (!Number.isFinite(damage.hp) || !Number.isFinite(damage.maxHp)) throw new RangeError("damage hp and maxHp must be finite");
+    const record = DamageSchema.clone(DamageSchema.identity);
+    record.id = damage.id;
+    record.showHealthBar = damage.showHealthBar;
+    record.hp = damage.hp;
+    record.maxHp = damage.maxHp;
+    target.replica.damage.push(record);
+  }
   target.state.players.sort(compareId2);
   target.state.playerInputs.sort(compareId2);
   target.state.bodies.sort(compareId2);
   target.replica.players.sort(compareId2);
   target.replica.models.sort(compareId2);
+  target.replica.damage.sort(compareId2);
   target.replica.entityName.sort(compareId2);
   target.replica.entities.sort(compareNumber);
   target.replica.running = true;
@@ -12976,7 +13030,8 @@ function createAnonymousPlayersPublicState(input2) {
   return createNetPublicState({
     tick: input2.tick,
     players: input2.players,
-    entities: input2.entities
+    entities: input2.entities,
+    damage: input2.damage
   });
 }
 function encodeNetPublicPacket(base, current, pauseCounter = 0) {
@@ -13191,6 +13246,10 @@ var GameNetPublicSessions = class {
   schedule;
   cancel;
   sessions = /* @__PURE__ */ new Map();
+  damageStates = /* @__PURE__ */ new Map();
+  pendingDamageHurt = /* @__PURE__ */ new Map();
+  pendingDamageDie = /* @__PURE__ */ new Set();
+  pendingDamageRespawn = /* @__PURE__ */ new Set();
   timer;
   constructor(options) {
     this.gameClock = options.gameClock;
@@ -13257,9 +13316,62 @@ var GameNetPublicSessions = class {
     const command = decodeTemporaryLegacyPositionTransformCommand(input2, session.playerId);
     return command ? this.runtime.enqueueInput(sessionId, command) : false;
   }
+  updateDamage(entityId, state, events = {}) {
+    requireEntityId2(entityId);
+    const frame = this.runtime.snapshot();
+    const exists = frame.players.some((player) => player.playerId === entityId) || frame.entities.some((entity) => entity.entityId === entityId);
+    if (!exists) return false;
+    const previous = this.damageStates.get(entityId) ?? defaultDamageState;
+    const next = normalizeRuntimeDamageState(state, previous);
+    this.damageStates.set(entityId, next);
+    if ([...this.sessions.values()].some((session) => session.client)) this.queueDamageEvents(entityId, events);
+    return true;
+  }
+  destroyEntity(entityId) {
+    requireEntityId2(entityId);
+    if (!this.runtime.despawnEntity(entityId)) return false;
+    this.damageStates.delete(entityId);
+    this.pendingDamageHurt.delete(entityId);
+    this.pendingDamageDie.delete(entityId);
+    this.pendingDamageRespawn.delete(entityId);
+    return true;
+  }
+  queueDamageEvents(entityId, events) {
+    if (Object.prototype.hasOwnProperty.call(events, "hurt")) {
+      const amount = Number(events.hurt);
+      if (!Number.isFinite(amount)) throw new RangeError("damage hurt amount must be finite");
+      this.pendingDamageHurt.set(entityId, (this.pendingDamageHurt.get(entityId) ?? 0) + amount);
+    }
+    if (events.die === true) this.pendingDamageDie.add(entityId);
+    if (events.respawn === true) this.pendingDamageRespawn.add(entityId);
+  }
+  flushDamageEvents() {
+    if (this.pendingDamageHurt.size === 0 && this.pendingDamageDie.size === 0 && this.pendingDamageRespawn.size === 0) return false;
+    const packet = {
+      damage: {
+        die: [...this.pendingDamageDie].sort(compareNumber),
+        hurt: [...this.pendingDamageHurt].sort(([left], [right]) => left - right).map(([id, damage]) => ({ id, damage })),
+        respawn: [...this.pendingDamageRespawn].sort(compareNumber)
+      }
+    };
+    let sent = false;
+    try {
+      for (const session of this.sessions.values()) {
+        const sender = session.client?.message.scriptEvents;
+        if (typeof sender !== "function") continue;
+        sender(packet);
+        sent = true;
+      }
+      return sent;
+    } finally {
+      this.pendingDamageHurt.clear();
+      this.pendingDamageDie.clear();
+      this.pendingDamageRespawn.clear();
+    }
+  }
   publish() {
     const frame = this.advanceToCurrentTick();
-    const current = createPublicState(frame);
+    const current = createPublicState(frame, this.damageStates);
     let sent = false;
     try {
       for (const session of this.sessions.values()) {
@@ -13268,7 +13380,7 @@ var GameNetPublicSessions = class {
         session.lastSentTick = frame.tick;
         sent = true;
       }
-      return sent;
+      return this.flushDamageEvents() || sent;
     } finally {
       NetPublicSchema.free(current);
     }
@@ -13278,6 +13390,10 @@ var GameNetPublicSessions = class {
     if (!session) return false;
     this.releaseSessionState(session);
     this.sessions.delete(sessionId);
+    this.damageStates.delete(session.playerId);
+    this.pendingDamageHurt.delete(session.playerId);
+    this.pendingDamageDie.delete(session.playerId);
+    this.pendingDamageRespawn.delete(session.playerId);
     this.runtime.leave(sessionId);
     if (this.sessions.size === 0) this.stopTimer();
     return true;
@@ -13289,6 +13405,10 @@ var GameNetPublicSessions = class {
       this.runtime.leave(session.sessionId);
     }
     this.sessions.clear();
+    this.damageStates.clear();
+    this.pendingDamageHurt.clear();
+    this.pendingDamageDie.clear();
+    this.pendingDamageRespawn.clear();
   }
   resend(client) {
     const session = this.sessions.get(client.sessionId);
@@ -13333,7 +13453,7 @@ var GameNetPublicSessions = class {
     return this.runtime.advanceTo(this.gameClock.currentTick());
   }
   sendIdentity(session, client, frame) {
-    const current = createPublicState(frame);
+    const current = createPublicState(frame, this.damageStates);
     try {
       this.sendCurrent(session, client, current, true);
     } finally {
@@ -13392,7 +13512,17 @@ var GameNetPublicSessions = class {
     session.sentCheckpoints.clear();
   }
 };
-function createPublicState(frame) {
+var defaultDamageState = Object.freeze({ showHealthBar: true, hp: 100, maxHp: 100 });
+function normalizeRuntimeDamageState(state, previous = defaultDamageState) {
+  if (!state || typeof state !== "object" || Array.isArray(state)) throw new RangeError("damage state must be an object");
+  const showHealthBar = state.showHealthBar ?? previous.showHealthBar;
+  const hp = state.hp ?? previous.hp;
+  const maxHp = state.maxHp ?? previous.maxHp;
+  if (typeof showHealthBar !== "boolean") throw new RangeError("damage showHealthBar must be boolean");
+  if (!Number.isFinite(hp) || !Number.isFinite(maxHp)) throw new RangeError("damage hp and maxHp must be finite");
+  return Object.freeze({ showHealthBar, hp, maxHp });
+}
+function createPublicState(frame, damageStates = /* @__PURE__ */ new Map()) {
   const entities = [];
   for (const entity of frame.entities) {
     if (entity.replica === void 0) continue;
@@ -13405,10 +13535,14 @@ function createPublicState(frame) {
       ...entity.replica.nameplate === void 0 ? {} : { nameplate: entity.replica.nameplate }
     });
   }
+  const damage = [];
+  for (const player of frame.players) damage.push({ id: player.playerId, ...damageStates.get(player.playerId) ?? defaultDamageState });
+  for (const entity of entities) damage.push({ id: entity.entityId, ...damageStates.get(entity.entityId) ?? defaultDamageState });
   return createAnonymousPlayersPublicState({
     tick: frame.tick,
     players: frame.players,
-    entities
+    entities,
+    damage
   });
 }
 function decodeTemporaryLegacyPositionTransformCommand(input2, playerId) {
@@ -14498,6 +14632,7 @@ var LegacyHistoricalProjectInstance = class {
     this.gameRuntime = new AuthoritativeGameRuntime({ gameClock: this.gameClock });
     this.legacyProjectMount = mountLegacyProjectForInstance(options, this.gameRuntime);
     this.projectPackagePlayerProjectionMount = mountProjectPackagePlayerProjectionForInstance(options, this.gameRuntime);
+    this.projectPackagePlayerProjection = options.projectPackagePlayerProjection?.projection;
     this.gameNetPublicSessions = new GameNetPublicSessions({ gameClock: this.gameClock, runtime: this.gameRuntime });
     this.mutableTerrain = new MutableArchiveWorld(terrain, options.world);
     this.terrainSessions = new TerrainSessions();
@@ -14575,6 +14710,7 @@ var LegacyHistoricalProjectInstance = class {
   gameRuntime;
   legacyProjectMount;
   projectPackagePlayerProjectionMount;
+  projectPackagePlayerProjection;
   gameNetPublicSessions;
   mutableTerrain;
   terrainSessions;
@@ -14606,6 +14742,58 @@ var LegacyHistoricalProjectInstance = class {
       kind: "temporary-legacy-position-transform",
       position: state.position ?? player.position,
       velocity: state.velocity ?? player.velocity
+    });
+  }
+  queueDamageRuntimeState(target, state, events) {
+    const frame = this.gameRuntime.snapshot();
+    let entityId = target.entityId;
+    if (target.sessionLabel !== void 0) {
+      const player = frame.players.find((candidate) => candidate.sessionId === target.sessionLabel || candidate.sessionId.length > 12 && candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === target.sessionLabel);
+      if (!player) return false;
+      entityId = player.playerId;
+    }
+    if (!Number.isSafeInteger(entityId) || entityId < 1) return false;
+    return this.gameNetPublicSessions.updateDamage(entityId, state, events);
+  }
+  destroyRuntimeEntity(entityId) {
+    if (!Number.isSafeInteger(entityId) || entityId < 1) return false;
+    return this.gameNetPublicSessions.destroyEntity(entityId);
+  }
+  createRuntimeEntity(entity) {
+    if (!entity || typeof entity !== "object" || Array.isArray(entity) || typeof entity.mesh !== "string") return void 0;
+    const projection = this.projectPackagePlayerProjection;
+    if (!isProjectPackagePlayerProjection(projection)) return void 0;
+    const mesh = projection.resolveRuntimeMesh(entity.mesh);
+    if (!mesh) return void 0;
+    return this.gameRuntime.spawnEntity({
+      kind: "object",
+      position: entity.position,
+      ...entity.velocity === void 0 ? {} : { velocity: entity.velocity },
+      ...entity.name === void 0 ? {} : { name: entity.name },
+      ...entity.tags === void 0 ? {} : { tags: entity.tags },
+      ...entity.enableInteract === void 0 ? {} : { interactable: entity.enableInteract },
+      replica: {
+        body: {
+          bounds: mesh.bounds,
+          ...entity.meshOrientation === void 0 ? {} : { orientation: entity.meshOrientation },
+          ...entity.collides === void 0 ? {} : { collides: entity.collides },
+          ...entity.fixed === void 0 ? {} : { fixed: entity.fixed },
+          ...entity.gravity === void 0 ? {} : { gravity: entity.gravity },
+          ...entity.mass === void 0 ? {} : { mass: entity.mass },
+          ...entity.friction === void 0 ? {} : { friction: entity.friction },
+          ...entity.restitution === void 0 ? {} : { restitution: entity.restitution }
+        },
+        model: {
+          meshId: mesh.meshId,
+          ...entity.meshInvisible === void 0 ? {} : { invisible: entity.meshInvisible },
+          ...entity.meshColor === void 0 ? {} : { color: entity.meshColor },
+          ...entity.meshScale === void 0 ? {} : { scale: entity.meshScale },
+          ...entity.meshOffset === void 0 ? {} : { offset: entity.meshOffset },
+          ...entity.meshEmissive === void 0 ? {} : { emissive: entity.meshEmissive },
+          ...entity.meshShininess === void 0 ? {} : { shininess: entity.meshShininess },
+          ...entity.meshMetalness === void 0 ? {} : { metalness: entity.meshMetalness }
+        }
+      }
     });
   }
   /** Starts services whose timers must begin only after the gateway is listening. */
@@ -16375,6 +16563,14 @@ var Box3Server = class {
     if (!this.running) return false;
     return this.historicalProjectInstance?.queuePlayerRuntimeState(sessionLabel, state) ?? false;
   }
+  queueDamageRuntimeState(target, state, events) {
+    if (!this.running) return false;
+    return this.historicalProjectInstance?.queueDamageRuntimeState(target, state, events) ?? false;
+  }
+  destroyRuntimeEntity(entityId) {
+    if (!this.running) return false;
+    return this.historicalProjectInstance?.destroyRuntimeEntity(entityId) ?? false;
+  }
   /**
    * Host-only ingress for the recovered player-protocol profile-dialog frame.
    * This is not an HTTP route, project API, profile service, or account bridge.
@@ -17002,6 +17198,31 @@ async function startNeaControlBridge(server, logger) {
         const queued = server.queuePlayerRuntimeState(body.session, state);
         response.statusCode = queued ? 202 : 404;
         response.end(JSON.stringify(queued ? { ok: true, queued: true } : { ok: false, error: "player state not found" }));
+        return;
+      }
+      if (request.method === "POST" && url.pathname === "/__nea/control/damage-state") {
+        const hasSession = typeof body.session === "string";
+        const hasEntityId = Number.isSafeInteger(body.entityId) && body.entityId > 0;
+        if (hasSession === hasEntityId || !body.state || typeof body.state !== "object" || Array.isArray(body.state)) {
+          throw new Error("exactly one damage target and a state object are required");
+        }
+        if (body.events !== void 0 && (!body.events || typeof body.events !== "object" || Array.isArray(body.events))) {
+          throw new Error("damage events must be an object");
+        }
+        const queued = server.queueDamageRuntimeState(
+          hasSession ? { sessionLabel: body.session } : { entityId: body.entityId },
+          body.state,
+          body.events ?? {}
+        );
+        response.statusCode = queued ? 202 : 404;
+        response.end(JSON.stringify(queued ? { ok: true, queued: true } : { ok: false, error: "damage target not found" }));
+        return;
+      }
+      if (request.method === "POST" && url.pathname === "/__nea/control/entity-destroy") {
+        if (!Number.isSafeInteger(body.entityId) || body.entityId < 1) throw new Error("entityId must be a positive safe integer");
+        const destroyed = server.destroyRuntimeEntity(body.entityId);
+        response.statusCode = destroyed ? 200 : 404;
+        response.end(JSON.stringify(destroyed ? { ok: true, destroyed: true } : { ok: false, error: "entity not found" }));
         return;
       }
       response.statusCode = 404;

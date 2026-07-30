@@ -1,14 +1,14 @@
 {
   "format": "nea-runtime-entity-adapter-map",
   "version": 1,
-  "generatedAt": "2026-07-30T00:56:53.984Z",
+  "generatedAt": "2026-07-30T11:06:41.109Z",
   "contract": "nea-server-runtime/v1",
   "localObject": {
     "id": "server.object.RuntimeEntity",
     "status": "extension",
     "canonicalTarget": "server.object.GameEntity",
     "notes": [
-      "RuntimeEntity is a small local subset and does not implement the canonical GameEntity lifecycle, physics, events, animation, damage, audio, or replication surface."
+      "RuntimeEntity implements the recovered script-side damage subset, but does not implement the complete canonical lifecycle, physics, animation, audio, or authoritative replication surface."
     ]
   },
   "members": [
@@ -299,6 +299,685 @@
     },
     {
       "local": {
+        "id": "server.RuntimeEntity.destroyed",
+        "kind": "property",
+        "signature": {
+          "type": "boolean",
+          "readonly": true
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.destroyed",
+          "kind": "property",
+          "signature": {
+            "type": "boolean",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "The readonly flag changes once, destroy listeners fire once, and mapped authoritative replicas are despawned; runtime-created entities still depend on the separate createEntity projection gap."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/fight.md",
+          "symbol": "destroyed: boolean",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.destroy",
+        "kind": "method",
+        "signature": {
+          "parameters": [],
+          "returns": "void"
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.destroy",
+          "kind": "method",
+          "signature": {
+            "parameters": [],
+            "returns": "void"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "Non-player entities are removed from selectors immediately and mapped backend replicas are despawned; runtime-created entities have no backend replica until createEntity projection is implemented."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/fight.md",
+          "symbol": "destroy(): void",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.onDestroy",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "handler",
+              "type": "(GameEntityEvent)=>void"
+            }
+          ],
+          "returns": "listener-token"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.onDestroy",
+          "kind": "event",
+          "signature": {
+            "parameters": [
+              {
+                "name": "handler",
+                "optional": false,
+                "type": "(event:GameEntityEvent)=>void",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "function",
+                  "description": "监听到实体被销毁时的处理函数"
+                }
+              }
+            ],
+            "returns": "GameEventHandlerToken"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "The local destroy path emits one recovered GameEntityEvent; destroy events originating independently inside the historical engine are not bridged."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/fight.md",
+          "symbol": "事件onDestroy(handler:(event:GameEntityEvent)=>void):GameEventHandlerToken",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.nextDestroy",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "filter",
+              "type": "(event: GameEntityEvent) => boolean",
+              "optional": true
+            }
+          ],
+          "returns": "Promise<GameEntityEvent>"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.nextDestroy",
+          "kind": "event",
+          "signature": {
+            "parameters": [],
+            "returns": "unknown",
+            "representation": "function-valued property"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "The optional filter and local destroy event are supported; independent engine-originated destroy events are not bridged."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.nextDestroy",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.enableDamage",
+        "kind": "property",
+        "signature": {
+          "type": "boolean",
+          "readonly": false
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.enableDamage",
+          "kind": "property",
+          "signature": {
+            "type": "boolean",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "The flag gates script-produced hurt calls; it is script-only in the recovered shell and is not part of the Player replica.damage schema."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/fight.md",
+          "symbol": "enableDamage: boolean",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.showHealthBar",
+        "kind": "property",
+        "signature": {
+          "type": "boolean",
+          "readonly": false
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.showHealthBar",
+          "kind": "property",
+          "signature": {
+            "type": "boolean",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "Mapped players and entities propagate the value through the recovered replica.damage schema to native client health-bar rendering; runtime-created entity projection remains separate."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/fight.md",
+          "symbol": "showHealthBar: boolean",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.hp",
+        "kind": "property",
+        "signature": {
+          "type": "number",
+          "readonly": false
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.hp",
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "Script writes, hurt, and healing propagate through the recovered replica.damage schema for mapped players and entities; runtime-created entity projection remains separate."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/fight.md",
+          "symbol": "hp: number",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.maxHp",
+        "kind": "property",
+        "signature": {
+          "type": "number",
+          "readonly": false
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.maxHp",
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "The value caps healing and propagates through the recovered replica.damage schema for mapped players and entities; runtime-created entity projection remains separate."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/fight.md",
+          "symbol": "maxHp: number",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.onTakeDamage",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "handler",
+              "type": "(GameDamageEvent)=>void"
+            }
+          ],
+          "returns": "listener-token"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.onTakeDamage",
+          "kind": "event",
+          "signature": {
+            "parameters": [
+              {
+                "name": "handler",
+                "optional": false,
+                "type": "(event:GameDamageEvent)=>void",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "function",
+                  "description": "监听到实体受到伤害时的处理函数"
+                }
+              }
+            ],
+            "returns": "GameEventHandlerToken"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "Script-produced hurt dispatches the recovered GameDamageEvent; authoritative backend DamageBinding ingress remains unimplemented."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/fight.md",
+          "symbol": "事件onTakeDamage(handler:(event:GameDamageEvent)=>void):GameEventHandlerToken",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.nextTakeDamage",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "filter",
+              "type": "(event: GameDamageEvent) => boolean",
+              "optional": true
+            }
+          ],
+          "returns": "Promise<GameDamageEvent>"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.nextTakeDamage",
+          "kind": "event",
+          "signature": {
+            "parameters": [],
+            "returns": "unknown",
+            "representation": "function-valued property"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "Script-produced events and optional filters are supported; authoritative backend DamageBinding ingress remains unimplemented."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.nextTakeDamage",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.onDie",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "handler",
+              "type": "(GameDieEvent)=>void"
+            }
+          ],
+          "returns": "listener-token"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.onDie",
+          "kind": "event",
+          "signature": {
+            "parameters": [
+              {
+                "name": "handler",
+                "optional": false,
+                "type": "(event:GameDieEvent)=>void",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "function",
+                  "description": "监听到实体死亡时的处理函数"
+                }
+              }
+            ],
+            "returns": "GameEventHandlerToken"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "Script-produced hurt emits one GameDieEvent when hp crosses to zero; authoritative backend death transitions remain unimplemented."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/fight.md",
+          "symbol": "事件onDie(handler:(event:GameDieEvent)=>void):GameEventHandlerToken",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.nextDie",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "filter",
+              "type": "(event: GameDieEvent) => boolean",
+              "optional": true
+            }
+          ],
+          "returns": "Promise<GameDieEvent>"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.nextDie",
+          "kind": "event",
+          "signature": {
+            "parameters": [],
+            "returns": "unknown",
+            "representation": "function-valued property"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "Script-produced death events and optional filters are supported; authoritative backend death transitions remain unimplemented."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.nextDie",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.hurt",
+        "kind": "method",
+        "signature": {
+          "parameters": [
+            {
+              "name": "amount",
+              "type": "number"
+            },
+            {
+              "name": "options",
+              "type": "Partial<GameHurtOptions> | string",
+              "optional": true
+            }
+          ],
+          "returns": "void"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.hurt",
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "amount",
+                "optional": false,
+                "type": "number",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "number",
+                  "description": "伤害值"
+                }
+              },
+              {
+                "name": "options",
+                "optional": true,
+                "type": "Partial",
+                "documentation": {
+                  "required": null,
+                  "default": null,
+                  "type": "Partial‹GameHurtOptions›",
+                  "description": "伤害的相关配置"
+                }
+              }
+            ],
+            "returns": "void"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The canonical options object is supported; a historical BedWars string damageType form is additionally accepted."
+        ],
+        "effect": [
+          "Recovered hp, healing, attacker, damageType, damage, and death semantics are implemented; mapped targets also emit native replica.damage state and game-net hurt/die effects. Runtime-created entity projection remains separate."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/fight.md",
+          "symbol": "hurt(amount:number,options?:Partial): void",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
         "id": "server.RuntimeEntity.snapshot",
         "kind": "method",
         "signature": {
@@ -328,8 +1007,8 @@
     }
   ],
   "summary": {
-    "memberCount": 7,
-    "partial": 5,
+    "memberCount": 20,
+    "partial": 18,
     "extensions": 2
   }
 }

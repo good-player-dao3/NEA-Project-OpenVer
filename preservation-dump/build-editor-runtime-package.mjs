@@ -175,8 +175,7 @@ const entities = entityNodes.map(node => {
 const modelMetadataByHash = new Map();
 const copiedModelHashes = new Set();
 await mkdir(join(archiveRoot, "engine", "m"), { recursive: true });
-for (const node of entityNodes) {
-  const asset = extraProjectInfo.meshAssets?.[node.value.mesh];
+for (const asset of Object.values(extraProjectInfo.meshAssets ?? {})) {
   const metadataPath = asset?.hash ? engineModelBodyByHash.get(asset.hash) : undefined;
   if (!metadataPath) continue;
   const metadataBytes = await readFile(metadataPath);
