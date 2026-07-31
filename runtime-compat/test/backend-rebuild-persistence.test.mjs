@@ -28,14 +28,23 @@ test("audited backend target hash matches the checked-in runtime bundle", () => 
   assert.equal(createHash("sha256").update(backend).digest("hex"), expected);
 });
 
-test("compatibility patch persists recovered UI, Dialog, player-network, and runtime-entity projection behavior", () => {
+test("compatibility patch persists recovered UI, Dialog, chat, player-network, and runtime-entity projection behavior", () => {
   assert.match(patch, /loadClientUiState/);
   assert.match(patch, /BOX3_CLIENT_UI_MANIFEST/);
+  assert.match(patch, /BOX3_CLIENT_RUNTIME_MANIFEST/);
+  assert.match(patch, /BOX3_PROJECT_BOOTSTRAP_MANIFEST/);
   assert.match(patch, /BOX3_PLAYER_BODY_PROFILE/);
   assert.match(patch, /normalizeDialogConfig/);
   assert.match(patch, /response\.catch\(\(\) =>/);
+  assert.match(patch, /__nea\/control\/dialog-cancel-all/);
+  assert.match(patch, /sessionBridgeLabel/);
+  assert.match(patch, /matchesSessionLabel/);
+  assert.match(patch, /BOX3_LOG_SCRIPT_INTERACT_EVENTS/);
+  assert.match(patch, /\[entity-interact\]/);
   assert.match(patch, /GuiSessions/);
   assert.match(patch, /__nea\/control\/gui-command/);
+  assert.match(patch, /broadcastLog/);
+  assert.match(patch, /__nea\/control\/chat-message/);
   assert.match(patch, /resolveSessionLabel/);
   assert.match(patch, /MuQuantizedVec3/);
   assert.match(patch, /BOX3_LOG_SCRIPT_INPUT_EVENTS/);
@@ -53,6 +62,12 @@ test("compatibility patch persists recovered UI, Dialog, player-network, and run
   assert.match(patch, /resolveRuntimeMesh/);
   assert.match(patch, /__nea\/control\/entity-create/);
   assert.match(patch, /__nea\/control\/entity-state/);
+  assert.match(patch, /transform\.collides/);
+  assert.match(patch, /transform\.fixed/);
+  assert.match(patch, /transform\.gravity/);
+  assert.match(patch, /transform\.mass/);
+  assert.match(patch, /transform\.friction/);
+  assert.match(patch, /transform\.restitution/);
 });
 
 test("runtime model projection accepts captured zero scale used by hidden entities", () => {

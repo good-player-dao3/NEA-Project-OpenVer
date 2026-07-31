@@ -22,6 +22,7 @@ npm test
 - `abi/runtime-contracts.json` with the five runtime layers, versioned contracts, side-qualified capabilities and resolved Demo bindings.
 - `abi/client-runtime.json` and `abi/server-runtime.json` by merging declarations, recovered symbols and current implementation evidence.
 - `generated/gap-report.json` and `generated/gap-report.md` without treating declarations as implementations.
+- `generated/capability-gate-audit.json` and `.md` convert the anonymous script-corpus report through the compatibility matrix into launch-gate states. A requirement cannot be `ready` or `partial` without an executable local binding; script-owned assignments are excluded rather than promoted into DAO3 APIs.
 
 ## Status Meanings
 

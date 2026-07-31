@@ -13,6 +13,24 @@ export async function sendClientEventToBackend(options) {
   return result;
 }
 
+export async function sendChatMessageToBackend(options) {
+  const response = await fetch(`http://127.0.0.1:${options.port}/__nea/control/chat-message`, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${options.token}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      ...(options.session === undefined ? {} : { session: options.session }),
+      message: options.message,
+    }),
+    signal: options.signal,
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || result.ok !== true) throw new Error(result.error ?? `Backend chat bridge failed with HTTP ${response.status}`);
+  return result;
+}
+
 export async function getPlayerStateFromBackend(options) {
   const url = new URL(`http://127.0.0.1:${options.port}/__nea/control/player-state`);
   url.searchParams.set("session", options.session);
@@ -127,4 +145,16 @@ export async function openDialogOnBackend(options) {
   const result = await response.json().catch(() => ({}));
   if (!response.ok || result.ok !== true) throw new Error(result.error ?? `Backend dialog bridge failed with HTTP ${response.status}`);
   return result.result;
+}
+
+export async function cancelDialogsOnBackend(options) {
+  const response = await fetch(`http://127.0.0.1:${options.port}/__nea/control/dialog-cancel-all`, {
+    method: "POST",
+    headers: { authorization: `Bearer ${options.token}`, "content-type": "application/json" },
+    body: JSON.stringify({ session: options.session }),
+    signal: options.signal,
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || result.ok !== true) throw new Error(result.error ?? `Backend dialog cancellation bridge failed with HTTP ${response.status}`);
+  return result.cancelled;
 }

@@ -1,8 +1,8 @@
 export function parseBackendEvent(line) {
   const join = line.match(/^\[session\] join (.+)$/);
-  if (join) return Object.freeze({ type: "player-join", sessionLabel: join[1] });
+  if (join) return Object.freeze({ type: "player-join", sessionLabel: requireSessionBridgeLabel(join[1]) });
   const leave = line.match(/^\[session\] disconnected (.+)$/);
-  if (leave) return Object.freeze({ type: "player-leave", sessionLabel: leave[1] });
+  if (leave) return Object.freeze({ type: "player-leave", sessionLabel: requireSessionBridgeLabel(leave[1]) });
 
   const entityMap = line.match(/^\[game-net:entity-map\] (.+)$/);
   if (entityMap) {
@@ -17,8 +17,20 @@ export function parseBackendEvent(line) {
     if (!Array.isArray(packet?.events)) throw new Error("game-net input packet requires events");
     return Object.freeze({
       type: "input-events",
-      sessionLabel: input[1],
+      sessionLabel: requireSessionBridgeLabel(input[1]),
       packet: structuredClone(packet),
+    });
+  }
+
+  const interact = line.match(/^\[entity-interact\] (\S+) (.+)$/);
+  if (interact) {
+    const packet = JSON.parse(interact[2]);
+    if (!Number.isSafeInteger(packet?.id) || packet.id < 0 || !Number.isFinite(packet?.tick)) throw new Error("entity interact requires id and tick");
+    return Object.freeze({
+      type: "entity-interact",
+      sessionLabel: requireSessionBridgeLabel(interact[1]),
+      entityId: packet.id,
+      tick: packet.tick,
     });
   }
 
@@ -28,7 +40,7 @@ export function parseBackendEvent(line) {
     if (typeof packet?.name !== "string" || typeof packet?.payload !== "string") throw new Error("GUI message requires name and JSON payload");
     return Object.freeze({
       type: "gui-message",
-      sessionLabel: gui[1],
+      sessionLabel: requireSessionBridgeLabel(gui[1]),
       name: packet.name,
       payload: structuredClone(JSON.parse(packet.payload)),
     });
@@ -40,8 +52,13 @@ export function parseBackendEvent(line) {
   const event = typeof packet?.args === "string" ? JSON.parse(packet.args) : packet;
   return Object.freeze({
     type: "client-event",
-    sessionLabel: remote[1],
+    sessionLabel: requireSessionBridgeLabel(remote[1]),
     tick: Number.isSafeInteger(packet?.tick) ? packet.tick : 0,
     event: structuredClone(event),
   });
+}
+
+function requireSessionBridgeLabel(value) {
+  if (!/^session-sha256-[0-9a-f]{64}$/.test(value)) throw new Error("backend event requires a stable session bridge label");
+  return value;
 }

@@ -56,7 +56,10 @@ test("UiInput exposes only wrapper-backed documented members", async () => {
     assert.ok(entries.get(id)?.evidence.some(item => item.symbol === "module 21031 UiInput wrapper and input focus events"));
   }
   assert.equal(entries.has("client.UiInput.placeholderOpacity"), false);
-  assert.ok(analysis.unresolved.some(item => item.includes("placeholderOpacity")));
+  const unavailable = analysis.unavailable.find(item => item.id === "client.UiInput.placeholderOpacity");
+  assert.equal(unavailable.status, "confirmed-wrapper-absent");
+  assert.ok(unavailable.reason.includes("hardens the UiInput constructor"));
+  assert.equal(unavailable.evidence.length, 3);
 });
 
 test("RemoteChannel receive registration is separate from server runtime events", async () => {

@@ -21,7 +21,7 @@ const currentById = new Map(current.entries.map(entry => [entry.id, entry]));
 const catalogBySide = Object.fromEntries(Object.entries(catalogs).map(([side, catalog]) => [side, new Map(catalog.entries.map(entry => [entry.id, entry]))]));
 const bindings = collectBindings();
 const entries = docs.entries.map(declaration => matrixEntry(declaration));
-const statusOrder = ["native", "compatible", "partial", "recovered-only", "declared-only"];
+const statusOrder = ["native", "compatible", "partial", "recovered-only", "unavailable", "declared-only"];
 const summary = {
   entries: entries.length,
   byStatus: countBy(entries, entry => entry.status, statusOrder),
@@ -54,6 +54,7 @@ const matrix = {
     compatible: "Executable locally with conformance evidence sufficient for the documented contract.",
     partial: "Executable locally, but one or more access, signature or behavioral gaps remain.",
     "recovered-only": "The historical declaration or implementation is recovered, but no local executable binding exists.",
+    unavailable: "Direct runtime evidence proves that the selected historical provider does not expose this declaration to scripts.",
     "declared-only": "Only the documentation declaration is currently recovered.",
   },
   summary,
@@ -75,17 +76,19 @@ console.log(`Built compatibility matrix for ${summary.entries} declarations: ${s
 
 function matrixEntry(declaration) {
   const candidates = [];
+  const adapterBindings = bindings.get(declaration.id) ?? [];
+  const adapterLocalIds = new Set(adapterBindings.map(binding => binding.localId));
   const direct = currentById.get(declaration.id);
   if (direct) candidates.push(bindingFromEntry(direct, directStatus(direct), "exact"));
   for (const entry of current.entries) {
-    if ((entry.implements ?? []).includes(declaration.id)) candidates.push(bindingFromEntry(entry, "compatible", "implements"));
+    if ((entry.implements ?? []).includes(declaration.id) && !adapterLocalIds.has(entry.id)) candidates.push(bindingFromEntry(entry, directStatus(entry), "implements"));
   }
-  candidates.push(...(bindings.get(declaration.id) ?? []));
+  candidates.push(...adapterBindings);
   candidates.sort((left, right) => statusRank(right.status) - statusRank(left.status));
   const best = candidates[0];
   const recovered = catalogBySide[declaration.side]?.get(declaration.id);
   const recoveredEvidence = (recovered?.evidence ?? []).filter(item => item.type !== "docs");
-  const status = best?.status ?? (recoveredEvidence.length > 0 ? "recovered-only" : "declared-only");
+  const status = best?.status ?? (recovered?.availability === "unsupported" ? "unavailable" : recoveredEvidence.length > 0 ? "recovered-only" : "declared-only");
   const localBindings = candidates.map(candidate => ({
     localId: candidate.localId,
     relation: candidate.relation,
@@ -107,6 +110,7 @@ function matrixEntry(declaration) {
     status,
     executable: ["native", "compatible", "partial"].includes(status),
     capability: best?.capability ?? null,
+    unavailableReason: status === "unavailable" ? recovered?.unavailableReason ?? null : null,
     localBindings,
     recovery: {
       availability: recovered?.availability ?? declaration.availability,
@@ -153,13 +157,13 @@ function bindingFromEntry(entry, status, relation) {
 }
 
 function directStatus(entry) {
-  if (entry.availability === "partial") return "partial";
+  if (entry.availability === "partial" || entry.compatibility === "partial") return "partial";
   if (entry.compatibility === "native") return "native";
   return "compatible";
 }
 
 function statusRank(status) {
-  return { "declared-only": 0, "recovered-only": 1, partial: 2, compatible: 3, native: 4 }[status] ?? -1;
+  return { unavailable: 0, "declared-only": 0, "recovered-only": 1, partial: 2, compatible: 3, native: 4 }[status] ?? -1;
 }
 
 function contractForSide(side) {

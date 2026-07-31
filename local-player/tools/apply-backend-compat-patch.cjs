@@ -3,7 +3,7 @@ const { readFileSync, writeFileSync } = require("node:fs");
 const { join } = require("node:path");
 
 const BASE_SHA256 = "d35b3db79e93c03021fcb0ad62bf20d89e4bef470553bff17be6c9e3a61cc097";
-const TARGET_SHA256 = "eb4b85095bd120e88fdadbe2cd36b4cc7c26c8b558d110ac75a3463330b97729";
+const TARGET_SHA256 = "781760ff619c95c7eab835dabc198e08b3b445177ffa479a3893bf10e1b68b43";
 
 function applyBackendCompatPatch(bundlePath) {
   const source = readFileSync(bundlePath, "utf8");
@@ -25,8 +25,8 @@ function applyUnifiedPatch(source, patch) {
     const header = patchLines[patchIndex++];
     const match = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/.exec(header);
     if (!match) throw new Error(`Invalid backend compatibility hunk: ${header}`);
-    const oldStart = Number(match[1]) - 1;
     const oldCount = Number(match[2] ?? 1);
+    const oldStart = oldCount === 0 ? Number(match[1]) : Number(match[1]) - 1;
     while (sourceIndex < oldStart) output.push(sourceLines[sourceIndex++]);
     let consumed = 0;
     while (patchIndex < patchLines.length && !patchLines[patchIndex].startsWith("@@ ")) {

@@ -12,6 +12,10 @@ const relativeEngineBundlePath = "local-player/archive/project/bedwars/client-ru
 const engineSource = await readFile(resolve(repositoryRoot, relativeEngineBundlePath), "utf8");
 const docs = JSON.parse(await readFile(resolve(root, "generated", "docs-api-index.json"), "utf8"));
 const sha256 = createHash("sha256").update(source).digest("hex");
+const uiInputModuleStart = engineSource.indexOf("21031:function");
+const uiInputModuleEnd = engineSource.indexOf("2524:function", uiInputModuleStart);
+if (uiInputModuleStart < 0 || uiInputModuleEnd < 0) throw new Error("Historical client UiInput module boundaries were not found");
+const uiInputModuleSource = engineSource.slice(uiInputModuleStart, uiInputModuleEnd);
 
 const requiredMarkers = [
   "93474:function",
@@ -26,6 +30,10 @@ const requiredMarkers = [
 for (const marker of requiredMarkers) {
   if (!source.includes(marker)) throw new Error(`Historical client runtime no longer contains ${marker}`);
 }
+
+if (!source.includes("UiInput:harden(ye.l)")) throw new Error("Historical client runtime no longer hardens UiInput");
+if (!engineSource.includes("e.placeholderOpacity=1")) throw new Error("Historical client UI state no longer proves placeholderOpacity storage");
+if (uiInputModuleSource.includes("placeholderOpacity")) throw new Error("Historical UiInput wrapper now exposes placeholderOpacity; update the compatibility classification");
 
 for (const marker of ["syncClientScriptModules:function(e)", "n._state.clientModules=y.ClientScriptSrcSchema.clone(e)"]) {
   if (!engineSource.includes(marker)) throw new Error(`Historical Player engine no longer contains ${marker}`);
@@ -390,6 +398,18 @@ const uiInputEvidence = {
   symbol: "module 21031 UiInput wrapper and input focus events",
   confidence: "direct",
 };
+const uiInputStateEvidence = {
+  type: "player-bundle",
+  path: relativeEngineBundlePath,
+  symbol: "underlying UiInput renderable placeholderOpacity state",
+  confidence: "direct",
+};
+const hardenedUiInputEvidence = {
+  type: "player-bundle",
+  path: relativeBundlePath,
+  symbol: "module 93474 hardened UiInput global",
+  confidence: "direct",
+};
 const audioEvidence = {
   type: "player-bundle",
   path: relativeBundlePath,
@@ -479,10 +499,15 @@ const analysis = {
     listenerMethods: ["onClientEvent", "removeEventListener", "clear", "events.on('client')"],
   },
   entries,
+  unavailable: [{
+    id: "client.UiInput.placeholderOpacity",
+    status: "confirmed-wrapper-absent",
+    reason: "The archived Player stores placeholderOpacity on the underlying UiInput renderable, but module 21031 exposes no public getter and module 93474 hardens the UiInput constructor, so delivered map scripts cannot add a compatible wrapper without replacing the historical runtime provider.",
+    evidence: [uiInputEvidence, uiInputStateEvidence, hardenedUiInputEvidence],
+  }],
   unresolved: [
     "Client APIs declared by documentation but absent from this archived Player build.",
     "Exact UiEvent property aliases exposed by generated API wrappers.",
-    "UiInput.placeholderOpacity exists in the underlying UI state, but no public getter or wrapper assignment was found in the archived client Script Runtime.",
     "Whether storage, resources, voxels and rtc existed in other historical Player versions.",
   ],
 };

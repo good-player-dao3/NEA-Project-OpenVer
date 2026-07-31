@@ -16,9 +16,12 @@ import { GameBounds3, GameZoneSystem } from "./game-zones.mjs";
 import { GameWorld } from "./game-world.mjs";
 import { GameSoundEffect } from "./game-sound-effect.mjs";
 import { GameBodyPart } from "./game-body-part.mjs";
-import { raycastWorld } from "./game-raycast.mjs";
+import { raycastWorld, RuntimeRaycastResult } from "./game-raycast.mjs";
+import { matchesGameSelector } from "./game-selector.mjs";
 
 const EMPTY_PLAYER_TAGS = Object.freeze(new Set());
+const GUI_CAPABILITY_MEMBERS = new Set(["init", "show", "remove", "getAttribute", "setAttribute", "onMessage", "ui"]);
+const WORLD_CONFIG_CAPABILITY_MEMBERS = new Set(["gravity", "airFriction", "fogColor"]);
 
 export const GameButtonType = Object.freeze({
   WALK: "walk",
@@ -54,6 +57,10 @@ const KNOWN_CAPABILITIES = new Set([
   "server.world.events",
   "server.world.chat",
   "server.world.entities",
+  "server.world.voxels",
+  "server.world.config",
+  "server.gui",
+  "server.storage",
   "server.player",
   "server.player.write",
   "server.remote-channel",
@@ -72,6 +79,9 @@ export class ScriptRuntime {
   #messages = [];
   #outboundEvents = [];
   #collisionFilters = new Map();
+  #validatedMeshNames = new Set();
+  #now;
+  #prevTickMS;
   #signals = {
     tick: new EventSignal(),
     playerJoin: new EventSignal(),
@@ -84,6 +94,7 @@ export class ScriptRuntime {
     chat: new EventSignal(),
     press: new EventSignal(),
     click: new EventSignal(),
+    interact: new EventSignal(),
     release: new EventSignal(),
     fluidEnter: new EventSignal(),
     fluidLeave: new EventSignal(),
@@ -107,7 +118,7 @@ export class ScriptRuntime {
     this.logger = options.logger ?? console;
     this.entry = options.entry;
     this.moduleSources = options.modules;
-    this.storage = options.storage ?? new LocalGameStorage({ file: resolve(this.projectRoot, ".runtime-storage.json") });
+    this.storage = options.storage ?? new LocalGameStorage({ file: resolve(this.projectRoot, ".runtime-storage.json"), logger: this.logger });
     this.gui = options.gui ?? new GameGuiRuntime({
       transport: options.sendGuiCommand,
       resolvePlayerId: entity => this.#playerIds.get(entity) ?? entity?.id,
@@ -116,19 +127,24 @@ export class ScriptRuntime {
     this.runtimeApiVersion = options.runtimeApiVersion;
     this.serverContract = options.serverContract;
     this.compatibilityLevel = options.compatibilityLevel;
+    this.#now = options.now ?? Date.now;
+    this.#prevTickMS = this.#now();
     this.playerBodyProfile = options.physics?.playerBody;
     if (!this.playerBodyProfile) throw new Error("Runtime requires an explicit player body profile");
     this.sendClientEvent = options.sendClientEvent ?? (() => {});
+    this.sendChatMessage = options.sendChatMessage ?? (() => {});
     this.writePlayerState = options.writePlayerState ?? (() => {});
     this.writeDamageState = options.writeDamageState ?? (() => {});
     this.createEntity = options.createEntity ?? (() => null);
     this.writeEntityState = options.writeEntityState ?? (() => {});
     this.destroyEntity = options.destroyEntity ?? (() => {});
+    this.#validatedMeshNames = new Set(options.validatedMeshNames ?? []);
     this.showDialog = options.showDialog ?? (() => Promise.reject(new Error("Dialog transport is not configured")));
     this.cancelDialogs = options.cancelDialogs ?? (() => false);
     this.collisionWorld = new VoxelCollisionWorld({
       voxels: options.voxels ?? [],
       materials: options.physics?.materials ?? {},
+      fluidIds: (options.blockCatalog ?? []).filter(entry => entry.fluid === true).map(entry => entry.id),
       colliders: options.physics?.colliders ?? [],
       triggers: options.physics?.triggers ?? [],
     });
@@ -191,11 +207,13 @@ export class ScriptRuntime {
       voxels: terrainSnapshot.voxels ?? [],
       logger: options.logger,
       sendClientEvent: options.sendClientEvent,
+      sendChatMessage: options.sendChatMessage,
       writePlayerState: options.writePlayerState,
       writeDamageState: options.writeDamageState,
       createEntity: options.createEntity,
       writeEntityState: options.writeEntityState,
       destroyEntity: options.destroyEntity,
+      validatedMeshNames: options.validatedMeshNames,
       sendGuiCommand: options.sendGuiCommand,
       showDialog: options.showDialog,
       cancelDialogs: options.cancelDialogs,
@@ -220,6 +238,7 @@ export class ScriptRuntime {
       environmentKey: this.#moduleEnvironmentKey,
     });
     this.#moduleLoader.loadModule(this.entry);
+    this.#prevTickMS = this.#now();
     this.started = true;
     this.#interval = setInterval(() => this.tick(), 1000 / this.tickRate);
     this.#interval.unref?.();
@@ -237,6 +256,9 @@ export class ScriptRuntime {
   tick() {
     const prevTick = this.currentTick;
     this.currentTick += 1;
+    const now = this.#now();
+    const timing = createTickTiming(this.currentTick, prevTick, now, this.#prevTickMS);
+    this.#prevTickMS = now;
     const deltaTime = 1 / this.tickRate;
     for (const player of this.#players.values()) {
       const contacts = player._authority === "backend"
@@ -245,12 +267,18 @@ export class ScriptRuntime {
       for (const contact of contacts.entered) {
         const event = createContactEvent(this.currentTick, player, contact);
         this.#signals.contact.emit(event, error => this.#reportError("contact", error));
-        if (contact.collider.kind === "voxel") this.#signals.voxelContact.emit(event, error => this.#reportError("voxelContact", error));
+        if (contact.collider.kind === "voxel") {
+          this.#signals.voxelContact.emit(event, error => this.#reportError("voxelContact", error));
+          player._signals.voxelContact.emit(event, error => this.#reportError("entityVoxelContact", error));
+        }
       }
       for (const contact of contacts.separated) {
         const event = createContactEvent(this.currentTick, player, contact);
         this.#signals.contactSeparate.emit(event, error => this.#reportError("contactSeparate", error));
-        if (contact.collider.kind === "voxel") this.#signals.voxelSeparate.emit(event, error => this.#reportError("voxelSeparate", error));
+        if (contact.collider.kind === "voxel") {
+          this.#signals.voxelSeparate.emit(event, error => this.#reportError("voxelSeparate", error));
+          player._signals.voxelSeparate.emit(event, error => this.#reportError("entityVoxelSeparate", error));
+        }
       }
       for (const trigger of contacts.triggerEntered) {
         this.#signals.triggerEnter.emit(triggerEvent(player, trigger), error => this.#reportError("triggerEnter", error));
@@ -258,9 +286,12 @@ export class ScriptRuntime {
       for (const trigger of contacts.triggerLeft) {
         this.#signals.triggerLeave.emit(triggerEvent(player, trigger), error => this.#reportError("triggerLeave", error));
       }
+      for (const fluid of contacts.fluidEntered) this.#dispatchFluidEvent("fluidEnter", player, fluid);
+      for (const fluid of contacts.fluidLeft) this.#dispatchFluidEvent("fluidLeave", player, fluid);
     }
+    this.zones.poll(this.currentTick, this.#allQueryableEntities());
     this.#signals.tick.emit(
-      createGameTickEvent(this.currentTick, prevTick, deltaTime * 1_000, false),
+      createGameTickEvent(this.currentTick, prevTick, timing.elapsedTimeMS, timing.skip),
       error => this.#reportError("tick", error),
     );
   }
@@ -355,10 +386,21 @@ export class ScriptRuntime {
     return dispatched;
   }
 
+  dispatchInteract(playerId, backendEntityId, tick) {
+    const player = this.#players.get(playerId);
+    if (!player || !Number.isSafeInteger(backendEntityId) || backendEntityId < 0 || !Number.isFinite(tick)) return false;
+    const targetEntity = this.#allQueryableEntities().find(entity => entity._backendEntityId === backendEntityId);
+    if (!targetEntity) return false;
+    const event = createGameInteractEvent(tick, player, targetEntity);
+    targetEntity._signals.interact.emit(event, error => this.#reportError("entityInteract", error));
+    this.#signals.interact.emit(event, error => this.#reportError("interact", error));
+    return true;
+  }
+
   dispatchChat(playerId, message) {
     const player = this.#players.get(playerId);
     if (!player) return false;
-    this.#signals.chat.emit(Object.freeze({ tick: this.currentTick, entity: player, player, message: String(message) }), error => this.#reportError("chat", error));
+    this.#signals.chat.emit(createGameChatEvent(this.currentTick, player, message), error => this.#reportError("chat", error));
     return true;
   }
 
@@ -411,10 +453,14 @@ export class ScriptRuntime {
   #createGlobals() {
     const worldProperties = {
       get currentTick() { return runtime.currentTick; },
-      get size() { return runtime.voxels.shape; },
+      get size() {
+        runtime.#require("server.world.voxels");
+        return runtime.voxels.shape;
+      },
       onTick: handler => this.#listen("server.world.events", this.#signals.tick, handler),
       onPlayerJoin: handler => this.#listen("server.world.events", this.#signals.playerJoin, handler),
       onPlayerLeave: handler => this.#listen("server.world.events", this.#signals.playerLeave, handler),
+      nextPlayerLeave: filter => this.#next("server.world.events", this.#signals.playerLeave, filter),
       onEntityCreate: handler => this.#listen("server.world.events", this.#signals.entityCreate, handler),
       nextEntityCreate: filter => this.#next("server.world.events", this.#signals.entityCreate, filter),
       onEntityDestroy: handler => this.#listen("server.world.events", this.#signals.entityDestroy, handler),
@@ -429,6 +475,8 @@ export class ScriptRuntime {
       nextPress: filter => this.#next("server.world.events", this.#signals.press, filter),
       onClick: handler => this.#listen("server.world.events", this.#signals.click, handler),
       nextClick: filter => this.#next("server.world.events", this.#signals.click, filter),
+      onInteract: handler => this.#listen("server.world.events", this.#signals.interact, handler),
+      nextInteract: filter => this.#next("server.world.events", this.#signals.interact, filter),
       onRelease: handler => this.#listen("server.world.events", this.#signals.release, handler),
       nextRelease: filter => this.#next("server.world.events", this.#signals.release, filter),
       onFluidEnter: handler => this.#listen("server.world.events", this.#signals.fluidEnter, handler),
@@ -442,7 +490,9 @@ export class ScriptRuntime {
       onPlayerPurchaseSuccess: handler => this.#listen("server.world.events", this.#signals.playerPurchaseSuccess, handler),
       nextPlayerPurchaseSuccess: filter => this.#next("server.world.events", this.#signals.playerPurchaseSuccess, filter),
       onVoxelContact: handler => this.#listen("server.world.events", this.#signals.voxelContact, handler),
+      nextVoxelContact: filter => this.#next("server.world.events", this.#signals.voxelContact, filter),
       onVoxelSeparate: handler => this.#listen("server.world.events", this.#signals.voxelSeparate, handler),
+      nextVoxelSeparate: filter => this.#next("server.world.events", this.#signals.voxelSeparate, filter),
       onContact: handler => this.#listen("server.world.events", this.#signals.contact, handler),
       onContactSeparate: handler => this.#listen("server.world.events", this.#signals.contactSeparate, handler),
       onTriggerEnter: handler => this.#listen("server.world.events", this.#signals.triggerEnter, handler),
@@ -454,6 +504,7 @@ export class ScriptRuntime {
         const text = String(message);
         this.#messages.push({ tick: this.currentTick, text });
         this.logger.info(`[script:world] ${text}`);
+        Promise.resolve(this.sendChatMessage(undefined, { text, senderId: 0, private: false, duration: 0, hideFloat: false })).catch(error => this.#reportError("chat-send", error));
       },
       createEntity: spec => {
         this.#require("server.world.entities");
@@ -495,8 +546,8 @@ export class ScriptRuntime {
         return entity;
       },
       querySelector: selector => this.#query(selector)[0] ?? null,
-      querySelectorAll: selector => Object.freeze(this.#query(selector)),
-      testSelector: (entity, selector) => this.#matchesSelector(entity, selector),
+      querySelectorAll: selector => this.#query(selector),
+      testSelector: (selector, entity) => this.#matchesSelector(entity, selector),
       raycast: (origin, direction, options) => raycastWorld({
         origin,
         direction,
@@ -505,7 +556,7 @@ export class ScriptRuntime {
         entities: this.#allQueryableEntities(),
         matchesSelector: (entity, selector) => this.#matchesSelector(entity, selector),
       }),
-      get zones() { return Object.freeze(runtime.zones.list()); },
+      zones: () => Object.freeze(runtime.zones.list()),
       addZone: config => runtime.zones.add(config),
       removeZone: zone => runtime.zones.remove(zone),
       addCollisionFilter: (aSelector, bSelector) => {
@@ -519,6 +570,7 @@ export class ScriptRuntime {
       collisionFilters: () => [...this.#collisionFilters.values()].map(pair => [...pair]),
     };
     const world = Object.defineProperties(new GameWorld(), Object.getOwnPropertyDescriptors(worldProperties));
+    const guardedWorld = createCapabilityFacade(world, () => this.#require("server.world.config"), WORLD_CONFIG_CAPABILITY_MEMBERS);
     const sendRemoteEvent = (player, event) => {
       const playerId = this.#playerIds.get(player);
       if (!playerId || !this.#players.has(playerId)) return;
@@ -545,12 +597,15 @@ export class ScriptRuntime {
       },
     });
     const runtime = this;
+    const voxels = createCapabilityFacade(this.voxels, () => this.#require("server.world.voxels"));
+    const gui = createCapabilityFacade(this.gui, () => this.#require("server.gui"), GUI_CAPABILITY_MEMBERS);
+    const storage = createCapabilityFacade(this.storage, () => this.#require("server.storage"));
     return {
-      world,
+      world: guardedWorld,
       remoteChannel,
-      storage: this.storage,
-      gui: this.gui,
-      voxels: this.voxels,
+      storage,
+      gui,
+      voxels,
       Vector3,
       GameVector3: Vector3,
       GameQuaternion,
@@ -639,21 +694,18 @@ export class ScriptRuntime {
     return this.#allQueryableEntities().filter(entity => this.#matchesSelector(entity, selector));
   }
 
+  #dispatchFluidEvent(signalName, entity, contact) {
+    const event = Object.freeze(new RuntimeFluidContactEvent(this.currentTick, entity, contact.voxel));
+    this.#signals[signalName].emit(event, error => this.#reportError(signalName, error));
+    entity._signals[signalName].emit(event, error => this.#reportError(`${entity.id}.${signalName}`, error));
+  }
+
   #allQueryableEntities() {
     return [...this.#entities.values(), ...this.#players.values()];
   }
 
   #matchesSelector(entity, selector) {
-    if (typeof selector !== "string") throw new TypeError("Game selector must be a string");
-    const tokens = selector.trim().split(/\s+/).filter(Boolean);
-    if (tokens.length === 0) return false;
-    return tokens.every(token => {
-      if (token === "*") return true;
-      if (token === "player") return entity.isPlayer === true;
-      if (token.startsWith("#")) return entity.name === token.slice(1);
-      if (token.startsWith(".")) return entity.tags?.has(token.slice(1)) === true;
-      return false;
-    });
+    return matchesGameSelector(entity, selector);
   }
 
   #require(capability) {
@@ -702,6 +754,24 @@ export class ScriptRuntime {
     const text = String(message);
     this.#messages.push({ tick: this.currentTick, playerId: player.id, text });
     this.logger.info(`[script:player:${player.name}] ${text}`);
+    Promise.resolve(this.sendChatMessage(this.#playerIds.get(player), { text, senderId: 0, private: true, duration: 0, hideFloat: false })).catch(error => this.#reportError("chat-send", error));
+  }
+
+  _messageEntity(entity, message, options) {
+    this.#require("server.world.chat");
+    const text = String(message);
+    const duration = options?.duration ? options.duration === Infinity ? -1 : Number(options.duration) : 0;
+    const hideFloat = Boolean(options?.hideFloat);
+    this.#messages.push({ tick: this.currentTick, entityId: entity.id, text, duration, hideFloat });
+    this.logger.info(`[script:entity:${entity.id}] ${text}`);
+    if (!Number.isSafeInteger(entity._backendEntityId) || entity._backendEntityId < 1) return;
+    Promise.resolve(this.sendChatMessage(undefined, {
+      text,
+      senderId: entity._backendEntityId,
+      private: false,
+      duration,
+      hideFloat,
+    })).catch(error => this.#reportError("chat-send", error));
   }
 
   _applyImpulse(player, value) {
@@ -719,10 +789,11 @@ export class ScriptRuntime {
     player._body.velocity.set(0, 0, 0);
     player._body.grounded = false;
     player._body.contacts.clear();
+    player._body.fluids.clear();
     player._body.triggers.clear();
     this.#queuePlayerStateWrite(player);
     this.#queueDamageStateWrite(player, { respawn: true });
-    const event = createGameEntityEvent(this.currentTick, player);
+    const event = createGameRespawnEvent(this.currentTick, player);
     player._signals.respawn.emit(event, error => this.#reportError("playerRespawn", error));
     this.#signals.respawn.emit(event, error => this.#reportError("respawn", error));
   }
@@ -819,7 +890,7 @@ export class ScriptRuntime {
   }
 
   #projectEntity(entity) {
-    if (typeof entity.mesh !== "string" || entity.mesh.length === 0) return;
+    if (typeof entity.mesh !== "string" || entity.mesh.length === 0 || !this.#validatedMeshNames.has(entity.mesh)) return;
     Promise.resolve(this.createEntity(runtimeEntityProjectionPayload(entity))).then(result => {
       const entityId = result?.entityId;
       if (!Number.isSafeInteger(entityId) || entityId < 1) throw new Error("Backend entity projection returned an invalid entity id");
@@ -837,15 +908,43 @@ export class ScriptRuntime {
     this.#queueEntityStateWrite(entity);
   }
 
+  _entityPhysicsChanged(entity) {
+    this.#queueEntityStateWrite(entity);
+  }
+
   #queueEntityStateWrite(entity) {
     if (!Number.isSafeInteger(entity._backendEntityId) || entity._backendEntityId < 1) return;
     const state = {
       position: entity.position.toArray(),
       velocity: entity.velocity.toArray(),
       orientation: quaternionArray(entity.meshOrientation),
+      collides: Boolean(entity.collides),
+      fixed: Boolean(entity.fixed),
+      gravity: Boolean(entity.gravity),
+      mass: Number(entity.mass),
+      friction: Number(entity.friction),
+      restitution: Number(entity.restitution),
     };
     Promise.resolve(this.writeEntityState(entity._backendEntityId, state)).catch(error => this.#reportError("entity-state-write", error));
   }
+}
+
+function createCapabilityFacade(target, requireCapability, guardedMembers = null) {
+  const methods = new Map();
+  const requiresCapability = property => guardedMembers === null || guardedMembers.has(property);
+  return new Proxy(target, {
+    get(object, property, receiver) {
+      if (requiresCapability(property)) requireCapability();
+      const value = Reflect.get(object, property, object);
+      if (typeof value !== "function") return value;
+      if (!methods.has(property)) methods.set(property, value.bind(object));
+      return methods.get(property);
+    },
+    set(object, property, value, receiver) {
+      if (requiresCapability(property)) requireCapability();
+      return Reflect.set(object, property, value, object);
+    },
+  });
 }
 
 function runtimeEntityProjectionPayload(entity) {
@@ -908,15 +1007,15 @@ export function createRuntimeEntity(input, runtime = null) {
     meshEmissive: Number(input.meshEmissive ?? 0),
     meshShininess: Number(input.meshShininess ?? 0),
     anchorOffset: new Vector3(0, 0, 0),
-    collides: Boolean(input.collides ?? true),
-    fixed: Boolean(input.fixed ?? false),
-    gravity: Boolean(input.gravity ?? true),
-    mass: Number(input.mass ?? 1),
-    friction: Number(input.friction ?? 0),
-    restitution: Number(input.restitution ?? 0),
+    _collides: Boolean(input.collides ?? true),
+    _fixed: Boolean(input.fixed ?? false),
+    _gravity: Boolean(input.gravity ?? true),
+    _mass: Number(input.mass ?? 1),
+    _friction: Number(input.friction ?? 0),
+    _restitution: Number(input.restitution ?? 0),
     enableInteract: Boolean(input.enableInteract ?? false),
     _tags: tags,
-    _signals: { click: new EventSignal(), destroy: new EventSignal(), fluidEnter: new EventSignal(), fluidLeave: new EventSignal(), takeDamage: new EventSignal(), die: new EventSignal() },
+    _signals: { click: new EventSignal(), interact: new EventSignal(), destroy: new EventSignal(), voxelContact: new EventSignal(), voxelSeparate: new EventSignal(), fluidEnter: new EventSignal(), fluidLeave: new EventSignal(), takeDamage: new EventSignal(), die: new EventSignal() },
     _destroyed: false,
     _enableDamage: Boolean(input.enableDamage ?? false),
     _showHealthBar: Boolean(input.showHealthBar ?? true),
@@ -940,12 +1039,31 @@ export function createRuntimeEntity(input, runtime = null) {
     set position(value) { this._position.copy(Vector3.from(value)); this._runtime?._entityTransformChanged(this); },
     get velocity() { return this._velocity; },
     set velocity(value) { this._velocity.copy(Vector3.from(value)); this._runtime?._entityTransformChanged(this); },
+    get collides() { return this._collides; },
+    set collides(value) { this._collides = Boolean(value); this._runtime?._entityPhysicsChanged(this); },
+    get fixed() { return this._fixed; },
+    set fixed(value) { this._fixed = Boolean(value); this._runtime?._entityPhysicsChanged(this); },
+    get gravity() { return this._gravity; },
+    set gravity(value) { this._gravity = Boolean(value); this._runtime?._entityPhysicsChanged(this); },
+    get mass() { return this._mass; },
+    set mass(value) { this._mass = Number(value); this._runtime?._entityPhysicsChanged(this); },
+    get friction() { return this._friction; },
+    set friction(value) { this._friction = Number(value); this._runtime?._entityPhysicsChanged(this); },
+    get restitution() { return this._restitution; },
+    set restitution(value) { this._restitution = Number(value); this._runtime?._entityPhysicsChanged(this); },
     get tags() { return this._tags; },
+    get fluidContacts() { return Object.freeze([...this._body.fluids.values()].map(contact => Object.freeze({ voxel: contact.voxel, volume: contact.volume }))); },
     addTag(tag) { this._tags.add(String(tag)); },
     removeTag(tag) { this._tags.delete(String(tag)); },
     hasTag(tag) { return this._tags.has(String(tag)); },
+    say(message, options) {
+      if (!this._runtime) throw new Error("Entity is not attached to a Script Runtime");
+      this._runtime._messageEntity(this, message, options);
+    },
     onClick(handler) { return this._signals.click.on(handler); },
     nextClick(filter) { return this._signals.click.next(filter); },
+    onInteract(handler) { return this._signals.interact.on(handler); },
+    nextInteract(filter) { return this._signals.interact.next(filter); },
     destroy() {
       if (!this._runtime) throw new Error("Entity is not attached to a Script Runtime");
       this._runtime._destroyEntity(this);
@@ -956,6 +1074,10 @@ export function createRuntimeEntity(input, runtime = null) {
     nextFluidEnter(filter) { return this._signals.fluidEnter.next(filter); },
     onFluidLeave(handler) { return this._signals.fluidLeave.on(handler); },
     nextFluidLeave(filter) { return this._signals.fluidLeave.next(filter); },
+    onVoxelContact(handler) { return this._signals.voxelContact.on(handler); },
+    nextVoxelContact(filter) { return this._signals.voxelContact.next(filter); },
+    onVoxelSeparate(handler) { return this._signals.voxelSeparate.on(handler); },
+    nextVoxelSeparate(filter) { return this._signals.voxelSeparate.next(filter); },
     onTakeDamage(handler) { return this._signals.takeDamage.on(handler); },
     nextTakeDamage(filter) { return this._signals.takeDamage.next(filter); },
     onDie(handler) { return this._signals.die.on(handler); },
@@ -984,7 +1106,7 @@ function createRuntimePlayer(runtime, input) {
     _lastBackendTick: 0,
     _writeBarrierTick: 0,
     _tags: new Set(),
-    _signals: { click: new EventSignal(), destroy: new EventSignal(), fluidEnter: new EventSignal(), fluidLeave: new EventSignal(), press: new EventSignal(), release: new EventSignal(), keyDown: new EventSignal(), keyUp: new EventSignal(), respawn: new EventSignal(), takeDamage: new EventSignal(), die: new EventSignal() },
+    _signals: { click: new EventSignal(), destroy: new EventSignal(), voxelContact: new EventSignal(), voxelSeparate: new EventSignal(), fluidEnter: new EventSignal(), fluidLeave: new EventSignal(), press: new EventSignal(), release: new EventSignal(), keyDown: new EventSignal(), keyUp: new EventSignal(), respawn: new EventSignal(), takeDamage: new EventSignal(), die: new EventSignal() },
     _wearables: [],
     _destroyed: false,
     _enableDamage: false,
@@ -1027,6 +1149,10 @@ function createRuntimePlayer(runtime, input) {
     nextFluidEnter(filter) { return this._signals.fluidEnter.next(filter); },
     onFluidLeave(handler) { return this._signals.fluidLeave.on(handler); },
     nextFluidLeave(filter) { return this._signals.fluidLeave.next(filter); },
+    onVoxelContact(handler) { return this._signals.voxelContact.on(handler); },
+    nextVoxelContact(filter) { return this._signals.voxelContact.next(filter); },
+    onVoxelSeparate(handler) { return this._signals.voxelSeparate.on(handler); },
+    nextVoxelSeparate(filter) { return this._signals.voxelSeparate.next(filter); },
     onClick(handler) { return this._signals.click.on(handler); },
     nextClick(filter) { return this._signals.click.next(filter); },
     destroy() { return runtime._destroyEntity(this); },
@@ -1089,6 +1215,130 @@ function createRuntimePlayer(runtime, input) {
   return player;
 }
 
+export class RuntimeVoxelContactEvent {
+  constructor({ tick, entity, x, y, z, voxel, axis, force, player, collider, normal, compatibility }) {
+    this.tick = tick;
+    this.entity = entity;
+    this.x = x;
+    this.y = y;
+    this.z = z;
+    this.voxel = voxel;
+    this.axis = axis;
+    this.force = force;
+    this.player = player;
+    this.collider = collider;
+    this.normal = normal;
+    this.compatibility = compatibility;
+  }
+}
+
+export class RuntimeFluidContactEvent {
+  constructor(tick, entity, voxel) {
+    this.tick = tick;
+    this.entity = entity;
+    this.voxel = voxel;
+  }
+}
+
+export class RuntimeClickEvent {
+  constructor(tick, entity, clicker, button, distance, clickerPosition, raycast) {
+    this.tick = tick;
+    this.entity = entity;
+    this.clicker = clicker;
+    this.button = button;
+    this.distance = distance;
+    this.clickerPosition = Vector3.from(clickerPosition);
+    this.raycast = raycast;
+  }
+}
+
+export class RuntimeInputEvent {
+  constructor(tick, entity, position, button, pressed, raycast) {
+    this.tick = tick;
+    this.entity = entity;
+    this.position = Vector3.from(position);
+    this.button = button;
+    this.pressed = Boolean(pressed);
+    this.raycast = raycast;
+  }
+}
+
+export class RuntimeEntityEvent {
+  constructor(tick, entity) {
+    this.tick = tick;
+    this.entity = entity;
+    this.player = entity;
+  }
+}
+
+export class RuntimeDamageEvent {
+  constructor(tick, entity, damage, attacker = null, damageType = "") {
+    this.tick = tick;
+    this.entity = entity;
+    this.damage = damage;
+    this.attacker = attacker;
+    this.damageType = damageType || "";
+  }
+}
+
+export class RuntimeDieEvent {
+  constructor(tick, entity, attacker = null, damageType = "") {
+    this.tick = tick;
+    this.entity = entity;
+    this.attacker = attacker;
+    this.damageType = damageType || "";
+  }
+}
+
+export class RuntimeRespawnEvent {
+  constructor(tick, entity) {
+    this.tick = tick;
+    this.entity = entity;
+  }
+}
+
+export class RuntimeInteractEvent {
+  constructor(tick, entity, targetEntity) {
+    this.tick = tick;
+    this.entity = entity;
+    this.targetEntity = targetEntity;
+  }
+}
+
+export class RuntimeTickEvent {
+  constructor(tick, prevTick, elapsedTimeMS, skip) {
+    this.tick = tick;
+    this.prevTick = prevTick;
+    this.skip = Boolean(skip);
+    this.elapsedTimeMS = elapsedTimeMS;
+    this.deltaTime = elapsedTimeMS / 1_000;
+  }
+}
+
+export class RuntimeChatEvent {
+  constructor(tick, entity, message) {
+    this.tick = tick;
+    this.entity = entity;
+    this.message = String(message);
+  }
+}
+
+export class RuntimePurchaseSuccessEvent {
+  constructor(tick, userId, productId, orderId) {
+    this.tick = tick;
+    this.userId = String(userId);
+    this.productId = productId;
+    this.orderId = orderId;
+  }
+}
+
+export class RuntimeKeyBoardEvent {
+  constructor(tick, keyCode) {
+    this.tick = tick;
+    this.keyCode = keyCode;
+  }
+}
+
 export function createContactEvent(tick, entity, contact) {
   const collider = contact.collider;
   const axis = Vector3.from(contact.normal);
@@ -1100,7 +1350,7 @@ export function createContactEvent(tick, entity, contact) {
     compatibility: contactCompatibility(...(collider.kind === "voxel" ? [] : ["other"])),
   };
   if (collider.kind === "voxel") {
-    return Object.freeze({
+    return Object.freeze(new RuntimeVoxelContactEvent({
       tick,
       entity,
       x: collider.x,
@@ -1110,7 +1360,7 @@ export function createContactEvent(tick, entity, contact) {
       axis,
       force,
       ...extension,
-    });
+    }));
   }
   return Object.freeze({
     tick,
@@ -1153,25 +1403,46 @@ function formatValue(value) {
 }
 
 export function createGameTickEvent(tick, prevTick, elapsedTimeMS, skip) {
+  return Object.freeze(new RuntimeTickEvent(tick, prevTick, elapsedTimeMS, skip));
+}
+
+export function createTickTiming(tick, prevTick, nowMS, prevTickMS) {
   return Object.freeze({
-    tick,
-    prevTick,
-    elapsedTimeMS,
-    skip: Boolean(skip),
-    deltaTime: elapsedTimeMS / 1_000,
+    elapsedTimeMS: nowMS - prevTickMS,
+    skip: tick - prevTick > 1,
   });
 }
 
 export function createGameEntityEvent(tick, entity) {
-  return Object.freeze({ tick, entity, player: entity });
+  return Object.freeze(new RuntimeEntityEvent(tick, entity));
 }
 
 export function createGameDamageEvent(tick, entity, damage, attacker = null, damageType = "") {
-  return Object.freeze({ tick, entity, attacker, damage, damageType: damageType || "" });
+  return Object.freeze(new RuntimeDamageEvent(tick, entity, damage, attacker, damageType));
 }
 
 export function createGameDieEvent(tick, entity, attacker = null, damageType = "") {
-  return Object.freeze({ tick, entity, attacker, damageType: damageType || "" });
+  return Object.freeze(new RuntimeDieEvent(tick, entity, attacker, damageType));
+}
+
+export function createGameRespawnEvent(tick, entity) {
+  return Object.freeze(new RuntimeRespawnEvent(tick, entity));
+}
+
+export function createGameInteractEvent(tick, entity, targetEntity) {
+  return Object.freeze(new RuntimeInteractEvent(tick, entity, targetEntity));
+}
+
+export function createGameChatEvent(tick, entity, message) {
+  return Object.freeze(new RuntimeChatEvent(tick, entity, message));
+}
+
+export function createGamePurchaseSuccessEvent(tick, userId, productId, orderId) {
+  return Object.freeze(new RuntimePurchaseSuccessEvent(tick, userId, productId, orderId));
+}
+
+export function createGameKeyBoardEvent(tick, keyCode) {
+  return Object.freeze(new RuntimeKeyBoardEvent(tick, keyCode));
 }
 
 function normalizeHurtOptions(options) {
@@ -1198,11 +1469,11 @@ function updatePlayerButtonState(player, buttonState) {
 }
 
 export function createGameInputEvent(tick, entity, position, button, pressed, raycast) {
-  return Object.freeze({ tick, entity, position: Vector3.from(position), button, pressed: Boolean(pressed), raycast });
+  return Object.freeze(new RuntimeInputEvent(tick, entity, position, button, pressed, raycast));
 }
 
 export function createGameClickEvent(tick, entity, clicker, button, distance, clickerPosition, raycast) {
-  return Object.freeze({ tick, entity, clicker, button, distance, clickerPosition: Vector3.from(clickerPosition), raycast });
+  return Object.freeze(new RuntimeClickEvent(tick, entity, clicker, button, distance, clickerPosition, raycast));
 }
 
 function reconstructInputRaycast(runtime, event) {
@@ -1214,7 +1485,7 @@ function reconstructInputRaycast(runtime, event) {
   const hitEntity = hit ? runtime._entityByBackendId(event.rayHitEntity) : null;
   const voxelIndex = new Vector3(event.rayHitVoxelX ?? 0, event.rayHitVoxelY ?? 0, event.rayHitVoxelZ ?? 0);
   const hitVoxel = hit && !hitEntity ? runtime.voxels.getVoxel(voxelIndex.x, voxelIndex.y, voxelIndex.z) : 0;
-  return Object.freeze({
+  return Object.freeze(new RuntimeRaycastResult({
     hit,
     hitEntity,
     hitVoxel,
@@ -1225,7 +1496,7 @@ function reconstructInputRaycast(runtime, event) {
     hitPosition: hit ? origin.add(direction.scale(distance)) : origin.clone(),
     normal: Vector3.from(event.rayHitNormal ?? [0, 0, 0]).normalize(),
     voxelIndex,
-  });
+  }));
 }
 
 function isByte(value) {

@@ -6,7 +6,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { loadPreservedBlockCatalog } from "../../local-player/src/block-info.mjs";
 import { importMapProject } from "../src/import-project.mjs";
-import { createContactEvent, createGameDamageEvent, createGameEntityEvent, createGameTickEvent, createRuntimeEntity, ScriptRuntime } from "../src/runtime/script-runtime.mjs";
+import { createContactEvent, createGameDamageEvent, createGameEntityEvent, createGameTickEvent, createRuntimeEntity, createTickTiming, ScriptRuntime } from "../src/runtime/script-runtime.mjs";
 
 const archiveRoot = resolve(fileURLToPath(new URL("../../local-player/archive", import.meta.url)));
 const blockCatalog = await loadPreservedBlockCatalog(archiveRoot, "world-bedwars.json");
@@ -116,6 +116,66 @@ test("GameWorld.size exposes recovered maximum voxel indices", async () => {
   runtime.stop();
 });
 
+test("voxel globals require the dedicated runtime capability", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-voxel-capability-")), "project");
+  await importMapProject(source, output);
+  const project = JSON.parse(await readFile(join(output, "dao3.project.json"), "utf8"));
+  const scriptManifestPath = join(output, project.scripts);
+  const scriptManifest = JSON.parse(await readFile(scriptManifestPath, "utf8"));
+  scriptManifest.capabilities = scriptManifest.capabilities.filter(capability => capability !== "server.world.voxels");
+  await writeFile(scriptManifestPath, `${JSON.stringify(scriptManifest, null, 2)}\n`, "utf8");
+  await writeFile(join(output, "scripts", "server.js"), `voxels.getVoxelId(0, 0, 0);`, "utf8");
+  const runtime = await ScriptRuntime.load(output, { blockCatalog, logger: { info() {}, warn() {}, error() {} } });
+  await assert.rejects(() => runtime.start(), /Script capability not granted: server\.world\.voxels/);
+  runtime.stop();
+});
+
+test("declared GUI members require server.gui while custom GUI fields remain script-owned", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-gui-capability-")), "project");
+  await importMapProject(source, output);
+  const project = JSON.parse(await readFile(join(output, "dao3.project.json"), "utf8"));
+  const scriptManifestPath = join(output, project.scripts);
+  const scriptManifest = JSON.parse(await readFile(scriptManifestPath, "utf8"));
+  scriptManifest.capabilities = scriptManifest.capabilities.filter(capability => capability !== "server.gui");
+  await writeFile(scriptManifestPath, `${JSON.stringify(scriptManifest, null, 2)}\n`, "utf8");
+  await writeFile(join(output, "scripts", "server.js"), `gui.YELLOW = "#ffff00"; gui.message = () => gui.YELLOW; gui.remove(null, "#panel");`, "utf8");
+  const runtime = await ScriptRuntime.load(output, { blockCatalog, logger: { info() {}, warn() {}, error() {} } });
+  await assert.rejects(() => runtime.start(), /Script capability not granted: server\.gui/);
+  runtime.stop();
+});
+
+test("storage globals require the dedicated runtime capability", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-storage-capability-")), "project");
+  await importMapProject(source, output);
+  const project = JSON.parse(await readFile(join(output, "dao3.project.json"), "utf8"));
+  const scriptManifestPath = join(output, project.scripts);
+  const scriptManifest = JSON.parse(await readFile(scriptManifestPath, "utf8"));
+  scriptManifest.capabilities = scriptManifest.capabilities.filter(capability => capability !== "server.storage");
+  await writeFile(scriptManifestPath, `${JSON.stringify(scriptManifest, null, 2)}\n`, "utf8");
+  await writeFile(join(output, "scripts", "server.js"), `storage.getDataStorage("scores");`, "utf8");
+  const runtime = await ScriptRuntime.load(output, { blockCatalog, logger: { info() {}, warn() {}, error() {} } });
+  await assert.rejects(() => runtime.start(), /Script capability not granted: server\.storage/);
+  runtime.stop();
+});
+
+test("world configuration properties require the dedicated runtime capability", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-world-config-capability-")), "project");
+  await importMapProject(source, output);
+  const project = JSON.parse(await readFile(join(output, "dao3.project.json"), "utf8"));
+  const scriptManifestPath = join(output, project.scripts);
+  const scriptManifest = JSON.parse(await readFile(scriptManifestPath, "utf8"));
+  scriptManifest.capabilities = scriptManifest.capabilities.filter(capability => capability !== "server.world.config");
+  await writeFile(scriptManifestPath, `${JSON.stringify(scriptManifest, null, 2)}\n`, "utf8");
+  await writeFile(join(output, "scripts", "server.js"), `world.sharedState = 1; world.gravity = -0.2;`, "utf8");
+  const runtime = await ScriptRuntime.load(output, { blockCatalog, logger: { info() {}, warn() {}, error() {} } });
+  await assert.rejects(() => runtime.start(), /Script capability not granted: server\.world\.config/);
+  runtime.stop();
+});
+
 test("preserves captured source tags outside the project-package carrier grammar", async () => {
   const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
   const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-source-tags-")), "project");
@@ -179,7 +239,7 @@ test("provides sleep and collision filter state APIs from the declared GameWorld
   assert.ok(snapshot.messages.some(message => message.text === "sleep complete"));
 });
 
-test("uses the recovered GameWorld prototype and documented selector grammar", async () => {
+test("uses the recovered GameWorld prototype and historical ParsedSelector grammar", async () => {
   const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
   const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-selectors-")), "project");
   await importMapProject(source, output);
@@ -187,12 +247,20 @@ test("uses the recovered GameWorld prototype and documented selector grammar", a
     if (!(world instanceof GameWorld)) throw new Error("world prototype mismatch");
     world.customState = [0, 1];
     if (world.customState[1] !== 1) throw new Error("world custom state mismatch");
-    const chair = world.createEntity({ id: "chair-id", name: "chair", tags: ["box", "red"] });
+    const chair = world.createEntity({ id: "chair", name: "display-chair", tags: ["box", "red"] });
     world.createEntity({ id: "blue-id", name: "blue-chair", tags: ["box", "blue"] });
     if (world.querySelector("#chair") !== chair) throw new Error("name selector mismatch");
-    if (world.querySelectorAll(".box").length !== 2) throw new Error("tag selector mismatch");
-    if (world.querySelectorAll(".box .red")[0] !== chair) throw new Error("compound selector mismatch");
-    if (!world.testSelector(chair, ".box .red")) throw new Error("testSelector mismatch");
+    const boxes = world.querySelectorAll(".box");
+    if (boxes.length !== 2) throw new Error("tag selector mismatch");
+    if (Object.isFrozen(boxes)) throw new Error("querySelectorAll result must remain mutable");
+    boxes.pop();
+    if (boxes.length !== 1 || world.querySelectorAll(".box").length !== 2) throw new Error("querySelectorAll result must be a detached array");
+    if (world.querySelectorAll(".red,#blue-id").length !== 2) throw new Error("selector union mismatch");
+    if (world.querySelectorAll(".box .red").length !== 0) throw new Error("whitespace must not become an invented intersection selector");
+    if (!world.testSelector(".box", chair)) throw new Error("testSelector tag mismatch");
+    if (!world.testSelector("#chair", chair)) throw new Error("testSelector id mismatch");
+    if (world.testSelector("#display-chair", chair)) throw new Error("name must not replace the historical id selector");
+    if (!world.testSelector("entity", chair)) throw new Error("entity component mismatch");
     world.onPlayerJoin(({ player }) => {
       if (world.querySelectorAll("player")[0] !== player) throw new Error("player selector mismatch");
       if (!world.querySelectorAll("*").includes(player)) throw new Error("universal selector mismatch");
@@ -286,6 +354,59 @@ test("provides recovered player-local events, stable identity, wearables, and di
   assert.deepEqual(player.spawnPoint.toArray(), [0, 0, 0]);
   assert.deepEqual(dialogs, [{ playerId: "stable-player", config: { type: "text", title: "Ready", content: "Ready" } }]);
   assert.ok(snapshot.messages.some(message => message.playerId === "stable-player" && message.text === "ready message"));
+});
+
+test("world.say and player.directMessage use separate recovered chat delivery scopes", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-chat-output-")), "project");
+  await importMapProject(source, output);
+  await writeFile(join(output, "scripts", "server.js"), `
+    world.onPlayerJoin(({ entity }) => {
+      world.say("broadcast");
+      entity.player.directMessage("private");
+    });
+  `, "utf8");
+  const deliveries = [];
+  const runtime = await ScriptRuntime.load(output, {
+    blockCatalog,
+    logger: { info() {}, warn() {}, error() {} },
+    sendChatMessage: (playerId, message) => deliveries.push({ playerId, message }),
+  });
+  await runtime.start();
+  runtime.addPlayer({ id: "chat-output-player" });
+  await new Promise(resolve => setImmediate(resolve));
+  runtime.stop();
+  assert.deepEqual(deliveries, [
+    { playerId: undefined, message: { text: "broadcast", senderId: 0, private: false, duration: 0, hideFloat: false } },
+    { playerId: "chat-output-player", message: { text: "private", senderId: 0, private: true, duration: 0, hideFloat: false } },
+  ]);
+});
+
+test("GameEntity.say projects recovered sender, duration, and hideFloat fields only for mapped entities", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-entity-chat-")), "project");
+  await importMapProject(source, output);
+  await writeFile(join(output, "scripts", "server.js"), "", "utf8");
+  const deliveries = [];
+  const runtime = await ScriptRuntime.load(output, {
+    blockCatalog,
+    logger: { info() {}, warn() {}, error() {} },
+    sendChatMessage: (playerId, message) => deliveries.push({ playerId, message }),
+  });
+  await runtime.start();
+  const mapped = runtime.querySelector("#terminal");
+  const local = runtime.createEntity({ id: "local-speaker" });
+  runtime.bindAuthoritativeEntity(mapped.id, 27);
+  mapped.say("mapped", { duration: Infinity, hideFloat: true });
+  local.say("local only", { duration: 2000 });
+  await new Promise(resolve => setImmediate(resolve));
+  const snapshot = runtime.snapshot();
+  runtime.stop();
+  assert.deepEqual(deliveries, [{
+    playerId: undefined,
+    message: { text: "mapped", senderId: 27, private: false, duration: -1, hideFloat: true },
+  }]);
+  assert.ok(snapshot.messages.some(message => message.entityId === "local-speaker" && message.text === "local only"));
 });
 
 test("GamePlayer color, spawnPoint, forceRespawn, and respawn events match recovered usage", async () => {
@@ -524,6 +645,7 @@ test("GameWorld.createEntity emits synchronously and projects captured runtime e
   const states = [];
   const runtime = await ScriptRuntime.load(output, {
     blockCatalog,
+    validatedMeshNames: ["captured-runtime-mesh"],
     createEntity: entity => {
       creates.push(structuredClone(entity));
       return { entityId: 7002 };
@@ -551,6 +673,39 @@ test("GameWorld.createEntity emits synchronously and projects captured runtime e
   assert.deepEqual(JSON.parse(JSON.stringify(states)), [{ entityId: 7002, state: {
     position: [10, 11, 12], velocity: [3, 2, 1], orientation: [0, 0, 0, 1],
   } }]);
+  runtime.stop();
+});
+
+test("GameWorld.createEntity keeps unknown mesh names script-local", async () => {
+  const sourceRoot = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-local-mesh-")), "project");
+  await importMapProject(sourceRoot, output);
+  await writeFile(join(output, "scripts", "server.js"), `
+    world.onPlayerJoin(({ entity: player }) => {
+      const created = world.createEntity({ id: "local-only", mesh: "unknown-mesh", position: [1, 2, 3] });
+      created.position = [4, 5, 6];
+      created.destroy();
+      player.localMeshResult = { id: created.id, destroyed: created.destroyed };
+    });
+  `, "utf8");
+  const creates = [];
+  const states = [];
+  const destroys = [];
+  const runtime = await ScriptRuntime.load(output, {
+    blockCatalog,
+    validatedMeshNames: ["captured-runtime-mesh"],
+    createEntity: entity => { creates.push(structuredClone(entity)); return { entityId: 7003 }; },
+    writeEntityState: (entityId, state) => states.push({ entityId, state: structuredClone(state) }),
+    destroyEntity: entityId => destroys.push(entityId),
+    logger: { info() {}, warn() {}, error() {} },
+  });
+  await runtime.start();
+  const player = runtime.addPlayer({ id: "local-mesh-player" });
+  await new Promise(resolveEvent => setTimeout(resolveEvent, 1));
+  assert.deepEqual({ ...player.localMeshResult }, { id: "local-only", destroyed: true });
+  assert.deepEqual(creates, []);
+  assert.deepEqual(states, []);
+  assert.deepEqual(destroys, []);
   runtime.stop();
 });
 
@@ -666,6 +821,35 @@ test("game-net action presses dispatch evidence-based GameClickEvent to world an
     clickerPosition: [1, 0, 0], hitEntity: "central-beacon", hitPosition: [4, 0, 0],
   });
   assert.equal(player.entityClick, true);
+  runtime.stop();
+});
+
+test("entity-interact messages dispatch the recovered event to target before world", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-interact-events-")), "project");
+  await importMapProject(source, output);
+  await writeFile(join(output, "scripts", "server.js"), `
+    const target = world.querySelector(".interactable");
+    globalThis.interactOrder = [];
+    target.onInteract(event => {
+      interactOrder.push("target");
+      event.entity.interactEvent = event;
+      event.entity.targetInteract = { tick: event.tick, entity: event.entity.id, targetEntity: event.targetEntity.id };
+    });
+    world.onInteract(event => {
+      interactOrder.push("world");
+      event.entity.worldInteract = event === event.entity.interactEvent;
+    });
+  `, "utf8");
+  const runtime = await ScriptRuntime.load(output, { blockCatalog, logger: { info() {}, warn() {}, error() {} } });
+  await runtime.start();
+  const player = runtime.addPlayer({ id: "interact-player" });
+  assert.equal(runtime.bindBackendEntities([{ sourceId: "central-beacon", entityId: 1000042 }]), 1);
+  assert.equal(runtime.dispatchInteract(player.id, 1000042, 15.25), true);
+  assert.equal(runtime.dispatchInteract(player.id, 9999999, 16), false);
+  assert.deepEqual(JSON.parse(JSON.stringify(player.targetInteract)), { tick: 15.25, entity: "interact-player", targetEntity: "central-beacon" });
+  assert.equal(player.worldInteract, true);
+  assert.deepEqual(runtime.context.interactOrder, ["target", "world"]);
   runtime.stop();
 });
 
@@ -802,6 +986,8 @@ test("server lifecycle event objects retain historical fields", () => {
     skip: false,
     deltaTime: 0.05,
   });
+  assert.deepEqual(createTickTiming(8, 7, 1_250, 1_100), { elapsedTimeMS: 150, skip: false });
+  assert.deepEqual(createTickTiming(11, 8, 1_500, 1_250), { elapsedTimeMS: 250, skip: true });
   assert.deepEqual(createGameEntityEvent(8, entity), {
     tick: 8,
     entity,

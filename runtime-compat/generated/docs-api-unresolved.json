@@ -1,7 +1,7 @@
 {
   "format": "nea-doc-api-unresolved",
   "version": 1,
-  "generatedAt": "2026-07-30T11:06:38.800Z",
+  "generatedAt": "2026-07-30T18:24:27.443Z",
   "entries": [
     {
       "path": "dao3-docs-mirror/markdown/api/ClientAudio/mediaError.md",
@@ -107,19 +107,19 @@
     },
     {
       "path": "dao3-docs-mirror/markdown/api/GameDataStorage/getSpace.md",
-      "owner": "GameDataStorage",
+      "owner": "GameStorage",
       "heading": "键（Key）",
       "reason": "not-an-api-signature"
     },
     {
       "path": "dao3-docs-mirror/markdown/api/GameDataStorage/getSpace.md",
-      "owner": "GameDataStorage",
+      "owner": "GameStorage",
       "heading": "值（Value）",
       "reason": "not-an-api-signature"
     },
     {
       "path": "dao3-docs-mirror/markdown/api/GameDataStorage/getSpace.md",
-      "owner": "GameDataStorage",
+      "owner": "GameStorage",
       "heading": "存储（Store）",
       "reason": "not-an-api-signature"
     },

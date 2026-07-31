@@ -1,6 +1,6 @@
 # Script Corpus Compatibility Gap Report
 
-Generated: 2026-07-30T11:27:12.090Z
+Generated: 2026-07-31T04:04:33.113Z
 
 Private source paths, work identities, and event type names are excluded. Samples only prioritize unified ABI work.
 
@@ -10,8 +10,8 @@ A custom extension is reported only when the corpus contains a direct member ass
 
 - Anonymous samples: 2
 - Distinct API requirements: 74
-- Executable: 41
-- Partial: 18
+- Executable: 40
+- Partial: 19
 - Unavailable: 0
 - Missing native ABI: 0
 - Unclassified surfaces: 0
@@ -22,6 +22,7 @@ A custom extension is reported only when the corpus contains a direct member ass
 | Priority | Side | Usage | Requirement | Canonical ABI | State | Compatibility |
 | ---: | --- | ---: | --- | --- | --- | --- |
 | 36 | server | 12 | `world.onChat` | `server.world.onChat` | partial | partial |
+| 36 | server | 12 | `world.onTick` | `server.world.onTick` | partial | partial |
 | 24 | server | 8 | `world.raycast` | `server.world.raycast` | partial | partial |
 | 15 | server | 5 | `storage.getDataStorage` | `server.GameStorage.getDataStorage` | partial | partial |
 | 15 | server | 5 | `world.onVoxelContact` | `server.world.onVoxelContact` | partial | partial |
@@ -95,9 +96,9 @@ These names have neither a matching native declaration nor direct assignment evi
 | client | 3 | `input.pointerLockEvents` | `client.input.pointerLockEvents` |
 | server | 17 | `voxels.setVoxel` | `server.GameVoxels.setVoxel` |
 | server | 15 | `world.size` | `server.world.size` |
-| server | 12 | `world.onTick` | `server.world.onTick` |
 | client | 2 | `screen.events` | `client.ClientScreen.events` |
 | client | 2 | `screen.visible` | `client.UiScreen.visible` |
 | client | 2 | `UiScrollBox.create` | `client.UiScrollBox.create` |
 | server | 9 | `world.querySelector` | `server.world.querySelector` |
 | server | 8 | `world.onPress` | `server.world.onPress` |
+| client | 1 | `UiInput.create` | `client.UiInput.create` |

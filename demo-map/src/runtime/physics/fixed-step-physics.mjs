@@ -40,12 +40,14 @@ export class FixedStepPlayerPhysics {
     const triggerEntered = [...nextTriggers].filter(([key]) => !body.triggers.has(key)).map(([, trigger]) => trigger);
     const triggerLeft = [...body.triggers].filter(([key]) => !nextTriggers.has(key)).map(([, trigger]) => trigger);
     body.triggers = nextTriggers;
+    const fluids = fluidState(this.world, body);
     return Object.freeze({
       collisions: Object.freeze(collisions),
       entered: Object.freeze(entered),
       separated: Object.freeze(separated),
       triggerEntered: Object.freeze(triggerEntered),
       triggerLeft: Object.freeze(triggerLeft),
+      ...fluids,
     });
   }
 
@@ -56,14 +58,28 @@ export class FixedStepPlayerPhysics {
     const triggerEntered = [...nextTriggers].filter(([key]) => !body.triggers.has(key)).map(([, trigger]) => trigger);
     const triggerLeft = [...body.triggers].filter(([key]) => !nextTriggers.has(key)).map(([, trigger]) => trigger);
     body.triggers = nextTriggers;
+    const fluids = fluidState(this.world, body);
     return Object.freeze({
       collisions: Object.freeze([]),
       entered: Object.freeze([]),
       separated: Object.freeze([]),
       triggerEntered: Object.freeze(triggerEntered),
       triggerLeft: Object.freeze(triggerLeft),
+      ...fluids,
     });
   }
+}
+
+function fluidState(world, body) {
+  const nextFluids = new Map(world.queryFluidContacts(body).map(contact => [contact.id, contact]));
+  const fluidEntered = [...nextFluids].filter(([key]) => !body.fluids.has(key)).map(([, contact]) => contact);
+  const fluidLeft = [...body.fluids].filter(([key]) => !nextFluids.has(key)).map(([, contact]) => contact);
+  body.fluids = nextFluids;
+  return Object.freeze({
+    fluids: Object.freeze([...nextFluids.values()]),
+    fluidEntered: Object.freeze(fluidEntered),
+    fluidLeft: Object.freeze(fluidLeft),
+  });
 }
 
 function moveAxis(world, body, axis, movement, deltaTime, collisions) {

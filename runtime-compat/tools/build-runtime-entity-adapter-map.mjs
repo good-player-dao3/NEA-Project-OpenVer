@@ -21,10 +21,95 @@ const specs = [
     signature: ["Canonical position uses GameVector3; local RuntimeEntity exposes the smaller Vector3 compatibility type."],
     effect: ["Whole-value writes on captured-mesh runtime-created entities are queued to the authoritative backend projection. In-place Vector3 mutations and generic native physics simulation remain unverified."],
   }),
+  partial("server.RuntimeEntity.collides", "server.GameEntity.collides", {
+    access: [],
+    signature: [],
+    effect: ["Initial values and later whole-property writes are copied through the loopback entity-state bridge into authoritative replica.body.collides.", "The local authoritative runtime does not simulate generic RuntimeEntity bodies, so native collision response remains unavailable."],
+  }),
+  partial("server.RuntimeEntity.fixed", "server.GameEntity.fixed", {
+    access: [],
+    signature: [],
+    effect: ["Initial values and later whole-property writes are copied through the loopback entity-state bridge into authoritative replica.body.fixed.", "The local authoritative runtime does not simulate generic RuntimeEntity bodies, so native fixed-body behavior remains unavailable."],
+  }),
+  partial("server.RuntimeEntity.gravity", "server.GameEntity.gravity", {
+    access: [],
+    signature: [],
+    effect: ["Initial values and later whole-property writes are copied through the loopback entity-state bridge into authoritative replica.body.gravity.", "The local authoritative runtime does not simulate generic RuntimeEntity bodies, so native gravity integration remains unavailable."],
+  }),
+  partial("server.RuntimeEntity.mass", "server.GameEntity.mass", {
+    access: [],
+    signature: [],
+    effect: ["Initial values and later whole-property writes are validated and copied through the loopback entity-state bridge into authoritative replica.body.mass.", "The local authoritative runtime does not simulate generic RuntimeEntity bodies, so native mass-dependent response remains unavailable."],
+  }),
+  partial("server.RuntimeEntity.friction", "server.GameEntity.friction", {
+    access: [],
+    signature: [],
+    effect: ["Initial values and later whole-property writes are validated and copied through the loopback entity-state bridge into authoritative replica.body.friction.", "The local authoritative runtime does not simulate generic RuntimeEntity bodies, so native friction response remains unavailable."],
+  }),
+  partial("server.RuntimeEntity.restitution", "server.GameEntity.restitution", {
+    access: [],
+    signature: [],
+    effect: ["Initial values and later whole-property writes are validated and copied through the loopback entity-state bridge into authoritative replica.body.restitution.", "The local authoritative runtime does not simulate generic RuntimeEntity bodies, so native restitution response remains unavailable."],
+  }),
   partial("server.RuntimeEntity.onClick", "server.GameEntity.onClick", {
     access: [],
     signature: ["The recovered GameClickEvent fields are exposed; the historical optional listener filter remains unimplemented."],
     effect: ["World and clicked-entity double dispatch is implemented when game-net supplies an authoritative entity binding."],
+  }),
+  partial("server.RuntimeEntity.onFluidEnter", "server.GameEntity.onFluidEnter", {
+    access: [],
+    signature: [],
+    effect: ["The listener surface is present, but the local authoritative fluid producer currently covers RuntimePlayer bodies only."],
+  }),
+  originPartial("server.RuntimeEntity.nextFluidEnter", "server.GameEntity.nextFluidEnter", {
+    access: [],
+    signature: [],
+    effect: ["The filtered future surface is present, but script-created RuntimeEntity bodies do not yet participate in local fluid overlap production."],
+  }),
+  partial("server.RuntimeEntity.onFluidLeave", "server.GameEntity.onFluidLeave", {
+    access: [],
+    signature: [],
+    effect: ["The listener surface is present, but the local authoritative fluid producer currently covers RuntimePlayer bodies only."],
+  }),
+  originPartial("server.RuntimeEntity.nextFluidLeave", "server.GameEntity.nextFluidLeave", {
+    access: [],
+    signature: [],
+    effect: ["The filtered future surface is present, but script-created RuntimeEntity bodies do not yet participate in local fluid overlap production."],
+  }),
+  partial("server.RuntimeEntity.onVoxelContact", "server.GameEntity.onVoxelContact", {
+    access: [],
+    signature: [],
+    effect: ["The listener surface and typed event are present, but the local authoritative voxel-contact producer currently covers RuntimePlayer bodies only."],
+  }),
+  originPartial("server.RuntimeEntity.nextVoxelContact", "server.GameEntity.nextVoxelContact", {
+    access: [],
+    signature: [],
+    effect: ["The filtered future surface is present, but script-created RuntimeEntity bodies do not yet participate in local voxel collision production."],
+  }),
+  partial("server.RuntimeEntity.onVoxelSeparate", "server.GameEntity.onVoxelSeparate", {
+    access: [],
+    signature: [],
+    effect: ["The listener surface and typed event are present, but the local authoritative voxel-separation producer currently covers RuntimePlayer bodies only."],
+  }),
+  originPartial("server.RuntimeEntity.nextVoxelSeparate", "server.GameEntity.nextVoxelSeparate", {
+    access: [],
+    signature: [],
+    effect: ["The filtered future surface is present, but script-created RuntimeEntity bodies do not yet participate in local voxel collision production."],
+  }),
+  partial("server.RuntimeEntity.enableInteract", "server.GameEntity.enableInteract", {
+    access: [],
+    signature: [],
+    effect: ["The script-visible flag is stored and included in captured createEntity projection requests, but the local authoritative backend marks replica.interactive unused and therefore does not create Player prompts, radius selection, or interaction sounds."],
+  }),
+  partial("server.RuntimeEntity.onInteract", "server.GameEntity.onInteract", {
+    access: [],
+    signature: [],
+    effect: ["Real entity-interact protocol messages dispatch the recovered GameInteractEvent to a mapped authoritative target before the world listener. Script-local and unmapped targets cannot receive browser-originated interaction."],
+  }),
+  originPartial("server.RuntimeEntity.nextInteract", "server.GameEntity.nextInteract", {
+    access: [],
+    signature: [],
+    effect: ["The optional filter is supported for mapped authoritative interaction targets; interaction component projection remains unavailable."],
   }),
   originPartial("server.RuntimeEntity.nextClick", "server.GameEntity.nextClick", {
     access: [],
@@ -35,6 +120,11 @@ const specs = [
     access: ["Canonical tags is a method returning string[]; local tags is a readonly Set<string> property whose contents remain mutable."],
     signature: ["Property/method shape and collection type differ."],
     effect: ["Canonical addTag/removeTag/hasTag behavior and replication are not implemented."],
+  }),
+  partial("server.RuntimeEntity.say", "server.GameEntity.say", {
+    access: [],
+    signature: [],
+    effect: ["Mapped entities emit the recovered game-chat.log sender id, duration, and hideFloat fields to every connected Player session.", "Entities without an authoritative backend id remain script-local and do not receive a fabricated sender id or floating bubble.", "The historical MAX_CHATS_PER_TICK buffering and Player display acknowledgement remain unimplemented."],
   }),
   partial("server.RuntimeEntity.destroyed", "server.GameEntity.destroyed", {
     access: [],

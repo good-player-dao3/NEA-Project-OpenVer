@@ -13,6 +13,8 @@ const relativeGameVoxelsPath = "demo-map/src/runtime/game-voxels.mjs";
 const gameVoxelsSource = await readFile(resolve(repositoryRoot, relativeGameVoxelsPath), "utf8");
 const relativeGameRaycastPath = "demo-map/src/runtime/game-raycast.mjs";
 const gameRaycastSource = await readFile(resolve(repositoryRoot, relativeGameRaycastPath), "utf8");
+const relativeGameSelectorPath = "demo-map/src/runtime/game-selector.mjs";
+const gameSelectorSource = await readFile(resolve(repositoryRoot, relativeGameSelectorPath), "utf8");
 const relativeGameGuiPath = "demo-map/src/runtime/game-gui.mjs";
 const gameGuiSource = await readFile(resolve(repositoryRoot, relativeGameGuiPath), "utf8");
 const relativeGameStoragePath = "demo-map/src/runtime/game-storage.mjs";
@@ -28,16 +30,53 @@ const requiredMarkers = [
   "dispatchInputEvents(playerId, packet) {",
   "const permissionMask = inputPermissionMask(player);",
   "enableAction0: true,",
-  "get size() { return runtime.voxels.shape; }",
+  "runtime.#require(\"server.world.voxels\")",
+  "const voxels = createCapabilityFacade(this.voxels",
+  "const gui = createCapabilityFacade(this.gui",
+  "const storage = createCapabilityFacade(this.storage",
+  "const guardedWorld = createCapabilityFacade(world",
   "onTick: handler => this.#listen(\"server.world.events\"",
+  "const timing = createTickTiming(this.currentTick, prevTick, now, this.#prevTickMS)",
   "onPlayerJoin: handler => this.#listen(\"server.world.events\"",
   "onPlayerLeave: handler => this.#listen(\"server.world.events\"",
   "onVoxelContact: handler => this.#listen(\"server.world.events\"",
+  "nextVoxelContact: filter => this.#next(\"server.world.events\"",
+  "player._signals.voxelContact.emit(event",
+  "player._signals.voxelSeparate.emit(event",
+  "for (const fluid of contacts.fluidEntered) this.#dispatchFluidEvent(\"fluidEnter\", player, fluid)",
+  "export class RuntimeFluidContactEvent",
+  "export class RuntimeClickEvent",
+  "export class RuntimeInputEvent",
+  "export class RuntimeEntityEvent",
+  "export class RuntimeDamageEvent",
+  "export class RuntimeDieEvent",
+  "export class RuntimeRespawnEvent",
+  "export class RuntimeInteractEvent",
+  "export class RuntimeTickEvent",
+  "export class RuntimeChatEvent",
+  "export class RuntimePurchaseSuccessEvent",
+  "export class RuntimeKeyBoardEvent",
+  "return Object.freeze(new RuntimeClickEvent",
+  "return Object.freeze(new RuntimeInputEvent",
+  "return Object.freeze(new RuntimeEntityEvent",
+  "return Object.freeze(new RuntimeDamageEvent",
+  "return Object.freeze(new RuntimeDieEvent",
+  "return Object.freeze(new RuntimeRespawnEvent",
+  "return Object.freeze(new RuntimeInteractEvent",
+  "return Object.freeze(new RuntimeTickEvent",
+  "return Object.freeze(new RuntimeChatEvent",
+  "return Object.freeze(new RuntimePurchaseSuccessEvent",
+  "return Object.freeze(new RuntimeKeyBoardEvent",
+  "return Object.freeze(new RuntimeRaycastResult",
+  "new RuntimeFluidContactEvent(this.currentTick, entity, contact.voxel)",
   "export function createContactEvent(tick, entity, contact)",
+  "export class RuntimeVoxelContactEvent",
+  "return Object.freeze(new RuntimeVoxelContactEvent",
   "const force = Vector3.from(contact.force ?? [0, 0, 0])",
   "say: message => {",
   "createEntity: spec => {",
   "querySelector: selector => this.#query(selector)[0] ?? null",
+  "testSelector: (selector, entity) => this.#matchesSelector(entity, selector)",
   "raycast: (origin, direction, options) => raycastWorld({",
   "onRespawn: handler => this.#listen(\"server.world.events\", this.#signals.respawn, handler)",
   "onTakeDamage: handler => this.#listen(\"server.world.events\", this.#signals.takeDamage, handler)",
@@ -84,17 +123,20 @@ for (const marker of requiredMarkers) {
 for (const marker of ["export class GameWorld", "this.fogColor = new GameRGBColor(1, 1, 1)", "this.gravity = -0.1", "this.airFriction = 0.001"]) {
   if (!gameWorldSource.includes(marker)) throw new Error(`Local GameWorld value shell no longer contains ${marker}`);
 }
-for (const marker of ["export class GameZoneSystem", "add(config={})", "poll(tick,players)"]) {
+for (const marker of ["export class RuntimeGameZone", "export class GameZoneSystem", "add(config = {})", "poll(tick, entities)"]) {
   if (!gameZonesSource.includes(marker)) throw new Error(`Local GameZone Runtime no longer contains ${marker}`);
 }
 for (const marker of ["export class GameGuiRuntime", 'this.init = (entity, config) =>', 'this.remove = (entity, selector) =>', 'this.getAttribute = (entity, selector, name) =>', 'this.setAttribute = (entity, selector, name, value) =>', "this.onMessage = listener =>", "this.ui = new Proxy"]) {
   if (!gameGuiSource.includes(marker)) throw new Error(`Local GameGUI Runtime no longer contains ${marker}`);
 }
-for (const marker of ["export class LocalGameStorage", "this.getDataStorage = key =>", "this.getGroupStorage = options.groupEnabled", "set: (itemKey, value) =>", "update: (itemKey, handler) =>", "increment: (itemKey, value = 1) =>", "list: (options = {}) =>", "remove: itemKey =>", "destroy: () =>"]) {
+for (const marker of ["export class LocalGameStorage", "export class RuntimeDataStorage", "export class RuntimeQueryList", "#mutationQueue = Promise.resolve()", "#mutate(operation)", "isJsonValue(value, ancestors)", "Number.isFinite(value)", "Object.getOwnPropertySymbols(value)", "this.getDataStorage = key =>", "this.getGroupStorage = options.groupEnabled", "set: (itemKey, value) =>", "update: (itemKey, handler) =>", "increment: (itemKey, value = 1) =>", "list: (options = {}) =>", "parseConstraintTarget", "resolveConstraintTarget", "compareStorageTargets", "Math.min(100", "remove: itemKey =>", "destroy: () =>", "const start = page * pageSize", "if (next.items.length > 0) this.#items = next.items"]) {
   if (!gameStorageSource.includes(marker)) throw new Error(`Local GameStorage Runtime no longer contains ${marker}`);
 }
-for (const marker of ["export function raycastWorld", "options?.ignoreVoxel === true", "options?.ignoreFluid === true", "options?.ignoreEntities === true", "options?.ignoreSelector", "return Infinity", "nearest?.position ?? new Vector3(0, 0, 0)", "voxelIndex:", "hitEntity:"]) {
+for (const marker of ["export class RuntimeRaycastResult", "export function raycastWorld", "return new RuntimeRaycastResult", "options?.ignoreVoxel === true", "options?.ignoreFluid === true", "options?.ignoreEntities === true", "options?.ignoreSelector", "return Infinity", "nearest?.position ?? new Vector3(0, 0, 0)", "voxelIndex:", "hitEntity:"]) {
   if (!gameRaycastSource.includes(marker)) throw new Error(`Local GameWorld.raycast Runtime no longer contains ${marker}`);
+}
+for (const marker of ["export class ParsedGameSelector", "this.selector.split(\",\")", "if (token === \"entity\") this.matchAll = true", "component === \"player\"", "this.names.includes(entity.id)", "entity.destroyed === true"]) {
+  if (!gameSelectorSource.includes(marker)) throw new Error(`Local GameSelector Runtime no longer contains ${marker}`);
 }
 for (const marker of ["export class GameVoxelsRuntime", "id(name)", "getVoxelId(x, y, z)", "setVoxelId(x, y, z, voxel)", "setVoxel(x, y, z, voxel, rotation)", "name(id)", "getVoxel(x, y, z)", "getVoxelRotation(x, y, z)", "this.shape = this.#shape", "this.VoxelTypes ="]) {
   if (!gameVoxelsSource.includes(marker)) throw new Error(`Local GameVoxels Runtime no longer contains ${marker}`);
@@ -109,6 +151,14 @@ const evidence = {
   symbol: "ScriptRuntime.#createGlobals",
   confidence: "direct",
 };
+
+const zonePropertyTypes = [
+  ["bounds", "GameBounds3"], ["selector", "GameSelectorString"], ["massScale", "number"], ["force", "GameVector3"],
+  ["fogEnabled", "boolean"], ["fogColor", "GameRGBColor"], ["fogStartDistance", "number"], ["fogHeightOffset", "number"], ["fogHeightFalloff", "number"], ["fogDensity", "number"], ["fogMax", "number"],
+  ["snowEnabled", "boolean"], ["snowDensity", "number"], ["snowSizeLo", "number"], ["snowSizeHi", "number"], ["snowFallSpeed", "number"], ["snowSpinSpeed", "number"], ["snowColor", "GameRGBAColor"], ["snowTexture", "string"],
+  ["rainEnabled", "boolean"], ["rainDensity", "number"], ["rainDirection", "GameVector3"], ["rainSpeed", "number"], ["rainSizeLo", "number"], ["rainSizeHi", "number"], ["rainInterference", "number"], ["rainColor", "GameRGBAColor"],
+  ["skyEnabled", "boolean"], ["skyMode", "string"], ["skySunPhase", "number"], ["skySunFrequency", "number"], ["skyLunarPhase", "number"], ["skySunDirection", "GameVector3"], ["skySunLight", "GameRGBColor"], ["skyLeftLight", "GameRGBColor"], ["skyRightLight", "GameRGBColor"], ["skyBottomLight", "GameRGBColor"], ["skyTopLight", "GameRGBColor"], ["skyFrontLight", "GameRGBColor"], ["skyBackLight", "GameRGBColor"],
+];
 
 const entries = [
   {
@@ -132,49 +182,86 @@ const entries = [
   },
   entry("server.world.currentTick", "property", "world", "currentTick", { type: "number", readonly: true }, "server.world.events", "emulated", ["server.GameWorld.currentTick"]),
   worldSizeEntry(),
-  entry("server.world.onRespawn", "event", "world", "onRespawn", handler("{tick,entity,player}"), "server.world.events", "partial", ["server.GameWorld.onRespawn"]),
-  entry("server.world.nextRespawn", "event", "world", "nextRespawn", { parameters: [{ name: "filter", type: "(event: {tick,entity,player}) => boolean", optional: true }], returns: "Promise<{tick,entity,player}>" }, "server.world.events", "partial", ["server.GameWorld.nextRespawn"]),
+  ...raycastResultEntries(),
+  ...voxelContactEventEntries(),
+  ...fluidContactEventEntries(),
+  ...clickEventEntries(),
+  ...inputEventEntries(),
+  ...entityEventEntries(),
+  ...damageEventEntries(),
+  ...dieEventEntries(),
+  ...respawnEventEntries(),
+  ...interactEventEntries(),
+  ...tickEventEntries(),
+  ...chatEventEntries(),
+  ...purchaseSuccessEventEntries(),
+  ...keyBoardEventEntries(),
+  entry("server.world.onRespawn", "event", "world", "onRespawn", handler("GameRespawnEvent"), "server.world.events", "partial", ["server.GameWorld.onRespawn"]),
+  entry("server.world.nextRespawn", "event", "world", "nextRespawn", { parameters: [{ name: "filter", type: "(event: GameRespawnEvent) => boolean", optional: true }], returns: "Promise<GameRespawnEvent>" }, "server.world.events", "partial", ["server.GameWorld.nextRespawn"]),
   entry("server.world.onTakeDamage", "event", "world", "onTakeDamage", handler("GameDamageEvent"), "server.world.events", "partial"),
-  entry("server.world.nextTakeDamage", "event", "world", "nextTakeDamage", { parameters: [{ name: "filter", type: "(event: {tick,entity,attacker,damage,damageType}) => boolean", optional: true }], returns: "Promise<{tick,entity,attacker,damage,damageType}>" }, "server.world.events", "partial"),
-  entry("server.world.onChat", "event", "world", "onChat", handler("{tick,entity,player,message}"), "server.world.chat", "partial", ["server.GameWorld.onChat"]),
-  entry("server.world.onPress", "event", "world", "onPress", handler("{tick,entity,position,button,pressed,raycast}"), "server.world.events", "compatible", ["server.GameWorld.onPress"]),
-  entry("server.world.onClick", "event", "world", "onClick", handler("{tick,entity,clicker,button,distance,clickerPosition,raycast}"), "server.world.events", "partial", ["server.GameWorld.onClick"]),
-  entry("server.world.onRelease", "event", "world", "onRelease", handler("{tick,entity,position,button,pressed,raycast}"), "server.world.events", "compatible", ["server.GameWorld.onRelease"]),
-  entry("server.world.onFluidEnter", "event", "world", "onFluidEnter", handler("{tick,entity,player,fluid}"), "server.world.events", "partial", ["server.GameWorld.onFluidEnter"]),
-  entry("server.world.onFluidLeave", "event", "world", "onFluidLeave", handler("{tick,entity,player,fluid}"), "server.world.events", "partial", ["server.GameWorld.onFluidLeave"]),
+  entry("server.world.nextTakeDamage", "event", "world", "nextTakeDamage", { parameters: [{ name: "filter", type: "(event: GameDamageEvent) => boolean", optional: true }], returns: "Promise<GameDamageEvent>" }, "server.world.events", "partial"),
+  entry("server.world.onChat", "event", "world", "onChat", handler("GameChatEvent"), "server.world.chat", "partial", ["server.GameWorld.onChat"]),
+  entry("server.world.nextChat", "event", "world", "nextChat", { parameters: [{ name: "filter", type: "(event: GameChatEvent) => boolean", optional: true }], returns: "Promise<GameChatEvent>" }, "server.world.chat", "partial", ["server.GameWorld.nextChat"]),
+  entry("server.world.onPress", "event", "world", "onPress", handler("GameInputEvent"), "server.world.events", "compatible", ["server.GameWorld.onPress"]),
+  entry("server.world.nextPress", "event", "world", "nextPress", { parameters: [{ name: "filter", type: "(event: GameInputEvent) => boolean", optional: true }], returns: "Promise<GameInputEvent>" }, "server.world.events", "compatible", ["server.GameWorld.nextPress"]),
+  entry("server.world.onClick", "event", "world", "onClick", handler("GameClickEvent"), "server.world.events", "partial", ["server.GameWorld.onClick"]),
+  entry("server.world.onInteract", "event", "world", "onInteract", handler("GameInteractEvent"), "server.world.events", "partial", ["server.GameWorld.onInteract"]),
+  entry("server.world.nextInteract", "event", "world", "nextInteract", { parameters: [{ name: "filter", type: "(event: GameInteractEvent) => boolean", optional: true }], returns: "Promise<GameInteractEvent>" }, "server.world.events", "partial", ["server.GameWorld.nextInteract"]),
+  entry("server.world.onRelease", "event", "world", "onRelease", handler("GameInputEvent"), "server.world.events", "compatible", ["server.GameWorld.onRelease"]),
+  entry("server.world.nextRelease", "event", "world", "nextRelease", { parameters: [{ name: "filter", type: "(event: GameInputEvent) => boolean", optional: true }], returns: "Promise<GameInputEvent>" }, "server.world.events", "compatible", ["server.GameWorld.nextRelease"]),
+  entry("server.world.onFluidEnter", "event", "world", "onFluidEnter", handler("GameFluidContactEvent"), "server.world.events", "partial", ["server.GameWorld.onFluidEnter"]),
+  entry("server.world.nextFluidEnter", "event", "world", "nextFluidEnter", { parameters: [{ name: "filter", type: "(event: GameFluidContactEvent) => boolean", optional: true }], returns: "Promise<GameFluidContactEvent>" }, "server.world.events", "partial", ["server.GameWorld.nextFluidEnter"]),
+  entry("server.world.onFluidLeave", "event", "world", "onFluidLeave", handler("GameFluidContactEvent"), "server.world.events", "partial", ["server.GameWorld.onFluidLeave"]),
+  entry("server.world.nextFluidLeave", "event", "world", "nextFluidLeave", { parameters: [{ name: "filter", type: "(event: GameFluidContactEvent) => boolean", optional: true }], returns: "Promise<GameFluidContactEvent>" }, "server.world.events", "partial", ["server.GameWorld.nextFluidLeave"]),
   entry("server.world.onDie", "event", "world", "onDie", handler("GameDieEvent"), "server.world.events", "partial"),
+  entry("server.world.nextDie", "event", "world", "nextDie", { parameters: [{ name: "filter", type: "(event: GameDieEvent) => boolean", optional: true }], returns: "Promise<GameDieEvent>" }, "server.world.events", "partial"),
   entry("server.world.onEntityContact", "event", "world", "onEntityContact", handler("{tick,entity,player,other,axis,force}"), "server.world.events", "partial", ["server.GameWorld.onEntityContact"]),
-  entry("server.world.onPlayerPurchaseSuccess", "event", "world", "onPlayerPurchaseSuccess", handler("{tick,entity,player}"), "server.world.events", "partial", ["server.GameWorld.onPlayerPurchaseSuccess"]),
-  entry("server.world.onTick", "event", "world", "onTick", handler("{tick,prevTick,elapsedTimeMS,skip,deltaTime}"), "server.world.events"),
-  entry("server.world.onPlayerJoin", "event", "world", "onPlayerJoin", handler("{tick,entity,player}"), "server.world.events"),
-  entry("server.world.onPlayerLeave", "event", "world", "onPlayerLeave", handler("{tick,entity,player}"), "server.world.events"),
-  entry("server.world.onEntityCreate", "event", "world", "onEntityCreate", handler("{tick,entity,player}"), "server.world.events", "partial", ["server.GameWorld.onEntityCreate"]),
+  entry("server.world.nextEntityContact", "event", "world", "nextEntityContact", { parameters: [{ name: "filter", type: "(event: GameEntityContactEvent) => boolean", optional: true }], returns: "Promise<GameEntityContactEvent>" }, "server.world.events", "partial", ["server.GameWorld.nextEntityContact"]),
+  entry("server.world.onPlayerPurchaseSuccess", "event", "world", "onPlayerPurchaseSuccess", handler("GamePurchaseSuccessEvent"), "server.world.events", "partial", ["server.GameWorld.onPlayerPurchaseSuccess"]),
+  entry("server.world.nextPlayerPurchaseSuccess", "event", "world", "nextPlayerPurchaseSuccess", { parameters: [{ name: "filter", type: "(event: GamePurchaseSuccessEvent) => boolean", optional: true }], returns: "Promise<GamePurchaseSuccessEvent>" }, "server.world.events", "partial", ["server.GameWorld.nextPlayerPurchaseSuccess"]),
+  entry("server.world.onTick", "event", "world", "onTick", handler("GameTickEvent"), "server.world.events", "partial", ["server.GameWorld.onTick"]),
+  entry("server.world.onPlayerJoin", "event", "world", "onPlayerJoin", handler("GameEntityEvent"), "server.world.events"),
+  entry("server.world.onPlayerLeave", "event", "world", "onPlayerLeave", handler("GameEntityEvent"), "server.world.events"),
+  entry("server.world.nextPlayerLeave", "event", "world", "nextPlayerLeave", { parameters: [{ name: "filter", type: "(event: GameEntityEvent) => boolean", optional: true }], returns: "Promise<GameEntityEvent>" }, "server.world.events", "partial", ["server.GameWorld.nextPlayerLeave"]),
+  entry("server.world.onEntityCreate", "event", "world", "onEntityCreate", handler("GameEntityEvent"), "server.world.events", "partial", ["server.GameWorld.onEntityCreate"]),
   entry("server.world.nextEntityCreate", "event", "world", "nextEntityCreate", { parameters: [{ name: "filter", type: "(event: GameEntityEvent) => boolean", optional: true }], returns: "Promise<GameEntityEvent>" }, "server.world.events", "partial", ["server.GameWorld.nextEntityCreate"]),
-  entry("server.world.onEntityDestroy", "event", "world", "onEntityDestroy", handler("{tick,entity,player}"), "server.world.events", "partial", ["server.GameWorld.onEntityDestroy"]),
+  entry("server.world.onEntityDestroy", "event", "world", "onEntityDestroy", handler("GameEntityEvent"), "server.world.events", "partial", ["server.GameWorld.onEntityDestroy"]),
   entry("server.world.nextEntityDestroy", "event", "world", "nextEntityDestroy", { parameters: [{ name: "filter", type: "(event: GameEntityEvent) => boolean", optional: true }], returns: "Promise<GameEntityEvent>" }, "server.world.events", "partial", ["server.GameWorld.nextEntityDestroy"]),
-  entry("server.world.onVoxelContact", "event", "world", "onVoxelContact", handler("{tick,entity,x,y,z,voxel,axis,force,player,collider,normal,compatibility}"), "server.world.events", "partial"),
-  entry("server.world.onVoxelSeparate", "event", "world", "onVoxelSeparate", handler("{tick,entity,x,y,z,voxel,axis,force,player,collider,normal,compatibility}"), "server.world.events", "partial"),
+  entry("server.world.onVoxelContact", "event", "world", "onVoxelContact", handler("GameVoxelContactEvent"), "server.world.events", "partial"),
+  entry("server.world.nextVoxelContact", "event", "world", "nextVoxelContact", { parameters: [{ name: "filter", type: "(event: GameVoxelContactEvent) => boolean", optional: true }], returns: "Promise<GameVoxelContactEvent>" }, "server.world.events", "partial"),
+  entry("server.world.onVoxelSeparate", "event", "world", "onVoxelSeparate", handler("GameVoxelContactEvent"), "server.world.events", "partial"),
+  entry("server.world.nextVoxelSeparate", "event", "world", "nextVoxelSeparate", { parameters: [{ name: "filter", type: "(event: GameVoxelContactEvent) => boolean", optional: true }], returns: "Promise<GameVoxelContactEvent>" }, "server.world.events", "partial"),
   entry("server.world.onContact", "event", "world", "onContact", handler("{tick,entity,other,axis,force,player,collider,normal,compatibility}"), "server.world.events"),
   entry("server.world.onContactSeparate", "event", "world", "onContactSeparate", handler("{tick,entity,other,axis,force,player,collider,normal,compatibility}"), "server.world.events"),
   entry("server.world.onTriggerEnter", "event", "world", "onTriggerEnter", handler("{player,trigger}"), "server.world.events"),
   entry("server.world.onTriggerLeave", "event", "world", "onTriggerLeave", handler("{player,trigger}"), "server.world.events"),
-  entry("server.world.nextTick", "event", "world", "nextTick", { parameters: [{ name: "filter", type: "(event: {tick,deltaTime}) => boolean", optional: true }], returns: "Promise<{tick,deltaTime}>" }, "server.world.events", "partial", ["server.GameWorld.nextTick"]),
-  entry("server.world.nextPlayerJoin", "event", "world", "nextPlayerJoin", { parameters: [{ name: "filter", type: "(event: {tick,entity,player}) => boolean", optional: true }], returns: "Promise<{tick,entity,player}>" }, "server.world.events", "partial", ["server.GameWorld.nextPlayerJoin"]),
+  entry("server.world.nextTick", "event", "world", "nextTick", { parameters: [{ name: "filter", type: "(event: GameTickEvent) => boolean", optional: true }], returns: "Promise<GameTickEvent>" }, "server.world.events", "partial", ["server.GameWorld.nextTick"]),
+  entry("server.world.nextPlayerJoin", "event", "world", "nextPlayerJoin", { parameters: [{ name: "filter", type: "(event: GameEntityEvent) => boolean", optional: true }], returns: "Promise<GameEntityEvent>" }, "server.world.events", "partial", ["server.GameWorld.nextPlayerJoin"]),
   entry("server.world.say", "method", "world", "say", { parameters: [{ name: "message", type: "unknown" }], returns: "void" }, "server.world.chat"),
   entry("server.world.createEntity", "method", "world", "createEntity", { parameters: [{ name: "spec", type: "LocalEntitySpec" }], returns: "RuntimeEntity" }, "server.world.entities"),
   entry("server.world.querySelector", "method", "world", "querySelector", { parameters: [{ name: "selector", type: "string" }], returns: "RuntimeEntity|null" }, "server.world.entities"),
-  entry("server.world.querySelectorAll", "method", "world", "querySelectorAll", { parameters: [{ name: "selector", type: "string" }], returns: "readonly RuntimeEntity[]" }, "server.world.entities"),
+  entry("server.world.querySelectorAll", "method", "world", "querySelectorAll", { parameters: [{ name: "selector", type: "string" }], returns: "RuntimeEntity[]" }, "server.world.entities"),
+  entry("server.world.testSelector", "method", "world", "testSelector", { parameters: [{ name: "selector", type: "GameSelectorString" }, { name: "entity", type: "RuntimeEntity" }], returns: "boolean" }, "server.world.entities", "partial", ["server.GameWorld.testSelector"]),
   raycastEntry(),
   entry("server.world.addCollisionFilter", "method", "world", "addCollisionFilter", { parameters: [{ name: "aSelector", type: "GameSelectorString" }, { name: "bSelector", type: "GameSelectorString" }], returns: "void" }, "server.world.entities", "partial", ["server.GameWorld.addCollisionFilter"]),
   entry("server.world.addZone", "method", "world", "addZone", { parameters: [{ name: "config", type: "Partial<GameZone>" }], returns: "GameZone" }, "server.world.events", "partial", ["server.GameWorld.addZone"]),
+  entry("server.world.removeZone", "method", "world", "removeZone", { parameters: [{ name: "zone", type: "GameZone" }], returns: "void" }, "server.world.events", "partial", ["server.GameWorld.removeZone"]),
+  entry("server.world.zones", "method", "world", "zones", { parameters: [], returns: "GameZone[]" }, "server.world.events", "partial", ["server.GameWorld.zones"]),
   worldValueEntry("server.world.gravity", "gravity", "number"),
   worldValueEntry("server.world.airFriction", "airFriction", "number"),
   worldValueEntry("server.world.fogColor", "fogColor", "GameRGBColor"),
-  entry("server.object.RuntimeEntity", "object", null, "RuntimeEntity", { properties: ["id", "kind", "position", "tags", "destroyed", "enableDamage", "showHealthBar", "hp", "maxHp"], methods: ["destroy", "onDestroy", "nextDestroy", "onClick", "nextClick", "onTakeDamage", "nextTakeDamage", "onDie", "nextDie", "hurt", "snapshot"] }, "server.world.entities"),
+  entry("server.object.RuntimeEntity", "object", null, "RuntimeEntity", { properties: ["id", "kind", "position", "collides", "fixed", "gravity", "mass", "friction", "restitution", "tags", "destroyed", "enableInteract", "enableDamage", "showHealthBar", "hp", "maxHp"], methods: ["say", "destroy", "onDestroy", "nextDestroy", "onClick", "nextClick", "onInteract", "nextInteract", "onFluidEnter", "nextFluidEnter", "onFluidLeave", "nextFluidLeave", "onTakeDamage", "nextTakeDamage", "onDie", "nextDie", "hurt", "snapshot"] }, "server.world.entities"),
   entry("server.RuntimeEntity.id", "property", "RuntimeEntity", "id", { type: "string", readonly: true }, "server.world.entities"),
   entry("server.RuntimeEntity.kind", "property", "RuntimeEntity", "kind", { type: "string", readonly: true }, "server.world.entities"),
   entry("server.RuntimeEntity.position", "property", "RuntimeEntity", "position", { type: "Vector3", readonly: false }, "server.world.entities"),
+  entry("server.RuntimeEntity.collides", "property", "RuntimeEntity", "collides", { type: "boolean", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.collides"]),
+  entry("server.RuntimeEntity.fixed", "property", "RuntimeEntity", "fixed", { type: "boolean", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.fixed"]),
+  entry("server.RuntimeEntity.gravity", "property", "RuntimeEntity", "gravity", { type: "boolean", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.gravity"]),
+  entry("server.RuntimeEntity.mass", "property", "RuntimeEntity", "mass", { type: "number", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.mass"]),
+  entry("server.RuntimeEntity.friction", "property", "RuntimeEntity", "friction", { type: "number", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.friction"]),
+  entry("server.RuntimeEntity.restitution", "property", "RuntimeEntity", "restitution", { type: "number", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.restitution"]),
   entry("server.RuntimeEntity.tags", "property", "RuntimeEntity", "tags", { type: "Set<string>", readonly: true }, "server.world.entities"),
+  entry("server.RuntimeEntity.say", "method", "RuntimeEntity", "say", { parameters: [{ name: "message", type: "string" }, { name: "options", type: "Partial<{duration:number,hideFloat:boolean}>", optional: true }], returns: "void" }, "server.world.chat", "partial"),
   entry("server.RuntimeEntity.destroyed", "property", "RuntimeEntity", "destroyed", { type: "boolean", readonly: true }, "server.world.entities", "partial"),
   entry("server.RuntimeEntity.enableDamage", "property", "RuntimeEntity", "enableDamage", { type: "boolean", readonly: false }, "server.world.entities", "partial"),
   entry("server.RuntimeEntity.showHealthBar", "property", "RuntimeEntity", "showHealthBar", { type: "boolean", readonly: false }, "server.world.entities", "partial"),
@@ -183,8 +270,19 @@ const entries = [
   entry("server.RuntimeEntity.destroy", "method", "RuntimeEntity", "destroy", { parameters: [], returns: "void" }, "server.world.entities", "partial", ["server.GameEntity.destroy"]),
   entry("server.RuntimeEntity.onDestroy", "event", "RuntimeEntity", "onDestroy", handler("GameEntityEvent"), "server.world.events", "partial", ["server.GameEntity.onDestroy"]),
   entry("server.RuntimeEntity.nextDestroy", "event", "RuntimeEntity", "nextDestroy", { parameters: [{ name: "filter", type: "(event: GameEntityEvent) => boolean", optional: true }], returns: "Promise<GameEntityEvent>" }, "server.world.events", "partial", ["server.GameEntity.nextDestroy"]),
-  entry("server.RuntimeEntity.onClick", "event", "RuntimeEntity", "onClick", handler("{tick,entity,clicker,button,distance,clickerPosition,raycast}"), "server.world.events", "partial", ["server.GameEntity.onClick"]),
+  entry("server.RuntimeEntity.onClick", "event", "RuntimeEntity", "onClick", handler("GameClickEvent"), "server.world.events", "partial", ["server.GameEntity.onClick"]),
   entry("server.RuntimeEntity.nextClick", "event", "RuntimeEntity", "nextClick", { parameters: [{ name: "filter", type: "(event: GameClickEvent) => boolean", optional: true }], returns: "Promise<GameClickEvent>" }, "server.world.events", "partial", ["server.GameEntity.nextClick"]),
+  entry("server.RuntimeEntity.enableInteract", "property", "RuntimeEntity", "enableInteract", { type: "boolean", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.enableInteract"]),
+  entry("server.RuntimeEntity.onInteract", "event", "RuntimeEntity", "onInteract", handler("GameInteractEvent"), "server.world.events", "partial", ["server.GameEntity.onInteract"]),
+  entry("server.RuntimeEntity.nextInteract", "event", "RuntimeEntity", "nextInteract", { parameters: [{ name: "filter", type: "(event: GameInteractEvent) => boolean", optional: true }], returns: "Promise<GameInteractEvent>" }, "server.world.events", "partial", ["server.GameEntity.nextInteract"]),
+  entry("server.RuntimeEntity.onFluidEnter", "event", "RuntimeEntity", "onFluidEnter", handler("GameFluidContactEvent"), "server.world.events", "partial", ["server.GameEntity.onFluidEnter"]),
+  entry("server.RuntimeEntity.nextFluidEnter", "event", "RuntimeEntity", "nextFluidEnter", { parameters: [{ name: "filter", type: "(event: GameFluidContactEvent) => boolean", optional: true }], returns: "Promise<GameFluidContactEvent>" }, "server.world.events", "partial", ["server.GameEntity.nextFluidEnter"]),
+  entry("server.RuntimeEntity.onFluidLeave", "event", "RuntimeEntity", "onFluidLeave", handler("GameFluidContactEvent"), "server.world.events", "partial", ["server.GameEntity.onFluidLeave"]),
+  entry("server.RuntimeEntity.nextFluidLeave", "event", "RuntimeEntity", "nextFluidLeave", { parameters: [{ name: "filter", type: "(event: GameFluidContactEvent) => boolean", optional: true }], returns: "Promise<GameFluidContactEvent>" }, "server.world.events", "partial", ["server.GameEntity.nextFluidLeave"]),
+  entry("server.RuntimeEntity.onVoxelContact", "event", "RuntimeEntity", "onVoxelContact", handler("GameVoxelContactEvent"), "server.world.events", "partial", ["server.GameEntity.onVoxelContact"]),
+  entry("server.RuntimeEntity.nextVoxelContact", "event", "RuntimeEntity", "nextVoxelContact", { parameters: [{ name: "filter", type: "(event: GameVoxelContactEvent) => boolean", optional: true }], returns: "Promise<GameVoxelContactEvent>" }, "server.world.events", "partial", ["server.GameEntity.nextVoxelContact"]),
+  entry("server.RuntimeEntity.onVoxelSeparate", "event", "RuntimeEntity", "onVoxelSeparate", handler("GameVoxelContactEvent"), "server.world.events", "partial", ["server.GameEntity.onVoxelSeparate"]),
+  entry("server.RuntimeEntity.nextVoxelSeparate", "event", "RuntimeEntity", "nextVoxelSeparate", { parameters: [{ name: "filter", type: "(event: GameVoxelContactEvent) => boolean", optional: true }], returns: "Promise<GameVoxelContactEvent>" }, "server.world.events", "partial", ["server.GameEntity.nextVoxelSeparate"]),
   entry("server.RuntimeEntity.onTakeDamage", "event", "RuntimeEntity", "onTakeDamage", handler("GameDamageEvent"), "server.world.events", "partial"),
   entry("server.RuntimeEntity.nextTakeDamage", "event", "RuntimeEntity", "nextTakeDamage", { parameters: [{ name: "filter", type: "(event: GameDamageEvent) => boolean", optional: true }], returns: "Promise<GameDamageEvent>" }, "server.world.events", "partial"),
   entry("server.RuntimeEntity.onDie", "event", "RuntimeEntity", "onDie", handler("GameDieEvent"), "server.world.events", "partial"),
@@ -192,13 +290,22 @@ const entries = [
   entry("server.RuntimeEntity.hurt", "method", "RuntimeEntity", "hurt", { parameters: [{ name: "amount", type: "number" }, { name: "options", type: "Partial<GameHurtOptions> | string", optional: true }], returns: "void" }, "server.world.events", "partial"),
   entry("server.RuntimeEntity.snapshot", "method", "RuntimeEntity", "snapshot", { parameters: [], returns: "RuntimeEntitySnapshot" }, "server.world.entities"),
   ...gameButtonTypeEntries(),
-  entry("server.object.RuntimePlayer", "object", null, "RuntimePlayer", { properties: ["id", "name", "position", "velocity", "grounded", "health", "destroyed", "enableDamage", "showHealthBar", "hp", "maxHp", "walkButton", "crouchButton", "jumpButton", "action0Button", "action1Button", "enableAction0", "enableAction1", "enableJump", "enableDoubleJump", "enableCrouch"], methods: ["destroy", "onDestroy", "nextDestroy", "applyImpulse", "hurt", "damage", "sendMessage", "snapshot"] }, "server.player"),
+  entry("server.object.RuntimePlayer", "object", null, "RuntimePlayer", { properties: ["id", "name", "position", "velocity", "grounded", "health", "fluidContacts", "destroyed", "enableDamage", "showHealthBar", "hp", "maxHp", "walkButton", "crouchButton", "jumpButton", "action0Button", "action1Button", "enableAction0", "enableAction1", "enableJump", "enableDoubleJump", "enableCrouch"], methods: ["destroy", "onDestroy", "nextDestroy", "onFluidEnter", "nextFluidEnter", "onFluidLeave", "nextFluidLeave", "applyImpulse", "hurt", "damage", "sendMessage", "dialog", "cancelDialogs", "snapshot"] }, "server.player"),
   entry("server.RuntimePlayer.id", "property", "RuntimePlayer", "id", { type: "string", readonly: true }, "server.player"),
   entry("server.RuntimePlayer.name", "property", "RuntimePlayer", "name", { type: "string", readonly: false }, "server.player.write"),
   entry("server.RuntimePlayer.position", "property", "RuntimePlayer", "position", { type: "Vector3", readonly: false }, "server.player.write"),
   entry("server.RuntimePlayer.velocity", "property", "RuntimePlayer", "velocity", { type: "Vector3", readonly: false }, "server.player.write"),
   entry("server.RuntimePlayer.grounded", "property", "RuntimePlayer", "grounded", { type: "boolean", readonly: true }, "server.player"),
   entry("server.RuntimePlayer.health", "property", "RuntimePlayer", "health", { type: "number", readonly: true }, "server.player"),
+  entry("server.RuntimePlayer.fluidContacts", "property", "RuntimePlayer", "fluidContacts", { type: "GameFluidContact[]", readonly: true }, "server.player", "partial", ["server.GameEntity.fluidContacts"]),
+  entry("server.RuntimePlayer.onFluidEnter", "event", "RuntimePlayer", "onFluidEnter", handler("GameFluidContactEvent"), "server.world.events", "partial", ["server.GameEntity.onFluidEnter"]),
+  entry("server.RuntimePlayer.nextFluidEnter", "event", "RuntimePlayer", "nextFluidEnter", { parameters: [{ name: "filter", type: "(event: GameFluidContactEvent) => boolean", optional: true }], returns: "Promise<GameFluidContactEvent>" }, "server.world.events", "partial", ["server.GameEntity.nextFluidEnter"]),
+  entry("server.RuntimePlayer.onFluidLeave", "event", "RuntimePlayer", "onFluidLeave", handler("GameFluidContactEvent"), "server.world.events", "partial", ["server.GameEntity.onFluidLeave"]),
+  entry("server.RuntimePlayer.nextFluidLeave", "event", "RuntimePlayer", "nextFluidLeave", { parameters: [{ name: "filter", type: "(event: GameFluidContactEvent) => boolean", optional: true }], returns: "Promise<GameFluidContactEvent>" }, "server.world.events", "partial", ["server.GameEntity.nextFluidLeave"]),
+  entry("server.RuntimePlayer.onVoxelContact", "event", "RuntimePlayer", "onVoxelContact", handler("GameVoxelContactEvent"), "server.world.events", "partial", ["server.GameEntity.onVoxelContact"]),
+  entry("server.RuntimePlayer.nextVoxelContact", "event", "RuntimePlayer", "nextVoxelContact", { parameters: [{ name: "filter", type: "(event: GameVoxelContactEvent) => boolean", optional: true }], returns: "Promise<GameVoxelContactEvent>" }, "server.world.events", "partial", ["server.GameEntity.nextVoxelContact"]),
+  entry("server.RuntimePlayer.onVoxelSeparate", "event", "RuntimePlayer", "onVoxelSeparate", handler("GameVoxelContactEvent"), "server.world.events", "partial", ["server.GameEntity.onVoxelSeparate"]),
+  entry("server.RuntimePlayer.nextVoxelSeparate", "event", "RuntimePlayer", "nextVoxelSeparate", { parameters: [{ name: "filter", type: "(event: GameVoxelContactEvent) => boolean", optional: true }], returns: "Promise<GameVoxelContactEvent>" }, "server.world.events", "partial", ["server.GameEntity.nextVoxelSeparate"]),
   entry("server.RuntimePlayer.destroyed", "property", "RuntimePlayer", "destroyed", { type: "boolean", readonly: true }, "server.player", "partial"),
   entry("server.RuntimePlayer.enableDamage", "property", "RuntimePlayer", "enableDamage", { type: "boolean", readonly: false }, "server.player.write", "partial"),
   entry("server.RuntimePlayer.showHealthBar", "property", "RuntimePlayer", "showHealthBar", { type: "boolean", readonly: false }, "server.player.write", "partial"),
@@ -219,14 +326,16 @@ const entries = [
   entry("server.RuntimePlayer.enableCrouch", "property", "RuntimePlayer", "enableCrouch", { type: "boolean", readonly: false }, "server.player.write", "partial"),
   entry("server.RuntimePlayer.color", "property", "RuntimePlayer", "color", { type: "GameRGBColor", readonly: false }, "server.player.write", "partial", ["server.GamePlayer.color"]),
   entry("server.RuntimePlayer.spawnPoint", "property", "RuntimePlayer", "spawnPoint", { type: "GameVector3", readonly: false }, "server.player.write", "partial", ["server.GamePlayer.spawnPoint"]),
-  entry("server.RuntimePlayer.onRespawn", "event", "RuntimePlayer", "onRespawn", handler("{tick,entity,player}"), "server.world.events", "partial", ["server.GamePlayer.onRespawn"]),
-  entry("server.RuntimePlayer.nextRespawn", "event", "RuntimePlayer", "nextRespawn", { parameters: [{ name: "filter", type: "(event: {tick,entity,player}) => boolean", optional: true }], returns: "Promise<{tick,entity,player}>" }, "server.world.events", "partial", ["server.GamePlayer.nextRespawn"]),
-  entry("server.RuntimePlayer.onClick", "event", "RuntimePlayer", "onClick", handler("{tick,entity,clicker,button,distance,clickerPosition,raycast}"), "server.world.events", "partial", ["server.GameEntity.onClick"]),
+  entry("server.RuntimePlayer.onRespawn", "event", "RuntimePlayer", "onRespawn", handler("GameRespawnEvent"), "server.world.events", "partial", ["server.GamePlayer.onRespawn"]),
+  entry("server.RuntimePlayer.nextRespawn", "event", "RuntimePlayer", "nextRespawn", { parameters: [{ name: "filter", type: "(event: GameRespawnEvent) => boolean", optional: true }], returns: "Promise<GameRespawnEvent>" }, "server.world.events", "partial", ["server.GamePlayer.nextRespawn"]),
+  entry("server.RuntimePlayer.onClick", "event", "RuntimePlayer", "onClick", handler("GameClickEvent"), "server.world.events", "partial", ["server.GameEntity.onClick"]),
   entry("server.RuntimePlayer.nextClick", "event", "RuntimePlayer", "nextClick", { parameters: [{ name: "filter", type: "(event: GameClickEvent) => boolean", optional: true }], returns: "Promise<GameClickEvent>" }, "server.world.events", "partial", ["server.GameEntity.nextClick"]),
-  entry("server.RuntimePlayer.onPress", "event", "RuntimePlayer", "onPress", handler("{tick,entity,position,button,pressed,raycast}"), "server.world.events", "compatible", ["server.GamePlayer.onPress"]),
+  entry("server.RuntimePlayer.onPress", "event", "RuntimePlayer", "onPress", handler("GameInputEvent"), "server.world.events", "compatible", ["server.GamePlayer.onPress"]),
   entry("server.RuntimePlayer.nextPress", "event", "RuntimePlayer", "nextPress", { parameters: [{ name: "filter", type: "(event: GameInputEvent) => boolean", optional: true }], returns: "Promise<GameInputEvent>" }, "server.world.events", "compatible", ["server.GamePlayer.nextPress"]),
-  entry("server.RuntimePlayer.onRelease", "event", "RuntimePlayer", "onRelease", handler("{tick,entity,position,button,pressed,raycast}"), "server.world.events", "compatible", ["server.GamePlayer.onRelease"]),
+  entry("server.RuntimePlayer.onRelease", "event", "RuntimePlayer", "onRelease", handler("GameInputEvent"), "server.world.events", "compatible", ["server.GamePlayer.onRelease"]),
   entry("server.RuntimePlayer.nextRelease", "event", "RuntimePlayer", "nextRelease", { parameters: [{ name: "filter", type: "(event: GameInputEvent) => boolean", optional: true }], returns: "Promise<GameInputEvent>" }, "server.world.events", "compatible", ["server.GamePlayer.nextRelease"]),
+  entry("server.RuntimePlayer.onKeyDown", "event", "RuntimePlayer", "onKeyDown", handler("GameKeyBoardEvent"), "server.world.events", "partial", ["server.GamePlayerEntity.onKeyDown"]),
+  entry("server.RuntimePlayer.onKeyUp", "event", "RuntimePlayer", "onKeyUp", handler("GameKeyBoardEvent"), "server.world.events", "partial", ["server.GamePlayerEntity.onKeyUp"]),
   entry("server.RuntimePlayer.onTakeDamage", "event", "RuntimePlayer", "onTakeDamage", handler("GameDamageEvent"), "server.world.events", "partial"),
   entry("server.RuntimePlayer.nextTakeDamage", "event", "RuntimePlayer", "nextTakeDamage", { parameters: [{ name: "filter", type: "(event: GameDamageEvent) => boolean", optional: true }], returns: "Promise<GameDamageEvent>" }, "server.world.events", "partial"),
   entry("server.RuntimePlayer.onDie", "event", "RuntimePlayer", "onDie", handler("GameDieEvent"), "server.world.events", "partial"),
@@ -236,6 +345,8 @@ const entries = [
   entry("server.RuntimePlayer.hurt", "method", "RuntimePlayer", "hurt", { parameters: [{ name: "amount", type: "number" }, { name: "options", type: "Partial<GameHurtOptions> | string", optional: true }], returns: "void" }, "server.world.events", "partial"),
   entry("server.RuntimePlayer.damage", "method", "RuntimePlayer", "damage", { parameters: [{ name: "amount", "type": "number" }], returns: "number" }, "server.player.write"),
   entry("server.RuntimePlayer.sendMessage", "method", "RuntimePlayer", "sendMessage", { parameters: [{ name: "message", type: "unknown" }], returns: "void" }, "server.world.chat"),
+  entry("server.RuntimePlayer.dialog", "method", "RuntimePlayer", "dialog", { parameters: [{ name: "config", type: "Partial<GameDialogCall>" }], returns: "Promise<GameDialogResult>" }, "server.player", "partial", ["server.GamePlayerEntity.dialog"]),
+  entry("server.RuntimePlayer.cancelDialogs", "method", "RuntimePlayer", "cancelDialogs", { parameters: [], returns: "void" }, "server.player", "partial", ["server.GamePlayerEntity.cancelDialogs"]),
   entry("server.RuntimePlayer.snapshot", "method", "RuntimePlayer", "snapshot", { parameters: [], returns: "RuntimePlayerSnapshot" }, "server.player"),
   voxelEntry("server.global.voxels", "global", "global", "voxels", { type: "GameVoxels" }),
   voxelEntry("server.GameVoxels.getVoxelId", "method", "GameVoxels", "getVoxelId", {
@@ -267,7 +378,7 @@ const entries = [
   voxelEntry("server.GameVoxels.VoxelTypes", "property", "GameVoxels", "VoxelTypes", { type: "string[]", readonly: true }, 2),
   entry("server.remoteChannel.onClientEvent", "event", "remoteChannel", "onClientEvent", handler("{player,event}"), "server.remote-channel", "bridged"),
   entry("server.remoteChannel.nextClientEvent", "event", "remoteChannel", "nextClientEvent", { parameters: [], returns: "Promise<{player,event}>" }, "server.remote-channel", "bridged"),
-  entry("server.global.gui", "object", null, "gui", { type: "GameGUI" }, null, "partial"),
+  entry("server.global.gui", "object", null, "gui", { type: "GameGUI" }, "server.gui", "partial"),
   guiEntry("server.GameGUI.init", "method", "init", { parameters: [{ name: "entity", type: "GamePlayerEntity" }, { name: "config", type: "GUIConfig" }], returns: "Promise<void>" }),
   guiEntry("server.GameGUI.show", "method", "show", { parameters: [{ name: "entity", type: "GamePlayerEntity" }, { name: "name", type: "string" }, { name: "allowMultiple", type: "boolean", optional: true }], returns: "Promise<void>" }),
   guiEntry("server.GameGUI.remove", "method", "remove", { parameters: [{ name: "entity", type: "GamePlayerEntity" }, { name: "selector", type: "string" }], returns: "Promise<void>" }),
@@ -275,9 +386,24 @@ const entries = [
   guiEntry("server.GameGUI.setAttribute", "method", "setAttribute", { parameters: [{ name: "entity", type: "GamePlayerEntity" }, { name: "selector", type: "string" }, { name: "name", type: "string" }, { name: "value", type: "any" }], returns: "Promise<void>" }),
   guiEntry("server.GameGUI.onMessage", "event", "onMessage", handler("GameGUIEvent")),
   guiEntry("server.GameGUI.ui", "property", "ui", { type: "GameGUIElementFactory", readonly: true }),
-  entry("server.global.storage", "object", null, "storage", { type: "GameStorage" }, null, "partial"),
+  entry("server.global.storage", "object", null, "storage", { type: "GameStorage" }, "server.storage", "partial"),
+  entry("server.object.RuntimeGameStorage", "object", null, "RuntimeGameStorage", { methods: ["getDataStorage", "getGroupStorage"] }, "server.storage", "partial", ["server.object.GameStorage"]),
   storageEntry("server.GameStorage.getDataStorage", "getDataStorage"),
   storageEntry("server.GameStorage.getGroupStorage", "getGroupStorage"),
+  entry("server.object.RuntimeDataStorage", "object", null, "RuntimeDataStorage", { properties: ["key"], methods: ["set", "update", "get", "increment", "list", "remove", "destroy"] }, "server.storage", "partial"),
+  entry("server.RuntimeDataStorage.key", "property", "RuntimeDataStorage", "key", { type: "string", readonly: true }, "server.storage", "partial", ["server.GameDataStorage.key"]),
+  entry("server.RuntimeDataStorage.set", "method", "RuntimeDataStorage", "set", { parameters: [{ name: "key", type: "string" }, { name: "value", type: "JSONValue" }], returns: "Promise<void>" }, "server.storage", "partial", ["server.GameDataStorage.set"]),
+  entry("server.RuntimeDataStorage.update", "method", "RuntimeDataStorage", "update", { parameters: [{ name: "key", type: "string" }, { name: "handler", type: "(prevValue: ReturnValue) => JSONValue" }], returns: "Promise<void>" }, "server.storage", "partial", ["server.GameDataStorage.update"]),
+  entry("server.RuntimeDataStorage.get", "method", "RuntimeDataStorage", "get", { parameters: [{ name: "key", type: "string" }], returns: "Promise<ReturnValue>" }, "server.storage", "partial", ["server.GameDataStorage.get"]),
+  entry("server.RuntimeDataStorage.increment", "method", "RuntimeDataStorage", "increment", { parameters: [{ name: "key", type: "string" }, { name: "value", type: "number", optional: true }], returns: "Promise<number>" }, "server.storage", "partial", ["server.GameDataStorage.increment"]),
+  entry("server.RuntimeDataStorage.list", "method", "RuntimeDataStorage", "list", { parameters: [{ name: "options", type: "Partial<ListPageOptions>", optional: true }], returns: "Promise<RuntimeQueryList>" }, "server.storage", "partial", ["server.GameDataStorage.list"]),
+  entry("server.RuntimeDataStorage.remove", "method", "RuntimeDataStorage", "remove", { parameters: [{ name: "key", type: "string" }], returns: "Promise<ReturnValue>" }, "server.storage", "partial", ["server.GameDataStorage.remove"]),
+  entry("server.RuntimeDataStorage.destroy", "method", "RuntimeDataStorage", "destroy", { parameters: [], returns: "Promise<void>" }, "server.storage", "partial", ["server.GameDataStorage.destroy"]),
+  entry("server.object.RuntimeQueryList", "object", null, "RuntimeQueryList", { properties: ["isLastPage"], methods: ["getCurrentPage", "nextPage"] }, "server.storage", "partial"),
+  entry("server.RuntimeQueryList.isLastPage", "property", "RuntimeQueryList", "isLastPage", { type: "boolean", readonly: false }, "server.storage", "partial", ["server.QueryList.isLastPage"]),
+  entry("server.RuntimeQueryList.getCurrentPage", "method", "RuntimeQueryList", "getCurrentPage", { parameters: [], returns: "ReturnValue[]" }, "server.storage", "partial", ["server.QueryList.getCurrentPage"]),
+  entry("server.RuntimeQueryList.nextPage", "method", "RuntimeQueryList", "nextPage", { parameters: [], returns: "Promise<void>" }, "server.storage", "partial", ["server.QueryList.nextPage"]),
+  ...zoneEntries(),
   entry("server.remoteChannel.onServerEvent", "event", "remoteChannel", "onServerEvent", handler("{tick,entity,args}"), "server.remote-channel", "bridged"),
   entry("server.remoteChannel.sendClientEvent", "method", "remoteChannel", "sendClientEvent", {
     parameters: [{ name: "players", type: "RuntimePlayer | RuntimePlayer[]" }, { name: "event", type: "any" }],
@@ -296,39 +422,56 @@ const adapters = [
   adapter("server.world.onTakeDamage", "server.GameWorld.onTakeDamage", "partial", ["Script-produced GameEntity.hurt calls preserve enableDamage, healing, attacker, damageType, hp transitions, recovered GameDamageEvent fields, native replica.damage state, and game-net hurt effects; non-script engine damage ingress remains unverified."]),
   adapter("server.world.nextTakeDamage", "server.GameWorld.nextTakeDamage", "partial", ["The recovered optional filter, script-produced hurt events, and native client damage transport are implemented; non-script engine damage ingress remains unverified."]),
   adapter("server.world.onDie", "server.GameWorld.onDie", "partial", ["Script-produced hurt emits one GameDieEvent when hp crosses from positive to zero and queues the native game-net die effect; non-script engine death transitions remain unverified."]),
-  adapter("server.world.onChat", "server.GameWorld.onChat", "partial", ["Recovered event fields are emitted by the local bridge; native moderation, cancellation, and transport timing remain unverified."]),
+  adapter("server.world.onChat", "server.GameWorld.onChat", "partial", ["The recovered GameChatEvent fields are represented by the Runtime signal shell.", "No Player/browser-to-backend chat ingress is recovered, so Capability Manifest blocks projects that depend on this event; moderation, cancellation, and transport timing also remain unavailable."]),
+  adapter("server.world.nextChat", "server.GameWorld.nextChat", "partial", ["The recovered optional filter resolves the same typed signal payload.", "No Player/browser-to-backend chat ingress is recovered, so Capability Manifest blocks projects that depend on this event."]),
   adapter("server.world.onPress", "server.GameWorld.onPress", "compatible", []),
+  adapter("server.world.nextPress", "server.GameWorld.nextPress", "compatible", []),
   adapter("server.world.onClick", "server.GameWorld.onClick", "partial", ["The game-net bridge reconstructs the declared GameClickEvent fields, applies the recovered PlayerFlags mask, and dispatches the same event to world and the clicked entity in historical order.", "Non-player clicks require an authoritative backend entity binding; the latest capture still has two entities without sufficient model evidence for projection."]),
+  adapter("server.world.onInteract", "server.GameWorld.onInteract", "partial", ["The entity-interact bridge preserves the recovered {tick, entity, targetEntity} event shape and target-before-world dispatch order for Player messages that name a mapped authoritative entity.", "The local backend still marks replica.interactive unused, so Script Runtime enableInteract writes do not create browser prompts, radius checks, target selection, or interaction sounds."]),
+  adapter("server.world.nextInteract", "server.GameWorld.nextInteract", "partial", ["The optional filter and recovered event payload are supported for mapped authoritative targets.", "The browser interaction component projection remains unavailable locally."]),
   adapter("server.world.onRelease", "server.GameWorld.onRelease", "compatible", []),
-  adapter("server.world.onFluidEnter", "server.GameWorld.onFluidEnter", "partial", ["The event surface and local physics dispatch exist; native fluid metadata and exact transition timing remain unverified."]),
-  adapter("server.world.onFluidLeave", "server.GameWorld.onFluidLeave", "partial", ["The event surface and local physics dispatch exist; native fluid metadata and exact transition timing remain unverified."]),
-  adapter("server.world.onDie", "server.GameWorld.onDie", "partial", ["The event surface is dispatchable, but automatic native death-state production remains unverified."]),
+  adapter("server.world.nextRelease", "server.GameWorld.nextRelease", "compatible", []),
+  adapter("server.world.onFluidEnter", "server.GameWorld.onFluidEnter", "partial", ["BlockInfo fluid ids, per-tick body overlap transitions, recovered {tick,entity,voxel} fields, and world-before-entity dispatch are implemented.", "Native fluid solver timing, buoyancy, drag, and producer-side volume fraction remain unrecovered."]),
+  adapter("server.world.nextFluidEnter", "server.GameWorld.nextFluidEnter", "partial", ["The recovered optional filter resolves the same locally produced typed fluid-enter event.", "Native fluid solver timing, buoyancy, drag, and producer-side volume fraction remain unrecovered."]),
+  adapter("server.world.onFluidLeave", "server.GameWorld.onFluidLeave", "partial", ["BlockInfo fluid ids, per-tick body overlap transitions, recovered {tick,entity,voxel} fields, and world-before-entity dispatch are implemented.", "Native fluid solver timing, buoyancy, drag, and producer-side volume fraction remain unrecovered."]),
+  adapter("server.world.nextFluidLeave", "server.GameWorld.nextFluidLeave", "partial", ["The recovered optional filter resolves the same locally produced typed fluid-leave event.", "Native fluid solver timing, buoyancy, drag, and producer-side volume fraction remain unrecovered."]),
+  adapter("server.world.nextDie", "server.GameWorld.nextDie", "partial", ["The recovered optional filter resolves script-produced death events; automatic native death-state production remains unverified."]),
   adapter("server.world.onEntityContact", "server.GameWorld.onEntityContact", "partial", ["The event surface is dispatchable; full native GameEntityContactEvent production remains covered separately by the contact model."]),
-  adapter("server.world.onPlayerPurchaseSuccess", "server.GameWorld.onPlayerPurchaseSuccess", "partial", ["The event surface is dispatchable; the native purchase producer and full payload remain unverified."]),
-  adapter("server.world.onTick", "server.GameWorld.onTick", "partial", ["Local elapsedTimeMS uses the configured fixed interval instead of the historical wall-clock measurement.", "Historical skip calculation and delayed-tick behavior are not yet reproduced."]),
+  adapter("server.world.nextEntityContact", "server.GameWorld.nextEntityContact", "partial", ["The optional filter exists, but the local physics runtime has no bodyContact producer carrying two mapped entities."]),
+  adapter("server.world.onPlayerPurchaseSuccess", "server.GameWorld.onPlayerPurchaseSuccess", "partial", ["The recovered event fields are tick, userId, productId, and orderId.", "No browser-to-backend purchase-success producer or Server Runtime ingress is recovered locally, so Capability Manifest blocks projects that depend on this event."]),
+  adapter("server.world.nextPlayerPurchaseSuccess", "server.GameWorld.nextPlayerPurchaseSuccess", "partial", ["The optional filter resolves the typed signal payload if an event is supplied internally.", "No browser-to-backend purchase-success producer or Server Runtime ingress is recovered locally, so Capability Manifest blocks projects that depend on this event."]),
+  adapter("server.world.onTick", "server.GameWorld.onTick", "partial", ["The recovered Date.now wall-clock elapsedTimeMS formula and skip = tick - prevTick > 1 formula are implemented.", "The local scheduler advances one tick per callback and has no authoritative multi-tick frame input, so native delayed-frame catch-up behavior remains unavailable."]),
   adapter("server.world.onPlayerJoin", "server.GameWorld.onPlayerJoin", "partial", ["Event fields now match GameEntityEvent, but RuntimePlayer is still only a subset of GamePlayerEntity."]),
   adapter("server.world.onPlayerLeave", "server.GameWorld.onPlayerLeave", "partial", ["Event fields now match GameEntityEvent, but RuntimePlayer is still only a subset of GamePlayerEntity."]),
+  adapter("server.world.nextPlayerLeave", "server.GameWorld.nextPlayerLeave", "partial", ["The recovered optional filter resolves the same local GameEntityEvent; RuntimePlayer remains a subset of GamePlayerEntity."]),
   adapter("server.world.onVoxelContact", "server.GameWorld.onVoxelContact", "partial", ["The recovered impulse-derived GameVoxelContactEvent force is implemented; RuntimePlayer is still only a subset of GamePlayerEntity."]),
+  adapter("server.world.nextVoxelContact", "server.GameWorld.nextVoxelContact", "partial", ["The recovered optional filter resolves the same locally produced GameVoxelContactEvent; RuntimePlayer remains a subset and native rigid-body production is not claimed."]),
   adapter("server.world.onVoxelSeparate", "server.GameWorld.onVoxelSeparate", "partial", ["The recovered impulse-derived GameVoxelContactEvent force is implemented; RuntimePlayer is still only a subset of GamePlayerEntity."]),
-  adapter("server.world.onContact", "server.GameWorld.onEntityContact", "partial", ["Local collider abstraction is not a historical GameEntityContactEvent."]),
-  adapter("server.world.onContactSeparate", "server.GameWorld.onEntitySeparate", "partial", ["Local collider abstraction is not a historical GameEntityContactEvent."]),
+  adapter("server.world.nextVoxelSeparate", "server.GameWorld.nextVoxelSeparate", "partial", ["The recovered optional filter resolves the same locally produced GameVoxelContactEvent; RuntimePlayer remains a subset and native rigid-body production is not claimed."]),
   adapter("server.world.nextTick", "server.GameWorld.nextTick", "partial", ["The recovered optional filter and GameTickEvent resolution are implemented; elapsedTimeMS, skip, and delayed-tick timing retain the same gaps as world.onTick."]),
   adapter("server.world.nextPlayerJoin", "server.GameWorld.nextPlayerJoin", "partial", ["The recovered optional filter and GameEntityEvent fields are implemented; RuntimePlayer remains a subset of GamePlayerEntity."]),
-  adapter("server.world.say", "server.GameWorld.say", "partial", ["Local implementation records/logs messages but does not yet prove historical broadcast delivery and limits."]),
+  adapter("server.world.say", "server.GameWorld.say", "partial", ["Broadcast delivery now uses the recovered Player game-chat.log packet through connected MuDB sessions.", "The historical MAX_CHATS_PER_TICK buffering/flush policy and Player display acknowledgement remain unimplemented."]),
   adapter("server.world.createEntity", "server.GameWorld.createEntity", "partial", ["Creation remains synchronous and emits the recovered entity-create lifecycle event. Captured mesh bindings can create an authoritative browser/backend replica with documented transform and model/body fields; unknown meshes deliberately remain script-local rather than receiving a fabricated placeholder.", "Generic native gravity, collision response, and in-place Vector3 mutation replication are still unverified."]),
   adapter("server.world.onEntityCreate", "server.GameWorld.onEntityCreate", "partial", ["The recovered GameEntityEvent is emitted for local script-created entities; independent native engine creation is not bridged."]),
   adapter("server.world.nextEntityCreate", "server.GameWorld.nextEntityCreate", "partial", ["The recovered optional filter resolves local script-created entity events; independent native engine creation is not bridged."]),
   adapter("server.world.onEntityDestroy", "server.GameWorld.onEntityDestroy", "partial", ["The recovered GameEntityEvent is emitted for local script destruction; independent native engine destruction is not bridged."]),
   adapter("server.world.nextEntityDestroy", "server.GameWorld.nextEntityDestroy", "partial", ["The recovered optional filter resolves local script destruction events; independent native engine destruction is not bridged."]),
-  adapter("server.world.querySelector", "server.GameWorld.querySelector", "partial", ["Local selector grammar supports only id, tag and kind subsets."]),
-  adapter("server.world.querySelectorAll", "server.GameWorld.querySelectorAll", "partial", ["Local selector grammar supports only id, tag and kind subsets."]),
+  adapter("server.world.querySelector", "server.GameWorld.querySelector", "partial", ["Recovered ParsedSelector coercion, comma-union, universal/entity, player, id, tag, destroyed filtering, and first-match order are implemented.", "The historical testComponent implementation for component names other than player/entity was not recovered and remains unsupported."]),
+  adapter("server.world.querySelectorAll", "server.GameWorld.querySelectorAll", "partial", ["Recovered ParsedSelector coercion, comma-union, universal/entity, player, id, tag, destroyed filtering, entity order, and fresh mutable result arrays are implemented.", "The historical testComponent implementation for component names other than player/entity was not recovered and remains unsupported."]),
+  adapter("server.world.testSelector", "server.GameWorld.testSelector", "partial", ["The documented and historical (selector, entity) order plus recovered ParsedSelector semantics are implemented.", "Non-player/entity component names remain unsupported because testComponent was not recovered."]),
   adapter("server.world.raycast", "server.GameWorld.raycast", "partial", ["Voxel DDA, fluid filtering, selector filtering, player/entity AABBs, recovered result fields, the historical Infinity maxDistance default, and zero-direction preservation are implemented and exercised by conformance tests and the BedWars corpus.", "The recovered engine raycastBoxes implementation and body-orientation semantics are not available locally; entity intersections therefore remain an explicit AABB approximation. GameWorld.useOBB is a separate world-physics property, not a GameRaycastOptions field."]),
   adapter("server.world.addCollisionFilter", "server.GameWorld.addCollisionFilter", "partial", ["Filter registration/list lifecycle is implemented; the local physics solver does not yet consume selector pairs."]),
-  adapter("server.world.addZone", "server.GameWorld.addZone", "partial", ["Zone creation, polling, enter/leave events, and removal exist; selector grammar and environmental effects remain partial."]),
+  adapter("server.world.addZone", "server.GameWorld.addZone", "partial", ["Zone creation, recovered selector normalization and mutation refresh, collides=false exclusion, polling, enter/leave events, and removal are implemented.", "Non-player/entity component selector tests remain unavailable because historical testComponent was not recovered; native physics-selector force application and client environment projection remain unavailable."]),
+  adapter("server.world.removeZone", "server.GameWorld.removeZone", "partial", ["The local Runtime removes the zone and emits recovered leave events for active entities; native physics-selector cleanup and client environment teardown remain unavailable."]),
+  adapter("server.world.zones", "server.GameWorld.zones", "partial", ["The recovered callable zones() surface returns a snapshot of locally active RuntimeGameZone objects; native engine-owned list identity is not reproduced."]),
   adapter("server.world.gravity", "server.GameWorld.gravity", "partial", ["The recovered property is script-visible, but writes do not yet reconfigure the fixed-step physics engine."]),
   adapter("server.world.airFriction", "server.GameWorld.airFriction", "partial", ["The recovered property is script-visible, but writes do not yet reconfigure the fixed-step physics engine."]),
   adapter("server.world.fogColor", "server.GameWorld.fogColor", "partial", ["The recovered GameRGBColor property is script-visible; client rendering propagation remains unimplemented."]),
+  adapter("server.RuntimeEntity.say", "server.GameEntity.say", "partial", ["Mapped entities emit recovered game-chat.log sender, duration, and hideFloat fields.", "Unmapped entities remain script-local instead of receiving a fabricated Player id.", "Historical MAX_CHATS_PER_TICK buffering and Player display acknowledgement remain unimplemented."]),
   adapter("server.RuntimeEntity.onClick", "server.GameEntity.onClick", "partial", ["The declared GameClickEvent fields and world-to-target dispatch order are implemented when an authoritative entity binding exists."]),
+  adapter("server.RuntimeEntity.enableInteract", "server.GameEntity.enableInteract", "partial", ["The script-visible property is preserved on RuntimeEntity and captured createEntity specifications.", "The authoritative backend replica.interactive field is unused, so writes are not projected to the Player browser and cannot fabricate prompts or range behavior."]),
+  adapter("server.RuntimeEntity.onInteract", "server.GameEntity.onInteract", "partial", ["Mapped authoritative targets receive the same recovered GameInteractEvent object before the world listener.", "Unmapped and script-local targets cannot receive browser-originated interaction messages."]),
+  adapter("server.RuntimeEntity.nextInteract", "server.GameEntity.nextInteract", "partial", ["The optional filter is supported for mapped authoritative interaction targets.", "Interaction component projection remains unavailable."]),
   adapter("server.RuntimeEntity.nextClick", "server.GameEntity.nextClick", "partial", ["The recovered optional filter is implemented; resolution still depends on an authoritative entity binding."]),
   adapter("server.RuntimeEntity.destroy", "server.GameEntity.destroy", "partial", ["Local destruction removes mapped non-player entities and emits the recovered destroy lifecycle event; native engine-driven destruction remains unverified."]),
   adapter("server.RuntimeEntity.onDestroy", "server.GameEntity.onDestroy", "partial", ["The lifecycle event is emitted exactly once for local destruction; non-script engine destruction remains unverified."]),
@@ -376,6 +519,15 @@ const adapters = [
   adapter("server.GameGUI.ui", "server.GameGUI.ui", "compatible", []),
   adapter("server.GameStorage.getDataStorage", "server.GameStorage.getDataStorage", "partial", ["Local JSON persistence implements the recovered data-space operations; native cloud scope, quotas, consistency, and version semantics remain unverified."]),
   adapter("server.GameStorage.getGroupStorage", "server.GameStorage.getGroupStorage", "partial", ["The function surface exists, but default project runtimes disable cross-map group storage because no authoritative group identity/configuration is available."]),
+  adapter("server.object.RuntimeGameStorage", "server.object.GameStorage", "partial", ["The local root exposes recovered getDataStorage/getGroupStorage methods behind the server.storage capability.", "Cloud map/group identity and isolation remain unrecovered."]),
+  adapter("server.RuntimeDataStorage.key", "server.GameDataStorage.key", "partial", ["The immutable local namespace key is exposed exactly.", "Cloud namespace allocation remains unrecovered."]),
+  adapter("server.RuntimeDataStorage.set", "server.GameDataStorage.set", "partial", ["The declared JSONValue union is recursively enforced before dense arrays or plain string-keyed objects persist to the local project file; values that JSON would silently rewrite are rejected.", "DAO3 byte quotas, backend error codes, distributed durability and cross-process consistency remain unrecovered."]),
+  adapter("server.RuntimeDataStorage.update", "server.GameDataStorage.update", "partial", ["The previous ReturnValue, async handler, replacement validation and persistence are serialized through one local mutation queue, preventing same-process lost updates.", "The historical distributed ticket-based compare/update protocol, cross-process locking and retry behavior remain unavailable."]),
+  adapter("server.RuntimeDataStorage.get", "server.GameDataStorage.get", "partial", ["The local result preserves key, value, version, createTime and updateTime or undefined.", "Cloud consistency and backend scheduling semantics remain unrecovered."]),
+  adapter("server.RuntimeDataStorage.increment", "server.GameDataStorage.increment", "partial", ["Missing values start at zero, numeric increments default to one, nonnumeric stored values reject, and concurrent same-process increments are serialized without lost updates.", "The operation is not a distributed atomic increment and has no recovered cloud error mapping."]),
+  adapter("server.RuntimeDataStorage.list", "server.GameDataStorage.list", "partial", ["Cursor-as-page-index, pageSize capped at 100, up-to-five-level constraintTarget traversal, stored-value fallback warnings, numeric min/max filtering, same-type scalar ordering, QueryList paging and last-page state are implemented.", "Exact backend natural order, mixed-type ordering, cloud query snapshots and backend error semantics remain unrecovered."]),
+  adapter("server.RuntimeDataStorage.remove", "server.GameDataStorage.remove", "partial", ["The removed ReturnValue or undefined is returned and persisted locally.", "Cloud consistency and backend error semantics remain unrecovered."]),
+  adapter("server.RuntimeDataStorage.destroy", "server.GameDataStorage.destroy", "partial", ["The local namespace is deleted and resolves after file replacement.", "Cloud scope deletion, quotas and multi-runtime visibility remain unrecovered."]),
   adapter("server.remoteChannel.onServerEvent", "server.remoteChannel.onServerEvent", "compatible", []),
   adapter("server.remoteChannel.sendClientEvent", "server.remoteChannel.sendClientEvent", "compatible", ["RuntimePlayer remains a subset of historical GamePlayerEntity."]),
   adapter("server.remoteChannel.broadcastClientEvent", "server.remoteChannel.broadcastClientEvent", "compatible", ["RuntimePlayer remains a subset of historical GamePlayerEntity."]),
@@ -444,6 +596,381 @@ function entry(id, kind, owner, name, signature, capability, compatibility = "em
   };
 }
 
+function zoneEntries() {
+  const methods = [
+    ["entities", { parameters: [], returns: "GameEntity[]" }],
+    ["onEnter", handler("GameTriggerEvent")],
+    ["nextEnter", { parameters: [], returns: "Promise<GameTriggerEvent>" }],
+    ["onLeave", handler("GameTriggerEvent")],
+    ["nextLeave", { parameters: [], returns: "Promise<GameTriggerEvent>" }],
+    ["remove", { parameters: [], returns: "void" }],
+  ];
+  const values = [
+    entry("server.object.RuntimeGameZone", "object", null, "RuntimeGameZone", { properties: zonePropertyTypes.map(([name]) => name), methods: methods.map(([name]) => name) }, "server.world.events", "partial"),
+    ...methods.map(([name, signature]) => entry(`server.RuntimeGameZone.${name}`, name.startsWith("on") ? "event" : "method", "RuntimeGameZone", name, signature, "server.world.events", "partial", [`server.GameZone.${name}`])),
+    ...zonePropertyTypes.map(([name, type]) => entry(`server.RuntimeGameZone.${name}`, "property", "RuntimeGameZone", name, { type, readonly: false }, "server.world.events", "partial", [`server.GameZone.${name}`])),
+  ];
+  for (const value of values) {
+    value.evidence = [
+      { type: "local-source", path: relativeGameZonesPath, symbol: `RuntimeGameZone.${value.name}`, confidence: "direct" },
+      { type: "origin-source", path: "origin/origin/origin/api/GameZone.js", symbol: `GameZone.${value.name}`, confidence: "direct" },
+      { type: "origin-source", path: "origin/origin/origin/ScriptZoneWrapper.js", symbol: "ScriptZoneWrapper", confidence: "direct" },
+      { type: "docs", path: "dao3-docs-mirror/markdown/api/GameWorld/mapZone.md", symbol: `GameZone.${value.name}`, confidence: "direct" },
+      { type: "test", path: "runtime-compat/test/game-zone-conformance.test.mjs", symbol: "GameZone conformance", confidence: "direct" },
+    ];
+  }
+  return values;
+}
+
+function raycastResultEntries() {
+  const properties = [
+    ["hit", "boolean"],
+    ["hitEntity", "GameEntity | null"],
+    ["hitVoxel", "number"],
+    ["origin", "GameVector3"],
+    ["direction", "GameVector3"],
+    ["distance", "number"],
+    ["hitPosition", "GameVector3"],
+    ["normal", "GameVector3"],
+    ["voxelIndex", "GameVector3"],
+  ];
+  const values = [
+    entry("server.object.RuntimeRaycastResult", "object", null, "RuntimeRaycastResult", { properties: [...properties.map(([name]) => name), "voxel"] }, "server.world.entities", "partial"),
+    ...properties.map(([name, type]) => entry(`server.RuntimeRaycastResult.${name}`, "property", "RuntimeRaycastResult", name, { type, readonly: true }, "server.world.entities", "partial", [`server.GameRaycastResult.${name}`])),
+    entry("server.RuntimeRaycastResult.voxel", "property", "RuntimeRaycastResult", "voxel", { type: "number", readonly: true }, "server.world.entities", "emulated"),
+  ];
+  for (const value of values) {
+    value.notes = value.name === "voxel"
+      ? ["Local compatibility alias for hitVoxel; it is not claimed as a historical GameRaycastResult member."]
+      : ["The historical result field is present. Entity hits use local RuntimeEntity/RuntimePlayer objects and entity intersection remains an AABB approximation; vector fields use the local Vector3 compatibility type."];
+    value.evidence = [
+      { type: "local-source", path: relativeGameRaycastPath, symbol: `RuntimeRaycastResult.${value.name}`, confidence: "direct" },
+      { type: "origin-source", path: "origin/origin/origin/api/GameRaycastResult.js", symbol: `GameRaycastResult.${value.name}`, confidence: value.name === "voxel" ? "supporting" : "direct" },
+      { type: "docs", path: "dao3-docs-mirror/markdown/api/GameWorld/querySelectorEntity.md", symbol: "GameRaycastResult", confidence: "direct" },
+      { type: "test", path: "runtime-compat/test/raycast-result-conformance.test.mjs", symbol: "RaycastResult conformance", confidence: "direct" },
+    ];
+  }
+  return values;
+}
+
+function voxelContactEventEntries() {
+  const canonicalProperties = [
+    ["tick", "number"],
+    ["entity", "GameEntity"],
+    ["x", "number"],
+    ["y", "number"],
+    ["z", "number"],
+    ["voxel", "voxelId"],
+    ["axis", "GameVector3"],
+    ["force", "GameVector3"],
+  ];
+  const extensionProperties = [
+    ["player", "RuntimeEntity"],
+    ["collider", "Readonly<object>"],
+    ["normal", "Vector3"],
+    ["compatibility", "Readonly<object>"],
+  ];
+  const values = [
+    entry("server.object.RuntimeVoxelContactEvent", "object", null, "RuntimeVoxelContactEvent", { properties: [...canonicalProperties, ...extensionProperties].map(([name]) => name) }, "server.world.events", "partial"),
+    ...canonicalProperties.map(([name, type]) => entry(`server.RuntimeVoxelContactEvent.${name}`, "property", "RuntimeVoxelContactEvent", name, { type, readonly: true }, "server.world.events", "partial", [`server.GameVoxelContactEvent.${name}`])),
+    ...extensionProperties.map(([name, type]) => entry(`server.RuntimeVoxelContactEvent.${name}`, "property", "RuntimeVoxelContactEvent", name, { type, readonly: true }, "server.world.events", "emulated")),
+  ];
+  for (const value of values) {
+    const canonical = canonicalProperties.some(([name]) => name === value.name);
+    value.notes = canonical
+      ? ["The recovered event field and world-before-entity dispatch are implemented from the local fixed-step contact producer. RuntimeEntity/RuntimePlayer and local Vector3 values remain compatibility subsets of the historical engine objects."]
+      : ["Local contact diagnostic extension; it is not claimed as a historical GameVoxelContactEvent member."];
+    value.evidence = [
+      { type: "local-source", path: relativeSourcePath, symbol: `RuntimeVoxelContactEvent.${value.name}`, confidence: "direct" },
+      { type: "origin-source", path: "origin/origin/origin/shell/ScriptShell.js", symbol: "physicsEvents.voxelContact / voxelSeparate", confidence: "direct" },
+      { type: "declaration", path: "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts", symbol: `GameVoxelContactEvent.${value.name}`, confidence: canonical ? "direct" : "supporting" },
+      { type: "docs", path: "dao3-docs-mirror/markdown/api/GameWorld/input.md", symbol: "GameVoxelContactEvent", confidence: "direct" },
+      { type: "test", path: "runtime-compat/test/voxel-contact-event-conformance.test.mjs", symbol: "Voxel contact event conformance", confidence: "direct" },
+    ];
+  }
+  return values;
+}
+
+function fluidContactEventEntries() {
+  const properties = [["tick", "number"], ["entity", "GameEntity"], ["voxel", "voxelId"]];
+  const values = [
+    entry("server.object.RuntimeFluidContactEvent", "object", null, "RuntimeFluidContactEvent", { properties: properties.map(([name]) => name) }, "server.world.events", "partial"),
+    ...properties.map(([name, type]) => entry(`server.RuntimeFluidContactEvent.${name}`, "property", "RuntimeFluidContactEvent", name, { type, readonly: true }, "server.world.events", "partial", [`server.GameFluidContactEvent.${name}`])),
+  ];
+  for (const value of values) {
+    value.notes = ["The recovered event field and world-before-entity dispatch are implemented from local Player body fluid-overlap transitions. RuntimeEntity/RuntimePlayer remains a compatibility subset, and native fluid timing, buoyancy, drag, and exact overlap semantics remain unrecovered."];
+    value.evidence = [
+      { type: "local-source", path: relativeSourcePath, symbol: `RuntimeFluidContactEvent.${value.name}`, confidence: "direct" },
+      { type: "origin-source", path: "origin/origin/origin/shell/ScriptShell.js", symbol: "physicsEvents.fluidContact / fluidSeparate", confidence: "direct" },
+      { type: "declaration", path: "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts", symbol: `GameFluidContactEvent.${value.name}`, confidence: "direct" },
+      { type: "docs", path: "dao3-docs-mirror/markdown/api/GameWorld/input.md", symbol: "GameFluidContactEvent", confidence: "direct" },
+      { type: "test", path: "runtime-compat/test/fluid-contact-event-conformance.test.mjs", symbol: "Fluid contact event conformance", confidence: "direct" },
+    ];
+  }
+  return values;
+}
+
+function clickEventEntries() {
+  const properties = [
+    ["tick", "number"],
+    ["entity", "GameEntity"],
+    ["clicker", "GamePlayerEntity"],
+    ["button", "GameButtonType.ACTION0 | GameButtonType.ACTION1"],
+    ["distance", "number"],
+    ["clickerPosition", "GameVector3"],
+    ["raycast", "GameRaycastResult"],
+  ];
+  const values = [
+    entry("server.object.RuntimeClickEvent", "object", null, "RuntimeClickEvent", { properties: properties.map(([name]) => name) }, "server.world.events", "partial"),
+    ...properties.map(([name, type]) => entry(`server.RuntimeClickEvent.${name}`, "property", "RuntimeClickEvent", name, { type, readonly: true }, "server.world.events", "partial", [`server.GameClickEvent.${name}`])),
+  ];
+  for (const value of values) {
+    value.notes = ["The recovered click field, real game-net input ingress, RuntimeRaycastResult nesting, and world-before-target dispatch are implemented. RuntimeEntity/RuntimePlayer and local Vector3 remain compatibility subsets, and authoritative target resolution is limited to mapped backend entities."];
+    value.evidence = [
+      { type: "local-source", path: relativeSourcePath, symbol: `RuntimeClickEvent.${value.name}`, confidence: "direct" },
+      { type: "origin-source", path: "origin/origin/origin/shell/ScriptShell.js", symbol: "GameClickEvent input dispatch", confidence: "direct" },
+      { type: "declaration", path: "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts", symbol: `GameClickEvent.${value.name}`, confidence: "direct" },
+      { type: "docs", path: "dao3-docs-mirror/markdown/api/GameWorld/input.md", symbol: "GameClickEvent", confidence: "direct" },
+      { type: "test", path: "runtime-compat/test/click-event-conformance.test.mjs", symbol: "Click event conformance", confidence: "direct" },
+    ];
+  }
+  return values;
+}
+
+function inputEventEntries() {
+  const properties = [
+    ["tick", "number"],
+    ["entity", "GamePlayerEntity"],
+    ["position", "GameVector3"],
+    ["button", "GameButtonType"],
+    ["pressed", "boolean"],
+    ["raycast", "GameRaycastResult"],
+  ];
+  const values = [
+    entry("server.object.RuntimeInputEvent", "object", null, "RuntimeInputEvent", { properties: properties.map(([name]) => name) }, "server.world.events", "partial"),
+    ...properties.map(([name, type]) => entry(`server.RuntimeInputEvent.${name}`, "property", "RuntimeInputEvent", name, { type, readonly: true }, "server.world.events", "partial", [`server.GameInputEvent.${name}`])),
+  ];
+  for (const value of values) {
+    value.notes = ["The recovered input field, real game-net ingress, PlayerFlags mask, RuntimeRaycastResult nesting, and world-before-player dispatch are implemented. RuntimePlayer and local Vector3 remain compatibility subsets, and public input flags are not projected back to browser control generation."];
+    value.evidence = [
+      { type: "local-source", path: relativeSourcePath, symbol: `RuntimeInputEvent.${value.name}`, confidence: "direct" },
+      { type: "origin-source", path: "origin/origin/origin/shell/ScriptShell.js", symbol: "GameInputEvent press/release dispatch", confidence: "direct" },
+      { type: "declaration", path: "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts", symbol: `GameInputEvent.${value.name}`, confidence: "direct" },
+      { type: "docs", path: "dao3-docs-mirror/markdown/api/GameWorld/input.md", symbol: "GameInputEvent", confidence: "direct" },
+      { type: "test", path: "runtime-compat/test/input-event-conformance.test.mjs", symbol: "Input event conformance", confidence: "direct" },
+    ];
+  }
+  return values;
+}
+
+function entityEventEntries() {
+  const canonicalProperties = [["tick", "number"], ["entity", "GameEntity"]];
+  const values = [
+    entry("server.object.RuntimeEntityEvent", "object", null, "RuntimeEntityEvent", { properties: ["tick", "entity", "player"] }, "server.world.events", "partial"),
+    ...canonicalProperties.map(([name, type]) => entry(`server.RuntimeEntityEvent.${name}`, "property", "RuntimeEntityEvent", name, { type, readonly: true }, "server.world.events", "partial", [`server.GameEntityEvent.${name}`])),
+    entry("server.RuntimeEntityEvent.player", "property", "RuntimeEntityEvent", "player", { type: "RuntimeEntity | RuntimePlayer", readonly: true }, "server.world.events", "emulated"),
+  ];
+  for (const value of values) {
+    value.notes = value.name === "player"
+      ? ["Local compatibility alias of entity retained for existing project scripts; it is not claimed as a historical GameEntityEvent field."]
+      : ["The recovered lifecycle field is implemented for local player join/leave, script-created entity create/destroy, and entity destroy dispatch. Independent native engine lifecycle ingress remains partial."];
+    value.evidence = [
+      { type: "local-source", path: relativeSourcePath, symbol: `RuntimeEntityEvent.${value.name}`, confidence: "direct" },
+      { type: "origin-source", path: "origin/origin/origin/sync/ScriptWorldSync.js", symbol: "GameEntityEvent create/destroy lifecycle", confidence: "direct" },
+      { type: "declaration", path: "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts", symbol: `GameEntityEvent.${value.name}`, confidence: value.name === "player" ? "supporting" : "direct" },
+      { type: "docs", path: "dao3-docs-mirror/markdown/api/GameWorld/entity.md", symbol: "GameEntityEvent", confidence: "direct" },
+      { type: "test", path: "runtime-compat/test/entity-event-conformance.test.mjs", symbol: "Entity event conformance", confidence: "direct" },
+    ];
+  }
+  return values;
+}
+
+function damageEventEntries() {
+  const properties = [
+    ["tick", "number"],
+    ["entity", "GameEntity"],
+    ["damage", "number"],
+    ["attacker", "GameEntity | null"],
+    ["damageType", "string"],
+  ];
+  const values = [
+    entry("server.object.RuntimeDamageEvent", "object", null, "RuntimeDamageEvent", { properties: properties.map(([name]) => name) }, "server.world.events", "partial"),
+    ...properties.map(([name, type]) => entry(`server.RuntimeDamageEvent.${name}`, "property", "RuntimeDamageEvent", name, { type, readonly: true }, "server.world.events", "partial", [`server.GameDamageEvent.${name}`])),
+  ];
+  for (const value of values) {
+    value.notes = ["The recovered field and entity-before-world dispatch are implemented for script-produced hurt calls and projected damage state. Independent native DamageBinding ingress remains unverified."];
+    value.evidence = [
+      { type: "local-source", path: relativeSourcePath, symbol: `RuntimeDamageEvent.${value.name}`, confidence: "direct" },
+      { type: "origin-source", path: "origin/origin/origin/shell/ScriptShell.js", symbol: "GameDamageEvent hurt dispatch", confidence: "direct" },
+      { type: "declaration", path: "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts", symbol: `GameDamageEvent.${value.name}`, confidence: "direct" },
+      { type: "docs", path: "dao3-docs-mirror/markdown/api/GameWorld/fight.md", symbol: "GameDamageEvent", confidence: "direct" },
+      { type: "test", path: "runtime-compat/test/damage-event-conformance.test.mjs", symbol: "Damage event conformance", confidence: "direct" },
+    ];
+  }
+  return values;
+}
+
+function dieEventEntries() {
+  const properties = [
+    ["tick", "number"],
+    ["entity", "GameEntity"],
+    ["attacker", "GameEntity | null"],
+    ["damageType", "string"],
+  ];
+  const values = [
+    entry("server.object.RuntimeDieEvent", "object", null, "RuntimeDieEvent", { properties: properties.map(([name]) => name) }, "server.world.events", "partial"),
+    ...properties.map(([name, type]) => entry(`server.RuntimeDieEvent.${name}`, "property", "RuntimeDieEvent", name, { type, readonly: true }, "server.world.events", "partial", [`server.GameDieEvent.${name}`])),
+  ];
+  for (const value of values) {
+    value.notes = ["The recovered field and entity-before-world dispatch are implemented when script-produced hurt crosses hp from positive to zero. Independent native death-state production remains unverified."];
+    value.evidence = [
+      { type: "local-source", path: relativeSourcePath, symbol: `RuntimeDieEvent.${value.name}`, confidence: "direct" },
+      { type: "origin-source", path: "origin/origin/origin/shell/ScriptShell.js", symbol: "GameDieEvent death dispatch", confidence: "direct" },
+      { type: "declaration", path: "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts", symbol: `GameDieEvent.${value.name}`, confidence: "direct" },
+      { type: "docs", path: "dao3-docs-mirror/markdown/api/GameWorld/fight.md", symbol: "GameDieEvent", confidence: "direct" },
+      { type: "test", path: "runtime-compat/test/die-event-conformance.test.mjs", symbol: "Die event conformance", confidence: "direct" },
+    ];
+  }
+  return values;
+}
+
+function respawnEventEntries() {
+  const properties = [
+    ["tick", "number"],
+    ["entity", "GamePlayerEntity"],
+  ];
+  const values = [
+    entry("server.object.RuntimeRespawnEvent", "object", null, "RuntimeRespawnEvent", { properties: properties.map(([name]) => name) }, "server.world.events", "partial"),
+    ...properties.map(([name, type]) => entry(`server.RuntimeRespawnEvent.${name}`, "property", "RuntimeRespawnEvent", name, { type, readonly: true }, "server.world.events", "partial", [`server.GameRespawnEvent.${name}`])),
+  ];
+  for (const value of values) {
+    value.notes = ["The recovered two-field payload and player-before-world dispatch are implemented for local forceRespawn and projected respawn state. Automatic native respawn production remains unverified."];
+    value.evidence = [
+      { type: "local-source", path: relativeSourcePath, symbol: `RuntimeRespawnEvent.${value.name}`, confidence: "direct" },
+      { type: "origin-source", path: "origin/origin/origin/shell/ScriptShell.js", symbol: "respawnEvents GameRespawnEvent dispatch", confidence: "direct" },
+      { type: "declaration", path: "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts", symbol: `GameRespawnEvent.${value.name}`, confidence: "direct" },
+      { type: "docs", path: "dao3-docs-mirror/markdown/api/GameWorld/fight.md", symbol: "GameRespawnEvent", confidence: "direct" },
+      { type: "test", path: "runtime-compat/test/respawn-event-conformance.test.mjs", symbol: "Respawn event conformance", confidence: "direct" },
+    ];
+  }
+  return values;
+}
+
+function interactEventEntries() {
+  const properties = [
+    ["tick", "number"],
+    ["entity", "GamePlayerEntity"],
+    ["targetEntity", "GameEntity"],
+  ];
+  const values = [
+    entry("server.object.RuntimeInteractEvent", "object", null, "RuntimeInteractEvent", { properties: properties.map(([name]) => name) }, "server.world.events", "partial"),
+    ...properties.map(([name, type]) => entry(`server.RuntimeInteractEvent.${name}`, "property", "RuntimeInteractEvent", name, { type, readonly: true }, "server.world.events", "partial", [`server.GameInteractEvent.${name}`])),
+  ];
+  for (const value of values) {
+    value.notes = ["The recovered three-field payload and target-before-world dispatch are implemented for player.entity-interact messages naming a mapped authoritative target. Browser interaction component projection remains unavailable."];
+    value.evidence = [
+      { type: "local-source", path: relativeSourcePath, symbol: `RuntimeInteractEvent.${value.name}`, confidence: "direct" },
+      { type: "origin-source", path: "origin/origin/origin/shell/ScriptShell.js", symbol: "interactEvents GameInteractEvent dispatch", confidence: "direct" },
+      { type: "declaration", path: "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts", symbol: `GameInteractEvent.${value.name}`, confidence: "direct" },
+      { type: "transport", path: "runtime-compat/evidence/transport-contracts.json", symbol: "player.entity-interact", confidence: "direct" },
+      { type: "test", path: "runtime-compat/test/interact-event-conformance.test.mjs", symbol: "Interact event conformance", confidence: "direct" },
+    ];
+  }
+  return values;
+}
+
+function tickEventEntries() {
+  const canonicalProperties = [
+    ["tick", "number"],
+    ["prevTick", "number"],
+    ["skip", "boolean"],
+    ["elapsedTimeMS", "number"],
+  ];
+  const values = [
+    entry("server.object.RuntimeTickEvent", "object", null, "RuntimeTickEvent", { properties: [...canonicalProperties.map(([name]) => name), "deltaTime"] }, "server.world.events", "partial"),
+    ...canonicalProperties.map(([name, type]) => entry(`server.RuntimeTickEvent.${name}`, "property", "RuntimeTickEvent", name, { type, readonly: true }, "server.world.events", "partial", [`server.GameTickEvent.${name}`])),
+    entry("server.RuntimeTickEvent.deltaTime", "property", "RuntimeTickEvent", "deltaTime", { type: "number", readonly: true }, "server.world.events", "emulated"),
+  ];
+  for (const value of values) {
+    value.notes = value.name === "deltaTime"
+      ? ["Local seconds-based convenience extension derived as elapsedTimeMS / 1000; it is not claimed as a canonical GameTickEvent member."]
+      : ["The recovered field and wall-clock timing formula are implemented. The local scheduler has no authoritative multi-tick frame input, so delayed-frame catch-up and skip production remain partial."];
+    value.evidence = [
+      { type: "local-source", path: relativeSourcePath, symbol: `RuntimeTickEvent.${value.name}`, confidence: "direct" },
+      { type: "origin-source", path: "origin/origin/origin/shell/ScriptShell.js", symbol: "GameTickEvent tick dispatch", confidence: value.name === "deltaTime" ? "supporting" : "direct" },
+      { type: "declaration", path: "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts", symbol: `GameTickEvent.${value.name}`, confidence: value.name === "deltaTime" ? "supporting" : "direct" },
+      { type: "test", path: "runtime-compat/test/tick-event-conformance.test.mjs", symbol: "Tick event conformance", confidence: "direct" },
+    ];
+  }
+  return values;
+}
+
+function chatEventEntries() {
+  const properties = [
+    ["tick", "number"],
+    ["entity", "GameEntity"],
+    ["message", "string"],
+  ];
+  const values = [
+    entry("server.object.RuntimeChatEvent", "object", null, "RuntimeChatEvent", { properties: properties.map(([name]) => name) }, "server.world.chat", "partial"),
+    ...properties.map(([name, type]) => entry(`server.RuntimeChatEvent.${name}`, "property", "RuntimeChatEvent", name, { type, readonly: true }, "server.world.chat", "partial", [`server.GameChatEvent.${name}`])),
+  ];
+  for (const value of values) {
+    value.notes = ["The recovered three-field object shape is implemented without the former local player alias. No Player/browser-to-backend chat ingress reaches the Server Script Runtime, so subscriptions remain launch-blocked."];
+    value.evidence = [
+      { type: "local-source", path: relativeSourcePath, symbol: `RuntimeChatEvent.${value.name}`, confidence: "direct" },
+      { type: "origin-source", path: "origin/origin/origin/shell/ScriptShell.js", symbol: "chatEvents GameChatEvent dispatch", confidence: "direct" },
+      { type: "declaration", path: "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts", symbol: `GameChatEvent.${value.name}`, confidence: "direct" },
+      { type: "test", path: "runtime-compat/test/chat-event-conformance.test.mjs", symbol: "Chat event conformance", confidence: "direct" },
+    ];
+  }
+  return values;
+}
+
+function purchaseSuccessEventEntries() {
+  const properties = [
+    ["tick", "number"],
+    ["userId", "string"],
+    ["productId", "GameProductAssets"],
+    ["orderId", "number"],
+  ];
+  const values = [
+    entry("server.object.RuntimePurchaseSuccessEvent", "object", null, "RuntimePurchaseSuccessEvent", { properties: properties.map(([name]) => name) }, "server.world.events", "partial"),
+    ...properties.map(([name, type]) => entry(`server.RuntimePurchaseSuccessEvent.${name}`, "property", "RuntimePurchaseSuccessEvent", name, { type, readonly: true }, "server.world.events", "partial", [`server.GamePurchaseSuccessEvent.${name}`])),
+  ];
+  for (const value of values) {
+    value.notes = ["The recovered four-field object shape is implemented for ABI analysis only. No browser or backend purchase-success producer reaches the Server Script Runtime, so subscriptions remain launch-blocked."];
+    value.evidence = [
+      { type: "local-source", path: relativeSourcePath, symbol: `RuntimePurchaseSuccessEvent.${value.name}`, confidence: "direct" },
+      { type: "declaration", path: "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts", symbol: `GamePurchaseSuccessEvent.${value.name}`, confidence: "direct" },
+      { type: "transport", path: "local-player/reports/runtime-abi.md", symbol: "market-script", confidence: "direct" },
+      { type: "test", path: "runtime-compat/test/purchase-success-event-conformance.test.mjs", symbol: "Purchase success event conformance", confidence: "direct" },
+    ];
+  }
+  return values;
+}
+
+function keyBoardEventEntries() {
+  const properties = [
+    ["tick", "number"],
+    ["keyCode", "number"],
+  ];
+  const values = [
+    entry("server.object.RuntimeKeyBoardEvent", "object", null, "RuntimeKeyBoardEvent", { properties: properties.map(([name]) => name) }, "server.world.events", "partial"),
+    ...properties.map(([name, type]) => entry(`server.RuntimeKeyBoardEvent.${name}`, "property", "RuntimeKeyBoardEvent", name, { type, readonly: true }, "server.world.events", "partial", [`server.GameKeyBoardEvent.${name}`])),
+  ];
+  for (const value of values) {
+    value.notes = ["The recovered two-field object shape is implemented for ABI analysis. Current Player input packets expose buttonState transitions but no keyboard-state arrays, so onKeyDown/onKeyUp have no producer and are launch-blocked."];
+    value.evidence = [
+      { type: "local-source", path: relativeSourcePath, symbol: `RuntimeKeyBoardEvent.${value.name}`, confidence: "direct" },
+      { type: "origin-source", path: "origin/origin/origin/shell/ScriptShell.js", symbol: "keyboardEvents GameKeyBoardEvent dispatch", confidence: "direct" },
+      { type: "declaration", path: "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts", symbol: `GameKeyBoardEvent.${value.name}`, confidence: "direct" },
+      { type: "test", path: "runtime-compat/test/keyboard-event-conformance.test.mjs", symbol: "Keyboard event conformance", confidence: "direct" },
+    ];
+  }
+  return values;
+}
+
 function gameButtonTypeEntries() {
   const values = { WALK: "walk", RUN: "run", CROUCH: "crouch", JUMP: "jump", DOUBLE_JUMP: "jump2", FLY: "fly", ACTION0: "action0", ACTION1: "action1" };
   const evidence = [
@@ -465,7 +992,7 @@ function worldSizeEntry() {
   const value = entry("server.world.size", "property", "world", "size", {
     type: "Readonly<{x:number,y:number,z:number}>",
     readonly: true,
-  }, null, "emulated");
+  }, "server.world.voxels", "emulated");
   value.notes = ["Recovered-only native surface: real scripts read x/y/z as inclusive maximum voxel coordinates; no public DAO3 declaration or historical GameWorld class member was found."];
   value.evidence = [
     { type: "local-source", path: relativeSourcePath, symbol: "world.size", confidence: "direct" },
@@ -477,7 +1004,7 @@ function worldSizeEntry() {
 }
 
 function worldValueEntry(id, name, type) {
-  const value = entry(id, "property", "world", name, { type, readonly: false }, null, "partial", [`server.GameWorld.${name}`]);
+  const value = entry(id, "property", "world", name, { type, readonly: false }, "server.world.config", "partial", [`server.GameWorld.${name}`]);
   value.evidence = [
     { type: "local-source", path: relativeGameWorldPath, symbol: `GameWorld.${name}`, confidence: "direct" },
     { type: "origin-source", path: "origin/origin/origin/api/GameWorld.js", symbol: `GameWorld.${name}`, confidence: "direct" },
@@ -486,7 +1013,7 @@ function worldValueEntry(id, name, type) {
 }
 
 function guiEntry(id, kind, name, signature) {
-  const value = entry(id, kind, "GameGUI", name, signature, null, "compatible", [id]);
+  const value = entry(id, kind, "GameGUI", name, signature, "server.gui", "compatible", [id]);
   value.evidence = [
     { type: "local-source", path: relativeGameGuiPath, symbol: `GameGuiRuntime.${name}`, confidence: "direct" },
     { type: "declaration", path: "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts", symbol: `GameGUI.${name}`, confidence: "direct" },
@@ -500,7 +1027,7 @@ function guiEntry(id, kind, name, signature) {
 }
 
 function storageEntry(id, name) {
-  const value = entry(id, "method", "GameStorage", name, { parameters: [{ name: "key", type: "string" }], returns: "GameDataStorage" }, null, "partial", [id]);
+  const value = entry(id, "method", "GameStorage", name, { parameters: [{ name: "key", type: "string" }], returns: "GameDataStorage" }, "server.storage", "partial", [id]);
   value.evidence = [
     { type: "local-source", path: relativeGameStoragePath, symbol: `LocalGameStorage.${name}`, confidence: "direct" },
     { type: "origin-source", path: "origin/origin/origin/api/GameStorage.js", symbol: `GameStorage.${name}`, confidence: "direct" },
@@ -531,7 +1058,7 @@ function raycastEntry() {
 }
 
 function voxelEntry(id, kind, owner, name, signature, phase = 1) {
-  const value = entry(id, kind, owner, name, signature, null, "emulated");
+  const value = entry(id, kind, owner, name, signature, "server.world.voxels", "emulated");
   value.notes = ["Implemented from the preserved BlockInfo catalog and historical ScriptVoxelSync behavior; see the phase-specific evidence map."];
   value.evidence = [
     { type: "local-source", path: relativeGameVoxelsPath, symbol: `GameVoxelsRuntime.${name}`, confidence: "direct" },

@@ -1,48 +1,19 @@
-diff --git a/.workspace/backend-rebuild-audit/box3-server.input-baseline.cjs b/local-player/backend/box3-server.cjs
-index 29c44d4..1c6cf32 100644
---- a/.workspace/backend-rebuild-audit/box3-server.input-baseline.cjs
+--- a/local-player/backend/box3-server.cjs
 +++ b/local-player/backend/box3-server.cjs
-@@ -8214,7 +8214,10 @@ var import_node_http2 = require("node:http");
- var import_node_crypto = require("node:crypto");
- var import_promises = require("node:fs/promises");
- var import_node_path = require("node:path");
+@@ -8217 +8217,4 @@ var import_node_path = require("node:path");
 -var safeModuleName = /^[A-Za-z0-9._-]+\.js$/;
 +function isSafeModuleName(name) {
 +  return name.length > 3 && name.endsWith(".js") && !name.includes("/") && !name.includes("\\") && !name.includes("\0") && name !== ".js" && name !== "..js";
 +}
 +var { loadClientUiState } = require("./client-ui-state.cjs");
- var sha256Pattern = /^[0-9a-f]{64}$/;
- async function loadClientScriptModules(assetRoot, manifestName = "project/bedwars/client-scripts/manifest.json") {
-   const root = (0, import_node_path.resolve)(assetRoot);
-@@ -8239,7 +8242,7 @@ function validateManifest(value) {
-   }
-   const names = /* @__PURE__ */ new Set();
-   for (const entry of value.files) {
+@@ -8242 +8245 @@ function validateManifest(value) {
 -    if (!isRecord(entry) || typeof entry.name !== "string" || !safeModuleName.test(entry.name) || !Number.isInteger(entry.bytes) || entry.bytes < 0 || typeof entry.sha256 !== "string" || !sha256Pattern.test(entry.sha256) || names.has(entry.name)) {
 +    if (!isRecord(entry) || typeof entry.name !== "string" || !isSafeModuleName(entry.name) || !Number.isInteger(entry.bytes) || entry.bytes < 0 || typeof entry.sha256 !== "string" || !sha256Pattern.test(entry.sha256) || names.has(entry.name)) {
-       throw new Error("Invalid client script manifest entry");
-     }
-     names.add(entry.name);
-@@ -8317,6 +8320,7 @@ var FileClientRuntime = class _FileClientRuntime {
-     this.assetCount = manifest.files.length;
-     this.pagePath = manifest.pagePath;
-     this.gameName = manifest.gameName;
+@@ -8319,0 +8323 @@ var FileClientRuntime = class _FileClientRuntime {
 +    this.displayName = "Local BedWars";
-     this.contentId = manifest.contentId;
-     this.entries = new Map(manifest.files.map((entry) => [entry.path, entry]));
-   }
-@@ -8325,6 +8329,7 @@ var FileClientRuntime = class _FileClientRuntime {
-   assetCount;
-   pagePath;
-   gameName;
+@@ -8327,0 +8332 @@ var FileClientRuntime = class _FileClientRuntime {
 +  displayName;
-   contentId;
-   entries;
-   static async load(assetRoot, manifestName = CLIENT_RUNTIME_MANIFEST_NAME) {
-@@ -8361,17 +8366,26 @@ var FileClientRuntime = class _FileClientRuntime {
-   matchesPagePath(path) {
-     return path === this.pagePath || path === `/p/${this.gameName}`;
-   }
+@@ -8363,0 +8369,9 @@ var FileClientRuntime = class _FileClientRuntime {
 +  matchesLauncherPath(path) {
 +    return path === `/play/${this.gameName}`;
 +  }
@@ -52,67 +23,31 @@ index 29c44d4..1c6cf32 100644
 +    this.displayName = displayName;
 +    return this;
 +  }
-   getMapInfo(origin) {
-     const localOrigin = normalizeOrigin(origin);
-     return {
-       contentId: this.manifest.contentId,
+@@ -8368 +8382 @@ var FileClientRuntime = class _FileClientRuntime {
 -      name: "Local BedWars",
 +      name: this.displayName,
-       backgroundImage: `${localOrigin}/block/${localBackgroundHash}`
-     };
-   }
-   renderLauncher() {
+@@ -8373,2 +8387,2 @@ var FileClientRuntime = class _FileClientRuntime {
 -    const source = `${this.manifest.pagePath}?contentId=${encodeURIComponent(this.manifest.contentId)}`;
 -    return `<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Local BedWars</title><style>html,body,#GameIframe{width:100%;height:100%;margin:0;border:0;display:block;overflow:hidden;background:#000}</style></head><body>${renderLauncherBridge()}<iframe id="GameIframe" data-local-bridge="waiting" title="Local BedWars" src="${source}" allow="autoplay; clipboard-read; clipboard-write; fullscreen; gamepad; pointer-lock" allowfullscreen></iframe></body></html>`;
 +    const source = `/p/${this.gameName}?contentId=${encodeURIComponent(this.manifest.contentId)}`;
 +    return `<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${this.displayName}</title><style>html,body,#GameIframe{width:100%;height:100%;margin:0;border:0;display:block;overflow:hidden;background:#000}</style></head><body>${renderLauncherBridge()}<iframe id="GameIframe" data-local-bridge="waiting" title="${this.displayName}" src="${source}" allow="autoplay; clipboard-read; clipboard-write; fullscreen; gamepad; pointer-lock" allowfullscreen></iframe></body></html>`;
-   }
-   renderShell(origin) {
-     const localOrigin = normalizeOrigin(origin);
-@@ -8381,7 +8395,7 @@ var FileClientRuntime = class _FileClientRuntime {
-       page: "/p/[gameName]",
-       query: {
-         contentId: this.manifest.contentId,
+@@ -8384 +8398 @@ var FileClientRuntime = class _FileClientRuntime {
 -        gameName: this.manifest.gameName
 +        gameName: this.gameName
-       },
-       props: {
-         pageProps: {
-@@ -8400,7 +8414,7 @@ var FileClientRuntime = class _FileClientRuntime {
-     };
-     const styles = this.manifest.initialStyles.map((path) => `<link rel="stylesheet" href="${path}">`).join("");
-     const scripts = this.manifest.initialScripts.map((path) => `<script defer src="${path}"></script>`).join("");
+@@ -8403 +8417 @@ var FileClientRuntime = class _FileClientRuntime {
 -    return `<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="next-head-count" content="0"><title>Local BedWars</title>${styles}<script>window.CLIENT_CONFIG=${jsonForScript(clientConfig)};</script></head><body><div id="__next"></div><div id="react-container"></div><script id="__NEXT_DATA__" type="application/json">${jsonForScript(nextData)}</script>${scripts}</body></html>`;
 +    return `<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="next-head-count" content="0"><title>${this.displayName}</title>${styles}<script>window.CLIENT_CONFIG=${jsonForScript(clientConfig)};</script></head><body><div id="__next"></div><div id="react-container"></div><script id="__NEXT_DATA__" type="application/json">${jsonForScript(nextData)}</script>${scripts}</body></html>`;
-   }
- };
- var EmptyClientRuntime = class {
-@@ -8411,6 +8425,12 @@ var EmptyClientRuntime = class {
-   matchesPagePath() {
-     return false;
-   }
+@@ -8413,0 +8428,6 @@ var EmptyClientRuntime = class {
 +  matchesLauncherPath() {
 +    return false;
 +  }
 +  bindProjectIdentity() {
 +    return this;
 +  }
-   getMapInfo() {
-     return void 0;
-   }
-@@ -8634,7 +8654,7 @@ async function loadProjectBootstrap(assetRoot, manifestName = "project/bedwars/b
- }
- function validateProjectBootstrap(value) {
-   const data = asRecord(value, "bootstrap data");
+@@ -8637 +8657 @@ function validateProjectBootstrap(value) {
 -  if (data.format !== PROJECT_BOOTSTRAP_FORMAT || data.version !== PROJECT_BOOTSTRAP_VERSION || !sameStrings(data.sourceMessages, PROJECT_BOOTSTRAP_SOURCE_MESSAGES) || !Array.isArray(data.meshHashes) || data.meshHashes.length !== 117 || !Array.isArray(data.skinHashes) || data.skinHashes.length !== 1 || !Array.isArray(data.skinPartHashBatches) || data.skinPartHashBatches.length !== 2 || !Array.isArray(data.soundDictionary) || data.soundDictionary.length !== 45 || data.soundDictionary[0] !== "") throw new Error("Unsupported project bootstrap data");
 +  if (data.format !== PROJECT_BOOTSTRAP_FORMAT || data.version !== PROJECT_BOOTSTRAP_VERSION || !sameStrings(data.sourceMessages, PROJECT_BOOTSTRAP_SOURCE_MESSAGES) || !Array.isArray(data.meshHashes) || data.meshHashes.length < 117 || !Array.isArray(data.skinHashes) || data.skinHashes.length !== 1 || !Array.isArray(data.skinPartHashBatches) || data.skinPartHashBatches.length !== 2 || !Array.isArray(data.soundDictionary) || data.soundDictionary.length !== 45 || data.soundDictionary[0] !== "") throw new Error("Unsupported project bootstrap data");
-   const usedPartIds = /* @__PURE__ */ new Set();
-   return freezeBootstrap({
-     meshHashes: data.meshHashes.map((entry, index) => validateMesh(entry, index)),
-@@ -9295,6 +9315,18 @@ async function handleRequest(request, response, dependencies) {
-       return;
-     }
-   }
+@@ -9297,0 +9318,12 @@ async function handleRequest(request, response, dependencies) {
 +  if ((request.method === "GET" || request.method === "HEAD") && dependencies.clientRuntime.matchesLauncherPath(url.pathname)) {
 +    const launcher = dependencies.clientRuntime.renderLauncher();
 +    if (launcher) {
@@ -125,13 +60,7 @@ index 29c44d4..1c6cf32 100644
 +      return;
 +    }
 +  }
-   if (request.method === "GET" && url.pathname === "/") {
-     const launcher = dependencies.clientRuntime.renderLauncher();
-     if (launcher) {
-@@ -10192,16 +10224,37 @@ function createProjectPackagePlayerProjection(project, bootstrap, descriptorValu
-   }
-   const frozenEntries = Object.freeze(entries.sort((left, right) => left.entityIndex - right.entityIndex));
-   const frozenDiagnostics = Object.freeze(diagnostics);
+@@ -10195,4 +10227,22 @@ function createProjectPackagePlayerProjection(project, bootstrap, descriptorValu
 -  const bindings = Object.freeze(descriptor.entities.map((mapping) => Object.freeze({
 -    bootstrapMeshIndex: mapping.mesh.bootstrapMeshIndex,
 -    bootstrapMeshHash: mapping.mesh.bootstrapMeshHash
@@ -158,38 +87,18 @@ index 29c44d4..1c6cf32 100644
 +      bootstrapMeshHash: mesh.bootstrapMeshHash
 +    }))
 +  ]);
-   const projection = Object.freeze({
-     packageId: project.manifest.packageId,
-     packageRootDirectory: project.rootDirectory,
-     descriptor,
-     entries: frozenEntries,
-     diagnostics: frozenDiagnostics,
+@@ -10204,0 +10255,3 @@ function createProjectPackagePlayerProjection(project, bootstrap, descriptorValu
 +    resolveRuntimeMesh(name) {
 +      return typeof name === "string" ? runtimeMeshes.get(name) : void 0;
 +    },
-     matchesBootstrap(candidate) {
-       return Boolean(candidate) && Array.isArray(candidate.meshHashes) && bindings.every((binding) => candidate.meshHashes[binding.bootstrapMeshIndex]?.hash === binding.bootstrapMeshHash);
-     }
-@@ -10275,7 +10328,7 @@ function requireProjectionDescriptorPath(descriptorFile) {
- }
- function parseDescriptor(value) {
-   const record = requireRecord(value, "Local Player projection descriptor");
+@@ -10278 +10331 @@ function parseDescriptor(value) {
 -  requireExactKeys(record, ["format", "version", "packageId", "entities"], "Local Player projection descriptor");
 +  requireAllowedKeys(record, ["format", "version", "packageId", "entities", "meshes"], ["format", "version", "packageId", "entities"], "Local Player projection descriptor");
-   if (record.format !== PROJECT_PACKAGE_PLAYER_PROJECTION_FORMAT) {
-     throw new Error("Unsupported local Player projection descriptor format");
-   }
-@@ -10286,11 +10339,24 @@ function parseDescriptor(value) {
-   if (!Array.isArray(record.entities) || record.entities.length > maxMappings) {
-     throw new Error("Local Player projection entities must be an array of at most 4096 mappings");
-   }
+@@ -10288,0 +10342,3 @@ function parseDescriptor(value) {
 +  if (record.meshes !== void 0 && (!Array.isArray(record.meshes) || record.meshes.length > maxMappings)) {
 +    throw new Error("Local Player projection meshes must be an array of at most 4096 mappings");
 +  }
-   return Object.freeze({
-     format: PROJECT_PACKAGE_PLAYER_PROJECTION_FORMAT,
-     version: PROJECT_PACKAGE_PLAYER_PROJECTION_VERSION,
-     packageId,
+@@ -10293 +10349,11 @@ function parseDescriptor(value) {
 -    entities: Object.freeze(record.entities.map((entry, index) => parseMapping(entry, index)))
 +    entities: Object.freeze(record.entities.map((entry, index) => parseMapping(entry, index))),
 +    meshes: Object.freeze((record.meshes ?? []).map((entry, index) => parseRuntimeMesh(entry, index)))
@@ -202,88 +111,68 @@ index 29c44d4..1c6cf32 100644
 +    name: requireText(record.name, "Local Player runtime mesh name"),
 +    bounds: requirePositiveVector(record.bounds, "Local Player runtime mesh bounds"),
 +    ...parseMeshBinding(record, index)
-   });
- }
- function parseMapping(value, index) {
-@@ -10369,7 +10435,7 @@ function parseModel(value, index) {
-   return Object.freeze({
-     ...record.invisible === void 0 ? {} : { invisible: requireBoolean(record.invisible, "Local Player projection model invisible") },
-     ...record.color === void 0 ? {} : { color: requireRgba(record.color, "Local Player projection model color") },
+@@ -10372 +10438 @@ function parseModel(value, index) {
 -    ...record.scale === void 0 ? {} : { scale: requirePositiveVector(record.scale, "Local Player projection model scale") },
 +    ...record.scale === void 0 ? {} : { scale: requireVector(record.scale, "Local Player projection model scale") },
-     ...record.offset === void 0 ? {} : { offset: requireVector(record.offset, "Local Player projection model offset") },
-     ...record.emissive === void 0 ? {} : { emissive: requireFinite(record.emissive, 0, 1, "Local Player projection model emissive") },
-     ...record.shininess === void 0 ? {} : { shininess: requireFinite(record.shininess, 0, 1, "Local Player projection model shininess") },
-@@ -10527,6 +10593,8 @@ function snapshotRuntimePlayer(player) {
-     playerId: player.playerId,
-     position: copyRuntimeVector(player.position),
-     velocity: copyRuntimeVector(player.velocity),
+@@ -10529,0 +10596,2 @@ function snapshotRuntimePlayer(player) {
 +    bodyHalfExtents: copyRuntimeVector(player.bodyHalfExtents),
 +    bodyShapeHalfExtents: copyRuntimeVector(player.bodyShapeHalfExtents ?? player.bodyHalfExtents),
-     inputState: player.inputState,
-     inputAngle: player.inputAngle,
-     inputPitch: player.inputPitch,
-@@ -10713,7 +10781,7 @@ function validateReplica(replica) {
-   }
-   requireOptionalBoolean(model.invisible, "runtime entity model invisible");
-   if (model.color !== void 0) requireRgba2(model.color, "runtime entity model color");
+@@ -10636,8 +10705,17 @@ var EntityRegistry = class {
+-    if (transform.orientation) {
++    const body = {
++      ...transform.orientation === void 0 ? {} : { orientation: transform.orientation },
++      ...transform.collides === void 0 ? {} : { collides: transform.collides },
++      ...transform.fixed === void 0 ? {} : { fixed: transform.fixed },
++      ...transform.gravity === void 0 ? {} : { gravity: transform.gravity },
++      ...transform.mass === void 0 ? {} : { mass: transform.mass },
++      ...transform.friction === void 0 ? {} : { friction: transform.friction },
++      ...transform.restitution === void 0 ? {} : { restitution: transform.restitution }
++    };
++    if (Object.keys(body).length > 0) {
+       if (!entity.replica) throw new Error("Runtime entity has no render replica");
+       entity.replica = snapshotRuntimeEntityReplica({
+-        body: { ...entity.replica.body, orientation: transform.orientation },
++        body: { ...entity.replica.body, ...body },
+         model: entity.replica.model,
+         ...entity.replica.nameplate === void 0 ? {} : { nameplate: entity.replica.nameplate }
+       });
+     }
+@@ -10695,0 +10773,6 @@ function validateTransform(transform) {
++  requireOptionalBoolean(transform.collides, "runtime entity body collides");
++  requireOptionalBoolean(transform.fixed, "runtime entity body fixed");
++  requireOptionalBoolean(transform.gravity, "runtime entity body gravity");
++  requireOptionalFinite(transform.mass, "runtime entity body mass", 0, 1e6);
++  requireOptionalFinite(transform.friction, "runtime entity body friction", 0, 1e6);
++  requireOptionalFinite(transform.restitution, "runtime entity body restitution", 0, 1e6);
+@@ -10716 +10784 @@ function validateReplica(replica) {
 -  if (model.scale !== void 0) requirePositiveVector2(model.scale, "runtime entity model scale");
 +  if (model.scale !== void 0) requireVector2(model.scale, "runtime entity model scale");
-   if (model.offset !== void 0) requireVector2(model.offset, "runtime entity model offset");
-   requireOptionalFinite(model.emissive, "runtime entity model emissive", 0, 1);
-   requireOptionalFinite(model.shininess, "runtime entity model shininess", 0, 1);
-@@ -10809,7 +10877,7 @@ var PlayerRegistry = class {
-     validateRegistration(registration);
-     const existing = this.playersBySession.get(registration.sessionId);
-     if (existing) {
+@@ -10812 +10880 @@ var PlayerRegistry = class {
 -      if (existing.playerId !== registration.playerId || !sameVector(existing.spawn, registration.spawn)) {
 +      if (existing.playerId !== registration.playerId || !sameVector(existing.spawn, registration.spawn) || !sameVector(existing.bodyHalfExtents, registration.bodyHalfExtents) || !sameVector(existing.bodyShapeHalfExtents, registration.bodyShapeHalfExtents ?? registration.bodyHalfExtents)) {
-         throw new Error("Authoritative player registration changed");
-       }
-       return snapshotPlayer(existing);
-@@ -10824,6 +10892,8 @@ var PlayerRegistry = class {
-       spawn,
-       position: spawn,
-       velocity: copyRuntimeVector([0, 0, 0]),
+@@ -10826,0 +10895,2 @@ var PlayerRegistry = class {
 +      bodyHalfExtents: copyRuntimeVector(registration.bodyHalfExtents),
 +      bodyShapeHalfExtents: copyRuntimeVector(registration.bodyShapeHalfExtents ?? registration.bodyHalfExtents),
-       inputState: defaultRuntimePlayerInputState,
-       inputAngle: 0,
-       inputPitch: 0,
-@@ -10894,6 +10964,8 @@ function snapshotPlayer(player) {
-     playerId: player.playerId,
-     position: player.position,
-     velocity: player.velocity,
+@@ -10896,0 +10967,2 @@ function snapshotPlayer(player) {
 +    bodyHalfExtents: player.bodyHalfExtents,
 +    bodyShapeHalfExtents: player.bodyShapeHalfExtents,
-     inputState: player.inputState,
-     inputAngle: player.inputAngle,
-     inputPitch: player.inputPitch,
-@@ -10908,6 +10980,9 @@ function validateRegistration(registration) {
-   if (registration.spawn.length !== 3 || registration.spawn.some((coordinate) => !Number.isFinite(coordinate))) {
-     throw new RangeError("spawn must contain three finite coordinates");
-   }
+@@ -10910,0 +10983,3 @@ function validateRegistration(registration) {
 +  normalizePositiveVector(registration.bodyHalfExtents, "player body half extents");
 +  const shapeHalfExtents = normalizePositiveVector(registration.bodyShapeHalfExtents ?? registration.bodyHalfExtents, "player body shape half extents");
 +  if (shapeHalfExtents.some((component, index) => component > registration.bodyHalfExtents[index])) throw new RangeError("player body shape half extents must fit inside bounds");
- }
- function sameVector(left, right) {
-   return left[0] === right[0] && left[1] === right[1] && left[2] === right[2];
-@@ -11254,7 +11329,9 @@ var quickInventorySize = 9;
- var maximumStackSize = 64;
- var RemoteChannelSessions = class {
-   sessions = /* @__PURE__ */ new Map();
+@@ -11257 +11332,3 @@ var RemoteChannelSessions = class {
 -  get size() { return this.sessions.size; }
 +  get size() {
 +    return this.sessions.size;
 +  }
-   connect(client) {
-     requireSessionId3(client.sessionId);
-     const session = this.getOrCreate(client.sessionId);
-@@ -11278,7 +11355,12 @@ var RemoteChannelSessions = class {
-     const session = this.sessions.get(client.sessionId);
-     if (!session || session.client !== client) return false;
-     if (!value || !Number.isSafeInteger(value.tick) || value.tick < 0 || typeof value.args !== "string") return false;
+@@ -11264,5 +11341 @@ var RemoteChannelSessions = class {
+-    const session = [...this.sessions.values()].find((candidate) => {
+-      if (candidate.sessionId === sessionLabel) return true;
+-      if (candidate.sessionId.length <= 12) return candidate.sessionId === sessionLabel;
+-      return candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === sessionLabel;
+-    });
++    const session = [...this.sessions.values()].find((candidate) => matchesSessionLabel(candidate.sessionId, sessionLabel));
+@@ -11281 +11354,6 @@ var RemoteChannelSessions = class {
 -    try { JSON.parse(value.args); return true; } catch { return false; }
 +    try {
 +      JSON.parse(value.args);
@@ -291,13 +180,7 @@ index 29c44d4..1c6cf32 100644
 +    } catch {
 +      return false;
 +    }
-   }
-   disconnect(client) {
-     const session = this.sessions.get(client.sessionId);
-@@ -11286,8 +11368,12 @@ var RemoteChannelSessions = class {
-     session.client = void 0;
-     return true;
-   }
+@@ -11289,2 +11367,6 @@ var RemoteChannelSessions = class {
 -  delete(sessionId) { return this.sessions.delete(sessionId); }
 -  dispose() { this.sessions.clear(); }
 +  delete(sessionId) {
@@ -306,79 +189,40 @@ index 29c44d4..1c6cf32 100644
 +  dispose() {
 +    this.sessions.clear();
 +  }
-   getOrCreate(sessionId) {
-     const existing = this.sessions.get(sessionId);
-     if (existing) return existing;
-@@ -11682,7 +11768,7 @@ var DialogSessions = class {
-     return this.sessions.size;
-   }
-   hasActiveClient(sessionId) {
+@@ -11341,5 +11423 @@ var BedwarsRemoteSessions = class {
+-    const session = [...this.sessions.values()].find((candidate) => {
+-      if (candidate.sessionId === sessionLabel) return true;
+-      if (candidate.sessionId.length <= 12) return candidate.sessionId === sessionLabel;
+-      return candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === sessionLabel;
+-    });
++    const session = [...this.sessions.values()].find((candidate) => matchesSessionLabel(candidate.sessionId, sessionLabel));
+@@ -11685 +11763 @@ var DialogSessions = class {
 -    return this.sessions.get(sessionId)?.client !== void 0;
 +    return this.resolveSessionLabel(sessionId)?.client !== void 0;
-   }
-   connect(client) {
-     requireSessionId4(client.sessionId);
-@@ -11694,7 +11780,7 @@ var DialogSessions = class {
-   }
-   open(sessionId, config) {
-     requireSessionId4(sessionId);
+@@ -11697 +11775 @@ var DialogSessions = class {
 -    const session = this.sessions.get(sessionId);
 +    const session = this.resolveSessionLabel(sessionId);
-     const client = session?.client;
-     if (!session || !client) throw new Error(`No active dialog client for session ${sessionId}`);
-     const rpcId = allocateRpcId(session);
-@@ -11702,9 +11788,11 @@ var DialogSessions = class {
-     const response = new Promise((resolve9, reject) => {
-       pending = { resolve: resolve9, reject };
-     });
+@@ -11704,0 +11783,2 @@ var DialogSessions = class {
 +    response.catch(() => {
 +    });
-     session.pending.set(rpcId, pending);
-     try {
+@@ -11707 +11787 @@ var DialogSessions = class {
 -      client.message.open({ rpcId, config });
 +      client.message.open({ rpcId, config: normalizeDialogConfig(config) });
-     } catch (error) {
-       session.pending.delete(rpcId);
-       pending.reject(asError(error));
-@@ -11723,7 +11811,7 @@ var DialogSessions = class {
-     return true;
-   }
-   cancel(sessionId, rpcId) {
+@@ -11726 +11806 @@ var DialogSessions = class {
 -    const session = this.sessions.get(sessionId);
 +    const session = this.resolveSessionLabel(sessionId);
-     if (!session || !isRpcId(rpcId)) return false;
-     const pending = session.pending.get(rpcId);
-     if (!pending) return false;
-@@ -11733,7 +11821,7 @@ var DialogSessions = class {
-     return true;
-   }
-   cancelAll(sessionId) {
+@@ -11736 +11816 @@ var DialogSessions = class {
 -    const session = this.sessions.get(sessionId);
 +    const session = this.resolveSessionLabel(sessionId);
-     if (!session || session.pending.size === 0) return 0;
-     const pending = [...session.pending.values()];
-     session.pending.clear();
-@@ -11760,10 +11848,16 @@ var DialogSessions = class {
-   dispose() {
-     for (const sessionId of [...this.sessions.keys()]) this.delete(sessionId);
-   }
+@@ -11762,0 +11843,5 @@ var DialogSessions = class {
 +  resolveSessionLabel(sessionLabel) {
 +    const exact = this.sessions.get(sessionLabel);
 +    if (exact) return exact;
-+    return [...this.sessions.values()].find((candidate) => candidate.sessionId.length > 12 && candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === sessionLabel);
++    return [...this.sessions.values()].find((candidate) => matchesSessionLabel(candidate.sessionId, sessionLabel));
 +  }
-   getOrCreate(sessionId) {
-     const existing = this.sessions.get(sessionId);
-     if (existing) return existing;
-     const session = {
+@@ -11766,0 +11852 @@ var DialogSessions = class {
 +      sessionId,
-       nextRpcId: 0,
-       pending: /* @__PURE__ */ new Map()
-     };
-@@ -11771,6 +11865,53 @@ var DialogSessions = class {
-     return session;
-   }
- };
+@@ -11773,0 +11860,47 @@ var DialogSessions = class {
 +var defaultDialogBackgroundColor = Object.freeze({ r: 1, g: 1, b: 1, a: 1 });
 +var defaultDialogTextColor = Object.freeze({ r: 0, g: 0, b: 0, a: 1 });
 +function normalizeDialogConfig(config) {
@@ -426,13 +270,7 @@ index 29c44d4..1c6cf32 100644
 +    a: Number.isFinite(value?.a) ? value.a : fallback.a
 +  };
 +}
- function allocateRpcId(session) {
-   for (let attempts = 0; attempts <= maximumRpcId; attempts++) {
-     const rpcId = session.nextRpcId;
-@@ -11839,6 +11980,143 @@ function asError(value) {
-   return value instanceof Error ? value : new Error(String(value));
- }
- 
+@@ -11841,0 +11975,137 @@ function asError(value) {
 +// legacy/box3-compat/src/session/gui-sessions.ts
 +var maximumGuiHandle = 4294967295;
 +var GuiSessions = class {
@@ -511,7 +349,7 @@ index 29c44d4..1c6cf32 100644
 +  resolveSessionLabel(sessionLabel) {
 +    const exact = this.sessions.get(sessionLabel);
 +    if (exact) return exact;
-+    return [...this.sessions.values()].find((candidate) => candidate.sessionId.length > 12 && candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === sessionLabel);
++    return [...this.sessions.values()].find((candidate) => matchesSessionLabel(candidate.sessionId, sessionLabel));
 +  }
 +  getOrCreate(sessionId) {
 +    const existing = this.sessions.get(sessionId);
@@ -570,13 +408,40 @@ index 29c44d4..1c6cf32 100644
 +  return value instanceof Error ? value : new Error(String(value));
 +}
 +
- // legacy/box3-compat/src/session/game-chat-sessions.ts
- var GameChatSessions = class {
-   sessions = /* @__PURE__ */ new Map();
-@@ -12432,6 +12710,13 @@ var PlayerDisplaySchema = new import_schema2.MuStruct({
-   attachments: unused
- });
- var PlayerDisplaySetSchema = new import_schema2.MuSortedArray(PlayerDisplaySchema, Infinity, compareId2);
+@@ -11862,0 +12133,16 @@ var GameChatSessions = class {
++  sendLog(sessionId, message) {
++    requireSessionId5(sessionId);
++    const client = this.sessions.get(sessionId)?.client;
++    if (!client) return false;
++    client.message.log(copyChatLog(message));
++    return true;
++  }
++  broadcastLog(message) {
++    const packet = copyChatLog(message);
++    let delivered = 0;
++    for (const { client } of this.sessions.values()) {
++      client.message.log(packet);
++      delivered += 1;
++    }
++    return delivered;
++  }
+@@ -11882,0 +12169,15 @@ function copyGlobalNotice(notice) {
++function copyChatLog(message) {
++  if (!message || typeof message !== "object" || Array.isArray(message)) throw new TypeError("chat message must be an object");
++  if (typeof message.text !== "string") throw new TypeError("chat message text must be a string");
++  return Object.freeze({
++    duration: Number.isInteger(message.duration) ? message.duration : 0,
++    id: Number.isSafeInteger(message.senderId) && message.senderId >= 0 ? message.senderId : 0,
++    msgType: 0,
++    hideFloat: message.hideFloat === true,
++    private: message.private === true,
++    valid: true,
++    i18nPrefix: "",
++    i18nSuffix: "",
++    text: message.text
++  });
++}
+@@ -12434,0 +12736,7 @@ var PlayerDisplaySetSchema = new import_schema2.MuSortedArray(PlayerDisplaySchem
 +var DamageSchema = new import_schema2.MuStruct({
 +  id: new import_schema2.MuVarint(0),
 +  showHealthBar: new import_schema2.MuBoolean(true),
@@ -584,63 +449,27 @@ index 29c44d4..1c6cf32 100644
 +  maxHp: new import_schema2.MuQuantizedFloat(1 / 256, 100)
 +});
 +var DamageSetSchema = new import_schema2.MuSortedArray(DamageSchema, Infinity, compareId2);
- var NetStateSchema = new import_schema2.MuStruct({
-   players: PlayerSetSchema,
-   playerInputs: PlayerInputSetSchema,
-@@ -12448,7 +12733,7 @@ var GameReplicaSchema = new import_schema2.MuStruct({
-   models: NetModelSetSchema,
-   players: PlayerDisplaySetSchema,
-   particles: unused,
+@@ -12451 +12759 @@ var GameReplicaSchema = new import_schema2.MuStruct({
 -  damage: unused,
 +  damage: DamageSetSchema,
-   interactive: unused,
-   entityName: EntityNameComponentSetSchema,
-   sound: unused,
-@@ -12474,6 +12759,8 @@ function createNetPublicState(input2) {
-     seen.add(player.playerId);
-     const [px, py, pz] = normalizeVector(player.position, "position");
-     const [vx, vy, vz] = normalizeVector(player.velocity ?? [0, 0, 0], "velocity");
+@@ -12476,0 +12785,2 @@ function createNetPublicState(input2) {
 +    const [rx, ry, rz] = normalizePositiveVector(player.bodyHalfExtents, "player body half extents");
 +    const [hsx, hsy, hsz] = normalizePositiveVector(player.bodyShapeHalfExtents ?? player.bodyHalfExtents, "player body shape half extents");
-     const inputState = player.inputState ?? defaultPlayerInputState;
-     const inputAngle = player.inputAngle ?? 0;
-     const inputPitch = player.inputPitch ?? 0;
-@@ -12497,6 +12784,12 @@ function createNetPublicState(input2) {
-     const body = RigidBodySchema.clone(RigidBodySchema.identity);
-     body.id = player.playerId;
-     body.flags = playerBodyFlags;
+@@ -12499,0 +12810,6 @@ function createNetPublicState(input2) {
 +    body.rx = rx;
 +    body.ry = ry;
 +    body.rz = rz;
 +    body.hsx = hsx;
 +    body.hsy = hsy;
 +    body.hsz = hsz;
-     body.px = px;
-     body.py = py;
-     body.pz = pz;
-@@ -12533,6 +12826,9 @@ function createNetPublicState(input2) {
-     body.rx = rx;
-     body.ry = ry;
-     body.rz = rz;
+@@ -12535,0 +12852,3 @@ function createNetPublicState(input2) {
 +    body.hsx = rx;
 +    body.hsy = ry;
 +    body.hsz = rz;
-     body.px = px;
-     body.py = py;
-     body.pz = pz;
-@@ -12553,7 +12849,7 @@ function createNetPublicState(input2) {
-     model.green = green;
-     model.blue = blue;
-     model.alpha = alpha;
+@@ -12556 +12875 @@ function createNetPublicState(input2) {
 -    const [scaleX, scaleY, scaleZ] = normalizePositiveVector(entity.model.scale ?? [1, 1, 1], "entity model scale");
 +    const [scaleX, scaleY, scaleZ] = normalizeVector(entity.model.scale ?? [1, 1, 1], "entity model scale");
-     model.scaleX = scaleX;
-     model.scaleY = scaleY;
-     model.scaleZ = scaleZ;
-@@ -12578,11 +12874,24 @@ function createNetPublicState(input2) {
-     }
-     target.replica.entities.push(entity.entityId);
-   }
+@@ -12580,0 +12900,12 @@ function createNetPublicState(input2) {
 +  for (const damage of input2.damage ?? []) {
 +    requireEntityId2(damage.id);
 +    if (!seen.has(damage.id)) throw new RangeError("damage state must reference a visible player or entity");
@@ -653,125 +482,53 @@ index 29c44d4..1c6cf32 100644
 +    record.maxHp = damage.maxHp;
 +    target.replica.damage.push(record);
 +  }
-   target.state.players.sort(compareId2);
-   target.state.playerInputs.sort(compareId2);
-   target.state.bodies.sort(compareId2);
-   target.replica.players.sort(compareId2);
-   target.replica.models.sort(compareId2);
+@@ -12585,0 +12917 @@ function createNetPublicState(input2) {
 +  target.replica.damage.sort(compareId2);
-   target.replica.entityName.sort(compareId2);
-   target.replica.entities.sort(compareNumber);
-   target.replica.running = true;
-@@ -12721,7 +13030,8 @@ function createAnonymousPlayersPublicState(input2) {
-   return createNetPublicState({
-     tick: input2.tick,
-     players: input2.players,
+@@ -12724 +13056,2 @@ function createAnonymousPlayersPublicState(input2) {
 -    entities: input2.entities
 +    entities: input2.entities,
 +    damage: input2.damage
-   });
- }
- function encodeNetPublicPacket(base, current, pauseCounter = 0) {
-@@ -12759,6 +13069,9 @@ function validatePlayers(players) {
-     if (!/^[\x20-\x7e]{1,64}$/.test(name)) throw new RangeError("name must be printable ASCII");
-     for (const coordinate of player.position) quantizeCoordinate(coordinate);
-     for (const coordinate of player.velocity ?? [0, 0, 0]) quantizeCoordinate(coordinate);
+@@ -12761,0 +13095,3 @@ function validatePlayers(players) {
 +    normalizePositiveVector(player.bodyHalfExtents, "player body half extents");
 +    const shapeHalfExtents = normalizePositiveVector(player.bodyShapeHalfExtents ?? player.bodyHalfExtents, "player body shape half extents");
 +    if (shapeHalfExtents.some((component, index) => component > player.bodyHalfExtents[index])) throw new RangeError("player body shape half extents must fit inside bounds");
-     requireUint163(player.inputState ?? defaultPlayerInputState2, "inputState");
-     requireByte2(player.inputAngle ?? 0, "inputAngle");
-     requireByte2(player.inputPitch ?? 0, "inputPitch");
-@@ -12808,13 +13121,17 @@ var GameNetHandshakeSession = class {
-   initialTick;
-   initialPauseCounter;
-   initialSpawn;
+@@ -12810,0 +13147,2 @@ var GameNetHandshakeSession = class {
 +  bodyHalfExtents;
 +  bodyShapeHalfExtents;
-   initialPackets;
-   deliveredClients = /* @__PURE__ */ new WeakSet();
+@@ -12813 +13151 @@ var GameNetHandshakeSession = class {
 -  constructor(playerId, initialTick2 = 4, initialPauseCounter = 0, initialSpawn = defaultSpawn) {
 +  constructor(playerId, initialTick2 = 4, initialPauseCounter = 0, initialSpawn = defaultSpawn, bodyHalfExtents, bodyShapeHalfExtents = bodyHalfExtents) {
-     this.playerId = requirePlayerId3("playerId", playerId);
-     this.initialTick = requireUint322("initialTick", initialTick2, false);
-     this.initialPauseCounter = requireUint322("initialPauseCounter", initialPauseCounter, true);
-     this.initialSpawn = normalizeSpawn(initialSpawn);
+@@ -12817,0 +13156,2 @@ var GameNetHandshakeSession = class {
 +    this.bodyHalfExtents = normalizePositiveVector(bodyHalfExtents, "player body half extents");
 +    this.bodyShapeHalfExtents = normalizePositiveVector(bodyShapeHalfExtents, "player body shape half extents");
-   }
-   get initialPacketsIssued() {
-     return this.initialPackets !== void 0;
-@@ -12828,11 +13145,15 @@ var GameNetHandshakeSession = class {
-         tick: this.initialTick,
-         pauseCounter: this.initialPauseCounter,
-         spawn: this.initialSpawn,
+@@ -12830,0 +13171,2 @@ var GameNetHandshakeSession = class {
 +        bodyHalfExtents: this.bodyHalfExtents,
 +        bodyShapeHalfExtents: this.bodyShapeHalfExtents,
-         secret: encodeAnonymousPlayerSecret(this.playerId),
-         public: encodeAnonymousPlayerPublic({
-           playerId: this.playerId,
-           tick: this.initialTick,
-           position: this.initialSpawn,
+@@ -12835,0 +13178,2 @@ var GameNetHandshakeSession = class {
 +          bodyHalfExtents: this.bodyHalfExtents,
 +          bodyShapeHalfExtents: this.bodyShapeHalfExtents,
-           pauseCounter: this.initialPauseCounter
-         })
-       };
-@@ -12846,6 +13167,8 @@ var GameNetHandshakeSessions = class {
-   currentTick;
-   initialPauseCounter;
-   initialSpawn;
+@@ -12848,0 +13193,2 @@ var GameNetHandshakeSessions = class {
 +  bodyHalfExtents;
 +  bodyShapeHalfExtents;
-   spawnForSession;
-   nextPlayerId;
-   constructor(options = {}) {
-@@ -12858,6 +13181,8 @@ var GameNetHandshakeSessions = class {
-       true
-     );
-     this.initialSpawn = normalizeSpawn(options.initialSpawn ?? defaultSpawn);
+@@ -12860,0 +13207,2 @@ var GameNetHandshakeSessions = class {
 +    this.bodyHalfExtents = normalizePositiveVector(options.bodyHalfExtents, "player body half extents");
 +    this.bodyShapeHalfExtents = normalizePositiveVector(options.bodyShapeHalfExtents ?? options.bodyHalfExtents, "player body shape half extents");
-     this.spawnForSession = options.spawnForSession;
-   }
-   get size() {
-@@ -12876,7 +13201,9 @@ var GameNetHandshakeSessions = class {
-       this.nextPlayerId,
-       initialTick2,
-       this.initialPauseCounter,
+@@ -12879 +13227,3 @@ var GameNetHandshakeSessions = class {
 -      this.spawnForSession?.(sessionId) ?? this.initialSpawn
 +      this.spawnForSession?.(sessionId) ?? this.initialSpawn,
 +      this.bodyHalfExtents,
 +      this.bodyShapeHalfExtents
-     );
-     this.nextPlayerId += 1;
-     this.sessions.set(sessionId, session);
-@@ -12919,6 +13246,10 @@ var GameNetPublicSessions = class {
-   schedule;
-   cancel;
-   sessions = /* @__PURE__ */ new Map();
+@@ -12921,0 +13272,4 @@ var GameNetPublicSessions = class {
 +  damageStates = /* @__PURE__ */ new Map();
 +  pendingDamageHurt = /* @__PURE__ */ new Map();
 +  pendingDamageDie = /* @__PURE__ */ new Set();
 +  pendingDamageRespawn = /* @__PURE__ */ new Set();
-   timer;
-   constructor(options) {
-     this.gameClock = options.gameClock;
-@@ -12935,7 +13266,9 @@ var GameNetPublicSessions = class {
-     this.runtime.join({
-       sessionId: client.sessionId,
-       playerId: packets.playerId,
+@@ -12938 +13292,3 @@ var GameNetPublicSessions = class {
 -      spawn: packets.spawn
 +      spawn: packets.spawn,
 +      bodyHalfExtents: packets.bodyHalfExtents,
 +      bodyShapeHalfExtents: packets.bodyShapeHalfExtents
-     });
-     session.client = client;
-     const frame = this.advanceToCurrentTick();
-@@ -12983,9 +13316,62 @@ var GameNetPublicSessions = class {
-     const command = decodeTemporaryLegacyPositionTransformCommand(input2, session.playerId);
-     return command ? this.runtime.enqueueInput(sessionId, command) : false;
-   }
+@@ -12985,0 +13342,53 @@ var GameNetPublicSessions = class {
 +  updateDamage(entityId, state, events = {}) {
 +    requireEntityId2(entityId);
 +    const frame = this.runtime.snapshot();
@@ -825,57 +582,26 @@ index 29c44d4..1c6cf32 100644
 +      this.pendingDamageRespawn.clear();
 +    }
 +  }
-   publish() {
-     const frame = this.advanceToCurrentTick();
+@@ -12988 +13397 @@ var GameNetPublicSessions = class {
 -    const current = createPublicState(frame);
 +    const current = createPublicState(frame, this.damageStates);
-     let sent = false;
-     try {
-       for (const session of this.sessions.values()) {
-@@ -12994,7 +13380,7 @@ var GameNetPublicSessions = class {
-         session.lastSentTick = frame.tick;
-         sent = true;
-       }
+@@ -12997 +13406 @@ var GameNetPublicSessions = class {
 -      return sent;
 +      return this.flushDamageEvents() || sent;
-     } finally {
-       NetPublicSchema.free(current);
-     }
-@@ -13004,6 +13390,10 @@ var GameNetPublicSessions = class {
-     if (!session) return false;
-     this.releaseSessionState(session);
-     this.sessions.delete(sessionId);
+@@ -13006,0 +13416,4 @@ var GameNetPublicSessions = class {
 +    this.damageStates.delete(session.playerId);
 +    this.pendingDamageHurt.delete(session.playerId);
 +    this.pendingDamageDie.delete(session.playerId);
 +    this.pendingDamageRespawn.delete(session.playerId);
-     this.runtime.leave(sessionId);
-     if (this.sessions.size === 0) this.stopTimer();
-     return true;
-@@ -13015,6 +13405,10 @@ var GameNetPublicSessions = class {
-       this.runtime.leave(session.sessionId);
-     }
-     this.sessions.clear();
+@@ -13017,0 +13431,4 @@ var GameNetPublicSessions = class {
 +    this.damageStates.clear();
 +    this.pendingDamageHurt.clear();
 +    this.pendingDamageDie.clear();
 +    this.pendingDamageRespawn.clear();
-   }
-   resend(client) {
-     const session = this.sessions.get(client.sessionId);
-@@ -13059,7 +13453,7 @@ var GameNetPublicSessions = class {
-     return this.runtime.advanceTo(this.gameClock.currentTick());
-   }
-   sendIdentity(session, client, frame) {
+@@ -13062 +13479 @@ var GameNetPublicSessions = class {
 -    const current = createPublicState(frame);
 +    const current = createPublicState(frame, this.damageStates);
-     try {
-       this.sendCurrent(session, client, current, true);
-     } finally {
-@@ -13118,7 +13512,17 @@ var GameNetPublicSessions = class {
-     session.sentCheckpoints.clear();
-   }
- };
+@@ -13121 +13538,11 @@ var GameNetPublicSessions = class {
 -function createPublicState(frame) {
 +var defaultDamageState = Object.freeze({ showHealthBar: true, hp: 100, maxHp: 100 });
 +function normalizeRuntimeDamageState(state, previous = defaultDamageState) {
@@ -888,139 +614,66 @@ index 29c44d4..1c6cf32 100644
 +  return Object.freeze({ showHealthBar, hp, maxHp });
 +}
 +function createPublicState(frame, damageStates = /* @__PURE__ */ new Map()) {
-   const entities = [];
-   for (const entity of frame.entities) {
-     if (entity.replica === void 0) continue;
-@@ -13131,10 +13535,14 @@ function createPublicState(frame) {
-       ...entity.replica.nameplate === void 0 ? {} : { nameplate: entity.replica.nameplate }
-     });
-   }
+@@ -13133,0 +13561,3 @@ function createPublicState(frame) {
 +  const damage = [];
 +  for (const player of frame.players) damage.push({ id: player.playerId, ...damageStates.get(player.playerId) ?? defaultDamageState });
 +  for (const entity of entities) damage.push({ id: entity.entityId, ...damageStates.get(entity.entityId) ?? defaultDamageState });
-   return createAnonymousPlayersPublicState({
-     tick: frame.tick,
-     players: frame.players,
+@@ -13137 +13567,2 @@ function createPublicState(frame) {
 -    entities
 +    entities,
 +    damage
-   });
- }
- function decodeTemporaryLegacyPositionTransformCommand(input2, playerId) {
-@@ -13304,6 +13712,11 @@ var ProjectBootstrapSessions = class {
-     session.terrain = client;
-     return this.flush(session);
-   }
+@@ -13306,0 +13738,5 @@ var ProjectBootstrapSessions = class {
 +  connectGameUi(client) {
 +    const session = this.getOrCreate(client.sessionId);
 +    session.gameUiReady = true;
 +    return this.flush(session);
 +  }
-   joinGameNet(client, afterBootstrap) {
-     const session = this.getOrCreate(client.sessionId);
-     session.gameNet = client;
-@@ -13323,6 +13736,7 @@ var ProjectBootstrapSessions = class {
-     if (existing) return existing;
-     const session = {
-       joined: false,
+@@ -13325,0 +13762 @@ var ProjectBootstrapSessions = class {
 +      gameUiReady: !this.options.clientUiRequired,
-       modelsSent: this.options.bootstrap.meshHashes.length === 0,
-       skinHashesSent: this.options.bootstrap.skinHashes.length === 0,
-       initialSkinPartHashesSent: skinPartBatch(this.options.bootstrap, 0).length === 0,
-@@ -13343,6 +13757,7 @@ var ProjectBootstrapSessions = class {
-     session.sound = void 0;
-     session.terrain = void 0;
-     session.joined = false;
+@@ -13345,0 +13783 @@ var ProjectBootstrapSessions = class {
 +    session.gameUiReady = !this.options.clientUiRequired;
-     session.modelsSent = this.options.bootstrap.meshHashes.length === 0;
-     session.skinHashesSent = this.options.bootstrap.skinHashes.length === 0;
-     session.initialSkinPartHashesSent = skinPartBatch(this.options.bootstrap, 0).length === 0;
-@@ -13356,7 +13771,7 @@ var ProjectBootstrapSessions = class {
-     session.diagnosticsCompleted = false;
-   }
-   flush(session) {
+@@ -13359 +13797 @@ var ProjectBootstrapSessions = class {
 -    if (!session.joined || !session.gameNet || !session.terrain) return false;
 +    if (!session.joined || !session.gameNet || !session.terrain || !session.gameUiReady) return false;
-     if (!session.modelsSent && !session.models) return false;
-     if (!session.skinHashesSent && !session.models) return false;
-     if (!session.initialSkinPartHashesSent && !session.models) return false;
-@@ -14217,14 +14632,17 @@ var LegacyHistoricalProjectInstance = class {
-     this.gameRuntime = new AuthoritativeGameRuntime({ gameClock: this.gameClock });
-     this.legacyProjectMount = mountLegacyProjectForInstance(options, this.gameRuntime);
-     this.projectPackagePlayerProjectionMount = mountProjectPackagePlayerProjectionForInstance(options, this.gameRuntime);
+@@ -14219,0 +14658 @@ var LegacyHistoricalProjectInstance = class {
 +    this.projectPackagePlayerProjection = options.projectPackagePlayerProjection?.projection;
-     this.gameNetPublicSessions = new GameNetPublicSessions({ gameClock: this.gameClock, runtime: this.gameRuntime });
-     this.mutableTerrain = new MutableArchiveWorld(terrain, options.world);
-     this.terrainSessions = new TerrainSessions();
-     this.dialogSessions = new DialogSessions();
+@@ -14223,0 +14663 @@ var LegacyHistoricalProjectInstance = class {
 +    this.guiSessions = new GuiSessions();
-     this.gameChatSessions = new GameChatSessions();
-     this.playerProtocolSessions = new PlayerProtocolSessions();
-     this.remoteChannelSessions = new RemoteChannelSessions();
+@@ -14227 +14667,2 @@ var LegacyHistoricalProjectInstance = class {
 -    const bedwarsEnabled = options.world.gameplayMode !== "base" || process.env.BOX3_ENABLE_REMOTE_SESSIONS === "1";
 +    const legacyGameplayDisabled = process.env.BOX3_DISABLE_LEGACY_GAMEPLAY === "1";
 +    const bedwarsEnabled = !legacyGameplayDisabled && (options.world.gameplayMode !== "base" || process.env.BOX3_ENABLE_REMOTE_SESSIONS === "1");
-     this.bedwarsMatch = bedwarsEnabled ? new BedwarsMatch() : void 0;
-     this.bedwarsRemoteSessions = this.bedwarsMatch ? new BedwarsRemoteSessions({ match: this.bedwarsMatch }) : void 0;
-     this.forgeResources = this.bedwarsMatch && this.bedwarsRemoteSessions ? new ForgeResourceService({
-@@ -14248,6 +14666,8 @@ var LegacyHistoricalProjectInstance = class {
-     this.gameNetHandshakes = new GameNetHandshakeSessions({
-       currentTick: () => this.gameClock.currentTick(),
-       initialSpawn: [terrain.positionX, terrain.positionY, terrain.positionZ],
+@@ -14250,0 +14692,2 @@ var LegacyHistoricalProjectInstance = class {
 +      bodyHalfExtents: options.playerBodyProfile?.boundsHalfExtents ?? options.playerBodyProfile?.halfExtents ?? [1, 1, 1],
 +      bodyShapeHalfExtents: options.playerBodyProfile?.shapeHalfExtents ?? options.playerBodyProfile?.halfExtents ?? [1, 1, 1],
-       ...this.bedwarsMatch ? { spawnForSession: (sessionId) => this.bedwarsMatch.spawnFor(sessionId) } : {}
-     });
-     this.keyboardInteraction = new KeyboardInteractionService({
-@@ -14259,13 +14679,16 @@ var LegacyHistoricalProjectInstance = class {
-     this.projectBootstrapSessions = new ProjectBootstrapSessions({
-       bootstrap: options.projectBootstrap,
-       clientScripts: options.clientScripts,
+@@ -14261,0 +14705 @@ var LegacyHistoricalProjectInstance = class {
 +      clientUiRequired: Boolean(options.clientUiState),
-       world: options.world
-     });
-     this.protocolContext = {
-       clientScripts: options.clientScripts,
+@@ -14266 +14710 @@ var LegacyHistoricalProjectInstance = class {
 -      bedwarsRemoteSessions: this.bedwarsRemoteSessions,
 +      clientUiState: options.clientUiState,
-       remoteChannelSessions: this.remoteChannelSessions,
+@@ -14267,0 +14712 @@ var LegacyHistoricalProjectInstance = class {
 +      bedwarsRemoteSessions: this.bedwarsRemoteSessions,
-       dialogSessions: this.dialogSessions,
+@@ -14268,0 +14714 @@ var LegacyHistoricalProjectInstance = class {
 +      guiSessions: this.guiSessions,
-       gameChatSessions: this.gameChatSessions,
-       playerProtocolSessions: this.playerProtocolSessions,
-       gameClock: this.gameClock,
-@@ -14287,10 +14710,12 @@ var LegacyHistoricalProjectInstance = class {
-   gameRuntime;
-   legacyProjectMount;
-   projectPackagePlayerProjectionMount;
+@@ -14289,0 +14736 @@ var LegacyHistoricalProjectInstance = class {
 +  projectPackagePlayerProjection;
-   gameNetPublicSessions;
-   mutableTerrain;
-   terrainSessions;
-   dialogSessions;
+@@ -14293,0 +14741 @@ var LegacyHistoricalProjectInstance = class {
 +  guiSessions;
-   gameChatSessions;
-   playerProtocolSessions;
-   remoteChannelSessions;
-@@ -14307,7 +14732,7 @@ var LegacyHistoricalProjectInstance = class {
-     const frame = this.gameRuntime.snapshot();
-     const player = frame.players.find((candidate) => candidate.sessionId === sessionLabel || candidate.sessionId.length > 12 && candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === sessionLabel);
-     if (!player) return void 0;
+@@ -14308 +14756 @@ var LegacyHistoricalProjectInstance = class {
+-    const player = frame.players.find((candidate) => candidate.sessionId === sessionLabel || candidate.sessionId.length > 12 && candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === sessionLabel);
++    const player = frame.players.find((candidate) => matchesSessionLabel(candidate.sessionId, sessionLabel));
+@@ -14310 +14758 @@ var LegacyHistoricalProjectInstance = class {
 -    return { tick: frame.tick, playerId: player.playerId, position: player.position, velocity: player.velocity };
 +    return { tick: frame.tick, playerId: player.playerId, position: player.position, velocity: player.velocity, bodyHalfExtents: player.bodyHalfExtents, bodyShapeHalfExtents: player.bodyShapeHalfExtents };
-   }
-   queuePlayerRuntimeState(sessionLabel, state) {
-     const frame = this.gameRuntime.snapshot();
-@@ -14319,6 +14744,62 @@ var LegacyHistoricalProjectInstance = class {
-       velocity: state.velocity ?? player.velocity
-     });
-   }
+@@ -14314 +14762 @@ var LegacyHistoricalProjectInstance = class {
+-    const player = frame.players.find((candidate) => candidate.sessionId === sessionLabel || candidate.sessionId.length > 12 && candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === sessionLabel);
++    const player = frame.players.find((candidate) => matchesSessionLabel(candidate.sessionId, sessionLabel));
+@@ -14321,0 +14770,56 @@ var LegacyHistoricalProjectInstance = class {
 +  queueDamageRuntimeState(target, state, events) {
 +    const frame = this.gameRuntime.snapshot();
 +    let entityId = target.entityId;
 +    if (target.sessionLabel !== void 0) {
-+      const player = frame.players.find((candidate) => candidate.sessionId === target.sessionLabel || candidate.sessionId.length > 12 && candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === target.sessionLabel);
++      const player = frame.players.find((candidate) => matchesSessionLabel(candidate.sessionId, target.sessionLabel));
 +      if (!player) return false;
 +      entityId = player.playerId;
 +    }
@@ -1072,29 +725,15 @@ index 29c44d4..1c6cf32 100644
 +    if (!Number.isSafeInteger(entityId) || entityId < 1) return false;
 +    return this.gameRuntime.updateEntityTransform(entityId, state) !== void 0;
 +  }
-   /** Starts services whose timers must begin only after the gateway is listening. */
-   start() {
-     this.forgeResources?.start();
-@@ -14331,6 +14812,7 @@ var LegacyHistoricalProjectInstance = class {
-     this.remoteChannelSessions.delete(sessionId);
-     this.bedwarsRemoteSessions?.delete(sessionId);
-     this.dialogSessions.delete(sessionId);
+@@ -14333,0 +14838 @@ var LegacyHistoricalProjectInstance = class {
 +    this.guiSessions.delete(sessionId);
-     this.gameChatSessions.delete(sessionId);
-     this.playerProtocolSessions.delete(sessionId);
-     this.projectBootstrapSessions.delete(sessionId);
-@@ -14358,6 +14840,7 @@ var LegacyHistoricalProjectInstance = class {
-     this.remoteChannelSessions.dispose();
-     this.bedwarsRemoteSessions?.dispose();
-     this.dialogSessions.dispose();
+@@ -14340,0 +14846,3 @@ var LegacyHistoricalProjectInstance = class {
++  sendChatMessage(sessionId, message) {
++    return sessionId === void 0 ? this.gameChatSessions.broadcastLog(message) : this.gameChatSessions.sendLog(sessionId, message);
++  }
+@@ -14360,0 +14869 @@ var LegacyHistoricalProjectInstance = class {
 +    this.guiSessions.dispose();
-     this.gameChatSessions.dispose();
-     try {
-       afterGameChat?.();
-@@ -14521,23 +15004,36 @@ var MuQuantizedVec3 = class {
-     if (qb0 === qt0 && qb1 === qt1 && qb2 === qt2) {
-       return false;
-     }
+@@ -14524,3 +15033,4 @@ var MuQuantizedVec3 = class {
 -    const d0 = encodeRelative2(qt0 - qb0);
 -    const d1 = encodeRelative2(qt1 - qb1);
 -    const d2 = encodeRelative2(qt2 - qb2);
@@ -1102,14 +741,14 @@ index 29c44d4..1c6cf32 100644
 +    const d0 = (magic + (qt0 - qb0) ^ magic) >>> 0;
 +    const d1 = (magic + (qt1 - qb1) ^ magic) >>> 0;
 +    const d2 = (magic + (qt2 - qb2) ^ magic) >>> 0;
-     const mask = (d0 ? 1 : 0) | (d1 ? 2 : 0) | (d2 ? 4 : 0);
+@@ -14527,0 +15038,6 @@ var MuQuantizedVec3 = class {
 +    const writeFirst = value => {
 +      const low = value & 15;
 +      const rest = value >>> 4;
 +      out.writeUint8((mask | (rest ? 8 : 0)) << 4 | low);
 +      if (rest) out.writeVarint(rest);
 +    };
-     out.grow(16);
+@@ -14529,4 +15045,3 @@ var MuQuantizedVec3 = class {
 -    out.writeUint8(mask | mask << 3 | (mask & 4) << 4);
 -    if (d0) out.writeVarint(d0);
 -    if (d1) out.writeVarint(d1);
@@ -1117,10 +756,7 @@ index 29c44d4..1c6cf32 100644
 +    if (d0) { writeFirst(d0); if (d1) out.writeVarint(d1); if (d2) out.writeVarint(d2); }
 +    else if (d1) { writeFirst(d1); if (d2) out.writeVarint(d2); }
 +    else writeFirst(d2);
-     return true;
-   }
-   patch(base, inp) {
-     const n = inp.readUint8();
+@@ -14536,0 +15052,7 @@ var MuQuantizedVec3 = class {
 +    const magic = 2863311530;
 +    const readFirst = () => {
 +      let value = n & 15;
@@ -1128,40 +764,31 @@ index 29c44d4..1c6cf32 100644
 +      return (magic ^ value) - magic >> 0;
 +    };
 +    const readNext = () => { const value = inp.readVarint(); return (magic ^ value) - magic >> 0; };
-     let r = 0, a = 0, o = 0;
+@@ -14538,3 +15060,3 @@ var MuQuantizedVec3 = class {
 -    if (n & 16) r = decodeRelative2(inp.readVarint());
 -    if (n & 32) a = decodeRelative2(inp.readVarint());
 -    if (n & 64) o = decodeRelative2(inp.readVarint());
 +    if (n & 16) { r = readFirst(); if (n & 32) a = readNext(); if (n & 64) o = readNext(); }
 +    else if (n & 32) { a = readFirst(); if (n & 64) o = readNext(); }
 +    else o = readFirst();
-     const inv = this.invPrecision;
-     const prec = this.precision;
-     const qb0 = Math.round(inv * base[0]) >> 0;
-@@ -14611,20 +15107,31 @@ var MuQuantizedVec2 = class {
-     const qt0 = Math.round(inv * target[0]) >> 0;
-     const qt1 = Math.round(inv * target[1]) >> 0;
-     if (qb0 === qt0 && qb1 === qt1) return false;
+@@ -14614,2 +15136,3 @@ var MuQuantizedVec2 = class {
 -    const d0 = encodeRelative2(qt0 - qb0);
 -    const d1 = encodeRelative2(qt1 - qb1);
 +    const magic = 2863311530;
 +    const d0 = (magic + (qt0 - qb0) ^ magic) >>> 0;
 +    const d1 = (magic + (qt1 - qb1) ^ magic) >>> 0;
-     const mask = (d0 ? 1 : 0) | (d1 ? 2 : 0);
+@@ -14616,0 +15140,3 @@ var MuQuantizedVec2 = class {
 +    const value = d0 || d1;
 +    const low = value & 31;
 +    const rest = value >>> 5;
-     out.grow(16);
+@@ -14618,3 +15144,3 @@ var MuQuantizedVec2 = class {
 -    out.writeUint8(mask | mask << 4);
 -    if (d0) out.writeVarint(d0);
 -    if (d1) out.writeVarint(d1);
 +    out.writeUint8((mask | (rest ? 4 : 0)) << 5 | low);
 +    if (rest) out.writeVarint(rest);
 +    if (d0 && d1) out.writeVarint(d1);
-     return true;
-   }
-   patch(base, inp) {
-     const n = inp.readUint8();
+@@ -14624,0 +15151,7 @@ var MuQuantizedVec2 = class {
 +    const magic = 2863311530;
 +    const readFirst = () => {
 +      let value = n & 31;
@@ -1169,26 +796,19 @@ index 29c44d4..1c6cf32 100644
 +      return (magic ^ value) - magic >> 0;
 +    };
 +    const readNext = () => { const value = inp.readVarint(); return (magic ^ value) - magic >> 0; };
-     let r = 0, a = 0;
+@@ -14626,2 +15159,2 @@ var MuQuantizedVec2 = class {
 -    if (n & 16) r = decodeRelative2(inp.readVarint());
 -    if (n & 32) a = decodeRelative2(inp.readVarint());
 +    if (n & 32) { r = readFirst(); if (n & 64) a = readNext(); }
 +    else a = readFirst();
-     const inv = this.invPrecision;
-     const prec = this.precision;
-     const qb0 = Math.round(inv * base[0]) >> 0;
-@@ -15319,153 +15826,124 @@ var remoteChannel = {
-   }
- };
- function createGameUIProtocol() {
+@@ -15322,3 +15855,3 @@ function createGameUIProtocol() {
 -  const size2d = new import_schema5.MuStruct({
 -    offset: new MuQuantizedVec2(390625e-8, [5, 5]),
 -    ratio: new MuQuantizedVec2(9765625e-10, [0, 0])
 +  const coord2d = (offset, ratio) => new import_schema5.MuStruct({
 +    offset: new MuQuantizedVec2(390625e-8, offset),
 +    ratio: new MuQuantizedVec2(9765625e-10, ratio)
-   });
-   const autoLayoutSchema = new import_schema5.MuStruct({
+@@ -15327,14 +15860,10 @@ function createGameUIProtocol() {
 -    maxCells: new import_schema5.MuVarint(),
 -    fillDirection: new import_schema5.MuUint8(),
 -    horizontalAlignment: new import_schema5.MuUint8(),
@@ -1213,9 +833,9 @@ index 29c44d4..1c6cf32 100644
 +    cellPadding: coord2d([5, 5], [0, 0]),
 +    horizontalAlignment: new import_schema5.MuUint8(1),
 +    verticalAlignment: new import_schema5.MuUint8(1)
-   });
+@@ -15341,0 +15871 @@ function createGameUIProtocol() {
 +  const layoutUnion = new import_schema5.MuUnion({ none: new import_schema5.MuVoid(), autoLayout: autoLayoutSchema }, "none");
-   const screenSchema = new import_schema5.MuStruct({
+@@ -15343,7 +15873,3 @@ function createGameUIProtocol() {
 -    zIndex: new import_schema5.MuVarint(),
 -    enable: new import_schema5.MuBoolean(),
 -    layout: layoutUnion
@@ -1226,7 +846,7 @@ index 29c44d4..1c6cf32 100644
 +    enable: new import_schema5.MuBoolean(true),
 +    layout: layoutUnion,
 +    zIndex: new import_schema5.MuVarint(1)
-   });
+@@ -15351,8 +15877 @@ function createGameUIProtocol() {
 -  const baseElement = {
 -    backgroundOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, 1),
 -    rotation: new import_schema5.MuQuantizedFloat(9765625e-10, 0),
@@ -1236,16 +856,16 @@ index 29c44d4..1c6cf32 100644
 -    clipsDescendants: new import_schema5.MuBoolean(),
 -    visible: new import_schema5.MuBoolean(),
 +  const common = (size, backgroundOpacity = 1, clipsDescendants = false) => ({
-     anchor: new MuQuantizedVec2(9765625e-10, [0, 0]),
+@@ -15359,0 +15879,4 @@ function createGameUIProtocol() {
 +    position: coord2d([0, 0], [0, 0]),
 +    size: coord2d(size, [0, 0]),
 +    autoResize: new import_schema5.MuUint8(0),
 +    visible: new import_schema5.MuBoolean(true),
-     backgroundColor: new MuQuantizedVec3(1, [255, 255, 255]),
+@@ -15360,0 +15884,3 @@ function createGameUIProtocol() {
 +    backgroundOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, backgroundOpacity),
 +    zIndex: new import_schema5.MuVarint(1),
 +    layoutOrder: new import_schema5.MuVarint(1),
-     layout: layoutUnion,
+@@ -15362,9 +15888 @@ function createGameUIProtocol() {
 -    position: pos2d,
 -    size: pos2d
 -  };
@@ -1256,7 +876,7 @@ index 29c44d4..1c6cf32 100644
 -    imageDisplayMode: new import_schema5.MuUint8(),
 -    image: new import_schema5.MuUTF8()
 +    clipsDescendants: new import_schema5.MuBoolean(clipsDescendants)
-   });
+@@ -15372,4 +15890,3 @@ function createGameUIProtocol() {
 -  const textSchema = new import_schema5.MuStruct({
 -    ...baseElement,
 -    textLineHeight: new import_schema5.MuQuantizedFloat(390625e-8, 1.19921875),
@@ -1264,8 +884,7 @@ index 29c44d4..1c6cf32 100644
 +  const rotation = () => new import_schema5.MuQuantizedFloat(9765625e-10, 0);
 +  const textStroke = () => ({
 +    textStrokeColor: new MuQuantizedVec3(1, [255, 255, 255]),
-     textStrokeOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, 1),
-     textStrokeThickness: new import_schema5.MuQuantizedFloat(9765625e-10, 0),
+@@ -15378,22 +15895 @@ function createGameUIProtocol() {
 -    textFontFamily: new import_schema5.MuUint8(),
 -    textFontSize: new import_schema5.MuUint8(),
 -    textXAlignment: new import_schema5.MuUint8(),
@@ -1289,9 +908,9 @@ index 29c44d4..1c6cf32 100644
 -    scrollPosition: new MuQuantizedVec2(390625e-8, [0, 0]),
 -    scrollbarColor: new MuQuantizedVec3(1, [153, 153, 153])
 +    textFontFamily: new import_schema5.MuUint8(0)
-   });
+@@ -15400,0 +15897 @@ function createGameUIProtocol() {
 +  const boxSchema = new import_schema5.MuStruct({ ...common([400, 300]), rotation: rotation() });
-   const inputFieldSchema = new import_schema5.MuStruct({
+@@ -15402,3 +15899,4 @@ function createGameUIProtocol() {
 -    ...baseElement,
 -    placeholderOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, 1),
 -    textLineHeight: new import_schema5.MuQuantizedFloat(390625e-8, 1.19921875),
@@ -1299,7 +918,7 @@ index 29c44d4..1c6cf32 100644
 +    textContent: new import_schema5.MuUTF8(""),
 +    textFontSize: new import_schema5.MuUint8(14),
 +    textColor: new MuQuantizedVec3(1, [0, 0, 0]),
-     textOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, 1),
+@@ -15406,8 +15904,5 @@ function createGameUIProtocol() {
 -    textStrokeOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, 1),
 -    textStrokeThickness: new import_schema5.MuQuantizedFloat(9765625e-10, 0),
 -    textFontFamily: new import_schema5.MuUint8(),
@@ -1313,7 +932,7 @@ index 29c44d4..1c6cf32 100644
 +    textLineHeight: new import_schema5.MuQuantizedFloat(390625e-8, 1.2),
 +    autoWordWrap: new import_schema5.MuBoolean(false),
 +    placeholder: new import_schema5.MuUTF8("Type something here"),
-     placeholderColor: new MuQuantizedVec3(1, [172, 172, 164]),
+@@ -15414,0 +15910,8 @@ function createGameUIProtocol() {
 +    placeholderOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, 1),
 +    rotation: rotation(),
 +    ...textStroke()
@@ -1322,7 +941,7 @@ index 29c44d4..1c6cf32 100644
 +    ...common([200, 50], 0),
 +    textContent: new import_schema5.MuUTF8("Text"),
 +    textFontSize: new import_schema5.MuUint8(14),
-     textColor: new MuQuantizedVec3(1, [0, 0, 0]),
+@@ -15416,2 +15919,15 @@ function createGameUIProtocol() {
 -    textContent: new import_schema5.MuUTF8(),
 -    textStrokeColor: new MuQuantizedVec3(1, [255, 255, 255])
 +    textOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, 1),
@@ -1340,7 +959,7 @@ index 29c44d4..1c6cf32 100644
 +    imageOpacity: new import_schema5.MuQuantizedFloat(9765625e-10, 1),
 +    imageDisplayMode: new import_schema5.MuUint8(0),
 +    rotation: rotation()
-   });
+@@ -15419,6 +15935,13 @@ function createGameUIProtocol() {
 -  const elementUnion = new import_schema5.MuUnion({
 -    box: boxSchema,
 -    image: imageSchema,
@@ -1360,13 +979,9 @@ index 29c44d4..1c6cf32 100644
 +    scrollCanvasSize: coord2d([500, 500], [0, 0]),
 +    scrollPosition: new MuQuantizedVec2(390625e-8, [0, 0]),
 +    rotation: rotation()
-   });
+@@ -15425,0 +15949 @@ function createGameUIProtocol() {
 +  const elementUnion = new import_schema5.MuUnion({ box: boxSchema, image: imageSchema, text: textSchema, scrollBox: scrollBoxSchema, input: inputFieldSchema });
-   return {
-     name: "gameUI",
-     client: {
-       reset: new import_schema5.MuStruct({
-         running: new import_schema5.MuBoolean(),
+@@ -15431,7 +15954,0 @@ function createGameUIProtocol() {
 -        defaultScreenId: new import_schema5.MuUTF8(),
 -        pictureAssets: new import_schema5.MuDictionary(new import_schema5.MuStruct({
 -          height: new import_schema5.MuInt32(),
@@ -1374,20 +989,19 @@ index 29c44d4..1c6cf32 100644
 -          hash: new import_schema5.MuASCII(),
 -          metadataHash: new import_schema5.MuASCII()
 -        })),
-         uiTree: new import_schema5.MuDictionary(new import_schema5.MuStruct({
+@@ -15439,2 +15955,0 @@ function createGameUIProtocol() {
 -          type: new import_schema5.MuVarint(),
 -          childrenIds: new import_schema5.MuArray(new import_schema5.MuASCII()),
-           id: new import_schema5.MuASCII(),
+@@ -15441,0 +15957 @@ function createGameUIProtocol() {
 +          type: new import_schema5.MuVarint(),
-           name: new import_schema5.MuUTF8(),
-           parentId: new import_schema5.MuASCII(),
+@@ -15444,4 +15960,2 @@ function createGameUIProtocol() {
 -          value: new import_schema5.MuOption(new import_schema5.MuUnion({
 -            screen: screenSchema,
 -            element: elementUnion
 -          }))
 +          childrenIds: new import_schema5.MuArray(new import_schema5.MuASCII()),
 +          value: new import_schema5.MuOption(new import_schema5.MuUnion({ screen: screenSchema, element: elementUnion }), void 0, true)
-         }), Number.POSITIVE_INFINITY, {
+@@ -15449,20 +15963,10 @@ function createGameUIProtocol() {
 -          ROOT_ID: {
 -            type: 0,
 -            childrenIds: ["DEFAULT_SCREEN_ID"],
@@ -1418,13 +1032,7 @@ index 29c44d4..1c6cf32 100644
 +          height: new import_schema5.MuInt32()
 +        })),
 +        defaultScreenId: new import_schema5.MuUTF8("")
-       })
-     },
-     server: {}
-@@ -15532,6 +16010,23 @@ function createDialogHandlers(context) {
- }
- 
- // legacy/box3-compat/src/protocol/handlers/entity-interact.ts
+@@ -15534,0 +16039,17 @@ function createDialogHandlers(context) {
 +function createGuiHandlers(context) {
 +  return {
 +    return(client, message) {
@@ -1437,109 +1045,69 @@ index 29c44d4..1c6cf32 100644
 +    },
 +    sendMessage(client, message) {
 +      context.stats.record("gui", "sendMessage");
-+      context.logger.info(`[gui:message] ${shortSession(client.sessionId)} ${JSON.stringify(message)}`);
++      context.logger.info(`[gui:message] ${sessionBridgeLabel(client.sessionId)} ${JSON.stringify(message)}`);
 +    }
 +  };
 +}
 +
- function createEntityInteractHandlers(context) {
-   return {
-     interact(client) {
-@@ -15576,6 +16071,9 @@ function createGameNetHandlers(context) {
-     input(client, data) {
-       context.stats.record("game-net", "input");
-       const accepted = context.gameNetPublicSessions.acceptInput(client.sessionId, data);
-+      if (accepted && process.env.BOX3_LOG_SCRIPT_INPUT_EVENTS === "1" && Array.isArray(data.events) && data.events.length > 0) {
-+        context.logger.info(`[game-net:input] ${shortSession(client.sessionId)} ${JSON.stringify({ tick: data.tick, events: data.events })}`);
+@@ -15537 +16058 @@ function createEntityInteractHandlers(context) {
+-    interact(client) {
++    interact(client, message) {
+@@ -15538,0 +16060,3 @@ function createEntityInteractHandlers(context) {
++      if (process.env.BOX3_LOG_SCRIPT_INTERACT_EVENTS === "1") {
++        context.logger.info(`[entity-interact] ${sessionBridgeLabel(client.sessionId)} ${JSON.stringify(message)}`);
 +      }
-       if (accepted) context.terrainInteraction.handleInput(client.sessionId, data);
-     },
-     sendKeyBoardEvent(client, data) {
-@@ -15682,9 +16180,9 @@ function registerProtocols(server, contexts) {
-         if (schema === models) context.projectBootstrapSessions.connectModels(client);
-         if (schema === sound) context.projectBootstrapSessions.connectSound(client);
-         if (schema === gameTerrain) context.projectBootstrapSessions.connectTerrain(client);
+@@ -15548,0 +16073,6 @@ function shortSession(value) {
++function sessionBridgeLabel(value) {
++  return `session-sha256-${(0, import_node_crypto8.createHash)("sha256").update(value, "utf8").digest("hex")}`;
++}
++function matchesSessionLabel(sessionId, label) {
++  return sessionId === label || sessionBridgeLabel(sessionId) === label || shortSession(sessionId) === label;
++}
+@@ -15561 +16091 @@ function createGameNetHandlers(context) {
+-      context.logger.info(`[session] join ${shortSession(client.sessionId)}`);
++      context.logger.info(`[session] join ${sessionBridgeLabel(client.sessionId)}`);
+@@ -15578,0 +16109,3 @@ function createGameNetHandlers(context) {
++      if (accepted && process.env.BOX3_LOG_SCRIPT_INPUT_EVENTS === "1" && Array.isArray(data.events) && data.events.length > 0) {
++        context.logger.info(`[game-net:input] ${sessionBridgeLabel(client.sessionId)} ${JSON.stringify({ tick: data.tick, events: data.events })}`);
++      }
+@@ -15597 +16130 @@ function createRemoteChannelHandlers(context) {
+-        context.logger.info(`[remote-channel:event] ${shortSession(client.sessionId)} ${JSON.stringify(data)}`);
++        context.logger.info(`[remote-channel:event] ${sessionBridgeLabel(client.sessionId)} ${JSON.stringify(data)}`);
+@@ -15685 +16218 @@ function registerProtocols(server, contexts) {
 -        if (schema === gameUI && process.env.BOX3_MINIMAL_GAME_UI === "1") {
 +        if (schema === gameUI) {
-           const reset = client.message.reset;
+@@ -15687 +16220 @@ function registerProtocols(server, contexts) {
 -          if (typeof reset === "function") reset({
 +          const clientUiState = context.clientUiState ?? (process.env.BOX3_MINIMAL_GAME_UI === "1" ? {
-             running: true,
-             defaultScreenId: "DEFAULT_SCREEN_ID",
-             pictureAssets: {},
-@@ -15695,7 +16193,7 @@ function registerProtocols(server, contexts) {
-                 id: "ROOT_ID",
-                 name: "Root",
-                 parentId: "",
+@@ -15698 +16231 @@ function registerProtocols(server, contexts) {
 -                value: { type: "", data: void 0 }
 +                value: void 0
-               },
-               DEFAULT_SCREEN_ID: {
-                 type: 2,
-@@ -15709,9 +16207,14 @@ function registerProtocols(server, contexts) {
-                 }
-               }
-             }
+@@ -15712 +16245,5 @@ function registerProtocols(server, contexts) {
 -          });
 +          } : void 0);
 +          if (clientUiState && typeof reset === "function") {
 +            reset(clientUiState);
 +            context.projectBootstrapSessions.connectGameUi(client);
 +          }
-         }
-         if (schema === dialog) context.dialogSessions.connect(client);
+@@ -15714,0 +16252 @@ function registerProtocols(server, contexts) {
 +        if (schema === gui) context.guiSessions.connect(client);
-         if (schema === gameChat) context.gameChatSessions.connect(client);
-         if (schema === playerProtocol) context.playerProtocolSessions.connect(client);
-         if (schema === remoteChannel) {
-@@ -15730,6 +16233,7 @@ function registerProtocols(server, contexts) {
-         if (schema === gameNet) context.gameNetPublicSessions.disconnect(client);
-         if (schema === gameTerrain) context.terrainSessions.disconnect(client);
-         if (schema === dialog) context.dialogSessions.disconnect(client);
+@@ -15728 +16266 @@ function registerProtocols(server, contexts) {
+-          context.logger.info(`[session] disconnected ${shortSession(client.sessionId)}`);
++          context.logger.info(`[session] disconnected ${sessionBridgeLabel(client.sessionId)}`);
+@@ -15732,0 +16271 @@ function registerProtocols(server, contexts) {
 +        if (schema === gui) context.guiSessions.disconnect(client);
-         if (schema === gameChat) context.gameChatSessions.disconnect(client);
-         if (schema === playerProtocol) context.playerProtocolSessions.disconnect(client);
-         if (schema === remoteChannel) {
-@@ -15743,6 +16247,7 @@ function registerProtocols(server, contexts) {
- function specializedMessageHandler(schema, messageName, context) {
-   if (schema === gameClock) return createClockHandlers(context)[messageName];
-   if (schema === dialog) return createDialogHandlers(context)[messageName];
+@@ -15745,0 +16285 @@ function specializedMessageHandler(schema, messageName, context) {
 +  if (schema === gui) return createGuiHandlers(context)[messageName];
-   if (schema === entityInteract) return createEntityInteractHandlers(context)[messageName];
-   if (schema === gameNet) return createGameNetHandlers(context)[messageName];
-   if (schema === remoteChannel) return createRemoteChannelHandlers(context)[messageName];
-@@ -15998,9 +16503,11 @@ var Box3Server = class {
-   assetStore;
-   clientRuntime;
-   clientScripts;
+@@ -16000,0 +16541 @@ var Box3Server = class {
 +  clientUiState;
-   projectBootstrap;
-   legacyProject;
-   projectPackagePlayerProjection;
+@@ -16003,0 +16545 @@ var Box3Server = class {
 +  playerBodyProfile;
-   testSessionRegistryOptions;
-   httpServer;
-   mudbServer;
-@@ -16017,6 +16524,7 @@ var Box3Server = class {
-     this.assetStore = options.assetStore ?? new FileArchiveAssetStore(this.config.assetRoot);
-     this.clientRuntime = options.clientRuntime ?? emptyClientRuntime;
-     this.clientScripts = options.clientScripts ?? Object.freeze({});
+@@ -16019,0 +16562 @@ var Box3Server = class {
 +    this.clientUiState = options.clientUiState;
-     this.projectBootstrap = options.projectBootstrap ?? emptyProjectBootstrap;
-     this.testSessionRegistryOptions = options.testSessionRegistryOptions;
-     if (options.legacyProject && options.projectPackagePlayerProjection) {
-@@ -16024,6 +16532,7 @@ var Box3Server = class {
-     }
-     this.legacyProject = options.legacyProject;
-     this.projectPackagePlayerProjection = options.projectPackagePlayerProjection;
+@@ -16026,0 +16570 @@ var Box3Server = class {
 +    this.playerBodyProfile = options.playerBodyProfile;
-   }
-   get host() {
-     return this.config.host;
-@@ -16058,6 +16567,24 @@ var Box3Server = class {
-     if (!this.running) return false;
-     return this.historicalProjectInstance?.queuePlayerRuntimeState(sessionLabel, state) ?? false;
-   }
+@@ -16060,0 +16605,18 @@ var Box3Server = class {
 +  queueDamageRuntimeState(target, state, events) {
 +    if (!this.running) return false;
 +    return this.historicalProjectInstance?.queueDamageRuntimeState(target, state, events) ?? false;
@@ -1558,93 +1126,46 @@ index 29c44d4..1c6cf32 100644
 +    if (!this.running) return false;
 +    return this.historicalProjectInstance?.queueRuntimeEntityState(entityId, state) ?? false;
 +  }
-   /**
-    * Host-only ingress for the recovered player-protocol profile-dialog frame.
-    * This is not an HTTP route, project API, profile service, or account bridge.
-@@ -16070,6 +16597,12 @@ var Box3Server = class {
-    * Host-only ingress for the recovered dialog.open transport. This is not a
-    * dialog API bridge, project API, or Player UI implementation.
-    */
+@@ -16072,0 +16635,6 @@ var Box3Server = class {
 +  sendGuiCommand(sessionId, command) {
 +    if (!this.running) return false;
 +    const guiSessions = this.historicalProjectInstance?.guiSessions;
 +    if (!guiSessions?.hasActiveClient(sessionId)) return false;
 +    return guiSessions.command(sessionId, command);
 +  }
-   openDialog(sessionId, config) {
-     if (!this.running) return false;
-     const dialogSessions = this.historicalProjectInstance?.dialogSessions;
-@@ -16115,11 +16648,13 @@ var Box3Server = class {
-     );
-     const instance = new LegacyHistoricalProjectInstance({
-       clientScripts: this.clientScripts,
+@@ -16117,0 +16686 @@ var Box3Server = class {
 +      clientUiState: this.clientUiState,
-       issuedSessions,
-       legacyProject: this.legacyProject,
-       logger: this.logger,
-       projectBootstrap: this.projectBootstrap,
-       projectPackagePlayerProjection: this.projectPackagePlayerProjection,
+@@ -16122,0 +16692 @@ var Box3Server = class {
 +      playerBodyProfile: this.playerBodyProfile,
-       stats: this.stats,
-       world: this.world
-     });
-@@ -16183,6 +16718,12 @@ var Box3Server = class {
-         `Local v1 Player entity projection: ${instance.projectPackagePlayerProjectionMount.spawned.length} mounted, ${instance.projectPackagePlayerProjectionMount.diagnostics.length} static entities unmapped`
-       );
-     }
+@@ -16185,0 +16756,6 @@ var Box3Server = class {
 +    if (process.env.BOX3_LOG_SCRIPT_INPUT_EVENTS === "1") {
 +      const legacyBindings = instance.legacyProjectMount?.spawned.map((entry) => ({ sourceId: entry.sourceId, entityId: entry.entityId })) ?? [];
 +      const projectionBindings = instance.projectPackagePlayerProjectionMount?.spawned.map((entry) => ({ entityIndex: entry.entityIndex, entityId: entry.entityId })) ?? [];
 +      const entityBindings = [...legacyBindings, ...projectionBindings];
 +      if (entityBindings.length > 0) this.logger.info(`[game-net:entity-map] ${JSON.stringify({ entities: entityBindings })}`);
 +    }
-     const mudbReady = new Promise((resolve9, reject) => {
-       mudbServer.start({
-         ready: resolve9,
-@@ -16521,6 +17062,8 @@ async function main() {
-   const config = resolveServerConfig();
-   const logger = createConsoleLogger();
-   const projectRoot = process.env.BOX3_PROJECT_ROOT;
+@@ -16523,0 +17100,2 @@ async function main() {
 +  const playerBodyProfile = parsePlayerBodyProfile(process.env.BOX3_PLAYER_BODY_PROFILE);
 +  if (projectRoot && !playerBodyProfile) throw new Error("BOX3_PLAYER_BODY_PROFILE is required for project-package Player sessions");
-   const projectionDescriptor = process.env.BOX3_PLAYER_PROJECTION_DESCRIPTOR;
-   if (projectionDescriptor && !projectRoot) {
-     throw new Error("BOX3_PLAYER_PROJECTION_DESCRIPTOR requires BOX3_PROJECT_ROOT");
-@@ -16528,16 +17071,21 @@ async function main() {
-   const projectWorld = projectRoot ? await loadProjectPackageCompatibilityWorld(projectRoot, config.assetRoot) : void 0;
-   const world = projectWorld ?? await ArchiveWorld.load(config.assetRoot, config.worldManifest);
-   const clientRuntime = await loadClientRuntime(config.assetRoot);
+@@ -16530 +17108,3 @@ async function main() {
+-  const clientRuntime = await loadClientRuntime(config.assetRoot);
++  const clientRuntimeManifest = process.env.BOX3_CLIENT_RUNTIME_MANIFEST;
++  const clientRuntime = await loadClientRuntime(config.assetRoot, clientRuntimeManifest);
 +  if (projectWorld) clientRuntime.bindProjectIdentity(projectWorld.project.manifest.packageId, projectWorld.project.manifest.display?.name ?? projectWorld.project.manifest.packageId);
-   const clientScriptManifest = process.env.BOX3_CLIENT_SCRIPT_MANIFEST;
-   const clientScripts = projectRoot && !clientScriptManifest ? Object.freeze({}) : await loadClientScriptModules(config.assetRoot, clientScriptManifest);
+@@ -16533 +17113,4 @@ async function main() {
+-  const projectBootstrap = await loadProjectBootstrap(config.assetRoot);
 +  const clientUiManifest = process.env.BOX3_CLIENT_UI_MANIFEST;
 +  const clientUiState = await loadClientUiState(config.assetRoot, clientUiManifest);
-   const projectBootstrap = await loadProjectBootstrap(config.assetRoot);
-   const projectPackagePlayerProjection = projectionDescriptor && projectWorld ? await loadProjectPackagePlayerProjection(projectWorld.project, projectBootstrap, projectionDescriptor) : void 0;
-   const server = await new Box3Server({
-     ...config,
-     clientRuntime,
-     clientScripts,
++  const projectBootstrapManifest = process.env.BOX3_PROJECT_BOOTSTRAP_MANIFEST;
++  const projectBootstrap = await loadProjectBootstrap(config.assetRoot, projectBootstrapManifest);
+@@ -16538,0 +17122 @@ async function main() {
 +    clientUiState,
-     logger,
-     projectBootstrap,
+@@ -16540,0 +17125 @@ async function main() {
 +    playerBodyProfile,
-     world,
-     ...projectPackagePlayerProjection === void 0 ? {} : {
-       projectPackagePlayerProjection: { projection: projectPackagePlayerProjection }
-@@ -16545,6 +17093,8 @@ async function main() {
-   }).start();
-   const neaControlServer = await startNeaControlBridge(server, logger);
-   if (projectRoot) logger.info(`Player compatibility project package: ${projectRoot}`);
+@@ -16547,0 +17133,2 @@ async function main() {
 +  if (clientUiManifest) logger.info(`Client UI manifest: ${clientUiManifest} nodes=${Object.keys(clientUiState.uiTree).length}`);
 +  if (playerBodyProfile) logger.info(`Player body profile: ${playerBodyProfile.profileId} halfExtents=${playerBodyProfile.halfExtents.join(",")} sizeStatus=${playerBodyProfile.sizeStatus}`);
-   if (projectionDescriptor) logger.info(`Local Player entity projection descriptor: ${projectionDescriptor}`);
-   let stopping = false;
-   const shutdown = async () => {
-@@ -16556,6 +17106,27 @@ async function main() {
-   process.once("SIGINT", shutdown);
-   process.once("SIGTERM", shutdown);
- }
+@@ -16558,0 +17146,21 @@ async function main() {
 +function parsePlayerBodyProfile(value) {
 +  if (value === void 0 || value === "") return void 0;
 +  const record = JSON.parse(value);
@@ -1666,22 +1187,10 @@ index 29c44d4..1c6cf32 100644
 +    halfExtents: shapeHalfExtents
 +  });
 +}
- async function startNeaControlBridge(server, logger) {
-   const token = process.env.BOX3_CONTROL_TOKEN;
-   const portText = process.env.BOX3_CONTROL_PORT;
-@@ -16593,7 +17164,7 @@ async function startNeaControlBridge(server, logger) {
-       }
-       const body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
-       if (request.method === "POST" && url.pathname === "/__nea/control/send-client-event") {
+@@ -16596 +17204 @@ async function startNeaControlBridge(server, logger) {
 -        if (typeof body.session !== "string" || !body.event || typeof body.event !== "object" || Array.isArray(body.event)) {
 +        if (typeof body.session !== "string" || !Object.prototype.hasOwnProperty.call(body, "event")) {
-           throw new Error("session and event are required");
-         }
-         const delivered = server.sendRemoteClientEvent(body.session, body.event);
-@@ -16601,6 +17172,36 @@ async function startNeaControlBridge(server, logger) {
-         response.end(JSON.stringify(delivered ? { ok: true } : { ok: false, error: "session not connected" }));
-         return;
-       }
+@@ -16603,0 +17212,54 @@ async function startNeaControlBridge(server, logger) {
 +      if (request.method === "POST" && url.pathname === "/__nea/control/gui-command") {
 +        if (typeof body.session !== "string" || !body.command || typeof body.command !== "object" || Array.isArray(body.command)) {
 +          throw new Error("session and GUI command are required");
@@ -1712,13 +1221,31 @@ index 29c44d4..1c6cf32 100644
 +        response.end(JSON.stringify({ ok: true, result }));
 +        return;
 +      }
-       if (request.method === "POST" && url.pathname === "/__nea/control/player-state") {
-         if (typeof body.session !== "string" || !body.state || typeof body.state !== "object" || Array.isArray(body.state)) {
-           throw new Error("session and state are required");
-@@ -16613,6 +17214,49 @@ async function startNeaControlBridge(server, logger) {
-         response.end(JSON.stringify(queued ? { ok: true, queued: true } : { ok: false, error: "player state not found" }));
-         return;
-       }
++      if (request.method === "POST" && url.pathname === "/__nea/control/dialog-cancel-all") {
++        if (typeof body.session !== "string") throw new Error("dialog session is required");
++        const cancelled = server.cancelDialogs(body.session);
++        if (cancelled === false) {
++          response.statusCode = 404;
++          response.end(JSON.stringify({ ok: false, error: "dialog client not connected" }));
++          return;
++        }
++        response.statusCode = 200;
++        response.end(JSON.stringify({ ok: true, cancelled }));
++        return;
++      }
++      if (request.method === "POST" && url.pathname === "/__nea/control/chat-message") {
++        if (body.session !== void 0 && typeof body.session !== "string") throw new Error("chat session must be a string");
++        const delivered = server.sendChatMessage(body.session, body.message);
++        if (body.session !== void 0 && delivered === false) {
++          response.statusCode = 404;
++          response.end(JSON.stringify({ ok: false, error: "chat client not connected" }));
++          return;
++        }
++        response.statusCode = 200;
++        response.end(JSON.stringify({ ok: true, delivered: body.session === void 0 ? delivered : 1 }));
++        return;
++      }
+@@ -16615,0 +17278,43 @@ async function startNeaControlBridge(server, logger) {
 +      if (request.method === "POST" && url.pathname === "/__nea/control/damage-state") {
 +        const hasSession = typeof body.session === "string";
 +        const hasEntityId = Number.isSafeInteger(body.entityId) && body.entityId > 0;
@@ -1762,6 +1289,3 @@ index 29c44d4..1c6cf32 100644
 +        response.end(JSON.stringify(queued ? { ok: true, queued: true } : { ok: false, error: "entity not found" }));
 +        return;
 +      }
-       response.statusCode = 404;
-       response.end(JSON.stringify({ ok: false, error: "not found" }));
-     } catch (error) {

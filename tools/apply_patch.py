@@ -62,7 +62,7 @@ def apply_add(path: Path, body: list[str], check: bool) -> None:
         output.append(line[1:])
     if not check:
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text("\n".join(output) + ("\n" if output else ""), encoding="utf-8")
+        path.write_bytes(("\n".join(output) + ("\n" if output else "")).encode("utf-8"))
 
 
 def find_chunk(source: list[str], chunk: list[str], start: int) -> int:
@@ -112,7 +112,7 @@ def apply_update(path: Path, body: list[str], check: bool) -> None:
     if not check:
         trailing_newline = source_text.endswith(("\n", "\r"))
         text = "\n".join(output) + ("\n" if trailing_newline or output else "")
-        path.write_text(text, encoding="utf-8")
+        path.write_bytes(text.encode("utf-8"))
 
 
 def apply_delete(path: Path, body: list[str], check: bool) -> None:

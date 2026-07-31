@@ -1,34 +1,35 @@
 # Runtime Compatibility Gap Report
 
-Generated: 2026-07-30T11:27:11.848Z
+Generated: 2026-07-31T04:04:32.864Z
 
 ## Summary
 
 - Documentation declarations: 599
-- Current contract entries: 313
-- Recovered compatible entries: 265
-- Identifier/canonical matches: 231
-- Documented declarations still missing: 368
-- Local extensions not joined to documentation: 111
+- Current contract entries: 504
+- Recovered compatible entries: 456
+- Identifier/canonical matches: 263
+- Documented declarations still missing: 336
+- Local extensions not joined to documentation: 265
 - Native: 125
-- Compatible: 73
-- Partial: 33
-- Recovered only: 146
-- Declared only: 222
+- Compatible: 50
+- Partial: 88
+- Recovered only: 121
+- Unavailable in selected provider: 1
+- Declared only: 214
 
 ## By Runtime Side
 
 - client: 125/126 represented; 1 missing
-- server: 75/346 represented; 271 missing
+- server: 107/346 represented; 239 missing
 - shared: 31/127 represented; 96 missing
 
 ## Recovery vs Implementation
 
 - Client confirmed/native: 132
-- Client declared/missing: 1
+- Client declared/missing: 0
 - Server confirmed but unimplemented: 646
 - Server confirmed/bridged: 5
-- Server confirmed/emulated: 52
+- Server confirmed/emulated: 58
 
 ## Interpretation
 
@@ -60,4 +61,4 @@ Generated: 2026-07-30T11:27:11.848Z
 1. Recover ContactBinding or equivalent server source to determine GameEntity.contactForce aggregation and active contact object reuse.
 2. Integrate the recovered per-contact impulse force formula only with a compatible authoritative solver, not the current sweep approximation.
 3. Bind recovered origin GameEntity and GamePlayer surfaces to server runtime adapters only after behavior matches.
-4. Resolve the remaining client UiInput.placeholderOpacity wrapper or retain it as explicitly unavailable.
+4. Search other evidence-compatible historical Player providers before changing the confirmed-unavailable UiInput.placeholderOpacity classification for the selected archived provider.

@@ -3,13 +3,14 @@ import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { LocalGameStorage } from "../src/runtime/game-storage.mjs";
+import { LocalGameStorage, RuntimeDataStorage, RuntimeQueryList } from "../src/runtime/game-storage.mjs";
 
 test("implements and persists the recovered GameDataStorage surface", async () => {
   const root = await mkdtemp(join(tmpdir(), "nea-storage-"));
   const file = join(root, "storage.json");
   const storage = new LocalGameStorage({ file });
   const space = storage.getDataStorage("players");
+  assert.ok(space instanceof RuntimeDataStorage);
   assert.equal(space.key, "players");
   assert.equal(await space.get("guest"), undefined);
   await space.set("guest", { score: 1 });
@@ -20,13 +21,77 @@ test("implements and persists the recovered GameDataStorage surface", async () =
   assert.equal(await space.increment("wins", 2), 2);
   assert.equal(await space.increment("wins"), 3);
   const list = await space.list({ cursor: 0, pageSize: 1 });
+  assert.ok(list instanceof RuntimeQueryList);
   assert.equal(list.getCurrentPage().length, 1);
   assert.equal(list.isLastPage, false);
   await list.nextPage();
   assert.equal(list.getCurrentPage().length, 1);
+  const lastPage = list.getCurrentPage();
+  await list.nextPage();
+  assert.equal(list.isLastPage, true);
+  assert.deepEqual(list.getCurrentPage(), lastPage);
   assert.ok(JSON.parse(await readFile(file, "utf8")).spaces.players);
   assert.equal((await space.remove("wins")).value, 3);
   await space.destroy();
   assert.deepEqual((await storage.getDataStorage("players").list()).getCurrentPage(), []);
   assert.equal(storage.getGroupStorage("shared"), undefined);
+});
+
+test("treats list cursor as a page index and only sorts when requested", async () => {
+  const root = await mkdtemp(join(tmpdir(), "nea-storage-pages-"));
+  const storage = new LocalGameStorage({ file: join(root, "storage.json") });
+  const space = storage.getDataStorage("pages");
+  await space.set("b", 2);
+  await space.set("a", 1);
+  await space.set("c", 3);
+  const second = await space.list({ cursor: 1, pageSize: 1, ascending: true });
+  assert.equal(second.getCurrentPage()[0].key, "b");
+  const natural = await space.list({ cursor: 0, pageSize: 3 });
+  assert.deepEqual(natural.getCurrentPage().map(item => item.key), ["b", "a", "c"]);
+});
+
+test("applies nested list constraints, fallback warnings, numeric filters, and page-size cap", async () => {
+  const root = await mkdtemp(join(tmpdir(), "nea-storage-constraints-"));
+  const warnings = [];
+  const storage = new LocalGameStorage({ file: join(root, "storage.json"), logger: { warn(message) { warnings.push(message); } } });
+  const space = storage.getDataStorage("ranked");
+  await space.set("low", { profile: { score: 2 } });
+  await space.set("high", { profile: { score: 9 } });
+  await space.set("missing", 5);
+  const constrained = await space.list({ cursor: 0, pageSize: 200, constraintTarget: "profile.score", min: 3, max: 10, ascending: false });
+  assert.deepEqual(constrained.getCurrentPage().map(item => item.key), ["high", "missing"]);
+  assert.equal(warnings.length, 1);
+  const invalid = await space.list({ cursor: 0, constraintTarget: "a.b.c.d.e.f", ascending: true });
+  assert.deepEqual(invalid.getCurrentPage().map(item => item.key), ["low", "high", "missing"]);
+  assert.equal(warnings.length, 2);
+});
+
+test("serializes same-process update and increment mutations", async () => {
+  const root = await mkdtemp(join(tmpdir(), "nea-storage-atomic-"));
+  const storage = new LocalGameStorage({ file: join(root, "storage.json") });
+  const space = storage.getDataStorage("atomic");
+  await space.set("counter", 0);
+  await Promise.all(Array.from({ length: 20 }, () => space.increment("counter")));
+  assert.equal((await space.get("counter")).value, 20);
+  await space.set("updated", 0);
+  await Promise.all([
+    space.update("updated", async previous => { await new Promise(resolve => setTimeout(resolve, 10)); return previous.value + 1; }),
+    space.update("updated", previous => previous.value + 1),
+  ]);
+  assert.equal((await space.get("updated")).value, 2);
+});
+
+test("enforces the declared JSONValue union without silent JSON rewriting", async () => {
+  const root = await mkdtemp(join(tmpdir(), "nea-storage-json-values-"));
+  const storage = new LocalGameStorage({ file: join(root, "storage.json") });
+  const space = storage.getDataStorage("json-values");
+  await space.set("valid", { text: "ok", count: 2, enabled: true, nested: [1, { value: false }] });
+  assert.deepEqual((await space.get("valid")).value, { text: "ok", count: 2, enabled: true, nested: [1, { value: false }] });
+  const cyclic = {}; cyclic.self = cyclic;
+  const sparse = []; sparse[1] = 1;
+  for (const value of [null, undefined, NaN, Infinity, 1n, () => {}, new Date(), { missing: undefined }, [undefined], sparse, cyclic]) {
+    await assert.rejects(() => space.set("invalid", value), /Invalid data value/);
+  }
+  await assert.rejects(() => space.update("valid", () => ({ value: NaN })), /Invalid data value/);
+  assert.equal(await space.get("invalid"), undefined);
 });

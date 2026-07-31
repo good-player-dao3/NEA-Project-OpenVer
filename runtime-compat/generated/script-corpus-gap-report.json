@@ -1,13 +1,13 @@
 {
   "format": "nea-script-corpus-compatibility-gap-report",
   "version": 2,
-  "generatedAt": "2026-07-30T11:27:12.090Z",
+  "generatedAt": "2026-07-31T04:04:33.113Z",
   "evidence": "runtime-compat/evidence/script-corpus-usage.json",
   "summary": {
     "samples": 2,
     "requirements": 74,
-    "executable": 41,
-    "partial": 18,
+    "executable": 40,
+    "partial": 19,
     "unavailable": 0,
     "missing": 0,
     "customExtensions": 15,
@@ -234,6 +234,19 @@
       "priority": 36
     },
     {
+      "side": "server",
+      "name": "world.onTick",
+      "count": 12,
+      "sampleCount": 1,
+      "assignmentCount": 0,
+      "canonicalId": "server.world.onTick",
+      "resolution": "exact",
+      "state": "partial",
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "priority": 36
+    },
+    {
       "side": "client",
       "name": "screen.findChildByName",
       "count": 6,
@@ -401,19 +414,6 @@
       "availability": "confirmed",
       "compatibility": "partial",
       "priority": 15
-    },
-    {
-      "side": "server",
-      "name": "world.onTick",
-      "count": 12,
-      "sampleCount": 1,
-      "assignmentCount": 0,
-      "canonicalId": "server.world.onTick",
-      "resolution": "exact",
-      "state": "executable",
-      "availability": "confirmed",
-      "compatibility": "emulated",
-      "priority": 12
     },
     {
       "side": "server",

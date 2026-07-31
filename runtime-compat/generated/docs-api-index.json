@@ -2,7 +2,7 @@
   "format": "nea-runtime-abi",
   "version": 2,
   "signatureModel": "member-variants-v1",
-  "generatedAt": "2026-07-30T11:06:38.786Z",
+  "generatedAt": "2026-07-30T18:24:27.429Z",
   "source": "dao3-docs-mirror/markdown/api",
   "documentCount": 105,
   "entries": [
@@ -6838,148 +6838,6 @@
               "type": "docs",
               "path": "dao3-docs-mirror/markdown/api/GameDataStorage/setSpace.md",
               "symbol": "get(key: string): Promise‹ReturnValue›",
-              "confidence": "direct"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "server.GameDataStorage.getDataStorage",
-      "side": "server",
-      "kind": "method",
-      "owner": "GameDataStorage",
-      "name": "getDataStorage",
-      "signature": {
-        "parameters": [
-          {
-            "name": "key",
-            "optional": false,
-            "type": "string",
-            "documentation": {
-              "required": "是",
-              "default": null,
-              "type": "string",
-              "description": "自定义的空间名称，建议全英文命名，长度不超过50个字符"
-            }
-          }
-        ],
-        "returns": "GameDataStorage"
-      },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
-      "notes": [
-        "Declared by documentation page: 获取数据空间"
-      ],
-      "evidence": [
-        {
-          "type": "docs",
-          "path": "dao3-docs-mirror/markdown/api/GameDataStorage/getSpace.md",
-          "symbol": "getDataStorage(key: string):GameDataStorage",
-          "confidence": "direct"
-        }
-      ],
-      "kinds": [
-        "method"
-      ],
-      "kindCollision": false,
-      "memberVariants": [
-        {
-          "kind": "method",
-          "signature": {
-            "parameters": [
-              {
-                "name": "key",
-                "optional": false,
-                "type": "string",
-                "documentation": {
-                  "required": "是",
-                  "default": null,
-                  "type": "string",
-                  "description": "自定义的空间名称，建议全英文命名，长度不超过50个字符"
-                }
-              }
-            ],
-            "returns": "GameDataStorage"
-          },
-          "evidence": [
-            {
-              "type": "docs",
-              "path": "dao3-docs-mirror/markdown/api/GameDataStorage/getSpace.md",
-              "symbol": "getDataStorage(key: string):GameDataStorage",
-              "confidence": "direct"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "server.GameDataStorage.getGroupStorage",
-      "side": "server",
-      "kind": "method",
-      "owner": "GameDataStorage",
-      "name": "getGroupStorage",
-      "signature": {
-        "parameters": [
-          {
-            "name": "key",
-            "optional": false,
-            "type": "string",
-            "documentation": {
-              "required": "是",
-              "default": null,
-              "type": "string",
-              "description": "自定义的空间名称，建议全英文命名，长度不超过50个字符"
-            }
-          }
-        ],
-        "returns": "GameDataStorage"
-      },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
-      "notes": [
-        "Declared by documentation page: 获取数据空间"
-      ],
-      "evidence": [
-        {
-          "type": "docs",
-          "path": "dao3-docs-mirror/markdown/api/GameDataStorage/getSpace.md",
-          "symbol": "getGroupStorage(key: string):GameDataStorage",
-          "confidence": "direct"
-        }
-      ],
-      "kinds": [
-        "method"
-      ],
-      "kindCollision": false,
-      "memberVariants": [
-        {
-          "kind": "method",
-          "signature": {
-            "parameters": [
-              {
-                "name": "key",
-                "optional": false,
-                "type": "string",
-                "documentation": {
-                  "required": "是",
-                  "default": null,
-                  "type": "string",
-                  "description": "自定义的空间名称，建议全英文命名，长度不超过50个字符"
-                }
-              }
-            ],
-            "returns": "GameDataStorage"
-          },
-          "evidence": [
-            {
-              "type": "docs",
-              "path": "dao3-docs-mirror/markdown/api/GameDataStorage/getSpace.md",
-              "symbol": "getGroupStorage(key: string):GameDataStorage",
               "confidence": "direct"
             }
           ]
@@ -19196,6 +19054,148 @@
               "type": "docs",
               "path": "dao3-docs-mirror/markdown/api/GameRTC/operate.md",
               "symbol": "unpublish(entity:GamePlayerEntity): Promise‹void›",
+              "confidence": "direct"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "server.GameStorage.getDataStorage",
+      "side": "server",
+      "kind": "method",
+      "owner": "GameStorage",
+      "name": "getDataStorage",
+      "signature": {
+        "parameters": [
+          {
+            "name": "key",
+            "optional": false,
+            "type": "string",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "string",
+              "description": "自定义的空间名称，建议全英文命名，长度不超过50个字符"
+            }
+          }
+        ],
+        "returns": "GameDataStorage"
+      },
+      "availability": "declared",
+      "compatibility": "missing",
+      "capability": null,
+      "since": null,
+      "notes": [
+        "Declared by documentation page: 获取数据空间"
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameDataStorage/getSpace.md",
+          "symbol": "getDataStorage(key: string):GameDataStorage",
+          "confidence": "direct"
+        }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "key",
+                "optional": false,
+                "type": "string",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "string",
+                  "description": "自定义的空间名称，建议全英文命名，长度不超过50个字符"
+                }
+              }
+            ],
+            "returns": "GameDataStorage"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameDataStorage/getSpace.md",
+              "symbol": "getDataStorage(key: string):GameDataStorage",
+              "confidence": "direct"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "server.GameStorage.getGroupStorage",
+      "side": "server",
+      "kind": "method",
+      "owner": "GameStorage",
+      "name": "getGroupStorage",
+      "signature": {
+        "parameters": [
+          {
+            "name": "key",
+            "optional": false,
+            "type": "string",
+            "documentation": {
+              "required": "是",
+              "default": null,
+              "type": "string",
+              "description": "自定义的空间名称，建议全英文命名，长度不超过50个字符"
+            }
+          }
+        ],
+        "returns": "GameDataStorage"
+      },
+      "availability": "declared",
+      "compatibility": "missing",
+      "capability": null,
+      "since": null,
+      "notes": [
+        "Declared by documentation page: 获取数据空间"
+      ],
+      "evidence": [
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameDataStorage/getSpace.md",
+          "symbol": "getGroupStorage(key: string):GameDataStorage",
+          "confidence": "direct"
+        }
+      ],
+      "kinds": [
+        "method"
+      ],
+      "kindCollision": false,
+      "memberVariants": [
+        {
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "key",
+                "optional": false,
+                "type": "string",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "string",
+                  "description": "自定义的空间名称，建议全英文命名，长度不超过50个字符"
+                }
+              }
+            ],
+            "returns": "GameDataStorage"
+          },
+          "evidence": [
+            {
+              "type": "docs",
+              "path": "dao3-docs-mirror/markdown/api/GameDataStorage/getSpace.md",
+              "symbol": "getGroupStorage(key: string):GameDataStorage",
               "confidence": "direct"
             }
           ]

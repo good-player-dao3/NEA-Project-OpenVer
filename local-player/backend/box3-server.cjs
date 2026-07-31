@@ -10701,10 +10701,19 @@ var EntityRegistry = class {
     validateTransform(transform);
     if (transform.position) entity.position = copyRuntimeVector(transform.position);
     if (transform.velocity) entity.velocity = copyRuntimeVector(transform.velocity);
-    if (transform.orientation) {
+    const body = {
+      ...transform.orientation === void 0 ? {} : { orientation: transform.orientation },
+      ...transform.collides === void 0 ? {} : { collides: transform.collides },
+      ...transform.fixed === void 0 ? {} : { fixed: transform.fixed },
+      ...transform.gravity === void 0 ? {} : { gravity: transform.gravity },
+      ...transform.mass === void 0 ? {} : { mass: transform.mass },
+      ...transform.friction === void 0 ? {} : { friction: transform.friction },
+      ...transform.restitution === void 0 ? {} : { restitution: transform.restitution }
+    };
+    if (Object.keys(body).length > 0) {
       if (!entity.replica) throw new Error("Runtime entity has no render replica");
       entity.replica = snapshotRuntimeEntityReplica({
-        body: { ...entity.replica.body, orientation: transform.orientation },
+        body: { ...entity.replica.body, ...body },
         model: entity.replica.model,
         ...entity.replica.nameplate === void 0 ? {} : { nameplate: entity.replica.nameplate }
       });
@@ -10761,6 +10770,12 @@ function validateTransform(transform) {
   if (transform.position !== void 0) requireVector2(transform.position, "position");
   if (transform.velocity !== void 0) requireVector2(transform.velocity, "velocity");
   if (transform.orientation !== void 0) requireQuaternion2(transform.orientation, "orientation");
+  requireOptionalBoolean(transform.collides, "runtime entity body collides");
+  requireOptionalBoolean(transform.fixed, "runtime entity body fixed");
+  requireOptionalBoolean(transform.gravity, "runtime entity body gravity");
+  requireOptionalFinite(transform.mass, "runtime entity body mass", 0, 1e6);
+  requireOptionalFinite(transform.friction, "runtime entity body friction", 0, 1e6);
+  requireOptionalFinite(transform.restitution, "runtime entity body restitution", 0, 1e6);
 }
 function validateReplica(replica) {
   if (!replica || typeof replica !== "object" || !replica.body || !replica.model) {
@@ -11338,11 +11353,7 @@ var RemoteChannelSessions = class {
     session.client = client;
   }
   sendExternalEvent(sessionLabel, event) {
-    const session = [...this.sessions.values()].find((candidate) => {
-      if (candidate.sessionId === sessionLabel) return true;
-      if (candidate.sessionId.length <= 12) return candidate.sessionId === sessionLabel;
-      return candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === sessionLabel;
-    });
+    const session = [...this.sessions.values()].find((candidate) => matchesSessionLabel(candidate.sessionId, sessionLabel));
     if (!session?.client) return false;
     const sender = session.client.message.sendClientEvent;
     if (typeof sender !== "function") return false;
@@ -11424,11 +11435,7 @@ var BedwarsRemoteSessions = class {
   }
   /** Loopback control ingress for project Script Runtime events. */
   sendExternalEvent(sessionLabel, event) {
-    const session = [...this.sessions.values()].find((candidate) => {
-      if (candidate.sessionId === sessionLabel) return true;
-      if (candidate.sessionId.length <= 12) return candidate.sessionId === sessionLabel;
-      return candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === sessionLabel;
-    });
+    const session = [...this.sessions.values()].find((candidate) => matchesSessionLabel(candidate.sessionId, sessionLabel));
     if (!session?.client) return false;
     const sender = session.client.message.sendClientEvent;
     if (typeof sender !== "function") return false;
@@ -11851,7 +11858,7 @@ var DialogSessions = class {
   resolveSessionLabel(sessionLabel) {
     const exact = this.sessions.get(sessionLabel);
     if (exact) return exact;
-    return [...this.sessions.values()].find((candidate) => candidate.sessionId.length > 12 && candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === sessionLabel);
+    return [...this.sessions.values()].find((candidate) => matchesSessionLabel(candidate.sessionId, sessionLabel));
   }
   getOrCreate(sessionId) {
     const existing = this.sessions.get(sessionId);
@@ -12058,7 +12065,7 @@ var GuiSessions = class {
   resolveSessionLabel(sessionLabel) {
     const exact = this.sessions.get(sessionLabel);
     if (exact) return exact;
-    return [...this.sessions.values()].find((candidate) => candidate.sessionId.length > 12 && candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === sessionLabel);
+    return [...this.sessions.values()].find((candidate) => matchesSessionLabel(candidate.sessionId, sessionLabel));
   }
   getOrCreate(sessionId) {
     const existing = this.sessions.get(sessionId);
@@ -12138,6 +12145,22 @@ var GameChatSessions = class {
     client.message.globalNotice(copyGlobalNotice(notice));
     return true;
   }
+  sendLog(sessionId, message) {
+    requireSessionId5(sessionId);
+    const client = this.sessions.get(sessionId)?.client;
+    if (!client) return false;
+    client.message.log(copyChatLog(message));
+    return true;
+  }
+  broadcastLog(message) {
+    const packet = copyChatLog(message);
+    let delivered = 0;
+    for (const { client } of this.sessions.values()) {
+      client.message.log(packet);
+      delivered += 1;
+    }
+    return delivered;
+  }
   /** A stale physical socket cannot detach a later replacement. */
   disconnect(client) {
     const session = this.sessions.get(client.sessionId);
@@ -12156,6 +12179,21 @@ function copyGlobalNotice(notice) {
   return Object.freeze({
     detail: notice.detail,
     title: notice.title
+  });
+}
+function copyChatLog(message) {
+  if (!message || typeof message !== "object" || Array.isArray(message)) throw new TypeError("chat message must be an object");
+  if (typeof message.text !== "string") throw new TypeError("chat message text must be a string");
+  return Object.freeze({
+    duration: Number.isInteger(message.duration) ? message.duration : 0,
+    id: Number.isSafeInteger(message.senderId) && message.senderId >= 0 ? message.senderId : 0,
+    msgType: 0,
+    hideFloat: message.hideFloat === true,
+    private: message.private === true,
+    valid: true,
+    i18nPrefix: "",
+    i18nSuffix: "",
+    text: message.text
   });
 }
 function requireSessionId5(sessionId) {
@@ -14730,13 +14768,13 @@ var LegacyHistoricalProjectInstance = class {
   disposed = false;
   playerRuntimeState(sessionLabel) {
     const frame = this.gameRuntime.snapshot();
-    const player = frame.players.find((candidate) => candidate.sessionId === sessionLabel || candidate.sessionId.length > 12 && candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === sessionLabel);
+    const player = frame.players.find((candidate) => matchesSessionLabel(candidate.sessionId, sessionLabel));
     if (!player) return void 0;
     return { tick: frame.tick, playerId: player.playerId, position: player.position, velocity: player.velocity, bodyHalfExtents: player.bodyHalfExtents, bodyShapeHalfExtents: player.bodyShapeHalfExtents };
   }
   queuePlayerRuntimeState(sessionLabel, state) {
     const frame = this.gameRuntime.snapshot();
-    const player = frame.players.find((candidate) => candidate.sessionId === sessionLabel || candidate.sessionId.length > 12 && candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === sessionLabel);
+    const player = frame.players.find((candidate) => matchesSessionLabel(candidate.sessionId, sessionLabel));
     if (!player) return false;
     return this.gameRuntime.enqueueInput(player.sessionId, {
       kind: "temporary-legacy-position-transform",
@@ -14748,7 +14786,7 @@ var LegacyHistoricalProjectInstance = class {
     const frame = this.gameRuntime.snapshot();
     let entityId = target.entityId;
     if (target.sessionLabel !== void 0) {
-      const player = frame.players.find((candidate) => candidate.sessionId === target.sessionLabel || candidate.sessionId.length > 12 && candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === target.sessionLabel);
+      const player = frame.players.find((candidate) => matchesSessionLabel(candidate.sessionId, target.sessionLabel));
       if (!player) return false;
       entityId = player.playerId;
     }
@@ -14819,6 +14857,9 @@ var LegacyHistoricalProjectInstance = class {
   }
   sendGlobalNotice(sessionId, notice) {
     return this.gameChatSessions.sendGlobalNotice(sessionId, notice);
+  }
+  sendChatMessage(sessionId, message) {
+    return sessionId === void 0 ? this.gameChatSessions.broadcastLog(message) : this.gameChatSessions.sendLog(sessionId, message);
   }
   openUserProfile(sessionId, userId) {
     return this.playerProtocolSessions.openUserProfile(sessionId, userId);
@@ -16022,15 +16063,18 @@ function createGuiHandlers(context) {
     },
     sendMessage(client, message) {
       context.stats.record("gui", "sendMessage");
-      context.logger.info(`[gui:message] ${shortSession(client.sessionId)} ${JSON.stringify(message)}`);
+      context.logger.info(`[gui:message] ${sessionBridgeLabel(client.sessionId)} ${JSON.stringify(message)}`);
     }
   };
 }
 
 function createEntityInteractHandlers(context) {
   return {
-    interact(client) {
+    interact(client, message) {
       context.stats.record("entity-interact", "interact");
+      if (process.env.BOX3_LOG_SCRIPT_INTERACT_EVENTS === "1") {
+        context.logger.info(`[entity-interact] ${sessionBridgeLabel(client.sessionId)} ${JSON.stringify(message)}`);
+      }
       client.message.acknowledgeInteract();
     }
   };
@@ -16040,6 +16084,12 @@ function createEntityInteractHandlers(context) {
 function shortSession(value) {
   if (value.length <= 12) return value;
   return `${value.slice(0, 6)}...${value.slice(-4)}`;
+}
+function sessionBridgeLabel(value) {
+  return `session-sha256-${(0, import_node_crypto8.createHash)("sha256").update(value, "utf8").digest("hex")}`;
+}
+function matchesSessionLabel(sessionId, label) {
+  return sessionId === label || sessionBridgeLabel(sessionId) === label || shortSession(sessionId) === label;
 }
 
 // legacy/box3-compat/src/protocol/handlers/game-net.ts
@@ -16053,7 +16103,7 @@ function createGameNetHandlers(context) {
         client,
         packets ? () => context.gameNetPublicSessions.start(client, packets) : void 0
       );
-      context.logger.info(`[session] join ${shortSession(client.sessionId)}`);
+      context.logger.info(`[session] join ${sessionBridgeLabel(client.sessionId)}`);
     },
     synchronize(client) {
       context.stats.record("game-net", "synchronize");
@@ -16072,7 +16122,7 @@ function createGameNetHandlers(context) {
       context.stats.record("game-net", "input");
       const accepted = context.gameNetPublicSessions.acceptInput(client.sessionId, data);
       if (accepted && process.env.BOX3_LOG_SCRIPT_INPUT_EVENTS === "1" && Array.isArray(data.events) && data.events.length > 0) {
-        context.logger.info(`[game-net:input] ${shortSession(client.sessionId)} ${JSON.stringify({ tick: data.tick, events: data.events })}`);
+        context.logger.info(`[game-net:input] ${sessionBridgeLabel(client.sessionId)} ${JSON.stringify({ tick: data.tick, events: data.events })}`);
       }
       if (accepted) context.terrainInteraction.handleInput(client.sessionId, data);
     },
@@ -16092,7 +16142,7 @@ function createRemoteChannelHandlers(context) {
       const legacyHandled = context.bedwarsRemoteSessions?.handleServerEvent(client, data) ?? false;
       const handled = relayed || legacyHandled;
       if (relayed && process.env.BOX3_LOG_REMOTE_EVENTS === "1") {
-        context.logger.info(`[remote-channel:event] ${shortSession(client.sessionId)} ${JSON.stringify(data)}`);
+        context.logger.info(`[remote-channel:event] ${sessionBridgeLabel(client.sessionId)} ${JSON.stringify(data)}`);
       }
       context.logger.info(
         `[remote-channel] ${handled ? "handled" : "ignored"} event from ${shortSession(client.sessionId)}`
@@ -16228,7 +16278,7 @@ function registerProtocols(server, contexts) {
         if (schema === box3Protocols[0]) {
           context.issuedSessions.markDisconnected(client.sessionId);
           context.stats.disconnect(client.sessionId);
-          context.logger.info(`[session] disconnected ${shortSession(client.sessionId)}`);
+          context.logger.info(`[session] disconnected ${sessionBridgeLabel(client.sessionId)}`);
         }
         if (schema === gameNet) context.gameNetPublicSessions.disconnect(client);
         if (schema === gameTerrain) context.terrainSessions.disconnect(client);
@@ -17070,13 +17120,15 @@ async function main() {
   }
   const projectWorld = projectRoot ? await loadProjectPackageCompatibilityWorld(projectRoot, config.assetRoot) : void 0;
   const world = projectWorld ?? await ArchiveWorld.load(config.assetRoot, config.worldManifest);
-  const clientRuntime = await loadClientRuntime(config.assetRoot);
+  const clientRuntimeManifest = process.env.BOX3_CLIENT_RUNTIME_MANIFEST;
+  const clientRuntime = await loadClientRuntime(config.assetRoot, clientRuntimeManifest);
   if (projectWorld) clientRuntime.bindProjectIdentity(projectWorld.project.manifest.packageId, projectWorld.project.manifest.display?.name ?? projectWorld.project.manifest.packageId);
   const clientScriptManifest = process.env.BOX3_CLIENT_SCRIPT_MANIFEST;
   const clientScripts = projectRoot && !clientScriptManifest ? Object.freeze({}) : await loadClientScriptModules(config.assetRoot, clientScriptManifest);
   const clientUiManifest = process.env.BOX3_CLIENT_UI_MANIFEST;
   const clientUiState = await loadClientUiState(config.assetRoot, clientUiManifest);
-  const projectBootstrap = await loadProjectBootstrap(config.assetRoot);
+  const projectBootstrapManifest = process.env.BOX3_PROJECT_BOOTSTRAP_MANIFEST;
+  const projectBootstrap = await loadProjectBootstrap(config.assetRoot, projectBootstrapManifest);
   const projectPackagePlayerProjection = projectionDescriptor && projectWorld ? await loadProjectPackagePlayerProjection(projectWorld.project, projectBootstrap, projectionDescriptor) : void 0;
   const server = await new Box3Server({
     ...config,
@@ -17200,6 +17252,30 @@ async function startNeaControlBridge(server, logger) {
         const result = await pending;
         response.statusCode = 200;
         response.end(JSON.stringify({ ok: true, result }));
+        return;
+      }
+      if (request.method === "POST" && url.pathname === "/__nea/control/dialog-cancel-all") {
+        if (typeof body.session !== "string") throw new Error("dialog session is required");
+        const cancelled = server.cancelDialogs(body.session);
+        if (cancelled === false) {
+          response.statusCode = 404;
+          response.end(JSON.stringify({ ok: false, error: "dialog client not connected" }));
+          return;
+        }
+        response.statusCode = 200;
+        response.end(JSON.stringify({ ok: true, cancelled }));
+        return;
+      }
+      if (request.method === "POST" && url.pathname === "/__nea/control/chat-message") {
+        if (body.session !== void 0 && typeof body.session !== "string") throw new Error("chat session must be a string");
+        const delivered = server.sendChatMessage(body.session, body.message);
+        if (body.session !== void 0 && delivered === false) {
+          response.statusCode = 404;
+          response.end(JSON.stringify({ ok: false, error: "chat client not connected" }));
+          return;
+        }
+        response.statusCode = 200;
+        response.end(JSON.stringify({ ok: true, delivered: body.session === void 0 ? delivered : 1 }));
         return;
       }
       if (request.method === "POST" && url.pathname === "/__nea/control/player-state") {
