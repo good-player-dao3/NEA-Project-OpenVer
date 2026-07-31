@@ -1,3 +1,5 @@
+import { Vector3 } from "./vector3.mjs";
+
 const EPSILON = 1e-6;
 
 export class GameQuaternion {
@@ -6,7 +8,7 @@ export class GameQuaternion {
   static fromEuler(x, y, z) { const f = 0.5 * Math.PI / 180; x *= f; y *= f; z *= f; const sx=Math.sin(x),cx=Math.cos(x),sy=Math.sin(y),cy=Math.cos(y),sz=Math.sin(z),cz=Math.cos(z); return new GameQuaternion(cx*cy*cz+sx*sy*sz,sx*cy*cz-cx*sy*sz,cx*sy*cz+sx*cy*sz,cx*cy*sz-sx*sy*cz); }
   constructor(w, x, y, z) { this.w=w; this.x=x; this.y=y; this.z=z; }
   set(w,x,y,z){this.w=w;this.x=x;this.y=y;this.z=z;return this} copy(q){return this.set(q.w,q.x,q.y,q.z)}
-  getAxisAngle(){const q=this.normalize(),angle=Math.acos(q.w)*2,s=Math.sin(angle/2);return {axis:s>EPSILON?{x:q.x/s,y:q.y/s,z:q.z/s}:{x:1,y:0,z:0},angle}}
+  getAxisAngle(quaternion){const q=quaternion.normalize(),angle=Math.acos(q.w)*2,s=Math.sin(angle/2);return {axis:s>EPSILON?new Vector3(q.x/s,q.y/s,q.z/s):new Vector3(1,0,0),angle}}
   rotateX(r){const h=r*.5,b=Math.sin(h),c=Math.cos(h);return new GameQuaternion(this.w*c-this.x*b,this.x*c+this.w*b,this.y*c+this.z*b,this.z*c-this.y*b)}
   rotateY(r){const h=r*.5,b=Math.sin(h),c=Math.cos(h);return new GameQuaternion(this.w*c-this.y*b,this.x*c-this.z*b,this.y*c+this.w*b,this.z*c+this.x*b)}
   rotateZ(r){const h=r*.5,b=Math.sin(h),c=Math.cos(h);return new GameQuaternion(this.w*c-this.z*b,this.x*c+this.y*b,this.y*c-this.x*b,this.z*c+this.w*b)}

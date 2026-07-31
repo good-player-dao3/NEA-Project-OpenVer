@@ -1,21 +1,21 @@
 {
   "format": "nea-local-server-runtime-analysis",
   "version": 1,
-  "generatedAt": "2026-07-31T05:24:47.522Z",
+  "generatedAt": "2026-07-31T09:27:01.806Z",
   "source": {
     "path": "demo-map/src/runtime/script-runtime.mjs",
-    "bytes": 68368,
-    "sha256": "612f334de1ab3afa501d8ae1cb45fb7610f4fbfe6f28022ad8779d9bb1de10a2"
+    "bytes": 78292,
+    "sha256": "6caeb28289bc6740bc48f8ba1b49e9aa67134b62a2ef6834921ff6216affe7f7"
   },
   "eventTokenSource": {
     "path": "demo-map/src/runtime/event-signal.mjs",
-    "bytes": 2004,
-    "sha256": "50f59b0085e00fc672702ee4cf91066b2d114411482213f2ac81d3c0ef2b1375"
+    "bytes": 2592,
+    "sha256": "195d93ef3885e4357a153567920eb6298d853729328a7330221b5c7d23ecc294"
   },
   "raycastSource": {
     "path": "demo-map/src/runtime/game-raycast.mjs",
-    "bytes": 7521,
-    "sha256": "e93ebaad40973c6c85317030e6218fa3b792d22a486b57ee90d2b3d50d882e43"
+    "bytes": 7081,
+    "sha256": "32d919bd39982276376fe2e8da4acee5a121467bcd9f18ae9e7fe5fa32fd83da"
   },
   "guiSource": {
     "path": "demo-map/src/runtime/game-gui.mjs",
@@ -24,8 +24,8 @@
   },
   "storageSource": {
     "path": "demo-map/src/runtime/game-storage.mjs",
-    "bytes": 8885,
-    "sha256": "7c52208c1eac6ad3503d4b578a210dcd9352bbfb577571ec012a79dc88ab72b7"
+    "bytes": 9241,
+    "sha256": "eaa69ced31ef7b4d1c3fddc799ed007e090e50e5839ae8c3d311afdb16f86ae7"
   },
   "worldSource": {
     "path": "demo-map/src/runtime/game-world.mjs",
@@ -34,8 +34,8 @@
   },
   "zonesSource": {
     "path": "demo-map/src/runtime/game-zones.mjs",
-    "bytes": 5850,
-    "sha256": "0e71d9a8750e10c8f7e4db7b0fa2f7ca5d67623c93d6cb543be129b7964a4592"
+    "bytes": 5920,
+    "sha256": "3aa27b77bef22900a5b4e6e9cabae3cecfcb9cd623bf8673b56b63d98d487b0b"
   },
   "contract": "nea-server-runtime/v1",
   "entries": [
@@ -5188,6 +5188,40 @@
       ]
     },
     {
+      "id": "server.world.sound",
+      "side": "server",
+      "kind": "method",
+      "owner": "world",
+      "name": "sound",
+      "signature": {
+        "parameters": [
+          {
+            "name": "config",
+            "type": "GameSoundEffect|string"
+          }
+        ],
+        "returns": "Sound"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameWorld.sound"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
       "id": "server.world.onPlayerJoin",
       "side": "server",
       "kind": "event",
@@ -5786,7 +5820,7 @@
             "type": "LocalEntitySpec"
           }
         ],
-        "returns": "RuntimeEntity"
+        "returns": "RuntimeEntity | null"
       },
       "availability": "confirmed",
       "compatibility": "emulated",
@@ -5800,6 +5834,59 @@
           "type": "local-source",
           "path": "demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.entityQuota",
+      "side": "server",
+      "kind": "method",
+      "owner": "world",
+      "name": "entityQuota",
+      "signature": {
+        "parameters": [],
+        "returns": "number"
+      },
+      "availability": "confirmed",
+      "compatibility": "compatible",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameWorld.entityQuota"
+      ],
+      "notes": [
+        "Uses the recovered entityLimit - entityCount + playerCount formula, represented locally as entityLimit minus the non-player RuntimeEntity registry size. The project value is launch-bound and defaults to the script-protocol identity 3400."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "world.entityQuota",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/sync/ScriptEntitySync.js",
+          "symbol": "ScriptEntitySync.quota",
+          "confidence": "direct"
+        },
+        {
+          "type": "protocol",
+          "path": "origin/server-protocols.json",
+          "symbol": "script-protocol.start.config.entityLimit",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameWorld/entityCD.md",
+          "symbol": "GameWorld.entityQuota",
+          "confidence": "direct"
+        },
+        {
+          "type": "test",
+          "path": "runtime-compat/test/world-entity-quota-api-conformance.test.mjs",
+          "symbol": "GameWorld.entityQuota conformance",
           "confidence": "direct"
         }
       ]
@@ -5972,6 +6059,64 @@
       ]
     },
     {
+      "id": "server.world.searchBox",
+      "side": "server",
+      "kind": "method",
+      "owner": "world",
+      "name": "searchBox",
+      "signature": {
+        "parameters": [
+          {
+            "name": "bounds",
+            "type": "GameBounds3"
+          }
+        ],
+        "returns": "GameEntity[]"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameWorld.searchBox"
+      ],
+      "notes": [
+        "Implements axis-aligned overlap for RuntimeEntity and RuntimePlayer using recovered body-center half extents. Native oriented-body search remains unavailable."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/entity-bounds.mjs",
+          "symbol": "searchRuntimeEntities",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameWorld/querySelectorEntity.md",
+          "symbol": "GameWorld.searchBox",
+          "confidence": "direct"
+        },
+        {
+          "type": "declaration",
+          "path": "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts",
+          "symbol": "GameWorld.searchBox",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/ScriptZoneWrapper.js",
+          "symbol": "GameEntity.bounds half-extents overlap",
+          "confidence": "supporting"
+        },
+        {
+          "type": "test",
+          "path": "runtime-compat/test/world-search-box-api-conformance.test.mjs",
+          "symbol": "GameWorld.searchBox conformance",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
       "id": "server.world.addCollisionFilter",
       "side": "server",
       "kind": "method",
@@ -5996,6 +6141,131 @@
       "since": "0.1.0",
       "implements": [
         "server.GameWorld.addCollisionFilter"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.removeCollisionFilter",
+      "side": "server",
+      "kind": "method",
+      "owner": "world",
+      "name": "removeCollisionFilter",
+      "signature": {
+        "parameters": [
+          {
+            "name": "aSelector",
+            "type": "GameSelectorString"
+          },
+          {
+            "name": "bSelector",
+            "type": "GameSelectorString"
+          }
+        ],
+        "returns": "void"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameWorld.removeCollisionFilter"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.clearCollisionFilters",
+      "side": "server",
+      "kind": "method",
+      "owner": "world",
+      "name": "clearCollisionFilters",
+      "signature": {
+        "parameters": [],
+        "returns": "void"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameWorld.clearCollisionFilters"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.collisionFilters",
+      "side": "server",
+      "kind": "method",
+      "owner": "world",
+      "name": "collisionFilters",
+      "signature": {
+        "parameters": [],
+        "returns": "string[][]"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameWorld.collisionFilters"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.world.projectName",
+      "side": "server",
+      "kind": "property",
+      "owner": "world",
+      "name": "projectName",
+      "signature": {
+        "type": "string",
+        "readonly": true
+      },
+      "availability": "confirmed",
+      "compatibility": "compatible",
+      "capability": "server.world.config",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameWorld.projectName"
       ],
       "notes": [
         "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
@@ -6222,12 +6492,25 @@
           "id",
           "kind",
           "position",
+          "bounds",
           "collides",
           "fixed",
           "gravity",
           "mass",
           "friction",
           "restitution",
+          "meshInvisible",
+          "meshScale",
+          "meshOrientation",
+          "meshOffset",
+          "meshColor",
+          "meshMetalness",
+          "meshEmissive",
+          "meshShininess",
+          "showEntityName",
+          "customName",
+          "nameRadius",
+          "nameColor",
           "tags",
           "destroyed",
           "enableInteract",
@@ -6238,6 +6521,9 @@
         ],
         "methods": [
           "say",
+          "lookAt",
+          "rotateLocal",
+          "scaleLocal",
           "destroy",
           "onDestroy",
           "nextDestroy",
@@ -6339,6 +6625,35 @@
       "compatibility": "emulated",
       "capability": "server.world.entities",
       "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.bounds",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "bounds",
+      "signature": {
+        "type": "Vector3",
+        "readonly": true
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.bounds"
+      ],
       "notes": [
         "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
       ],
@@ -6526,6 +6841,478 @@
       ]
     },
     {
+      "id": "server.RuntimeEntity.meshInvisible",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "meshInvisible",
+      "signature": {
+        "type": "boolean",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.meshInvisible"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.meshScale",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "meshScale",
+      "signature": {
+        "type": "Vector3",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.meshScale"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.meshOrientation",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "meshOrientation",
+      "signature": {
+        "type": "GameQuaternion",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.meshOrientation"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.lookAt",
+      "side": "server",
+      "kind": "method",
+      "owner": "RuntimeEntity",
+      "name": "lookAt",
+      "signature": {
+        "parameters": [
+          {
+            "name": "targetPosition",
+            "type": "GameVector3"
+          },
+          {
+            "name": "meshFacing",
+            "type": "\"X\" | \"Y\" | \"Z\"",
+            "optional": true
+          },
+          {
+            "name": "up",
+            "type": "GameVector3",
+            "optional": true
+          }
+        ],
+        "returns": "void"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.lookAt"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.rotateLocal",
+      "side": "server",
+      "kind": "method",
+      "owner": "RuntimeEntity",
+      "name": "rotateLocal",
+      "signature": {
+        "parameters": [
+          {
+            "name": "localPosition",
+            "type": "GameVector3"
+          },
+          {
+            "name": "axis",
+            "type": "\"X\" | \"Y\" | \"Z\""
+          },
+          {
+            "name": "rad",
+            "type": "number"
+          }
+        ],
+        "returns": "void"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.rotateLocal"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.scaleLocal",
+      "side": "server",
+      "kind": "method",
+      "owner": "RuntimeEntity",
+      "name": "scaleLocal",
+      "signature": {
+        "parameters": [
+          {
+            "name": "localPosition",
+            "type": "GameVector3"
+          },
+          {
+            "name": "v",
+            "type": "GameVector3"
+          }
+        ],
+        "returns": "void"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.scaleLocal"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.meshOffset",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "meshOffset",
+      "signature": {
+        "type": "Vector3",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.meshOffset"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.meshColor",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "meshColor",
+      "signature": {
+        "type": "GameRGBAColor",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.meshColor"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.meshMetalness",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "meshMetalness",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.meshMetalness"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.meshEmissive",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "meshEmissive",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.meshEmissive"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.meshShininess",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "meshShininess",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.meshShininess"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.showEntityName",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "showEntityName",
+      "signature": {
+        "type": "boolean",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.showEntityName"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.customName",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "customName",
+      "signature": {
+        "type": "string",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.customName"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.nameRadius",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "nameRadius",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.nameRadius"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.nameColor",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "nameColor",
+      "signature": {
+        "type": "GameRGBColor",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.nameColor"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
       "id": "server.RuntimeEntity.tags",
       "side": "server",
       "kind": "property",
@@ -6575,6 +7362,201 @@
       "compatibility": "partial",
       "capability": "server.world.chat",
       "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.sound",
+      "side": "server",
+      "kind": "method",
+      "owner": "RuntimeEntity",
+      "name": "sound",
+      "signature": {
+        "parameters": [
+          {
+            "name": "config",
+            "type": "GameSoundEffect|string"
+          }
+        ],
+        "returns": "Sound"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.sound"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.sound",
+      "side": "server",
+      "kind": "method",
+      "owner": "RuntimePlayer",
+      "name": "sound",
+      "signature": {
+        "parameters": [
+          {
+            "name": "config",
+            "type": "GameSoundEffect|string"
+          }
+        ],
+        "returns": "Sound"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.sound"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.Sound.resume",
+      "side": "server",
+      "kind": "method",
+      "owner": "Sound",
+      "name": "resume",
+      "signature": {
+        "parameters": [
+          {
+            "name": "currentTime",
+            "type": "number",
+            "optional": true
+          }
+        ],
+        "returns": "void"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "shared.Sound.resume"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.Sound.setCurrentTime",
+      "side": "server",
+      "kind": "method",
+      "owner": "Sound",
+      "name": "setCurrentTime",
+      "signature": {
+        "parameters": [
+          {
+            "name": "currentTime",
+            "type": "number"
+          }
+        ],
+        "returns": "void"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "shared.Sound.setCurrentTime"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.Sound.pause",
+      "side": "server",
+      "kind": "method",
+      "owner": "Sound",
+      "name": "pause",
+      "signature": {
+        "parameters": [],
+        "returns": "void"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "shared.Sound.pause"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.Sound.stop",
+      "side": "server",
+      "kind": "method",
+      "owner": "Sound",
+      "name": "stop",
+      "signature": {
+        "parameters": [],
+        "returns": "void"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "shared.Sound.stop"
+      ],
       "notes": [
         "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
       ],
@@ -6900,6 +7882,64 @@
       "since": "0.1.0",
       "implements": [
         "server.GameEntity.enableInteract"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.isPlayer",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "isPlayer",
+      "signature": {
+        "type": "boolean",
+        "readonly": true
+      },
+      "availability": "confirmed",
+      "compatibility": "compatible",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.isPlayer"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.player",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimeEntity",
+      "name": "player",
+      "signature": {
+        "type": "GamePlayerEntity|undefined",
+        "readonly": true
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.player"
       ],
       "notes": [
         "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
@@ -7421,6 +8461,108 @@
       ]
     },
     {
+      "id": "server.RuntimeEntity.addTag",
+      "side": "server",
+      "kind": "method",
+      "owner": "RuntimeEntity",
+      "name": "addTag",
+      "signature": {
+        "parameters": [
+          {
+            "name": "tag",
+            "type": "string"
+          }
+        ],
+        "returns": "void"
+      },
+      "availability": "confirmed",
+      "compatibility": "compatible",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.addTag"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.removeTag",
+      "side": "server",
+      "kind": "method",
+      "owner": "RuntimeEntity",
+      "name": "removeTag",
+      "signature": {
+        "parameters": [
+          {
+            "name": "tag",
+            "type": "string"
+          }
+        ],
+        "returns": "void"
+      },
+      "availability": "confirmed",
+      "compatibility": "compatible",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.removeTag"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimeEntity.hasTag",
+      "side": "server",
+      "kind": "method",
+      "owner": "RuntimeEntity",
+      "name": "hasTag",
+      "signature": {
+        "parameters": [
+          {
+            "name": "tag",
+            "type": "string"
+          }
+        ],
+        "returns": "boolean"
+      },
+      "availability": "confirmed",
+      "compatibility": "compatible",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.hasTag"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
       "id": "server.RuntimeEntity.snapshot",
       "side": "server",
       "kind": "method",
@@ -7853,6 +8995,7 @@
           "name",
           "position",
           "velocity",
+          "bounds",
           "grounded",
           "health",
           "fluidContacts",
@@ -7997,6 +9140,35 @@
       "compatibility": "emulated",
       "capability": "server.player.write",
       "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.bounds",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "bounds",
+      "signature": {
+        "type": "Vector3",
+        "readonly": true
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.player",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.bounds"
+      ],
       "notes": [
         "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
       ],
@@ -8380,6 +9552,35 @@
       "compatibility": "partial",
       "capability": "server.player",
       "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.isPlayer",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "isPlayer",
+      "signature": {
+        "type": "boolean",
+        "readonly": true
+      },
+      "availability": "confirmed",
+      "compatibility": "compatible",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.isPlayer"
+      ],
       "notes": [
         "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
       ],
@@ -9490,6 +10691,108 @@
       "compatibility": "partial",
       "capability": "server.world.events",
       "since": "0.1.0",
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.addTag",
+      "side": "server",
+      "kind": "method",
+      "owner": "RuntimePlayer",
+      "name": "addTag",
+      "signature": {
+        "parameters": [
+          {
+            "name": "tag",
+            "type": "string"
+          }
+        ],
+        "returns": "void"
+      },
+      "availability": "confirmed",
+      "compatibility": "compatible",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.addTag"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.removeTag",
+      "side": "server",
+      "kind": "method",
+      "owner": "RuntimePlayer",
+      "name": "removeTag",
+      "signature": {
+        "parameters": [
+          {
+            "name": "tag",
+            "type": "string"
+          }
+        ],
+        "returns": "void"
+      },
+      "availability": "confirmed",
+      "compatibility": "compatible",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.removeTag"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.hasTag",
+      "side": "server",
+      "kind": "method",
+      "owner": "RuntimePlayer",
+      "name": "hasTag",
+      "signature": {
+        "parameters": [
+          {
+            "name": "tag",
+            "type": "string"
+          }
+        ],
+        "returns": "boolean"
+      },
+      "availability": "confirmed",
+      "compatibility": "compatible",
+      "capability": "server.world.entities",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameEntity.hasTag"
+      ],
       "notes": [
         "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
       ],
@@ -14131,7 +15434,7 @@
       "status": "partial",
       "gaps": [
         "The recovered GameChatEvent fields are represented by the Runtime signal shell.",
-        "No Player/browser-to-backend chat ingress is recovered, so Capability Manifest blocks projects that depend on this event; moderation, cancellation, and transport timing also remain unavailable."
+        "ScriptShell consumes chatEvents.chats, but the recovered Player game-chat client-to-server surface only carries administrator noticeMessage {title,detail}; no Player chat producer is recovered, so Capability Manifest blocks dependent projects."
       ]
     },
     {
@@ -14140,7 +15443,7 @@
       "status": "partial",
       "gaps": [
         "The recovered optional filter resolves the same typed signal payload.",
-        "No Player/browser-to-backend chat ingress is recovered, so Capability Manifest blocks projects that depend on this event."
+        "ScriptShell consumes chatEvents.chats, but no matching Player/browser producer is recovered, so Capability Manifest blocks dependent projects."
       ]
     },
     {
@@ -14259,8 +15562,8 @@
       "canonicalId": "server.GameWorld.onPlayerPurchaseSuccess",
       "status": "partial",
       "gaps": [
-        "The recovered event fields are tick, userId, productId, and orderId.",
-        "No browser-to-backend purchase-success producer or Server Runtime ingress is recovered locally, so Capability Manifest blocks projects that depend on this event."
+        "The recovered public event fields are tick, userId, productId, and orderId; ScriptShell separately acknowledges the internal messageId after dispatch.",
+        "The Player market protocol only receives openMarketplace and exposes no client-to-server result message; no purchase-success producer or Server Runtime ingress is recovered, so Capability Manifest blocks dependent projects."
       ]
     },
     {
@@ -14360,7 +15663,7 @@
       "gaps": [
         "Broadcast delivery now uses the recovered Player game-chat.log packet through connected MuDB sessions.",
         "Destroyed sender/receiver endpoints are silently dropped and player removal follows the recovered leave/destroy ordering.",
-        "The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
+        "The recovered FIFO prefix/overflow/tick-drain algorithm and ordered Runtime-to-backend overflow batch are implemented with an evidence-deferred nullable limit; the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
       ]
     },
     {
@@ -14368,9 +15671,15 @@
       "canonicalId": "server.GameWorld.createEntity",
       "status": "partial",
       "gaps": [
-        "Creation remains synchronous and emits the recovered entity-create lifecycle event. Captured mesh bindings can create an authoritative browser/backend replica with documented transform and model/body fields; unknown meshes deliberately remain script-local rather than receiving a fabricated placeholder.",
+        "Creation remains synchronous, obeys the recovered non-player entityLimit check, returns null at capacity, and emits the recovered entity-create lifecycle event. Captured mesh bindings can create an authoritative browser/backend replica with documented transform and model/body fields; unknown meshes deliberately remain script-local rather than receiving a fabricated placeholder.",
         "Generic native gravity, collision response, and in-place Vector3 mutation replication are still unverified."
       ]
+    },
+    {
+      "localId": "server.world.entityQuota",
+      "canonicalId": "server.GameWorld.entityQuota",
+      "status": "compatible",
+      "gaps": []
     },
     {
       "localId": "server.world.onEntityCreate",
@@ -14441,12 +15750,51 @@
       ]
     },
     {
+      "localId": "server.world.searchBox",
+      "canonicalId": "server.GameWorld.searchBox",
+      "status": "partial",
+      "gaps": [
+        "RuntimeEntity and RuntimePlayer AABB overlap search uses the recovered body-center half-extents convention shared with zones and raycasts.",
+        "Native oriented-body search and GameWorld.useOBB remain unavailable."
+      ]
+    },
+    {
       "localId": "server.world.addCollisionFilter",
       "canonicalId": "server.GameWorld.addCollisionFilter",
       "status": "partial",
       "gaps": [
         "Filter registration/list lifecycle is implemented; the local physics solver does not yet consume selector pairs."
       ]
+    },
+    {
+      "localId": "server.world.removeCollisionFilter",
+      "canonicalId": "server.GameWorld.removeCollisionFilter",
+      "status": "partial",
+      "gaps": [
+        "Exact selector-pair removal and list lifecycle are implemented; the local physics solver does not consume selector pairs."
+      ]
+    },
+    {
+      "localId": "server.world.clearCollisionFilters",
+      "canonicalId": "server.GameWorld.clearCollisionFilters",
+      "status": "partial",
+      "gaps": [
+        "Clearing the full local filter registry is implemented; the local physics solver does not consume selector pairs."
+      ]
+    },
+    {
+      "localId": "server.world.collisionFilters",
+      "canonicalId": "server.GameWorld.collisionFilters",
+      "status": "partial",
+      "gaps": [
+        "The method returns fresh nested arrays for every registered selector pair; the local physics solver does not consume selector pairs."
+      ]
+    },
+    {
+      "localId": "server.world.projectName",
+      "canonicalId": "server.GameWorld.projectName",
+      "status": "compatible",
+      "gaps": []
     },
     {
       "localId": "server.world.addZone",
@@ -14506,7 +15854,70 @@
       "gaps": [
         "Mapped live entities emit recovered game-chat.log sender, duration, and hideFloat fields; destroyed senders are silently dropped before logging or transport.",
         "Unmapped entities remain script-local instead of receiving a fabricated Player id.",
-        "The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
+        "The recovered FIFO prefix/overflow/tick-drain algorithm and ordered Runtime-to-backend overflow batch are implemented with an evidence-deferred nullable limit; the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
+      ]
+    },
+    {
+      "localId": "server.world.sound",
+      "canonicalId": "server.GameWorld.sound",
+      "status": "partial",
+      "gaps": [
+        "The recovered global and positioned sound arguments are sent through the preserved sound MuDB protocol with dictionary-backed sample ids.",
+        "Unknown samples are rejected; browser decode/playback completion and media errors are not acknowledged to the Server Runtime."
+      ]
+    },
+    {
+      "localId": "server.RuntimeEntity.sound",
+      "canonicalId": "server.GameEntity.sound",
+      "status": "partial",
+      "gaps": [
+        "Mapped entities use the recovered entity-position sound union and defaults.",
+        "Script-local entities without a validated backend projection are rejected instead of being fabricated as global or positioned sounds."
+      ]
+    },
+    {
+      "localId": "server.RuntimePlayer.sound",
+      "canonicalId": "server.GameEntity.sound",
+      "status": "partial",
+      "gaps": [
+        "Authoritative players use the recovered player-position sound union and defaults.",
+        "A Player without a backend entity id is rejected instead of receiving a fabricated target id."
+      ]
+    },
+    {
+      "localId": "server.Sound.resume",
+      "canonicalId": "shared.Sound.resume",
+      "status": "partial",
+      "gaps": [
+        "The recovered resume and setCurrentTimeAndResume protocol messages are emitted.",
+        "The browser does not acknowledge playback state or media failure to the Server Runtime."
+      ]
+    },
+    {
+      "localId": "server.Sound.setCurrentTime",
+      "canonicalId": "shared.Sound.setCurrentTime",
+      "status": "partial",
+      "gaps": [
+        "The recovered setCurrentTime protocol message is emitted.",
+        "The browser does not acknowledge the resulting playback position."
+      ]
+    },
+    {
+      "localId": "server.Sound.pause",
+      "canonicalId": "shared.Sound.pause",
+      "status": "partial",
+      "gaps": [
+        "The recovered pause protocol message is emitted.",
+        "The browser does not acknowledge the resulting playback state."
+      ]
+    },
+    {
+      "localId": "server.Sound.stop",
+      "canonicalId": "shared.Sound.stop",
+      "status": "partial",
+      "gaps": [
+        "The recovered stop protocol message is emitted.",
+        "The browser does not acknowledge disposal or media failure."
       ]
     },
     {
@@ -14524,6 +15935,156 @@
       "gaps": [
         "The script-visible property is preserved on RuntimeEntity and captured createEntity specifications.",
         "The authoritative backend replica.interactive field is unused, so writes are not projected to the Player browser and cannot fabricate prompts or range behavior."
+      ]
+    },
+    {
+      "localId": "server.RuntimeEntity.isPlayer",
+      "canonicalId": "server.GameEntity.isPlayer",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.RuntimeEntity.bounds",
+      "canonicalId": "server.GameEntity.bounds",
+      "status": "partial",
+      "gaps": [
+        "Reads return a copy of the positive body-center half extents used by local zone and raycast geometry and by the validated initial authoritative replica.body.bounds.",
+        "RuntimeEntity bounds are fixed at creation because the canonical declaration is readonly; complete native oriented-body bounds behavior remains unavailable."
+      ]
+    },
+    {
+      "localId": "server.RuntimeEntity.meshInvisible",
+      "canonicalId": "server.GameEntity.meshInvisible",
+      "status": "partial",
+      "gaps": [
+        "The recovered false default and whole-property writes update authoritative replica.model.invisible.",
+        "RuntimePlayer model bindings remain unimplemented."
+      ]
+    },
+    {
+      "localId": "server.RuntimeEntity.meshScale",
+      "canonicalId": "server.GameEntity.meshScale",
+      "status": "partial",
+      "gaps": [
+        "The recovered 1/64 default and whole-property bounded vector writes update authoritative replica.model.scale.",
+        "Nested component mutation and RuntimePlayer model bindings remain unimplemented."
+      ]
+    },
+    {
+      "localId": "server.RuntimeEntity.meshOrientation",
+      "canonicalId": "server.GameEntity.meshOrientation",
+      "status": "partial",
+      "gaps": [
+        "The recovered identity quaternion default and whole-property writes update authoritative replica.body.orientation.",
+        "Nested quaternion mutation, native normalization details, and RuntimePlayer model bindings remain unimplemented."
+      ]
+    },
+    {
+      "localId": "server.RuntimeEntity.lookAt",
+      "canonicalId": "server.GameEntity.lookAt",
+      "status": "partial",
+      "gaps": [
+        "The recovered target coercion, default +Y up vector, invalid-facing fallback, zero-direction fallback, parallel-up perturbation, X/Y/Z matrix layouts, gl-matrix quaternion conversion, and historical component write order are implemented. RuntimeEntity calls reuse the authoritative meshOrientation update path.",
+        "RuntimePlayer lookAt/model orientation binding and nested quaternion mutation projection remain unavailable."
+      ]
+    },
+    {
+      "localId": "server.RuntimeEntity.rotateLocal",
+      "canonicalId": "server.GameEntity.rotateLocal",
+      "status": "partial",
+      "gaps": [
+        "The recovered scale-then-orientation local transform, X/Y/Z radian rotations, quaternion normalization, and before/after pivot-position compensation are implemented. RuntimeEntity calls reuse the authoritative meshOrientation and position update paths.",
+        "RuntimePlayer rotateLocal/model orientation binding and nested quaternion/position mutation projection remain unavailable."
+      ]
+    },
+    {
+      "localId": "server.RuntimeEntity.scaleLocal",
+      "canonicalId": "server.GameEntity.scaleLocal",
+      "status": "partial",
+      "gaps": [
+        "The recovered direct meshScale replacement and before/after transformed-pivot position compensation are implemented using the same scale-then-orientation transform. RuntimeEntity calls reuse the authoritative meshScale and position update paths.",
+        "RuntimePlayer scaleLocal/model scale binding and nested scale/position mutation projection remain unavailable."
+      ]
+    },
+    {
+      "localId": "server.RuntimeEntity.meshOffset",
+      "canonicalId": "server.GameEntity.meshOffset",
+      "status": "partial",
+      "gaps": [
+        "The recovered zero default and whole-property bounded vector writes update authoritative replica.model.offset.",
+        "Nested component mutation and RuntimePlayer model bindings remain unimplemented."
+      ]
+    },
+    {
+      "localId": "server.RuntimeEntity.meshColor",
+      "canonicalId": "server.GameEntity.meshColor",
+      "status": "partial",
+      "gaps": [
+        "The recovered white RGBA default and whole-property normalized color writes update authoritative replica.model.color through the protocol byte encoding.",
+        "Nested component mutation and RuntimePlayer model bindings remain unimplemented."
+      ]
+    },
+    {
+      "localId": "server.RuntimeEntity.meshMetalness",
+      "canonicalId": "server.GameEntity.meshMetalness",
+      "status": "partial",
+      "gaps": [
+        "The recovered zero default and 0..1 writes update authoritative replica.model.metalness.",
+        "RuntimePlayer model bindings remain unimplemented."
+      ]
+    },
+    {
+      "localId": "server.RuntimeEntity.meshEmissive",
+      "canonicalId": "server.GameEntity.meshEmissive",
+      "status": "partial",
+      "gaps": [
+        "The recovered zero default and 0..1 writes update authoritative replica.model.emissive.",
+        "RuntimePlayer model bindings remain unimplemented."
+      ]
+    },
+    {
+      "localId": "server.RuntimeEntity.meshShininess",
+      "canonicalId": "server.GameEntity.meshShininess",
+      "status": "partial",
+      "gaps": [
+        "The recovered zero default and 0..1 writes update authoritative replica.model.shininess.",
+        "RuntimePlayer model bindings remain unimplemented."
+      ]
+    },
+    {
+      "localId": "server.RuntimeEntity.showEntityName",
+      "canonicalId": "server.GameEntity.showEntityName",
+      "status": "partial",
+      "gaps": [
+        "The recovered false default and component enable/disable behavior are implemented through authoritative replica.nameplate creation and deletion.",
+        "RuntimePlayer EntityNameBinding behavior remains unimplemented and complete historical synchronizer scheduling was not recovered."
+      ]
+    },
+    {
+      "localId": "server.RuntimeEntity.customName",
+      "canonicalId": "server.GameEntity.customName",
+      "status": "partial",
+      "gaps": [
+        "The recovered empty-string default and UTF-8 nameplate text projection are implemented for validated captured-mesh RuntimeEntity instances.",
+        "RuntimePlayer EntityNameBinding behavior remains unimplemented."
+      ]
+    },
+    {
+      "localId": "server.RuntimeEntity.nameRadius",
+      "canonicalId": "server.GameEntity.nameRadius",
+      "status": "partial",
+      "gaps": [
+        "The recovered default 16 and protocol range/quantization-compatible finite validation are projected to authoritative replica.nameplate.radius.",
+        "RuntimePlayer EntityNameBinding behavior remains unimplemented."
+      ]
+    },
+    {
+      "localId": "server.RuntimeEntity.nameColor",
+      "canonicalId": "server.GameEntity.nameColor",
+      "status": "partial",
+      "gaps": [
+        "The recovered white default and normalized RGB projection are implemented for authoritative replica.nameplate.color.",
+        "Nested component mutation does not trigger a whole-property bridge and RuntimePlayer EntityNameBinding behavior remains unimplemented."
       ]
     },
     {
@@ -14551,6 +16112,24 @@
       "gaps": [
         "The recovered optional filter is implemented; resolution still depends on an authoritative entity binding."
       ]
+    },
+    {
+      "localId": "server.RuntimeEntity.addTag",
+      "canonicalId": "server.GameEntity.addTag",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.RuntimeEntity.removeTag",
+      "canonicalId": "server.GameEntity.removeTag",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.RuntimeEntity.hasTag",
+      "canonicalId": "server.GameEntity.hasTag",
+      "status": "compatible",
+      "gaps": []
     },
     {
       "localId": "server.RuntimeEntity.destroy",
@@ -14581,7 +16160,7 @@
       "canonicalId": "server.GameEntity.destroy",
       "status": "partial",
       "gaps": [
-        "Player destruction uses the same lifecycle contract while preserving player identity; native disconnect and engine destruction semantics remain unverified."
+        "The script call is a no-op for players, matching the recovered ScriptEntitySync non-player destroy guard; disconnect lifecycle is handled separately."
       ]
     },
     {
@@ -14589,7 +16168,7 @@
       "canonicalId": "server.GameEntity.onDestroy",
       "status": "partial",
       "gaps": [
-        "The player lifecycle event is emitted for local destruction; native disconnect and engine destruction semantics remain unverified."
+        "MuDB disconnect emits world.onPlayerLeave, player.onDestroy, then world.onEntityDestroy with one recovered GameEntityEvent; other independent engine destruction sources remain unverified."
       ]
     },
     {
@@ -14597,7 +16176,7 @@
       "canonicalId": "server.GameEntity.nextDestroy",
       "status": "partial",
       "gaps": [
-        "The recovered optional filter resolves local player destruction events; native disconnect and engine destruction semantics remain unverified."
+        "The recovered optional filter resolves the disconnect-driven player destroy event; other independent engine destruction sources remain unverified."
       ]
     },
     {
@@ -14615,6 +16194,39 @@
       "gaps": [
         "The recovered optional filter is implemented; resolution still depends on an authoritative backend player id."
       ]
+    },
+    {
+      "localId": "server.RuntimePlayer.isPlayer",
+      "canonicalId": "server.GameEntity.isPlayer",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.RuntimePlayer.bounds",
+      "canonicalId": "server.GameEntity.bounds",
+      "status": "partial",
+      "gaps": [
+        "Reads return a copy of the current authoritative Player boundsHalfExtents, including complete posture updates.",
+        "Complete native posture producer coverage remains evidence-deferred; the readonly declaration is preserved."
+      ]
+    },
+    {
+      "localId": "server.RuntimePlayer.addTag",
+      "canonicalId": "server.GameEntity.addTag",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.RuntimePlayer.removeTag",
+      "canonicalId": "server.GameEntity.removeTag",
+      "status": "compatible",
+      "gaps": []
+    },
+    {
+      "localId": "server.RuntimePlayer.hasTag",
+      "canonicalId": "server.GameEntity.hasTag",
+      "status": "compatible",
+      "gaps": []
     },
     {
       "localId": "server.RuntimePlayer.walkButton",
@@ -14869,7 +16481,8 @@
       "canonicalId": "server.GameStorage.getGroupStorage",
       "status": "partial",
       "gaps": [
-        "The function surface exists, but default project runtimes disable cross-map group storage because no authoritative group identity/configuration is available."
+        "The default project Runtime disables group storage when the historical groupId input is empty.",
+        "Capability Manifest v14 can bind a non-empty project package storage.groupId and the local provider isolates spaces by that id; DAO3 cloud scope, quotas, distributed consistency, and external group authority remain unrecovered."
       ]
     },
     {
@@ -14878,7 +16491,7 @@
       "status": "partial",
       "gaps": [
         "The local root exposes recovered getDataStorage/getGroupStorage methods behind the server.storage capability.",
-        "Cloud map/group identity and isolation remain unrecovered."
+        "Configured group storage is isolated by a launch-verified groupId, while DAO3 cloud provider semantics remain unrecovered."
       ]
     },
     {
@@ -14977,9 +16590,9 @@
     }
   ],
   "summary": {
-    "localEntries": 333,
-    "compatibleAdapters": 33,
-    "partialAdapters": 82,
-    "extensions": 218
+    "localEntries": 372,
+    "compatibleAdapters": 43,
+    "partialAdapters": 110,
+    "extensions": 219
   }
 }

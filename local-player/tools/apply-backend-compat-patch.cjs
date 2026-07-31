@@ -3,13 +3,17 @@ const { readFileSync, writeFileSync } = require("node:fs");
 const { join } = require("node:path");
 
 const BASE_SHA256 = "d35b3db79e93c03021fcb0ad62bf20d89e4bef470553bff17be6c9e3a61cc097";
-const TARGET_SHA256 = "ab169d4ffcb93dd239dad255b0c6fa895e43815af2c7cadba1276e6bcfa30241";
+const COMPAT_SHA256 = "71bbbbf0492e54b5dc5ed6f228b0bae295179ebad54196ef7306dad808ec8d59";
+const TARGET_SHA256 = "23260d597f4e8bc59820e7d4efb1f6d1d17d2a67fb01b3f7796b8dfacb170f03";
 
 function applyBackendCompatPatch(bundlePath) {
   const source = readFileSync(bundlePath, "utf8");
   assertHash(source, BASE_SHA256, "backend compatibility patch baseline");
   const patch = readFileSync(join(__dirname, "backend-compat.patch"), "utf8");
-  const output = applyUnifiedPatch(source, patch);
+  const compatOutput = applyUnifiedPatch(source, patch);
+  assertHash(compatOutput, COMPAT_SHA256, "backend compatibility patch intermediate output");
+  const soundPatch = readFileSync(join(__dirname, "backend-sound-compat.patch"), "utf8");
+  const output = applyUnifiedPatch(compatOutput, soundPatch);
   assertHash(output, TARGET_SHA256, "backend compatibility patch output");
   writeFileSync(bundlePath, output);
 }

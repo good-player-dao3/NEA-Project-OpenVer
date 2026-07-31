@@ -1,5 +1,7 @@
 ﻿import { Vector3 } from "./vector3.mjs";
 
+import { runtimeEntityBounds } from "./entity-bounds.mjs";
+
 const EPSILON = 1e-7;
 
 export class RuntimeRaycastResult {
@@ -120,20 +122,8 @@ function raycastEntities(origin, direction, maxDistance, entities, ignoreSelecto
 }
 
 function entityBounds(entity) {
-  const position = Vector3.from(entity.position);
-  if (entity.isPlayer === true && entity._body?.boundsHalfExtents) {
-    return boundsFromHalfExtents(position, entity._body.boundsHalfExtents);
-  }
-  if (!entity.bounds) return null;
-  const size = Vector3.from(entity.bounds);
-  return boundsFromHalfExtents(position, { x: size.x / 2, y: size.y / 2, z: size.z / 2 });
-}
-
-function boundsFromHalfExtents(position, half) {
-  return {
-    min: new Vector3(position.x - half.x, position.y - half.y, position.z - half.z),
-    max: new Vector3(position.x + half.x, position.y + half.y, position.z + half.z),
-  };
+  const bounds = runtimeEntityBounds(entity);
+  return bounds ? { min: bounds.lo, max: bounds.hi } : null;
 }
 
 function intersectAabb(origin, direction, min, max) {

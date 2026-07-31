@@ -14,7 +14,8 @@ export class LocalGameStorage {
     this.#file = resolve(options.file ?? ".runtime-storage.json");
     this.#logger = options.logger ?? console;
     this.getDataStorage = key => this.#space(key);
-    this.getGroupStorage = options.groupEnabled ? key => this.#space(`group:${key}`) : () => undefined;
+    const groupId = validateGroupId(options.groupId);
+    this.getGroupStorage = groupId === null ? () => undefined : key => this.#space(`group:${groupId}:${key}`);
   }
 
   #space(key) {
@@ -146,6 +147,12 @@ export class LocalGameStorage {
     this.#mutationQueue = result.then(() => undefined, () => undefined);
     return result;
   }
+}
+
+function validateGroupId(value) {
+  if (value === undefined || value === null || value === "") return null;
+  if (typeof value !== "string" || value.trim() !== value || value.length > 256 || /[\u0000-\u001f\u007f]/.test(value)) throw new TypeError("Invalid storage groupId");
+  return value;
 }
 
 export class RuntimeDataStorage {

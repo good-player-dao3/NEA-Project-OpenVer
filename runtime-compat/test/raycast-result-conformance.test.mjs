@@ -22,6 +22,7 @@ test("Capability Manifest propagates raycast result and hit entity owners", asyn
   const manifest = await buildRepositoryProjectCapabilityManifest({
     apiVersion: "0.1.0",
     contracts: { client: "dao3-client-runtime/v1", server: "nea-server-runtime/v1" },
+    projectIdentity: { projectName: "Conformance Project" },
     serverModules: [{ name: "server.js", source: `
       const result = world.raycast({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 1 });
       result.hit;

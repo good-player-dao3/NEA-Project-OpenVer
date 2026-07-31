@@ -26,6 +26,7 @@ test("Capability Manifest propagates inline and named voxel-contact event parame
   const manifest = await buildRepositoryProjectCapabilityManifest({
     apiVersion: "0.1.0",
     contracts: { client: "dao3-client-runtime/v1", server: "nea-server-runtime/v1" },
+    projectIdentity: { projectName: "Conformance Project" },
     serverModules: [{ name: "server.js", source: `
       world.onVoxelContact(event => { event.voxel; event.axis; event.force; event.entity.destroyed; });
       const separated = event => { event.x; event.y; event.z; };

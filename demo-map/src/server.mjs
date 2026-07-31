@@ -5,10 +5,10 @@ import { dirname, relative, resolve } from "node:path";
 import { createInterface } from "node:readline";
 import { fileURLToPath } from "node:url";
 import { formatImportSummary, importMapProject, publishClientScript, publishClientUiState } from "./import-project.mjs";
-import { assertProjectCapabilities, verifyProjectCapabilityAssetFiles, verifyProjectCapabilityAssetInput, verifyProjectCapabilityEntityInput, verifyProjectCapabilityGrants, verifyProjectCapabilityModuleInputs, verifyProjectCapabilityRuntimeAbiInput, verifyProjectCapabilityUiInput } from "./capability-launch-gate.mjs";
+import { assertProjectCapabilities, verifyProjectCapabilityAssetFiles, verifyProjectCapabilityAssetInput, verifyProjectCapabilityEntityInput, verifyProjectCapabilityGrants, verifyProjectCapabilityModuleInputs, verifyProjectCapabilityProjectIdentityInput, verifyProjectCapabilityRuntimeAbiInput, verifyProjectCapabilityStorageScopeInput, verifyProjectCapabilityUiInput, verifyProjectCapabilityWorldConfigInput } from "./capability-launch-gate.mjs";
 import { loadRepositoryRuntimeCompatibility } from "./project-capability.mjs";
 import { parseBackendEvent } from "./backend-events.mjs";
-import { cancelDialogsOnBackend, createEntityOnBackend, destroyEntityOnBackend, getPlayerStateFromBackend, openDialogOnBackend, queueDamageStateToBackend, queueEntityStateToBackend, queuePlayerStateToBackend, sendChatMessageToBackend, sendClientEventToBackend, sendGuiCommandToBackend } from "./control-client.mjs";
+import { cancelDialogsOnBackend, createEntityOnBackend, destroyEntityOnBackend, getPlayerStateFromBackend, openDialogOnBackend, queueDamageStateToBackend, queueEntityStateToBackend, queuePlayerStateToBackend, sendChatMessagesToBackend, sendChatMessageToBackend, sendClientEventToBackend, sendGuiCommandToBackend, sendSoundCommandToBackend } from "./control-client.mjs";
 import { ScriptRuntime } from "./runtime/script-runtime.mjs";
 import { validateRuntimePackage } from "./runtime-package.mjs";
 import { loadPreservedBlockCatalog } from "../../local-player/src/block-info.mjs";
@@ -42,6 +42,8 @@ let projectBootstrapManifest = null;
 let playerProjectionDescriptor = null;
 let spawnPoint;
 let playerBodyProfile;
+let storageScope;
+let worldConfig;
 let capabilityManifest;
 let playerRoute = "/play/nea-script-lab?contentId=100110008";
 let runtimeLabel = "demo project";
@@ -65,6 +67,9 @@ if (runtimePackagePath) {
     contracts: { client: projectManifest.engine?.clientContract, server: projectManifest.engine?.serverContract },
   });
   verifyProjectCapabilityRuntimeAbiInput(capabilityManifest, runtimeCompatibility);
+  storageScope = { groupId: projectManifest.storage?.groupId ?? null };
+  verifyProjectCapabilityStorageScopeInput(capabilityManifest, storageScope);
+  verifyProjectCapabilityProjectIdentityInput(capabilityManifest, { projectName: projectManifest.display?.name });
   const packageScriptInputs = await readRuntimePackageScriptInputs({ buildRoot, assetRoot, projectManifest, clientManifest });
   verifyProjectCapabilityModuleInputs(capabilityManifest, packageScriptInputs.modules);
   verifyProjectCapabilityGrants(capabilityManifest, packageScriptInputs.capabilities);
@@ -74,6 +79,8 @@ if (runtimePackagePath) {
   verifyProjectCapabilityAssetInput(capabilityManifest, packageEvidenceInputs.assets);
   verifyProjectCapabilityEntityInput(capabilityManifest, packageEvidenceInputs.entities);
   const world = JSON.parse(await readFile(resolve(buildRoot, projectManifest.world), "utf8"));
+  worldConfig = { entityLimit: world.entityLimit ?? 3400 };
+  verifyProjectCapabilityWorldConfigInput(capabilityManifest, worldConfig);
   const physics = world.physics ? JSON.parse(await readFile(resolve(buildRoot, world.physics), "utf8")) : {};
   spawnPoint = world.spawn;
   playerBodyProfile = physics.playerBody;
@@ -85,6 +92,11 @@ if (runtimePackagePath) {
     contracts: { client: imported.manifest.runtime.clientContract, server: imported.manifest.runtime.serverContract },
   });
   verifyProjectCapabilityRuntimeAbiInput(capabilityManifest, runtimeCompatibility);
+  storageScope = { groupId: imported.manifest.runtime.groupId };
+  verifyProjectCapabilityStorageScopeInput(capabilityManifest, storageScope);
+  verifyProjectCapabilityProjectIdentityInput(capabilityManifest, { projectName: imported.manifest.display.name });
+  worldConfig = { entityLimit: imported.manifest.world.entityLimit };
+  verifyProjectCapabilityWorldConfigInput(capabilityManifest, worldConfig);
   verifyProjectCapabilityModuleInputs(capabilityManifest, [
     ...imported.serverModules.map(module => ({ side: "server", name: module.name, bytes: module.bytes })),
     ...imported.clientModules.map(module => ({ side: "client", name: module.name, bytes: module.bytes })),
@@ -106,6 +118,7 @@ const blockCatalog = await loadPreservedBlockCatalog(assetRoot, worldManifestNam
 const runtime = await ScriptRuntime.load(buildRoot, {
   logger: runtimeLogger(),
   blockCatalog,
+  storageScope,
   validatedMeshNames: capabilityManifest.resources
     .filter(resource => resource.kind === "mesh" && resource.runtimeSupport === "validated-mesh" && resource.state === "ready")
     .map(resource => resource.reference),
@@ -125,6 +138,15 @@ const runtime = await ScriptRuntime.load(buildRoot, {
     if (playerId !== undefined && !session) throw new Error(`No backend session is bound to ${playerId}`);
     await sendChatMessageToBackend({ port: controlPort, token: controlToken, session, message });
   },
+  sendChatMessages: async deliveries => {
+    const resolved = deliveries.map(delivery => {
+      const session = delivery.sessionId === undefined ? undefined : playerSessions.get(delivery.sessionId);
+      if (delivery.sessionId !== undefined && !session) throw new Error(`No backend session is bound to ${delivery.sessionId}`);
+      return Object.freeze({ ...(session === undefined ? {} : { session }), message: delivery.message });
+    });
+    await sendChatMessagesToBackend({ port: controlPort, token: controlToken, deliveries: resolved });
+  },
+  sendSoundCommand: command => sendSoundCommandToBackend({ port: controlPort, token: controlToken, command }),
   showDialog: async (playerId, config) => {
     const session = playerSessions.get(playerId);
     if (!session) throw new Error(`No backend session is bound to ${playerId}`);

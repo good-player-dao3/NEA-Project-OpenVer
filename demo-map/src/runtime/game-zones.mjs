@@ -5,8 +5,10 @@ import { GameRGBColor, GameRGBAColor } from "./colors.mjs";
 
 export class GameBounds3 {
   static fromPoints(...points) {
-    const lo = new Vector3(Infinity, Infinity, Infinity);
-    const hi = new Vector3(-Infinity, -Infinity, -Infinity);
+    const lo = new Vector3();
+    const hi = new Vector3();
+    lo.x = lo.y = lo.z = Infinity;
+    hi.x = hi.y = hi.z = -Infinity;
     for (const point of points) {
       lo.x = Math.min(lo.x, point.x);
       lo.y = Math.min(lo.y, point.y);
@@ -19,8 +21,8 @@ export class GameBounds3 {
   }
 
   constructor(lo, hi) {
-    this.lo = Vector3.from(lo);
-    this.hi = Vector3.from(hi);
+    this.lo = lo instanceof Vector3 ? lo : Vector3.from(lo);
+    this.hi = hi instanceof Vector3 ? hi : Vector3.from(hi);
   }
 
   intersect(bounds) { return new GameBounds3(this.lo.max(bounds.lo), this.hi.min(bounds.hi)); }

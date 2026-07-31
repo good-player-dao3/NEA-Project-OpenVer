@@ -39,11 +39,11 @@ const controlClientSource = await readFile(resolve(repositoryRoot, controlClient
 const historicalScriptShellSource = await readFile(resolve(repositoryRoot, historicalScriptShellPath), "utf8");
 const project = JSON.parse(projectSource);
 
-for (const marker of ["version: 10", "inputs: Object.freeze", "normalizeCapabilityAssets", "normalizeCapabilityEntities", "normalizeCapabilityRuntimeAbi"]) {
-  if (!capabilityManifestSource.includes(marker)) throw new Error(`Capability Manifest v10 producer marker is missing: ${marker}`);
+for (const marker of ["version: 14", "inputs: Object.freeze", "normalizeCapabilityAssets", "normalizeCapabilityEntities", "normalizeCapabilityStorageScope", "normalizeCapabilityProjectIdentity", "normalizeCapabilityWorldConfig", "normalizeCapabilityRuntimeAbi", "collectStaticServerSoundReferences"]) {
+  if (!capabilityManifestSource.includes(marker)) throw new Error(`Capability Manifest v14 producer marker is missing: ${marker}`);
 }
-for (const marker of ["CAPABILITY_MANIFEST_VERSION = 10", "verifyProjectCapabilityModuleInputs", "verifyProjectCapabilityGrants", "verifyProjectCapabilityUiInput", "verifyProjectCapabilityAssetFiles", "verifyProjectCapabilityAssetInput", "verifyProjectCapabilityEntityInput", "verifyProjectCapabilityRuntimeAbiInput", "summary mismatch for"]) {
-  if (!capabilityLaunchGateSource.includes(marker)) throw new Error(`Capability Manifest v10 launch-gate marker is missing: ${marker}`);
+for (const marker of ["CAPABILITY_MANIFEST_VERSION = 14", "verifyProjectCapabilityModuleInputs", "verifyProjectCapabilityGrants", "verifyProjectCapabilityUiInput", "verifyProjectCapabilityAssetFiles", "verifyProjectCapabilityAssetInput", "verifyProjectCapabilityEntityInput", "verifyProjectCapabilityStorageScopeInput", "verifyProjectCapabilityProjectIdentityInput", "verifyProjectCapabilityWorldConfigInput", "verifyProjectCapabilityRuntimeAbiInput", "summary mismatch for"]) {
+  if (!capabilityLaunchGateSource.includes(marker)) throw new Error(`Capability Manifest v14 launch-gate marker is missing: ${marker}`);
 }
 
 const entriesBySide = groupBy(current.entries.filter(entry => ["client", "server"].includes(entry.side)), entry => entry.side);
@@ -71,7 +71,8 @@ const guiProtocol = protocols.protocols.find(protocol => protocol.id === "player
 const gameChatProtocol = protocols.protocols.find(protocol => protocol.id === "player.game-chat");
 const dialogProtocol = protocols.protocols.find(protocol => protocol.id === "player.dialog");
 const entityInteractProtocol = protocols.protocols.find(protocol => protocol.id === "player.entity-interact");
-if (!remoteProtocol || !gameNetProtocol || !guiProtocol || !gameChatProtocol || !dialogProtocol || !entityInteractProtocol) throw new Error("Required Player MuDB protocols were not found");
+const soundProtocol = protocols.protocols.find(protocol => protocol.id === "player.sound");
+if (!remoteProtocol || !gameNetProtocol || !guiProtocol || !gameChatProtocol || !dialogProtocol || !entityInteractProtocol || !soundProtocol) throw new Error("Required Player MuDB protocols were not found");
 for (const marker of ["function sendGuiCommandPacket", "function createGuiHandlers", "this.guiSessions = new GuiSessions()", "sendGuiCommand(sessionId, command)"]) {
   if (!backendSource.includes(marker)) throw new Error(`Local backend no longer proves GUI transport: ${marker}`);
 }
@@ -87,6 +88,22 @@ const chatFlowEvidence = [
   { type: "protocol-schema", path: "runtime-compat/abi/protocols.json", symbol: "player.game-chat.clientReceives.log", confidence: "direct" },
   { type: "local-source", path: backendPath, symbol: "GameChatSessions / sendChatMessage", confidence: "direct" },
   { type: "test", path: "runtime-compat/test/backend-chat-transport.test.mjs", symbol: "game-chat outbound packet conformance", confidence: "direct" },
+];
+for (const marker of ["sendSoundCommandToBackend", "/__nea/control/sound-command"]) {
+  if (!controlClientSource.includes(marker)) throw new Error(`Control client no longer proves sound transport: ${marker}`);
+}
+for (const marker of ["sendSoundCommand: command", "sendSoundCommandToBackend"]) {
+  if (!demoServerSource.includes(marker)) throw new Error(`Demo orchestration no longer proves sound transport: ${marker}`);
+}
+for (const marker of ["sendSoundCommand(command)", "session.sound.message.play(payload)", "/__nea/control/sound-command"]) {
+  if (!backendSource.includes(marker)) throw new Error(`Local backend no longer proves sound transport: ${marker}`);
+}
+const soundFlowEvidence = [
+  { type: "protocol-schema", path: "runtime-compat/abi/protocols.json", symbol: "player.sound", confidence: "direct" },
+  { type: "local-source", path: controlClientPath, symbol: "sendSoundCommandToBackend", confidence: "direct" },
+  { type: "local-source", path: demoServerPath, symbol: "ScriptRuntime sound binding", confidence: "direct" },
+  { type: "local-source", path: backendPath, symbol: "ProjectBootstrapSessions.sendSoundCommand / sound control route", confidence: "direct" },
+  { type: "test", path: "runtime-compat/test/sound-api-conformance.test.mjs", symbol: "Sound API normalization and controls", confidence: "direct" },
 ];
 for (const marker of ["input(client, data)", "context.gameNetPublicSessions.acceptInput(client.sessionId, data)", "[game-net:input]"]) {
   if (!backendSource.includes(marker)) throw new Error(`Local backend no longer proves Player input ingress: ${marker}`);
@@ -197,6 +214,8 @@ const playerSessionLifecycleEvidence = [
   { type: "local-source", path: demoServerPath, symbol: "RuntimePlayer add/remove orchestration", confidence: "direct" },
   { type: "test", path: "demo-map/test/backend-events.test.mjs", symbol: "stable Player lifecycle event parser", confidence: "direct" },
   { type: "test", path: "demo-map/test/runtime.test.mjs", symbol: "RuntimePlayer join/leave event dispatch", confidence: "direct" },
+  { type: "test", path: "runtime-compat/test/player-lifecycle-project-refinement-conformance.test.mjs", symbol: "project lifecycle subscription refinement without global ABI promotion", confidence: "direct" },
+  { type: "test", path: "runtime-compat/test/player-disconnect-destroy-order-conformance.test.mjs", symbol: "disconnect destroy order and shared GameEntityEvent payload", confidence: "direct" },
 ];
 
 const architecture = {
@@ -244,9 +263,20 @@ const architecture = {
     catalog: "runtime-compat/abi/shared-runtime.json",
     provider: "local-shared-compatibility-runtime",
     capability: "shared.math",
+    capabilities: ["shared.events", "shared.math"],
     executableEntries: sharedRuntime.entries.length,
-    confirmedGameVector3Entries: sharedRuntime.summary.confirmedCanonical,
-    partialGameVector3Entries: sharedRuntime.summary.partialCanonical,
+    confirmedGameVector3Entries: sharedRuntime.summary.gameVector3.confirmed,
+    partialGameVector3Entries: sharedRuntime.summary.gameVector3.partial,
+    confirmedGameBounds3Entries: sharedRuntime.summary.gameBounds3.confirmed,
+    partialGameBounds3Entries: sharedRuntime.summary.gameBounds3.partial,
+    confirmedGameQuaternionEntries: sharedRuntime.summary.gameQuaternion.confirmed,
+    partialGameQuaternionEntries: sharedRuntime.summary.gameQuaternion.partial,
+    confirmedGameRGBColorEntries: sharedRuntime.summary.gameRGBColor.confirmed,
+    partialGameRGBColorEntries: sharedRuntime.summary.gameRGBColor.partial,
+    confirmedGameRGBAColorEntries: sharedRuntime.summary.gameRGBAColor.confirmed,
+    partialGameRGBAColorEntries: sharedRuntime.summary.gameRGBAColor.partial,
+    confirmedGameEventHandlerTokenEntries: sharedRuntime.summary.gameEventHandlerToken.confirmed,
+    partialGameEventHandlerTokenEntries: sharedRuntime.summary.gameEventHandlerToken.partial,
   },
   contactEvents: {
     model: "runtime-compat/abi/contact-event-model.json",
@@ -258,20 +288,21 @@ const architecture = {
   },
   projectCapabilityManifest: {
     format: "nea-project-capability-manifest",
-    version: 10,
+    version: 14,
     producer: capabilityManifestPath,
     launchGate: capabilityLaunchGatePath,
     states: ["ready", "partial", "blocked", "script-owned"],
     evidenceCollections: ["requirements", "modules", "resources", "ui", "entities", "dependencies", "diagnostics"],
-    inputBindings: ["api-version", "client-contract", "server-contract", "server-modules", "client-modules", "server-capability-grants", "client-capability-grants", "client-ui-state", "asset-file-evidence", "entity-projection-evidence", "runtime-abi-artifacts"],
-    integrityChecks: ["closed-state-vocabulary", "derived-summary-counts", "derived-launch-status", "declared-derived-status-match", "exact-module-set", "exact-grant-set", "canonical-json-digests", "asset-file-bytes-sha256", "runtime-abi-semantic-digest"],
+    inputBindings: ["api-version", "client-contract", "server-contract", "server-modules", "client-modules", "server-capability-grants", "client-capability-grants", "client-ui-state", "asset-file-evidence", "entity-projection-evidence", "storage-group-scope", "project-identity", "world-config", "runtime-abi-artifacts"],
+    integrityChecks: ["closed-state-vocabulary", "derived-summary-counts", "derived-launch-status", "declared-derived-status-match", "exact-module-set", "exact-grant-set", "canonical-json-digests", "asset-file-bytes-sha256", "storage-scope-semantic-digest", "project-identity-semantic-digest", "world-config-semantic-digest", "runtime-abi-semantic-digest"],
+    projectRefinements: [{ id: "player-lifecycle-event-payload", apis: ["world.onPlayerJoin", "world.nextPlayerJoin", "world.onPlayerLeave", "world.nextPlayerLeave"], globalCompatibility: "partial", projectState: "ready", condition: "GameEntityEvent {tick,entity} payload is exact and every accessed GamePlayerEntity member is independently gated" }],
     launchBefore: ["client-script-publication", "client-ui-publication", "block-catalog-load", "server-script-runtime-construction", "backend-spawn", "player-navigation"],
-    evidence: [capabilityManifestPath, capabilityLaunchGatePath, capabilityInputDigestPath, capabilityInputNormalizePath, demoServerPath],
+    evidence: [capabilityManifestPath, capabilityLaunchGatePath, capabilityInputDigestPath, capabilityInputNormalizePath, "demo-map/src/lifecycle-event-refinement.mjs", "runtime-compat/conformance/player-lifecycle-project-refinement.mjs", demoServerPath],
   },
   transport: {
     id: "mudb-transport/v1",
     protocolAbi: "nea-protocol-abi/v1",
-    requiredProtocols: [gameNetProtocol.id, remoteProtocol.id, guiProtocol.id, gameChatProtocol.id, dialogProtocol.id, entityInteractProtocol.id],
+    requiredProtocols: [gameNetProtocol.id, remoteProtocol.id, guiProtocol.id, gameChatProtocol.id, dialogProtocol.id, entityInteractProtocol.id, soundProtocol.id],
     remoteChannelEnvelope: { fields: ["tick", "args"], argsEncoding: "JSON-text" },
   },
   authoritativeRuntime: {
@@ -293,12 +324,13 @@ const architecture = {
     flow("server-event", "server-script-runtime", "client-script-runtime", "player.remote-channel.sendClientEvent", "MuDB {tick,args}; malformed JSON is dropped by Player"),
     flow("gui-command", "server-script-runtime", "client-script-runtime", "player.gui", "Handle-based GUI init/show/remove/get/set commands with return, throw and sendMessage responses", guiFlowEvidence),
     flow("chat-delivery", "server-script-runtime", "client-script-runtime", "player.game-chat.log", "Recovered outbound text packet for world broadcast, mapped entity speech and player-targeted private delivery; browser-to-server chat ingress is excluded", chatFlowEvidence),
+    flow("sound-playback", "server-script-runtime", "player-browser-client", "player.sound", "Dictionary-backed global, positioned, entity-targeted and player-targeted playback plus resume, seek, pause and stop controls; browser media results are not acknowledged", soundFlowEvidence),
     flow("input-event-ingress", "player-browser-client", "server-script-runtime", "player.game-net.input", "Accepted Player input packets reconstruct click, press and release events with the recovered PlayerFlags mask; non-player click targets require authoritative entity bindings", inputEventFlowEvidence),
     flow("entity-interact-ingress", "player-browser-client", "server-script-runtime", "player.entity-interact", "Real Player interaction messages preserve the recovered {tick, entity, targetEntity} event and target-before-world dispatch when the target has an authoritative local binding; replica.interactive projection remains unavailable", interactEventFlowEvidence),
     flow("damage-state-projection", "server-script-runtime", "authoritative-game-runtime", "player.game-net.PUBLIC.damage", "Authenticated local control updates authoritative hp/maxHp/showHealthBar state and aggregates recovered hurt, die and respawn scriptEvents for Player sessions", damageProjectionEvidence),
     flow("runtime-entity-projection", "server-script-runtime", "authoritative-game-runtime", "nea-control.runtime-entity", "Validated captured mesh entities use authenticated create/state/destroy control operations before authoritative PUBLIC projection; unknown mesh names remain script-local", runtimeEntityProjectionEvidence),
     flow("dialog-rpc", "server-script-runtime", "player-browser-client", "player.dialog", "Recovered open RPC with typed close/text/input/select result plus per-session cancel-all delivery through the authenticated local control bridge", dialogFlowEvidence),
-    flow("player-session-lifecycle", "player-browser-client", "server-script-runtime", "player.game-net.session", "Accepted game-net join and MuDB disconnect events use a stable non-reversible SHA-256 bridge label to create and remove RuntimePlayer wrappers", playerSessionLifecycleEvidence),
+    flow("player-session-lifecycle", "player-browser-client", "server-script-runtime", "player.game-net.session", "Accepted game-net join and MuDB disconnect events use a stable non-reversible SHA-256 bridge label to create and remove RuntimePlayer wrappers; disconnect dispatches world.onPlayerLeave, player.onDestroy, then world.onEntityDestroy with one GameEntityEvent", playerSessionLifecycleEvidence),
     flow("authoritative-state", "server-script-runtime", "authoritative-game-runtime", "nea-control.player-state", "Versioned position and velocity command"),
     flow("public-state", "authoritative-game-runtime", "client-script-runtime", "player.game-net.PUBLIC", "Player and RigidBody snapshots with explicit half extents"),
   ],

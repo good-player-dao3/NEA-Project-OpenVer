@@ -101,6 +101,40 @@ const specs = [
     signature: [],
     effect: ["The script-visible flag is stored and included in captured createEntity projection requests, but the local authoritative backend marks replica.interactive unused and therefore does not create Player prompts, radius selection, or interaction sounds."],
   }),
+  compatible("server.RuntimeEntity.isPlayer", "server.GameEntity.isPlayer"),
+  partial("server.RuntimeEntity.player", "server.GameEntity.player", {
+    access: [],
+    signature: [],
+    effect: ["Non-player entities return undefined as declared. RuntimePlayer returns itself because the local Runtime merges the historical GameEntity shell and GamePlayer facade; historical object identity remains distinct in ScriptEntitySync."],
+  }),
+  partial("server.RuntimeEntity.bounds", "server.GameEntity.bounds", {
+    access: [],
+    signature: ["Canonical bounds uses GameVector3; local RuntimeEntity uses the compatible Vector3 implementation."],
+    effect: ["Reads return a detached copy of the positive body-center half extents used by local geometry and the validated initial authoritative replica; complete native oriented-body bounds behavior remains unavailable."],
+  }),
+  partial("server.RuntimeEntity.meshInvisible", "server.GameEntity.meshInvisible", { access: [], signature: [], effect: ["Whole-property writes update authoritative replica.model.invisible.", "RuntimePlayer model binding remains unavailable."] }),
+  partial("server.RuntimeEntity.meshScale", "server.GameEntity.meshScale", { access: [], signature: ["Canonical meshScale uses GameVector3; local RuntimeEntity uses the compatible Vector3 implementation."], effect: ["Whole-property writes update authoritative replica.model.scale; nested component mutation does not trigger the bridge.", "RuntimePlayer model binding remains unavailable."] }),
+  partial("server.RuntimeEntity.meshOrientation", "server.GameEntity.meshOrientation", { access: [], signature: [], effect: ["Whole-property writes update authoritative replica.body.orientation; nested quaternion mutation does not trigger the bridge.", "Complete native normalization and RuntimePlayer model binding remain unavailable."] }),
+  partial("server.RuntimeEntity.lookAt", "server.GameEntity.lookAt", { access: [], signature: ["The canonical optional meshFacing and up parameters, defaults, coercion, and invalid-facing fallback are preserved."], effect: ["The recovered matrix/quaternion algorithm and historical component order update RuntimeEntity meshOrientation through the authoritative body-orientation bridge.", "RuntimePlayer model orientation and nested quaternion mutation remain unavailable."] }),
+  partial("server.RuntimeEntity.rotateLocal", "server.GameEntity.rotateLocal", { access: [], signature: ["The canonical localPosition, X/Y/Z axis, and radian angle parameters are preserved."], effect: ["The recovered scale/orientation transform and pivot compensation update RuntimeEntity meshOrientation and position through existing authoritative bridges.", "RuntimePlayer model orientation and nested quaternion/position mutation remain unavailable."] }),
+  partial("server.RuntimeEntity.scaleLocal", "server.GameEntity.scaleLocal", { access: [], signature: ["The canonical localPosition and replacement GameVector3 scale parameters are preserved."], effect: ["The recovered scale replacement and transformed-pivot compensation update RuntimeEntity meshScale and position through existing authoritative bridges.", "RuntimePlayer model scale and nested scale/position mutation remain unavailable."] }),
+  partial("server.RuntimeEntity.meshOffset", "server.GameEntity.meshOffset", { access: [], signature: ["Canonical meshOffset uses GameVector3; local RuntimeEntity uses the compatible Vector3 implementation."], effect: ["Whole-property writes update authoritative replica.model.offset; nested component mutation does not trigger the bridge.", "RuntimePlayer model binding remains unavailable."] }),
+  partial("server.RuntimeEntity.meshColor", "server.GameEntity.meshColor", { access: [], signature: [], effect: ["Whole-property normalized RGBA writes are encoded as protocol bytes and update authoritative replica.model.color; nested component mutation does not trigger the bridge.", "RuntimePlayer model binding remains unavailable."] }),
+  partial("server.RuntimeEntity.meshMetalness", "server.GameEntity.meshMetalness", { access: [], signature: [], effect: ["Validated 0..1 writes update authoritative replica.model.metalness.", "RuntimePlayer model binding remains unavailable."] }),
+  partial("server.RuntimeEntity.meshEmissive", "server.GameEntity.meshEmissive", { access: [], signature: [], effect: ["Validated 0..1 writes update authoritative replica.model.emissive.", "RuntimePlayer model binding remains unavailable."] }),
+  partial("server.RuntimeEntity.meshShininess", "server.GameEntity.meshShininess", { access: [], signature: [], effect: ["Validated 0..1 writes update authoritative replica.model.shininess.", "RuntimePlayer model binding remains unavailable."] }),
+  partial("server.RuntimeEntity.showEntityName", "server.GameEntity.showEntityName", {
+    access: [], signature: [], effect: ["The false default and authoritative replica.nameplate create/delete behavior are implemented for validated captured-mesh entities.", "RuntimePlayer EntityNameBinding behavior and complete historical synchronizer scheduling remain unavailable."],
+  }),
+  partial("server.RuntimeEntity.customName", "server.GameEntity.customName", {
+    access: [], signature: [], effect: ["UTF-8 text is validated and projected to the authoritative nameplate component when showEntityName is true.", "RuntimePlayer EntityNameBinding behavior remains unavailable."],
+  }),
+  partial("server.RuntimeEntity.nameRadius", "server.GameEntity.nameRadius", {
+    access: [], signature: [], effect: ["The recovered default 16 and finite 0..4096 validation are projected to the authoritative nameplate radius.", "RuntimePlayer EntityNameBinding behavior remains unavailable."],
+  }),
+  partial("server.RuntimeEntity.nameColor", "server.GameEntity.nameColor", {
+    access: [], signature: ["Canonical nameColor uses GameRGBColor and the local RuntimeEntity uses the same class."], effect: ["Whole-property assignments project normalized RGB values to the authoritative nameplate component; nested component mutation does not trigger the bridge.", "RuntimePlayer EntityNameBinding behavior remains unavailable."],
+  }),
   partial("server.RuntimeEntity.onInteract", "server.GameEntity.onInteract", {
     access: [],
     signature: [],
@@ -116,15 +150,23 @@ const specs = [
     signature: ["The recovered nextClick(filter?) promise signature and optional filter are implemented."],
     effect: ["Resolution depends on an authoritative backend entity binding."],
   }),
+  compatible("server.RuntimeEntity.addTag", "server.GameEntity.addTag"),
+  compatible("server.RuntimeEntity.removeTag", "server.GameEntity.removeTag"),
+  compatible("server.RuntimeEntity.hasTag", "server.GameEntity.hasTag"),
   partial("server.RuntimeEntity.tags", "server.GameEntity.tags", {
     access: ["Canonical tags is a method returning string[]; local tags is a readonly Set<string> property whose contents remain mutable."],
     signature: ["Property/method shape and collection type differ."],
-    effect: ["Canonical addTag/removeTag/hasTag behavior and replication are not implemented."],
+    effect: ["Canonical addTag/removeTag/hasTag mutation and lookup behavior is implemented; only the canonical tags() array-returning accessor and native replication semantics remain unavailable."],
   }),
   partial("server.RuntimeEntity.say", "server.GameEntity.say", {
     access: [],
     signature: [],
-    effect: ["Mapped live entities emit the recovered game-chat.log sender id, duration, and hideFloat fields to every connected Player session; destroyed senders are silently dropped.", "Entities without an authoritative backend id remain script-local and do not receive a fabricated sender id or floating bubble.", "The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."],
+    effect: ["Mapped live entities emit the recovered game-chat.log sender id, duration, and hideFloat fields to every connected Player session; destroyed senders are silently dropped.", "Entities without an authoritative backend id remain script-local and do not receive a fabricated sender id or floating bubble.", "The recovered FIFO prefix/overflow/tick-drain algorithm and ordered Runtime-to-backend overflow batch are implemented with an evidence-deferred nullable limit; the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."],
+  }),
+  partial("server.RuntimeEntity.sound", "server.GameEntity.sound", {
+    access: [],
+    signature: [],
+    effect: ["Mapped entities emit the recovered entity-targeted sound packet with dictionary-backed sample id and historical defaults.", "Entities without an authoritative backend id are rejected instead of receiving a fabricated spatial target.", "Browser media decode, playback completion, and mediaError acknowledgement remain unavailable."],
   }),
   partial("server.RuntimeEntity.destroyed", "server.GameEntity.destroyed", {
     access: [],
@@ -203,7 +245,7 @@ const members = specs.map(spec => {
     local: { id: localEntry.id, kind: localEntry.kind, signature: localEntry.signature, capability: localEntry.capability },
     canonicalTargets: canonical ? [{ id: canonical.id, kind: canonical.kind, signature: canonical.signature }] : [],
     status: spec.status,
-    implements: [],
+    implements: spec.status === "compatible" && canonical ? [canonical.id] : [],
     gaps: spec.gaps,
     evidence: [...(localEntry.evidence ?? []), ...(canonical?.evidence ?? [])],
   };
@@ -227,6 +269,7 @@ const output = {
   members,
   summary: {
     memberCount: members.length,
+    compatible: members.filter(entry => entry.status === "compatible").length,
     partial: members.filter(entry => entry.status === "partial").length,
     extensions: members.filter(entry => entry.status === "extension").length,
   },
@@ -235,10 +278,14 @@ const output = {
 const outputPath = resolve(root, "abi", "runtime-entity-adapter-map.json");
 await mkdir(dirname(outputPath), { recursive: true });
 await writeFile(outputPath, `${JSON.stringify(output, null, 2)}\n`);
-console.log(`RuntimeEntity adapter map: ${output.summary.partial} partial, ${output.summary.extensions} extensions.`);
+console.log(`RuntimeEntity adapter map: ${output.summary.compatible} compatible, ${output.summary.partial} partial, ${output.summary.extensions} extensions.`);
 
 function partial(localId, canonicalId, gaps) {
   return { localId, canonicalId, canonicalSource: "docs", status: "partial", gaps };
+}
+
+function compatible(localId, canonicalId) {
+  return { localId, canonicalId, canonicalSource: "docs", status: "compatible", gaps: { access: [], signature: [], effect: [] } };
 }
 
 function originPartial(localId, canonicalId, gaps) {

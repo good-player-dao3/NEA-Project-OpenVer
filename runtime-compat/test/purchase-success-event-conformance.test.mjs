@@ -19,6 +19,7 @@ test("Capability Manifest types purchase payloads while retaining the ingress bl
   const manifest = await buildRepositoryProjectCapabilityManifest({
     apiVersion: "0.1.0",
     contracts: { client: "dao3-client-runtime/v1", server: "nea-server-runtime/v1" },
+    projectIdentity: { projectName: "Conformance Project" },
     serverModules: [{ name: "server.js", source: `
       world.onPlayerPurchaseSuccess(event => { event.tick; event.userId; event.productId; event.orderId; });
       const product = event => event.productId === "product.asset";
