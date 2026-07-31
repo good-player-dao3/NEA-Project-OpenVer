@@ -6,7 +6,7 @@ This guide starts the complete public runtime from a clean checkout. It does not
 
 - Windows PowerShell, PowerShell 7, or another shell capable of running Node.js commands.
 - Node.js available as `node` and npm available as `npm`.
-- A complete checkout containing `demo-map/`, `local-player/`, and `runtime-compat/`.
+- A complete checkout containing `Frontend/demo-map/`, `Backend/local-player/`, and `Middleware/runtime-compat/`.
 - Network access on the first clean start so the pinned MuDB TypeScript toolchain can be installed into the ignored `tools/.mudb-toolchain/` directory.
 
 Confirm the tools:
@@ -64,9 +64,9 @@ Keep that terminal open. The command starts these separate layers together:
 4. Player compatibility backend and MuDB transports.
 5. Published client script and UI package.
 
-Before those layers start, npm runs the `prestart` hook. A clean checkout has vendored MuDB TypeScript sources but no emitted `mudb/schema/index.js` or `mudb/stream/index.js`, so the hook installs the pinned compiler and emits only those required layers. Later starts skip this step while the outputs are current.
+Before those layers start, npm runs the `prestart` hook. A clean checkout has vendored MuDB TypeScript sources but no emitted `Shared/mudb/schema/index.js` or `Shared/mudb/stream/index.js`, so the hook installs the pinned compiler and emits only those required layers. Later starts skip this step while the outputs are current.
 
-Do not start `local-player/backend/box3-server.cjs` directly for normal play. That command starts only the Player/backend layer and omits the Server Script Runtime orchestration.
+Do not start `Backend/local-player/backend/box3-server.cjs` directly for normal play. That command starts only the Player/backend layer and omits the Server Script Runtime orchestration.
 
 ## 4. Expected Output
 
@@ -109,7 +109,7 @@ npm --prefix demo-map start
 
 The Player HTML alone does not prove that the Server Script Runtime is running.
 
-### `Cannot find module '../../mudb/schema'`
+### `Cannot find module '../../Shared/mudb/schema'`
 
 Update to a revision containing `tools/build-mudb.mjs` and the `demo-map` `prestart` hook. From the repository root, run the standard command again:
 

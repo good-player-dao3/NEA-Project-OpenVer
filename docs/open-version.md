@@ -11,7 +11,7 @@
 ## Excluded
 
 - Browser profiles, cookie stores, login databases, OAuth material, credentials, session state, and token-bearing URLs.
-- `dump/private/`, `works/private/`, `Lokibox/`, `.workspace/`, and the user-owned `NEA-Project.7z` archive.
+- `dump/private/`, `works/private/`, local reference worktrees, `.workspace/`, and the user-owned `NEA-Project.7z` archive.
 - Private map exports, script source, captures, or any asset whose publication status is unclear.
 
 ## Publishing Checklist

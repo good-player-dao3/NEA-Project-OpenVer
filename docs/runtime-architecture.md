@@ -21,11 +21,11 @@ Importable project package
 
 | Layer | Primary location | Responsibility |
 | --- | --- | --- |
-| Project package | `demo-map/`, imported packages | Maps, script manifests, and project-owned content. |
-| Client Script Runtime | `demo-map/` and published client assets | Documented client-side script surface and UI/event bridge. |
-| Server Script Runtime | `demo-map/src/runtime/` | Script globals, world/entity APIs, lifecycle events, and compatibility wrappers. |
-| MuDB transport | `mudb/`, `local-player/`, `runtime-compat/abi/` | Recovered protocol schemas and browser/server transport evidence. |
-| Authoritative Game Runtime | `local-player/backend/` plus control bridge | Player/entity state, retained replica data, and browser-facing projection. |
+| Project package | `Frontend/demo-map/`, imported packages | Maps, script manifests, and project-owned content. |
+| Client Script Runtime | `Frontend/demo-map/` and published client assets | Documented client-side script surface and UI/event bridge. |
+| Server Script Runtime | `Frontend/demo-map/src/runtime/` | Script globals, world/entity APIs, lifecycle events, and compatibility wrappers. |
+| MuDB transport | `Shared/mudb/`, `Backend/local-player/`, `Middleware/runtime-compat/abi/` | Recovered protocol schemas and browser/server transport evidence. |
+| Authoritative Game Runtime | `Backend/local-player/backend/` plus control bridge | Player/entity state, retained replica data, and browser-facing projection. |
 
 ## Evidence Rules
 
@@ -33,11 +33,11 @@ An API surface may be declared before its engine behavior is recovered. The proj
 
 Use these artifacts together:
 
-- `runtime-compat/abi/current-runtime.json` for executable ABI entries.
-- `runtime-compat/abi/compatibility-matrix.json` for canonical coverage/status.
-- `runtime-compat/generated/gap-report.md` for human-readable priorities.
-- `runtime-compat/generated/script-corpus-gap-report.md` for real script usage pressure.
-- `runtime-compat/generated/capability-gate-audit.md` for the conservative `ready` / `partial` / `blocked` launch classification of every anonymous corpus API requirement, including capability grants and executable binding evidence.
+- `Middleware/runtime-compat/abi/current-runtime.json` for executable ABI entries.
+- `Middleware/runtime-compat/abi/compatibility-matrix.json` for canonical coverage/status.
+- `Middleware/runtime-compat/generated/gap-report.md` for human-readable priorities.
+- `Middleware/runtime-compat/generated/script-corpus-gap-report.md` for real script usage pressure.
+- `Middleware/runtime-compat/generated/capability-gate-audit.md` for the conservative `ready` / `partial` / `blocked` launch classification of every anonymous corpus API requirement, including capability grants and executable binding evidence.
 
 Unknown behavior stays absent or evidence-deferred; it must not be replaced with a plausible approximation and presented as native DAO3 behavior.
 

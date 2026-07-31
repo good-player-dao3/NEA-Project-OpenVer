@@ -128,9 +128,14 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Apply Codex-style patch text safely.")
     parser.add_argument("--root", default=os.getcwd(), help="workspace root (default: cwd)")
     parser.add_argument("--check", action="store_true", help="validate without writing")
+    parser.add_argument("--patch-file", help="read patch text from a UTF-8 file")
     args = parser.parse_args()
     root = Path(args.root).resolve()
-    raw = sys.stdin.read().replace("\r\n", "\n").replace("\r", "\n")
+    if args.patch_file:
+        raw = Path(args.patch_file).read_text(encoding="utf-8")
+    else:
+        raw = sys.stdin.read()
+    raw = raw.replace("\r\n", "\n").replace("\r", "\n")
     lines = raw.splitlines()
     try:
         sections = parse_sections(lines)

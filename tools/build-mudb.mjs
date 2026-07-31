@@ -4,14 +4,14 @@ import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
-const mudbRoot = join(repoRoot, "mudb");
+const mudbRoot = join(repoRoot, "Shared", "mudb");
 const toolchainRoot = join(repoRoot, "tools", ".mudb-toolchain");
 
 // Pinned inside the range mudb already declares (typescript ^3.7.4, @types/node ^8.10.38).
 const TYPESCRIPT_VERSION = "3.9.10";
 const TYPES_NODE_VERSION = "8.10.66";
 
-// local-player/src/block-info.mjs requires mudb/schema and mudb/stream; nothing else is consumed,
+// Backend/local-player/src/block-info.mjs requires mudb/schema and mudb/stream; nothing else is consumed,
 // and the remaining layers need dev dependencies (tape, ws, webworkify) that this repo does not vendor.
 const LAYERS = ["schema", "stream"];
 
@@ -120,5 +120,5 @@ if (state.built && !process.argv.includes("--force")) {
   fail(`schema/stream not built: ${state.reason}; run "node tools/build-mudb.mjs"`);
 } else {
   build();
-  console.log(`[mudb] built ${LAYERS.map(layer => `${layer}/index.js`).join(" and ")} for local-player/src/block-info.mjs`);
+  console.log(`[mudb] built ${LAYERS.map(layer => `${layer}/index.js`).join(" and ")} for Backend/local-player/src/block-info.mjs`);
 }

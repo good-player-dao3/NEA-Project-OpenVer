@@ -1,6 +1,7 @@
 # Private browser/session material
 /dump/private/
-/local-player/.profile/
+/Evidence/dump/private/
+/Backend/local-player/.profile/
 /preservation-dump/authorize-arenapro.mjs
 /browser-profile/
 /browser-profiles/
@@ -29,21 +30,11 @@
 **/node_modules/
 **/.pnpm-store/
 
-# Generated desktop/browser packages
-/Lokibox/lokibox-merged-bypass/dist/
-/Lokibox/lokibox-merged-bypass/dist-desktop/
-/Lokibox/lokibox-merged-bypass/release/
-/Lokibox/lokibox-merged-bypass/release-*/
-/Lokibox/lokibox-merged-bypass/.svelte-kit/
-
 # Rebuildable demo output
-/demo-map/build/
+/Frontend/demo-map/build/
 
 # Pinned TypeScript compiler fetched by tools/build-mudb.mjs
 /tools/.mudb-toolchain/
-
-# Duplicate standalone worktree; the preserved snapshot lives under Lokibox/box-go
-/box-go/
 
 # External reference repositories cloned for local research
 /origin/third-party/
@@ -77,9 +68,6 @@ Thumbs.db
 !**/.env.template
 
 
-# Confidential local material
-/Lokibox/
-
 # User-owned archives and local workspace organization
 /NEA-Project.7z
 /.workspace/
@@ -100,3 +88,4 @@ Thumbs.db
 
 # Private imported works and recovered map sources
 /works/private/
+/Evidence/works/private/

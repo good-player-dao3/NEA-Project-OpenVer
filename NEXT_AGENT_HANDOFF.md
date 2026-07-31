@@ -41,37 +41,37 @@ This is not only a website clone. The required system includes:
 
 ## Repository Map
 
-### `local-player/`
+### `Backend/local-player/`
 
 Historical Player assets, local hosting, browser protocol research, Player adapters, and compatibility code.
 
-### `runtime-compat/`
+### `Middleware/runtime-compat/`
 
 Primary API/ABI, protocol, object model, physics, collision, compatibility matrix, evidence, generation, and conformance-test workspace.
 
 Start with:
 
-- `runtime-compat/package.json`
-- `runtime-compat/abi/current-runtime.json`
-- `runtime-compat/abi/client-runtime.json`
-- `runtime-compat/abi/server-runtime.json`
-- `runtime-compat/abi/protocols.json`
-- `runtime-compat/abi/compatibility-matrix.json`
-- `runtime-compat/generated/gap-report.md`
-- `runtime-compat/generated/phase-5-audit.md`
+- `Middleware/runtime-compat/package.json`
+- `Middleware/runtime-compat/abi/current-runtime.json`
+- `Middleware/runtime-compat/abi/client-runtime.json`
+- `Middleware/runtime-compat/abi/server-runtime.json`
+- `Middleware/runtime-compat/abi/protocols.json`
+- `Middleware/runtime-compat/abi/compatibility-matrix.json`
+- `Middleware/runtime-compat/generated/gap-report.md`
+- `Middleware/runtime-compat/generated/phase-5-audit.md`
 
-### `demo-map/`
+### `Frontend/demo-map/`
 
 Test project for the import format, server runtime, client runtime, events, UI, physics, and remote messaging.
 
 Start with:
 
-- `demo-map/docs/map-import-format.md`
-- `demo-map/docs/script-runtime.md`
-- `demo-map/project/nea.map.json`
-- `demo-map/project/scripts/server.js`
-- `demo-map/project/scripts/client.js`
-- `demo-map/src/server.mjs`
+- `Frontend/demo-map/docs/map-import-format.md`
+- `Frontend/demo-map/docs/script-runtime.md`
+- `Frontend/demo-map/project/nea.map.json`
+- `Frontend/demo-map/project/scripts/server.js`
+- `Frontend/demo-map/project/scripts/client.js`
+- `Frontend/demo-map/src/server.mjs`
 
 ### `preservation-dump/`
 
@@ -88,7 +88,7 @@ Final-day online preservation tools. Outputs are private by default.
 
 - `dao3-docs-mirror/`: developer API documentation mirror.
 - `origin/`: historical server reproduction and recovered sources.
-- `Lokibox/`: private local Player/runtime evidence. Do not upload it.
+- External reference worktrees were removed after neutral recovered ABI evidence was extracted. Do not recreate or reintroduce external workspace dependencies.
 - `D:\Projects\Gaming\hunter-code` may not exist under this English name. The actual external directory is the Chinese-named historical code directory previously provided by the user. It is evidence only and must not define the new architecture.
 
 ## Preserved Live Map
@@ -204,7 +204,7 @@ Recommended order:
 1. Read this file and the root `README.md`.
 2. Inspect `git status` without overwriting user files.
 3. Read the current gap report and phase audit.
-4. Compare private `script-abi-usage.json` with `runtime-compat/abi/current-runtime.json`.
+4. Compare private `script-abi-usage.json` with `Middleware/runtime-compat/abi/current-runtime.json`.
 5. Produce a prioritized list of real-map requirements missing from the local runtime.
 6. Implement the highest-priority client Runtime, remote-channel, and UI gaps.
 7. Build redacted conformance fixtures from the recovered behavior.

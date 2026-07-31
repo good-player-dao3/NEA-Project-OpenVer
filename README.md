@@ -8,24 +8,28 @@ NEA Project OpenVer is a source-available preservation and compatibility project
 
 | Goal | Start with |
 | --- | --- |
-| Understand the repository | [Repository layout](docs/repository-layout.md) |
-| Understand the runtime boundaries | [Runtime architecture](docs/runtime-architecture.md) |
-| Work with the open version safely | [Open version policy](docs/open-version.md) |
+| Understand the repository | [Repository layout](Docs/repository-layout.md) |
+| See current work and priorities | [Project progress](Docs/project-progress.md) |
+| Understand the cleanup plan | [Repository cleanup plan](Docs/repository-cleanup-plan.md) |
+| Understand the runtime boundaries | [Runtime architecture](Docs/runtime-architecture.md) |
+| Work with the open version safely | [Open version policy](Docs/open-version.md) |
 | Contribute code or evidence | [Contributing](CONTRIBUTING.md) |
-| Inspect ABI coverage and known limits | `runtime-compat/generated/gap-report.md` |
-| Run the importable demo | `demo-map/` |
+| Work with AI agents efficiently | [AI project context](Docs/ai/project-context.md) |
+| Read Chinese project guidance | [中文文档](Docs/zh/README.md) |
+| Inspect ABI coverage and known limits | `Middleware/runtime-compat/generated/gap-report.md` |
+| Run the importable demo | `Frontend/demo-map/` |
 
 ## Repository Map
 
 | Path | Purpose |
 | --- | --- |
-| `demo-map/` | Reference project, map importer, client publication, and local server Script Runtime. |
-| `runtime-compat/` | Machine-readable API/ABI catalogs, evidence generators, compatibility reports, and conformance fixtures. |
-| `local-player/` | Recovered Player hosting, compatibility backend, launch tools, and Player-side adapters. |
-| `preservation-dump/` | Bounded capture/export tooling. Its private output remains under ignored paths. |
-| `works/` | Public work catalog; recovered/private work sources remain ignored. |
-| `dao3-docs-mirror/`, `origin/`, `mudb/`, `dump/` | Vetted documentation, transport, bundle, and historical evidence. They are inputs to compatibility conclusions, not replacement application architecture. |
-| `docs/` | Repository-wide governance, layout, and architecture documentation. |
+| `Frontend/demo-map/` | Reference project, map importer, client publication, and local server Script Runtime. |
+| `Middleware/runtime-compat/` | Machine-readable API/ABI catalogs, evidence generators, compatibility reports, and conformance fixtures. |
+| `Backend/local-player/` | Recovered Player hosting, compatibility backend, launch tools, and Player-side adapters. |
+| `Evidence/preservation-dump/` | Bounded capture/export tooling. Its private output remains under ignored paths. |
+| `Evidence/works/` | Public work catalog; recovered/private work sources remain ignored. |
+| `Evidence/dao3-docs-mirror/`, `Evidence/origin/`, `Shared/mudb/`, `Evidence/dump/` | Vetted documentation, transport, bundle, and historical evidence. They are inputs to compatibility conclusions, not replacement application architecture. |
+| `Docs/` | Repository-wide governance, layout, and architecture documentation. |
 | `tools/` | Small maintenance helpers, including the required patch wrapper. |
 
 ## Architecture
@@ -56,7 +60,7 @@ The default demo is then available at:
 http://127.0.0.1:4322/play/nea-script-lab?contentId=100110008
 ```
 
-The command must stay running: it starts both the Server Script Runtime and the Player compatibility backend. Starting `local-player/backend/box3-server.cjs` by itself only serves the Player shell and does not run map scripts. For a clean-clone walkthrough, expected logs, port-conflict recovery, and Capability Manifest troubleshooting, see [Cold Start Guide](docs/cold-start.md).
+The command must stay running: it starts both the Server Script Runtime and the Player compatibility backend. Starting `Backend/local-player/backend/box3-server.cjs` by itself only serves the Player shell and does not run map scripts. For a clean-clone walkthrough, expected logs, port-conflict recovery, and Capability Manifest troubleshooting, see [Cold Start Guide](Docs/cold-start.md).
 
 For repository validation, run the documented package commands when you are ready:
 
@@ -70,7 +74,7 @@ npm --prefix demo-map test
 ## Current Compatibility Posture
 
 - Client and server Script Runtimes are separate execution realms with declared transport boundaries.
-- The current local ABI and compatibility classifications are generated under `runtime-compat/abi/` and `runtime-compat/generated/`.
+- The current local ABI and compatibility classifications are generated under `Middleware/runtime-compat/abi/` and `Middleware/runtime-compat/generated/`.
 - Runtime-created entities can project only through captured, validated mesh bindings; unknown meshes remain script-local rather than receiving fabricated geometry.
 - Historical posture body-shape values that have no local evidence remain `null`; the runtime preserves the current collider instead of guessing dimensions.
 

@@ -13,8 +13,8 @@ $allowedExtensions = [System.Collections.Generic.HashSet[string]]::new(
 )
 $locations = @(
     @{ Name = "root"; Path = $repositoryRoot; CheckProcesses = $false },
-    @{ Name = "demo-map"; Path = (Join-Path $repositoryRoot "demo-map"); CheckProcesses = $true },
-    @{ Name = "local-player"; Path = (Join-Path $repositoryRoot "local-player"); CheckProcesses = $true }
+    @{ Name = "demo-map"; Path = (Join-Path $repositoryRoot "Frontend/demo-map"); CheckProcesses = $true },
+    @{ Name = "local-player"; Path = (Join-Path $repositoryRoot "Backend/local-player"); CheckProcesses = $true }
 )
 
 $processCommandLines = @()
