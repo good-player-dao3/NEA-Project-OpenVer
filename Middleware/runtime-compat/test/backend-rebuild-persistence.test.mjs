@@ -3,11 +3,11 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-const backendUrl = new URL("../../local-player/backend/box3-server.cjs", import.meta.url);
-const bundleToolUrl = new URL("../../local-player/tools/bundle-backend.cjs", import.meta.url);
-const applyToolUrl = new URL("../../local-player/tools/apply-backend-compat-patch.cjs", import.meta.url);
-const patchUrl = new URL("../../local-player/tools/backend-compat.patch", import.meta.url);
-const soundPatchUrl = new URL("../../local-player/tools/backend-sound-compat.patch", import.meta.url);
+const backendUrl = new URL("../../../Backend/local-player/backend/box3-server.cjs", import.meta.url);
+const bundleToolUrl = new URL("../../../Backend/local-player/tools/bundle-backend.cjs", import.meta.url);
+const applyToolUrl = new URL("../../../Backend/local-player/tools/apply-backend-compat-patch.cjs", import.meta.url);
+const patchUrl = new URL("../../../Backend/local-player/tools/backend-compat.patch", import.meta.url);
+const soundPatchUrl = new URL("../../../Backend/local-player/tools/backend-sound-compat.patch", import.meta.url);
 
 const backend = await readFile(backendUrl, "utf8");
 const bundleTool = await readFile(bundleToolUrl, "utf8");

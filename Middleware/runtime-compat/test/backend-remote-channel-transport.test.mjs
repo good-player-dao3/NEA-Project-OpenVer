@@ -3,7 +3,7 @@ import test from "node:test";
 import vm from "node:vm";
 import { readFile } from "node:fs/promises";
 
-const backendUrl = new URL("../../local-player/backend/box3-server.cjs", import.meta.url);
+const backendUrl = new URL("../../../Backend/local-player/backend/box3-server.cjs", import.meta.url);
 const backend = await readFile(backendUrl, "utf8");
 
 function loadRemoteChannelSessions() {
@@ -66,8 +66,8 @@ test("Demo waits for client protocol connections without enabling legacy gamepla
 });
 
 test("backend bundling reapplies the generic remote-channel transport", async () => {
-  const bundleTool = await readFile(new URL("../../local-player/tools/bundle-backend.cjs", import.meta.url), "utf8");
-  const patchTool = await readFile(new URL("../../local-player/tools/patch-generic-remote-channel.cjs", import.meta.url), "utf8");
+  const bundleTool = await readFile(new URL("../../../Backend/local-player/tools/bundle-backend.cjs", import.meta.url), "utf8");
+  const patchTool = await readFile(new URL("../../../Backend/local-player/tools/patch-generic-remote-channel.cjs", import.meta.url), "utf8");
   assert.match(bundleTool, /patchGenericRemoteChannelBundle\(process\.argv\[4\]\)/);
   assert.match(patchTool, /class \{/);
   assert.match(patchTool, /remoteChannelSessions\.connect\(client\)/);
