@@ -1,6 +1,6 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
@@ -79,17 +79,17 @@ function installToolchain() {
 function writeProjectConfig(typeRoot) {
   mkdirSync(toolchainRoot, { recursive: true });
   const configPath = join(toolchainRoot, "tsconfig.mudb.json");
-  // Absolute paths keep the generated project independent of where the toolchain lives.
+  const configRelative = target => relative(toolchainRoot, target).replaceAll("\\", "/");
   writeFileSync(configPath, `${JSON.stringify({
-    extends: join(mudbRoot, "tsconfig.json"),
+    extends: configRelative(join(mudbRoot, "tsconfig.json")),
     compilerOptions: {
-      rootDir: join(mudbRoot, "src"),
-      outDir: mudbRoot,
-      typeRoots: [typeRoot],
+      rootDir: configRelative(join(mudbRoot, "src")),
+      outDir: configRelative(mudbRoot),
+      typeRoots: [configRelative(typeRoot)],
       types: ["node"],
     },
-    include: LAYERS.map(layer => join(mudbRoot, "src", layer, "**", "*")),
-    exclude: ["test", "bench"].map(name => join(mudbRoot, "src", "**", name, "**")),
+    include: LAYERS.map(layer => `${configRelative(join(mudbRoot, "src", layer))}/**/*`),
+    exclude: ["test", "bench"].map(name => `${configRelative(join(mudbRoot, "src"))}/**/${name}/**/*`),
   }, null, 2)}\n`);
   return configPath;
 }
