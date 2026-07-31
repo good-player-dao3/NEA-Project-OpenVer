@@ -1,11 +1,11 @@
 {
   "format": "nea-local-server-runtime-analysis",
   "version": 1,
-  "generatedAt": "2026-07-31T09:27:01.806Z",
+  "generatedAt": "2026-07-31T11:20:50.115Z",
   "source": {
     "path": "demo-map/src/runtime/script-runtime.mjs",
-    "bytes": 78292,
-    "sha256": "6caeb28289bc6740bc48f8ba1b49e9aa67134b62a2ef6834921ff6216affe7f7"
+    "bytes": 83946,
+    "sha256": "18beffe6b6bcbd7487e9d4562d05c2693562303752ad722bbc212e562318a417"
   },
   "eventTokenSource": {
     "path": "demo-map/src/runtime/event-signal.mjs",
@@ -19,8 +19,8 @@
   },
   "guiSource": {
     "path": "demo-map/src/runtime/game-gui.mjs",
-    "bytes": 1649,
-    "sha256": "ed78ccff1556e8658f4074c28feef698ed5fdb346d8ed5d70d77ed762f00e2cf"
+    "bytes": 1621,
+    "sha256": "13a3268c19f4021a766c7a1c55bbdc8456ab2629ca646b7335788cb5f7e53240"
   },
   "storageSource": {
     "path": "demo-map/src/runtime/game-storage.mjs",
@@ -29,8 +29,8 @@
   },
   "worldSource": {
     "path": "demo-map/src/runtime/game-world.mjs",
-    "bytes": 6020,
-    "sha256": "6dfad0f16040d74f53a066ed1e5373a2495c2dd4e5ed7ac158e65b81df1e12aa"
+    "bytes": 5906,
+    "sha256": "036f8dd1bc8c1704dcadf38078a4bb1565f1a7bdcbfbc9d13ca338dc6a0f254e"
   },
   "zonesSource": {
     "path": "demo-map/src/runtime/game-zones.mjs",
@@ -10080,6 +10080,412 @@
       ]
     },
     {
+      "id": "server.RuntimePlayer.walkSpeed",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "walkSpeed",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.player.write",
+      "since": "0.1.0",
+      "implements": [
+        "server.GamePlayerEntity.walkSpeed"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.runSpeed",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "runSpeed",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.player.write",
+      "since": "0.1.0",
+      "implements": [
+        "server.GamePlayerEntity.runSpeed"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.runAcceleration",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "runAcceleration",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.player.write",
+      "since": "0.1.0",
+      "implements": [
+        "server.GamePlayerEntity.runAcceleration"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.jumpPower",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "jumpPower",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.player.write",
+      "since": "0.1.0",
+      "implements": [
+        "server.GamePlayerEntity.jumpPower"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.jumpSpeedFactor",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "jumpSpeedFactor",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.player.write",
+      "since": "0.1.0",
+      "implements": [
+        "server.GamePlayerEntity.jumpSpeedFactor"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.jumpAccelerationFactor",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "jumpAccelerationFactor",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.player.write",
+      "since": "0.1.0",
+      "implements": [
+        "server.GamePlayerEntity.jumpAccelerationFactor"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.doubleJumpPower",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "doubleJumpPower",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.player.write",
+      "since": "0.1.0",
+      "implements": [
+        "server.GamePlayerEntity.doubleJumpPower"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.crouchSpeed",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "crouchSpeed",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.player.write",
+      "since": "0.1.0",
+      "implements": [
+        "server.GamePlayerEntity.crouchSpeed"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.crouchAcceleration",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "crouchAcceleration",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.player.write",
+      "since": "0.1.0",
+      "implements": [
+        "server.GamePlayerEntity.crouchAcceleration"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.flySpeed",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "flySpeed",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.player.write",
+      "since": "0.1.0",
+      "implements": [
+        "server.GamePlayerEntity.flySpeed"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.flyAcceleration",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "flyAcceleration",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.player.write",
+      "since": "0.1.0",
+      "implements": [
+        "server.GamePlayerEntity.flyAcceleration"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.swimAcceleration",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "swimAcceleration",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.player.write",
+      "since": "0.1.0",
+      "implements": [
+        "server.GamePlayerEntity.swimAcceleration"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.swimSpeed",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "swimSpeed",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.player.write",
+      "since": "0.1.0",
+      "implements": [
+        "server.GamePlayerEntity.swimSpeed"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.RuntimePlayer.walkAcceleration",
+      "side": "server",
+      "kind": "property",
+      "owner": "RuntimePlayer",
+      "name": "walkAcceleration",
+      "signature": {
+        "type": "number",
+        "readonly": false
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.player.write",
+      "since": "0.1.0",
+      "implements": [
+        "server.GamePlayerEntity.walkAcceleration"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
       "id": "server.RuntimePlayer.color",
       "side": "server",
       "kind": "property",
@@ -16590,9 +16996,9 @@
     }
   ],
   "summary": {
-    "localEntries": 372,
+    "localEntries": 386,
     "compatibleAdapters": 43,
     "partialAdapters": 110,
-    "extensions": 219
+    "extensions": 233
   }
 }

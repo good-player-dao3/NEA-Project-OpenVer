@@ -158,6 +158,20 @@ const memberSpecs = [
   inputPermission("server.RuntimePlayer.enableJump", "server.GamePlayerEntity.enableJump", "server.GamePlayer.enableJump"),
   inputPermission("server.RuntimePlayer.enableDoubleJump", "server.GamePlayerEntity.enableDoubleJump", "server.GamePlayer.enableDoubleJump"),
   originPartial("server.RuntimePlayer.enableCrouch", ["server.GamePlayer.enableCrouch"], { access: [], signature: [], effect: ["The server input bridge applies the recovered crouch mask, but authoritative Player Public flags are not yet written back to the client."] }),
+  playerPublicNumber("walkSpeed"),
+  playerPublicNumber("runSpeed"),
+  playerPublicNumber("runAcceleration"),
+  playerPublicNumber("jumpPower"),
+  playerPublicNumber("jumpSpeedFactor"),
+  playerPublicNumber("jumpAccelerationFactor"),
+  playerPublicNumber("doubleJumpPower"),
+  playerPublicNumber("crouchSpeed"),
+  playerPublicNumber("crouchAcceleration"),
+  playerPublicNumber("flySpeed"),
+  playerPublicNumber("flyAcceleration"),
+  playerPublicNumber("swimAcceleration"),
+  playerPublicNumber("swimSpeed"),
+  playerPublicNumber("walkAcceleration"),
   partial("server.RuntimePlayer.color", ["server.GamePlayerEntity.color"], {
     access: [],
     signature: [],
@@ -362,6 +376,14 @@ function compatible(localId, canonicalIds, supportingOriginIds = canonicalIds) {
 
 function inputPermission(localId, canonicalId, originId) {
   return partial(localId, [canonicalId], { access: [], signature: [], effect: ["The server input bridge applies the recovered flag mask, but authoritative Player Public flags are not yet written back to the client."] }, [originId]);
+}
+
+function playerPublicNumber(name) {
+  return partial(`server.RuntimePlayer.${name}`, [`server.GamePlayerEntity.${name}`], {
+    access: [],
+    signature: ["The local member is a finite non-negative number and uses the recovered Player PUBLIC schema field."],
+    effect: ["Script writes are queued through the authenticated player-state control bridge and projected into the authoritative player.game-net.PUBLIC PlayerSchema."],
+  }, [`server.GamePlayer.${name}`]);
 }
 
 function partial(localId, canonicalIds, gaps, supportingOriginIds = canonicalIds) {

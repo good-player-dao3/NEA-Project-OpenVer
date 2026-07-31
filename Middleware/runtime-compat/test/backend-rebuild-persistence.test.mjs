@@ -89,6 +89,39 @@ test("compatibility patch persists recovered UI, Dialog, chat, player-network, a
   assert.match(patch, /transform\.restitution/);
 });
 
+test("player movement fields survive authoritative snapshot and PUBLIC state projection", () => {
+  for (const field of [
+    "walkSpeed",
+    "runSpeed",
+    "runAcceleration",
+    "jumpPower",
+    "jumpSpeedFactor",
+    "jumpAccelerationFactor",
+    "doubleJumpPower",
+    "crouchSpeed",
+    "crouchAcceleration",
+    "flySpeed",
+    "flyAcceleration",
+    "swimAcceleration",
+    "swimSpeed",
+    "walkAcceleration",
+  ]) {
+    assert.match(backend, new RegExp(`${field}: player\\.${field}`));
+    assert.match(backend, new RegExp(`if \\(player\\.${field} !== void 0\\) playerState\\.${field} = player\\.${field};`));
+  }
+  assert.match(backend, /playerRuntimeState\(sessionLabel\)[\s\S]*\.\.\.neaPlayerPublicState\(player\)/);
+  assert.match(backend, /queuePlayerRuntimeState\(sessionLabel, state\)[\s\S]*\.\.\.neaPlayerPublicState\(state\)/);
+  assert.match(backend, /for \(const field of neaPlayerPublicNumberFields\)[\s\S]*state\[field\] !== void 0/);
+});
+
+test("authoritative client input keeps DAO3 Player movement values single-sourced in PUBLIC physics", () => {
+  assert.doesNotMatch(backend, /scaleTemporaryLegacyPlayerMotion\(player, command\)/);
+  assert.doesNotMatch(backend, /playerMovementSpeedScale\(player, command\.inputState\)/);
+  assert.doesNotMatch(backend, /finiteOrDefault\(player\.runSpeed, 0\.4\) \/ 0\.4/);
+  assert.match(backend, /if \(command\.runSpeed !== void 0\) player\.runSpeed = command\.runSpeed;/);
+  assert.match(backend, /if \(player\.runSpeed !== void 0\) playerState\.runSpeed = player\.runSpeed;/);
+});
+
 test("runtime model projection accepts captured zero scale used by hidden entities", () => {
   assert.match(backend, /normalizeVector\(entity\.model\.scale \?\? \[1, 1, 1\], "entity model scale"\)/);
   assert.doesNotMatch(backend, /normalizePositiveVector\(entity\.model\.scale/);

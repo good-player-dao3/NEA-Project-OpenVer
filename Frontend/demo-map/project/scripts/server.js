@@ -2,8 +2,52 @@ console.log("NEA Script Lab server script loaded");
 
 const beacon = world.querySelector(".demo-beacon");
 
+const playerMovementApiExample = Object.freeze({
+  walkSpeed: 0.7,
+  runSpeed: 5,
+  runAcceleration: 0.36,
+  jumpPower: 0.98,
+  jumpSpeedFactor: 0.86,
+  jumpAccelerationFactor: 0.56,
+  doubleJumpPower: 0.92,
+  crouchSpeed: 0.105,
+  crouchAcceleration: 0.095,
+  flySpeed: 2.05,
+  flyAcceleration: 2.05,
+  swimAcceleration: 0.105,
+  swimSpeed: 0.41,
+  walkAcceleration: 0.195,
+});
+
+function applyPlayerMovementApiExample(player) {
+  // 新增的 Player API 示例：这些字段会通过 player-state 写入后端，并同步到前端 PUBLIC PlayerSchema。
+  player.walkSpeed = playerMovementApiExample.walkSpeed;
+  player.runSpeed = playerMovementApiExample.runSpeed;
+  player.runAcceleration = playerMovementApiExample.runAcceleration;
+  player.jumpPower = playerMovementApiExample.jumpPower;
+  player.jumpSpeedFactor = playerMovementApiExample.jumpSpeedFactor;
+  player.jumpAccelerationFactor = playerMovementApiExample.jumpAccelerationFactor;
+  player.doubleJumpPower = playerMovementApiExample.doubleJumpPower;
+  player.crouchSpeed = playerMovementApiExample.crouchSpeed;
+  player.crouchAcceleration = playerMovementApiExample.crouchAcceleration;
+  player.flySpeed = playerMovementApiExample.flySpeed;
+  player.flyAcceleration = playerMovementApiExample.flyAcceleration;
+  player.swimAcceleration = playerMovementApiExample.swimAcceleration;
+  player.swimSpeed = playerMovementApiExample.swimSpeed;
+  player.walkAcceleration = playerMovementApiExample.walkAcceleration;
+}
+
 world.onPlayerJoin(({ player }) => {
   player.name = `Explorer-${player.id.split("-").at(-1)}`;
+  const syncPlayerMovementApiExample = () => {
+    applyPlayerMovementApiExample(player);
+    remoteChannel.sendClientEvent(player, {
+      type: "nea-demo:player-movement-api-applied",
+      playerMovementApiExample,
+    });
+  };
+  // 前端 PUBLIC 物理会话可能晚于脚本 onPlayerJoin 完成握手；短暂重复写入同一 player-state 桥，避免首帧竞态。
+  for (const delay of [0, 100, 300, 700, 1200]) setTimeout(syncPlayerMovementApiExample, delay);
   world.say(`${player.name} joined NEA Script Lab`);
   player.sendMessage("Server Script Runtime is active.");
   if (beacon) beacon.tags.add("active");
@@ -17,6 +61,7 @@ world.onPlayerJoin(({ player }) => {
       shapeHalfExtents: Object.values(player.snapshot().collision.shapeHalfExtents),
     },
     postureStatus: "standing confirmed; crouch/fly unresolved",
+    playerMovementApiExample,
   });
 });
 

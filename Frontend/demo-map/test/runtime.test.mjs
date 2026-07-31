@@ -192,6 +192,102 @@ test("world gravity and airFriction writes reconfigure runtime-owned Player phys
   assert.ok(Math.abs(player.velocity.z - -1) < 1e-12);
 });
 
+test("GamePlayerEntity exposes simple documented player fields and movement bounds", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-player-simple-api-")), "project");
+  await importMapProject(source, output);
+  await writeFile(join(output, "scripts", "server.js"), `
+    world.onPlayerJoin(({ entity }) => {
+      if (entity.player.userId !== "10001") throw new Error("userId mismatch");
+      if (entity.player.boxId !== "box-10001") throw new Error("boxId mismatch");
+      if (entity.player.userKey !== "abcdefghijklmnop") throw new Error("userKey mismatch");
+      if (entity.player.avatar !== "https://example.test/avatar.png") throw new Error("avatar mismatch");
+      if (entity.player.url.searchParams.get("from") !== "dao3") throw new Error("url mismatch");
+      if (entity.player.canFly !== false || entity.player.walkSpeed !== 0.22 || entity.player.runSpeed !== 0.4) throw new Error("movement defaults mismatch");
+      entity.player.canFly = true;
+      entity.player.walkSpeed = 0.33;
+      entity.player.runSpeed = 0.66;
+      entity.player.spawnPoint = new GameVector3(3, 4, 5);
+      entity.player.movementBounds = new GameBounds3(new GameVector3(0, 0, 0), new GameVector3(10, 10, 10));
+    });
+  `, "utf8");
+  const runtime = await ScriptRuntime.load(output, { blockCatalog, logger: { info() {}, warn() {}, error() {} } });
+  await runtime.start();
+  const player = runtime.addPlayer({
+    id: "player-simple-api",
+    name: "Guest",
+    position: [1, 2, 3],
+    userId: "10001",
+    boxId: "box-10001",
+    userKey: "abcdefghijklmnop",
+    avatar: "https://example.test/avatar.png",
+    url: "https://play.dao3.fun/play/demo?from=dao3",
+  });
+  player.position = [99, 99, 99];
+  player.velocity = [1, 2, 3];
+  runtime.tick();
+  assert.deepEqual(player.position.toArray(), [3, 4, 5]);
+  assert.deepEqual(player.velocity.toArray(), [0, 0, 0]);
+  const snapshot = player.snapshot();
+  assert.equal(snapshot.userId, "10001");
+  assert.equal(snapshot.canFly, true);
+  assert.equal(snapshot.walkSpeed, 0.33);
+  assert.equal(snapshot.runSpeed, 0.66);
+  assert.deepEqual(snapshot.movementBounds, { lo: [0, 0, 0], hi: [10, 10, 10] });
+  runtime.stop();
+});
+
+test("backend-authoritative Player movement fields are queued through player-state", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-player-state-movement-")), "project");
+  await importMapProject(source, output);
+  await writeFile(join(output, "scripts", "server.js"), `
+    world.onPlayerJoin(({ player }) => {
+      player.walkSpeed = 0.23;
+      player.runSpeed = 0.42;
+      player.runAcceleration = 0.36;
+      player.jumpPower = 0.98;
+      player.jumpSpeedFactor = 0.86;
+      player.jumpAccelerationFactor = 0.56;
+      player.doubleJumpPower = 0.92;
+      player.crouchSpeed = 0.105;
+      player.crouchAcceleration = 0.095;
+      player.flySpeed = 2.05;
+      player.flyAcceleration = 2.05;
+      player.swimAcceleration = 0.105;
+      player.swimSpeed = 0.41;
+      player.walkAcceleration = 0.195;
+    });
+  `, "utf8");
+  const writes = [];
+  const runtime = await ScriptRuntime.load(output, {
+    blockCatalog,
+    logger: { info() {}, warn() {}, error() {} },
+    writePlayerState: (playerId, state) => writes.push({ playerId, state: structuredClone(state) }),
+  });
+  await runtime.start();
+  runtime.addPlayer({ id: "player-movement-sync", name: "Guest", position: [1, 2, 3], authority: "backend" });
+  await new Promise(resolve => setTimeout(resolve, 0));
+  runtime.stop();
+
+  const latest = writes.at(-1);
+  assert.equal(latest?.playerId, "player-movement-sync");
+  assert.equal(latest.state.walkSpeed, 0.23);
+  assert.equal(latest.state.runSpeed, 0.42);
+  assert.equal(latest.state.runAcceleration, 0.36);
+  assert.equal(latest.state.jumpPower, 0.98);
+  assert.equal(latest.state.jumpSpeedFactor, 0.86);
+  assert.equal(latest.state.jumpAccelerationFactor, 0.56);
+  assert.equal(latest.state.doubleJumpPower, 0.92);
+  assert.equal(latest.state.crouchSpeed, 0.105);
+  assert.equal(latest.state.crouchAcceleration, 0.095);
+  assert.equal(latest.state.flySpeed, 2.05);
+  assert.equal(latest.state.flyAcceleration, 2.05);
+  assert.equal(latest.state.swimAcceleration, 0.105);
+  assert.equal(latest.state.swimSpeed, 0.41);
+  assert.equal(latest.state.walkAcceleration, 0.195);
+});
+
 test("preserves captured source tags outside the project-package carrier grammar", async () => {
   const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
   const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-source-tags-")), "project");
@@ -1000,6 +1096,10 @@ test("backend-authoritative players observe state without local gravity and queu
   });
   runtime.tick();
   assert.deepEqual(player.position.toArray(), [12, 7, 12]);
+  player.walkSpeed = 0.23;
+  player.runSpeed = 0.42;
+  player.jumpPower = 0.98;
+  player.flySpeed = 2.05;
   player.applyImpulse({ x: 2, y: 3, z: 4 });
   const snapshot = runtime.snapshot().players[0];
   runtime.stop();
@@ -1009,7 +1109,16 @@ test("backend-authoritative players observe state without local gravity and queu
   assert.deepEqual(snapshot.collision.boundsHalfExtents, { x: 0.45, y: 1.1, z: 0.45 });
   assert.deepEqual(snapshot.collision.shapeHalfExtents, { x: 0.4, y: 1, z: 0.4 });
   assert.deepEqual(snapshot.velocity, [3, 3, 4]);
+  assert.equal(snapshot.walkSpeed, 0.23);
+  assert.equal(snapshot.runSpeed, 0.42);
+  assert.equal(snapshot.jumpPower, 0.98);
+  assert.equal(snapshot.flySpeed, 2.05);
   assert.ok(writes.some(write => write.playerId === "backend-1" && write.state.velocity[1] === 3));
+  assert.ok(writes.some(write => write.playerId === "backend-1"
+    && write.state.walkSpeed === 0.23
+    && write.state.runSpeed === 0.42
+    && write.state.jumpPower === 0.98
+    && write.state.flySpeed === 2.05));
 });
 
 test("RuntimePlayer id is getter-only and remains stable", async () => {

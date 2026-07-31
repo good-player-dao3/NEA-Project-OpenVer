@@ -57,6 +57,23 @@ const PLAYER_INPUT_PERMISSIONS = Object.freeze([
   Object.freeze({ mask: 64, property: "enableDoubleJump" }),
 ]);
 
+const PLAYER_PUBLIC_NUMBER_FIELDS = Object.freeze([
+  "walkSpeed",
+  "runSpeed",
+  "runAcceleration",
+  "jumpPower",
+  "jumpSpeedFactor",
+  "jumpAccelerationFactor",
+  "doubleJumpPower",
+  "crouchSpeed",
+  "crouchAcceleration",
+  "flySpeed",
+  "flyAcceleration",
+  "swimAcceleration",
+  "swimSpeed",
+  "walkAcceleration",
+]);
+
 const KNOWN_CAPABILITIES = new Set([
   "server.world.events",
   "server.world.chat",
@@ -284,6 +301,7 @@ export class ScriptRuntime {
       const contacts = player._authority === "backend"
         ? this.physics.observe(player._body)
         : this.physics.step(player._body, deltaTime);
+      this.#enforcePlayerMovementBounds(player);
       for (const contact of contacts.entered) {
         const event = createContactEvent(this.currentTick, player, contact);
         this.#signals.contact.emit(event, error => this.#reportError("contact", error));
@@ -326,6 +344,11 @@ export class ScriptRuntime {
       name: input.name ?? "Guest",
       position: input.position ?? [0, 0, 0],
       authority: input.authority ?? "runtime",
+      userId: input.userId,
+      boxId: input.boxId,
+      userKey: input.userKey,
+      avatar: input.avatar,
+      url: input.url,
     });
     this.#playerIds.set(player, id);
     this.#players.set(id, player);
@@ -451,6 +474,9 @@ export class ScriptRuntime {
     if (Number.isFinite(version) && version < player._stateVersion) return false;
     if (state.position) player._body.position.copy(Vector3.from(state.position));
     if (state.velocity) player._body.velocity.copy(Vector3.from(state.velocity));
+    for (const field of PLAYER_PUBLIC_NUMBER_FIELDS) {
+      if (Object.hasOwn(state, field)) player[`_${field}`] = requireFiniteRange(state[field], `player ${field}`, 0, 1024);
+    }
     if (Object.hasOwn(state, "bodyHalfExtents") || Object.hasOwn(state, "bodyShapeHalfExtents")) {
       const shape = state.bodyHalfExtents === null && state.bodyShapeHalfExtents === null
         ? null
@@ -744,6 +770,12 @@ export class ScriptRuntime {
     this.#worldPhysicsSnapshot = Object.freeze({ gravity, airFriction });
   }
 
+  #enforcePlayerMovementBounds(player) {
+    if (player.movementBounds.contains(player.position)) return;
+    player._body.position.copy(player.spawnPoint);
+    player._body.velocity.set(0, 0, 0);
+  }
+
   #allQueryableEntities() {
     return [...this.#entities.values(), ...this.#players.values()];
   }
@@ -780,7 +812,8 @@ export class ScriptRuntime {
     if (field === "name") player._name = String(value).slice(0, 64);
     else if (field === "position") player._body.position.copy(Vector3.from(value));
     else if (field === "velocity") player._body.velocity.copy(Vector3.from(value));
-    if (field === "position" || field === "velocity") this.#queuePlayerStateWrite(player);
+    else if (PLAYER_PUBLIC_NUMBER_FIELDS.includes(field)) player[`_${field}`] = requireFiniteRange(value, `player ${field}`, 0, 1024);
+    if (field === "position" || field === "velocity" || PLAYER_PUBLIC_NUMBER_FIELDS.includes(field)) this.#queuePlayerStateWrite(player);
   }
 
   _dialogPlayer(player, config) {
@@ -937,6 +970,7 @@ export class ScriptRuntime {
       velocity: player._body.velocity.toArray(),
       version: player._stateVersion,
     };
+    for (const field of PLAYER_PUBLIC_NUMBER_FIELDS) state[field] = player[`_${field}`];
     Promise.resolve(this.writePlayerState(this.#playerIds.get(player), state)).catch(error => this.#reportError("state-write", error));
   }
 
@@ -1230,9 +1264,17 @@ export function isLiveChatEntity(entity) {
 
 function createRuntimePlayer(runtime, input) {
   const body = new PlayerPhysicsBody({ position: input.position, profile: runtime.playerBodyProfile });
+  const userId = String(input.userId ?? input.id);
+  const boxId = String(input.boxId ?? userId).slice(0, 15);
+  const userKey = String(input.userKey ?? stablePlayerUserKey(userId));
   const player = {
     _id: String(input.id),
     _name: String(input.name),
+    _userId: userId,
+    _boxId: boxId,
+    _userKey: userKey,
+    _avatar: String(input.avatar ?? ""),
+    _url: normalizePlayerUrl(input.url),
     _body: body,
     _lastAttacker: null,
     _lastDamageType: "",
@@ -1250,10 +1292,32 @@ function createRuntimePlayer(runtime, input) {
     _hp: 100,
     _maxHp: 100,
     spawnPoint: Vector3.from(input.position ?? [0, 0, 0]),
+    movementBounds: new GameBounds3(new Vector3(-50, -50, -50), new Vector3(178, 178, 178)),
     color: new GameRGBColor(1, 1, 1),
     skin: Object.fromEntries(Object.values(GameBodyPart).map(part => [part, undefined])),
     cameraYaw: 0,
     cameraPitch: 0,
+    disableInputDirection: "NONE",
+    swapInputDirection: false,
+    reverseInputDirection: "NONE",
+    facingDirection: new Vector3(1, 0, 0),
+    canFly: false,
+    _walkSpeed: 0.22,
+    _runSpeed: 0.4,
+    _runAcceleration: 0.35,
+    _jumpPower: 0.96,
+    _jumpSpeedFactor: 0.85,
+    _jumpAccelerationFactor: 0.55,
+    _doubleJumpPower: 0.9,
+    _crouchSpeed: 0.1,
+    _crouchAcceleration: 0.09,
+    _flySpeed: 2,
+    _flyAcceleration: 2,
+    _swimAcceleration: 0.1,
+    _swimSpeed: 0.4,
+    _walkAcceleration: 0.19,
+    moveState: "FALL",
+    walkState: "NONE",
     spectator: false,
     walkButton: false,
     crouchButton: false,
@@ -1268,8 +1332,12 @@ function createRuntimePlayer(runtime, input) {
     get id() { return runtime._runtimePlayerId(this); },
     get isPlayer() { return true; },
     get player() { return this; },
-    get player() { return this; },
     get destroyed() { return this._destroyed; },
+    get userId() { return this._userId; },
+    get boxId() { return this._boxId; },
+    get userKey() { return this._userKey; },
+    get avatar() { return this._avatar; },
+    get url() { return this._url; },
     get enableDamage() { return this._enableDamage; },
     set enableDamage(value) { this._enableDamage = Boolean(value); },
     get showHealthBar() { return this._showHealthBar; },
@@ -1321,6 +1389,34 @@ function createRuntimePlayer(runtime, input) {
     get velocity() { return this._body.velocity; },
     set velocity(value) { runtime._writePlayer(this, "velocity", value); },
     get bounds() { return this._body.boundsHalfExtents.clone(); },
+    get walkSpeed() { return this._walkSpeed; },
+    set walkSpeed(value) { runtime._writePlayer(this, "walkSpeed", value); },
+    get runSpeed() { return this._runSpeed; },
+    set runSpeed(value) { runtime._writePlayer(this, "runSpeed", value); },
+    get runAcceleration() { return this._runAcceleration; },
+    set runAcceleration(value) { runtime._writePlayer(this, "runAcceleration", value); },
+    get jumpPower() { return this._jumpPower; },
+    set jumpPower(value) { runtime._writePlayer(this, "jumpPower", value); },
+    get jumpSpeedFactor() { return this._jumpSpeedFactor; },
+    set jumpSpeedFactor(value) { runtime._writePlayer(this, "jumpSpeedFactor", value); },
+    get jumpAccelerationFactor() { return this._jumpAccelerationFactor; },
+    set jumpAccelerationFactor(value) { runtime._writePlayer(this, "jumpAccelerationFactor", value); },
+    get doubleJumpPower() { return this._doubleJumpPower; },
+    set doubleJumpPower(value) { runtime._writePlayer(this, "doubleJumpPower", value); },
+    get crouchSpeed() { return this._crouchSpeed; },
+    set crouchSpeed(value) { runtime._writePlayer(this, "crouchSpeed", value); },
+    get crouchAcceleration() { return this._crouchAcceleration; },
+    set crouchAcceleration(value) { runtime._writePlayer(this, "crouchAcceleration", value); },
+    get flySpeed() { return this._flySpeed; },
+    set flySpeed(value) { runtime._writePlayer(this, "flySpeed", value); },
+    get flyAcceleration() { return this._flyAcceleration; },
+    set flyAcceleration(value) { runtime._writePlayer(this, "flyAcceleration", value); },
+    get swimAcceleration() { return this._swimAcceleration; },
+    set swimAcceleration(value) { runtime._writePlayer(this, "swimAcceleration", value); },
+    get swimSpeed() { return this._swimSpeed; },
+    set swimSpeed(value) { runtime._writePlayer(this, "swimSpeed", value); },
+    get walkAcceleration() { return this._walkAcceleration; },
+    set walkAcceleration(value) { runtime._writePlayer(this, "walkAcceleration", value); },
     get grounded() { return this._body.grounded; },
     get health() { return this.hp; },
     applyImpulse(value) { runtime._applyImpulse(this, value); },
@@ -1341,7 +1437,28 @@ function createRuntimePlayer(runtime, input) {
         enableDamage: this.enableDamage,
         showHealthBar: this.showHealthBar,
         spawnPoint: this.spawnPoint.toArray(),
+        movementBounds: { lo: this.movementBounds.lo.toArray(), hi: this.movementBounds.hi.toArray() },
         color: { r: this.color.r, g: this.color.g, b: this.color.b },
+        userId: this.userId,
+        boxId: this.boxId,
+        userKey: this.userKey,
+        avatar: this.avatar,
+        url: this.url.toString(),
+        canFly: this.canFly,
+        walkSpeed: this.walkSpeed,
+        runSpeed: this.runSpeed,
+        runAcceleration: this.runAcceleration,
+        jumpPower: this.jumpPower,
+        jumpSpeedFactor: this.jumpSpeedFactor,
+        jumpAccelerationFactor: this.jumpAccelerationFactor,
+        doubleJumpPower: this.doubleJumpPower,
+        crouchSpeed: this.crouchSpeed,
+        crouchAcceleration: this.crouchAcceleration,
+        flySpeed: this.flySpeed,
+        flyAcceleration: this.flyAcceleration,
+        swimAcceleration: this.swimAcceleration,
+        swimSpeed: this.swimSpeed,
+        walkAcceleration: this.walkAcceleration,
         authority: this._authority,
         stateVersion: this._stateVersion,
         backendPlayerId: this._backendPlayerId,
@@ -1351,6 +1468,23 @@ function createRuntimePlayer(runtime, input) {
     },
   };
   return player;
+}
+
+function stablePlayerUserKey(value) {
+  let hash = 2166136261;
+  for (const char of String(value)) {
+    hash ^= char.charCodeAt(0);
+    hash = Math.imul(hash, 16777619) >>> 0;
+  }
+  return hash.toString(16).padStart(8, "0").repeat(2).slice(0, 16);
+}
+
+function normalizePlayerUrl(value) {
+  try {
+    return new URL(value ?? "http://127.0.0.1/play");
+  } catch {
+    return new URL("http://127.0.0.1/play");
+  }
 }
 
 function requirePositiveVector3(value, name) {

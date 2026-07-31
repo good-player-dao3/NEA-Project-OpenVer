@@ -17,6 +17,11 @@ function loadRemoteChannelSessions() {
   );
   const context = {
     RemoteChannelSessions: undefined,
+    matchesSessionLabel(sessionId, label) {
+      if (sessionId === label) return true;
+      if (sessionId.length <= 12) return false;
+      return sessionId.slice(0, 6) + "..." + sessionId.slice(-4) === label;
+    },
     requireSessionId3(sessionId) {
       if (typeof sessionId !== "string" || sessionId.length === 0) throw new TypeError("sessionId is required");
     },
@@ -45,7 +50,9 @@ test("Dialog API configs normalize to the historical Player union", () => {
 
 test("Dialog control ingress resolves the logged short session label", () => {
   assert.match(backend, /hasActiveClient\(sessionId\) \{[\s\S]*?this\.resolveSessionLabel\(sessionId\)/);
-  assert.match(backend, /resolveSessionLabel\(sessionLabel\) \{[\s\S]*?slice\(0, 6\) \+ "\.\.\."/);
+  assert.match(backend, /function shortSession\(value\) \{[\s\S]*?slice\(0, 6\)[\s\S]*?slice\(-4\)/);
+  assert.match(backend, /function matchesSessionLabel\(sessionId, label\) \{[\s\S]*?shortSession\(sessionId\) === label/);
+  assert.match(backend, /resolveSessionLabel\(sessionLabel\) \{[\s\S]*?matchesSessionLabel\(candidate\.sessionId, sessionLabel\)/);
   assert.match(backend, /const session = \{\s*sessionId,\s*nextRpcId/);
 });
 

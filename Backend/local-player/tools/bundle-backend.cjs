@@ -133,12 +133,22 @@ esbuild.build({
     return this.historicalProjectInstance?.bedwarsRemoteSessions?.sendExternalEvent(sessionLabel, event) ?? false
   }
 
+  sendChatMessage(sessionId: string | undefined, message: unknown): number | boolean {
+    if (!this.running) return false
+    return this.historicalProjectInstance?.sendChatMessage(sessionId, message) ?? false
+  }
+
+  sendChatMessages(deliveries: unknown): number | boolean {
+    if (!this.running) return false
+    return this.historicalProjectInstance?.sendChatMessages(deliveries) ?? false
+  }
+
   playerRuntimeState(sessionLabel: string): Record<string, unknown> | undefined {
     if (!this.running) return undefined
     return this.historicalProjectInstance?.playerRuntimeState(sessionLabel)
   }
 
-  queuePlayerRuntimeState(sessionLabel: string, state: { position?: readonly [number, number, number]; velocity?: readonly [number, number, number] }): boolean {
+  queuePlayerRuntimeState(sessionLabel: string, state: Record<string, unknown>): boolean {
     if (!this.running) return false
     return this.historicalProjectInstance?.queuePlayerRuntimeState(sessionLabel, state) ?? false
   }
@@ -162,10 +172,10 @@ esbuild.build({
     const player = frame.players.find(candidate => candidate.sessionId === sessionLabel
       || (candidate.sessionId.length > 12 && candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === sessionLabel))
     if (!player) return undefined
-    return { tick: frame.tick, playerId: player.playerId, position: player.position, velocity: player.velocity }
+    return { tick: frame.tick, playerId: player.playerId, position: player.position, velocity: player.velocity, bodyHalfExtents: player.bodyHalfExtents, bodyShapeHalfExtents: player.bodyShapeHalfExtents, ...neaPlayerPublicState(player) }
   }
 
-  queuePlayerRuntimeState(sessionLabel: string, state: { position?: readonly [number, number, number]; velocity?: readonly [number, number, number] }): boolean {
+  queuePlayerRuntimeState(sessionLabel: string, state: Record<string, unknown>): boolean {
     const frame = this.gameRuntime.snapshot()
     const player = frame.players.find(candidate => candidate.sessionId === sessionLabel
       || (candidate.sessionId.length > 12 && candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === sessionLabel))
@@ -174,6 +184,7 @@ esbuild.build({
       kind: "temporary-legacy-position-transform",
       position: state.position ?? player.position,
       velocity: state.velocity ?? player.velocity,
+      ...neaPlayerPublicState(state),
     })
   }
 
@@ -287,10 +298,13 @@ async function startNeaControlBridge(server: Box3Server, logger: ReturnType<type
         if (typeof body.session !== "string" || body.session.length === 0 || !body.state || typeof body.state !== "object" || Array.isArray(body.state)) {
           throw new Error("session and state are required")
         }
-        const state = body.state as { position?: unknown; velocity?: unknown }
+        const state = body.state as Record<string, unknown>
         if (state.position !== undefined && !isNeaVector(state.position)) throw new Error("position must be a finite vector")
         if (state.velocity !== undefined && !isNeaVector(state.velocity)) throw new Error("velocity must be a finite vector")
-        const queued = server.queuePlayerRuntimeState(body.session, state as { position?: readonly [number, number, number]; velocity?: readonly [number, number, number] })
+        for (const field of neaPlayerPublicNumberFields) {
+          if (state[field] !== undefined && !isNeaPlayerPublicNumber(state[field])) throw new Error(field + " must be a finite number from 0 to 1024")
+        }
+        const queued = server.queuePlayerRuntimeState(body.session, state)
         response.statusCode = queued ? 202 : 404
         response.end(JSON.stringify(queued ? { ok: true, queued: true } : { ok: false, error: "player state not found" }))
         return
@@ -320,6 +334,36 @@ async function stopNeaControlBridge(server: NeaControlServer | undefined): Promi
 
 function isNeaVector(value: unknown): value is readonly [number, number, number] {
   return Array.isArray(value) && value.length === 3 && value.every(component => typeof component === "number" && Number.isFinite(component))
+}
+
+const neaPlayerPublicNumberFields = Object.freeze([
+  "walkSpeed",
+  "runSpeed",
+  "runAcceleration",
+  "jumpPower",
+  "jumpSpeedFactor",
+  "jumpAccelerationFactor",
+  "doubleJumpPower",
+  "crouchSpeed",
+  "crouchAcceleration",
+  "flySpeed",
+  "flyAcceleration",
+  "swimAcceleration",
+  "swimSpeed",
+  "walkAcceleration",
+])
+
+function isNeaPlayerPublicNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 1024
+}
+
+function neaPlayerPublicState(source: Record<string, unknown>): Record<string, number> {
+  const state: Record<string, number> = {}
+  for (const field of neaPlayerPublicNumberFields) {
+    const value = source[field]
+    if (isNeaPlayerPublicNumber(value)) state[field] = value
+  }
+  return state
 }
 `;
 }

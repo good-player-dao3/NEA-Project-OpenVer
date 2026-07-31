@@ -381,6 +381,20 @@ const entries = [
   entry("server.RuntimePlayer.enableJump", "property", "RuntimePlayer", "enableJump", { type: "boolean", readonly: false }, "server.player.write", "partial", ["server.GamePlayerEntity.enableJump"]),
   entry("server.RuntimePlayer.enableDoubleJump", "property", "RuntimePlayer", "enableDoubleJump", { type: "boolean", readonly: false }, "server.player.write", "partial", ["server.GamePlayerEntity.enableDoubleJump"]),
   entry("server.RuntimePlayer.enableCrouch", "property", "RuntimePlayer", "enableCrouch", { type: "boolean", readonly: false }, "server.player.write", "partial"),
+  playerPublicNumberEntry("walkSpeed"),
+  playerPublicNumberEntry("runSpeed"),
+  playerPublicNumberEntry("runAcceleration"),
+  playerPublicNumberEntry("jumpPower"),
+  playerPublicNumberEntry("jumpSpeedFactor"),
+  playerPublicNumberEntry("jumpAccelerationFactor"),
+  playerPublicNumberEntry("doubleJumpPower"),
+  playerPublicNumberEntry("crouchSpeed"),
+  playerPublicNumberEntry("crouchAcceleration"),
+  playerPublicNumberEntry("flySpeed"),
+  playerPublicNumberEntry("flyAcceleration"),
+  playerPublicNumberEntry("swimAcceleration"),
+  playerPublicNumberEntry("swimSpeed"),
+  playerPublicNumberEntry("walkAcceleration"),
   entry("server.RuntimePlayer.color", "property", "RuntimePlayer", "color", { type: "GameRGBColor", readonly: false }, "server.player.write", "partial", ["server.GamePlayer.color"]),
   entry("server.RuntimePlayer.spawnPoint", "property", "RuntimePlayer", "spawnPoint", { type: "GameVector3", readonly: false }, "server.player.write", "partial", ["server.GamePlayer.spawnPoint"]),
   entry("server.RuntimePlayer.onRespawn", "event", "RuntimePlayer", "onRespawn", handler("GameRespawnEvent"), "server.world.events", "partial", ["server.GamePlayer.onRespawn"]),
@@ -692,6 +706,10 @@ function entry(id, kind, owner, name, signature, capability, compatibility = "em
     notes: ["Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."],
     evidence: [evidence],
   };
+}
+
+function playerPublicNumberEntry(name) {
+  return entry(`server.RuntimePlayer.${name}`, "property", "RuntimePlayer", name, { type: "number", readonly: false }, "server.player.write", "partial", [`server.GamePlayerEntity.${name}`]);
 }
 
 function zoneEntries() {

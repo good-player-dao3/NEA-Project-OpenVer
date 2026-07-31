@@ -10607,7 +10607,21 @@ function snapshotRuntimePlayer(player) {
     inputState: player.inputState,
     inputAngle: player.inputAngle,
     inputPitch: player.inputPitch,
-    inputCameraAngle: player.inputCameraAngle
+    inputCameraAngle: player.inputCameraAngle,
+    walkSpeed: player.walkSpeed,
+    runSpeed: player.runSpeed,
+    runAcceleration: player.runAcceleration,
+    jumpPower: player.jumpPower,
+    jumpSpeedFactor: player.jumpSpeedFactor,
+    jumpAccelerationFactor: player.jumpAccelerationFactor,
+    doubleJumpPower: player.doubleJumpPower,
+    crouchSpeed: player.crouchSpeed,
+    crouchAcceleration: player.crouchAcceleration,
+    flySpeed: player.flySpeed,
+    flyAcceleration: player.flyAcceleration,
+    swimAcceleration: player.swimAcceleration,
+    swimSpeed: player.swimSpeed,
+    walkAcceleration: player.walkAcceleration
   });
 }
 function snapshotRuntimeEntityReplica(replica) {
@@ -10986,6 +11000,20 @@ function applyTemporaryLegacyPositionTransform(player, command) {
   if (command.inputAngle !== void 0) player.inputAngle = command.inputAngle;
   if (command.inputPitch !== void 0) player.inputPitch = command.inputPitch;
   if (command.inputCameraAngle !== void 0) player.inputCameraAngle = command.inputCameraAngle;
+  if (command.walkSpeed !== void 0) player.walkSpeed = command.walkSpeed;
+  if (command.runSpeed !== void 0) player.runSpeed = command.runSpeed;
+  if (command.runAcceleration !== void 0) player.runAcceleration = command.runAcceleration;
+  if (command.jumpPower !== void 0) player.jumpPower = command.jumpPower;
+  if (command.jumpSpeedFactor !== void 0) player.jumpSpeedFactor = command.jumpSpeedFactor;
+  if (command.jumpAccelerationFactor !== void 0) player.jumpAccelerationFactor = command.jumpAccelerationFactor;
+  if (command.doubleJumpPower !== void 0) player.doubleJumpPower = command.doubleJumpPower;
+  if (command.crouchSpeed !== void 0) player.crouchSpeed = command.crouchSpeed;
+  if (command.crouchAcceleration !== void 0) player.crouchAcceleration = command.crouchAcceleration;
+  if (command.flySpeed !== void 0) player.flySpeed = command.flySpeed;
+  if (command.flyAcceleration !== void 0) player.flyAcceleration = command.flyAcceleration;
+  if (command.swimAcceleration !== void 0) player.swimAcceleration = command.swimAcceleration;
+  if (command.swimSpeed !== void 0) player.swimSpeed = command.swimSpeed;
+  if (command.walkAcceleration !== void 0) player.walkAcceleration = command.walkAcceleration;
 }
 function copyTemporaryLegacyPositionTransform(command) {
   return Object.freeze({
@@ -10996,7 +11024,21 @@ function copyTemporaryLegacyPositionTransform(command) {
     inputState: command.inputState,
     inputAngle: command.inputAngle,
     inputPitch: command.inputPitch,
-    inputCameraAngle: command.inputCameraAngle
+    inputCameraAngle: command.inputCameraAngle,
+    walkSpeed: command.walkSpeed,
+    runSpeed: command.runSpeed,
+    runAcceleration: command.runAcceleration,
+    jumpPower: command.jumpPower,
+    jumpSpeedFactor: command.jumpSpeedFactor,
+    jumpAccelerationFactor: command.jumpAccelerationFactor,
+    doubleJumpPower: command.doubleJumpPower,
+    crouchSpeed: command.crouchSpeed,
+    crouchAcceleration: command.crouchAcceleration,
+    flySpeed: command.flySpeed,
+    flyAcceleration: command.flyAcceleration,
+    swimAcceleration: command.swimAcceleration,
+    swimSpeed: command.swimSpeed,
+    walkAcceleration: command.walkAcceleration
   });
 }
 function snapshotPlayer(player) {
@@ -11010,7 +11052,21 @@ function snapshotPlayer(player) {
     inputState: player.inputState,
     inputAngle: player.inputAngle,
     inputPitch: player.inputPitch,
-    inputCameraAngle: player.inputCameraAngle
+    inputCameraAngle: player.inputCameraAngle,
+    walkSpeed: player.walkSpeed,
+    runSpeed: player.runSpeed,
+    runAcceleration: player.runAcceleration,
+    jumpPower: player.jumpPower,
+    jumpSpeedFactor: player.jumpSpeedFactor,
+    jumpAccelerationFactor: player.jumpAccelerationFactor,
+    doubleJumpPower: player.doubleJumpPower,
+    crouchSpeed: player.crouchSpeed,
+    crouchAcceleration: player.crouchAcceleration,
+    flySpeed: player.flySpeed,
+    flyAcceleration: player.flyAcceleration,
+    swimAcceleration: player.swimAcceleration,
+    swimSpeed: player.swimSpeed,
+    walkAcceleration: player.walkAcceleration
   });
 }
 function validateRegistration(registration) {
@@ -12837,6 +12893,20 @@ function createNetPublicState(input2) {
     if (!/^[\x20-\x7e]{1,64}$/.test(name)) throw new RangeError("name must be printable ASCII");
     const playerState = PlayerSchema.clone(PlayerSchema.identity);
     playerState.id = player.playerId;
+    if (player.walkSpeed !== void 0) playerState.walkSpeed = player.walkSpeed;
+    if (player.runSpeed !== void 0) playerState.runSpeed = player.runSpeed;
+    if (player.runAcceleration !== void 0) playerState.runAcceleration = player.runAcceleration;
+    if (player.jumpPower !== void 0) playerState.jumpPower = player.jumpPower;
+    if (player.jumpSpeedFactor !== void 0) playerState.jumpSpeedFactor = player.jumpSpeedFactor;
+    if (player.jumpAccelerationFactor !== void 0) playerState.jumpAccelerationFactor = player.jumpAccelerationFactor;
+    if (player.doubleJumpPower !== void 0) playerState.doubleJumpPower = player.doubleJumpPower;
+    if (player.crouchSpeed !== void 0) playerState.crouchSpeed = player.crouchSpeed;
+    if (player.crouchAcceleration !== void 0) playerState.crouchAcceleration = player.crouchAcceleration;
+    if (player.flySpeed !== void 0) playerState.flySpeed = player.flySpeed;
+    if (player.flyAcceleration !== void 0) playerState.flyAcceleration = player.flyAcceleration;
+    if (player.swimAcceleration !== void 0) playerState.swimAcceleration = player.swimAcceleration;
+    if (player.swimSpeed !== void 0) playerState.swimSpeed = player.swimSpeed;
+    if (player.walkAcceleration !== void 0) playerState.walkAcceleration = player.walkAcceleration;
     target.state.players.push(playerState);
     const playerInput = PlayerInputSchema.clone(PlayerInputSchema.identity);
     playerInput.id = player.playerId;
@@ -14823,7 +14893,7 @@ var LegacyHistoricalProjectInstance = class {
     const frame = this.gameRuntime.snapshot();
     const player = frame.players.find((candidate) => matchesSessionLabel(candidate.sessionId, sessionLabel));
     if (!player) return void 0;
-    return { tick: frame.tick, playerId: player.playerId, position: player.position, velocity: player.velocity, bodyHalfExtents: player.bodyHalfExtents, bodyShapeHalfExtents: player.bodyShapeHalfExtents };
+    return { tick: frame.tick, playerId: player.playerId, position: player.position, velocity: player.velocity, bodyHalfExtents: player.bodyHalfExtents, bodyShapeHalfExtents: player.bodyShapeHalfExtents, ...neaPlayerPublicState(player) };
   }
   queuePlayerRuntimeState(sessionLabel, state) {
     const frame = this.gameRuntime.snapshot();
@@ -14832,7 +14902,8 @@ var LegacyHistoricalProjectInstance = class {
     return this.gameRuntime.enqueueInput(player.sessionId, {
       kind: "temporary-legacy-position-transform",
       position: state.position ?? player.position,
-      velocity: state.velocity ?? player.velocity
+      velocity: state.velocity ?? player.velocity,
+      ...neaPlayerPublicState(state)
     });
   }
   queueDamageRuntimeState(target, state, events) {
@@ -16674,6 +16745,14 @@ var Box3Server = class {
     if (!this.running) return false;
     return this.historicalProjectInstance?.remoteChannelSessions.sendExternalEvent(sessionLabel, event) ?? false;
   }
+  sendChatMessage(sessionId, message) {
+    if (!this.running) return false;
+    return this.historicalProjectInstance?.sendChatMessage(sessionId, message) ?? false;
+  }
+  sendChatMessages(deliveries) {
+    if (!this.running) return false;
+    return this.historicalProjectInstance?.sendChatMessages(deliveries) ?? false;
+  }
   playerRuntimeState(sessionLabel) {
     if (!this.running) return void 0;
     return this.historicalProjectInstance?.playerRuntimeState(sessionLabel);
@@ -17382,6 +17461,9 @@ async function startNeaControlBridge(server, logger) {
         const state = body.state;
         if (state.position !== void 0 && !isNeaVector(state.position)) throw new Error("position must be a finite vector");
         if (state.velocity !== void 0 && !isNeaVector(state.velocity)) throw new Error("velocity must be a finite vector");
+        for (const field of neaPlayerPublicNumberFields) {
+          if (state[field] !== void 0 && !isNeaPlayerPublicNumber(state[field])) throw new Error(field + " must be a finite number from 0 to 1024");
+        }
         const queued = server.queuePlayerRuntimeState(body.session, state);
         response.statusCode = queued ? 202 : 404;
         response.end(JSON.stringify(queued ? { ok: true, queued: true } : { ok: false, error: "player state not found" }));
@@ -17453,6 +17535,33 @@ async function stopNeaControlBridge(server) {
 }
 function isNeaVector(value) {
   return Array.isArray(value) && value.length === 3 && value.every((component) => typeof component === "number" && Number.isFinite(component));
+}
+var neaPlayerPublicNumberFields = Object.freeze([
+  "walkSpeed",
+  "runSpeed",
+  "runAcceleration",
+  "jumpPower",
+  "jumpSpeedFactor",
+  "jumpAccelerationFactor",
+  "doubleJumpPower",
+  "crouchSpeed",
+  "crouchAcceleration",
+  "flySpeed",
+  "flyAcceleration",
+  "swimAcceleration",
+  "swimSpeed",
+  "walkAcceleration"
+]);
+function isNeaPlayerPublicNumber(value) {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 1024;
+}
+function neaPlayerPublicState(source) {
+  const state = {};
+  for (const field of neaPlayerPublicNumberFields) {
+    const value = source[field];
+    if (isNeaPlayerPublicNumber(value)) state[field] = value;
+  }
+  return state;
 }
 main().catch((error) => {
   console.error(error);

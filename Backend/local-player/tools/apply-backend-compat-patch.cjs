@@ -1,10 +1,11 @@
 ﻿const { createHash } = require("node:crypto");
 const { readFileSync, writeFileSync } = require("node:fs");
 const { join } = require("node:path");
+const { patchPlayerPublicStateSource } = require("./patch-player-public-state-bundle.cjs");
 
 const BASE_SHA256 = "d35b3db79e93c03021fcb0ad62bf20d89e4bef470553bff17be6c9e3a61cc097";
 const COMPAT_SHA256 = "71bbbbf0492e54b5dc5ed6f228b0bae295179ebad54196ef7306dad808ec8d59";
-const TARGET_SHA256 = "00883f8530bbfdaae6e4be96b523cf548af758170dce6d1a1bd27d02889d5863";
+const TARGET_SHA256 = "dec6802bb8f506ca5df7913eb432f7ce02be6a457121a661d709470d757102a1";
 
 function applyBackendCompatPatch(bundlePath) {
   const source = readFileSync(bundlePath, "utf8");
@@ -15,7 +16,8 @@ function applyBackendCompatPatch(bundlePath) {
   const soundPatch = readFileSync(join(__dirname, "backend-sound-compat.patch"), "utf8");
   const soundOutput = applyUnifiedPatch(compatOutput, soundPatch);
   const validationPatch = readFileSync(join(__dirname, "backend-validation-compat.patch"), "utf8");
-  const output = applyUnifiedPatch(soundOutput, validationPatch);
+  const validationOutput = applyUnifiedPatch(soundOutput, validationPatch);
+  const output = patchPlayerPublicStateSource(validationOutput);
   assertHash(output, TARGET_SHA256, "backend compatibility patch output");
   writeFileSync(bundlePath, output);
 }

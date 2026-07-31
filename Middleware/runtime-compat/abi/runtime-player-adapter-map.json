@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-player-adapter-map",
   "version": 1,
-  "generatedAt": "2026-07-31T09:27:02.101Z",
+  "generatedAt": "2026-07-31T11:20:50.324Z",
   "contract": "nea-server-runtime/v1",
   "localObject": {
     "id": "server.object.RuntimePlayer",
@@ -1759,6 +1759,734 @@
     },
     {
       "local": {
+        "id": "server.RuntimePlayer.walkSpeed",
+        "kind": "property",
+        "signature": {
+          "type": "number",
+          "readonly": false
+        },
+        "capability": "server.player.write"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.walkSpeed",
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The local member is a finite non-negative number and uses the recovered Player PUBLIC schema field."
+        ],
+        "effect": [
+          "Script writes are queued through the authenticated player-state control bridge and projected into the authoritative player.game-net.PUBLIC PlayerSchema."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "walkSpeed: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.walkSpeed",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.runSpeed",
+        "kind": "property",
+        "signature": {
+          "type": "number",
+          "readonly": false
+        },
+        "capability": "server.player.write"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.runSpeed",
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The local member is a finite non-negative number and uses the recovered Player PUBLIC schema field."
+        ],
+        "effect": [
+          "Script writes are queued through the authenticated player-state control bridge and projected into the authoritative player.game-net.PUBLIC PlayerSchema."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "runSpeed: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.runSpeed",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.runAcceleration",
+        "kind": "property",
+        "signature": {
+          "type": "number",
+          "readonly": false
+        },
+        "capability": "server.player.write"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.runAcceleration",
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The local member is a finite non-negative number and uses the recovered Player PUBLIC schema field."
+        ],
+        "effect": [
+          "Script writes are queued through the authenticated player-state control bridge and projected into the authoritative player.game-net.PUBLIC PlayerSchema."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "runAcceleration: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.runAcceleration",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.jumpPower",
+        "kind": "property",
+        "signature": {
+          "type": "number",
+          "readonly": false
+        },
+        "capability": "server.player.write"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.jumpPower",
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The local member is a finite non-negative number and uses the recovered Player PUBLIC schema field."
+        ],
+        "effect": [
+          "Script writes are queued through the authenticated player-state control bridge and projected into the authoritative player.game-net.PUBLIC PlayerSchema."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "jumpPower: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.jumpPower",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.jumpSpeedFactor",
+        "kind": "property",
+        "signature": {
+          "type": "number",
+          "readonly": false
+        },
+        "capability": "server.player.write"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.jumpSpeedFactor",
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The local member is a finite non-negative number and uses the recovered Player PUBLIC schema field."
+        ],
+        "effect": [
+          "Script writes are queued through the authenticated player-state control bridge and projected into the authoritative player.game-net.PUBLIC PlayerSchema."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "jumpSpeedFactor: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.jumpSpeedFactor",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.jumpAccelerationFactor",
+        "kind": "property",
+        "signature": {
+          "type": "number",
+          "readonly": false
+        },
+        "capability": "server.player.write"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.jumpAccelerationFactor",
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The local member is a finite non-negative number and uses the recovered Player PUBLIC schema field."
+        ],
+        "effect": [
+          "Script writes are queued through the authenticated player-state control bridge and projected into the authoritative player.game-net.PUBLIC PlayerSchema."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "jumpAccelerationFactor: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.jumpAccelerationFactor",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.doubleJumpPower",
+        "kind": "property",
+        "signature": {
+          "type": "number",
+          "readonly": false
+        },
+        "capability": "server.player.write"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.doubleJumpPower",
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The local member is a finite non-negative number and uses the recovered Player PUBLIC schema field."
+        ],
+        "effect": [
+          "Script writes are queued through the authenticated player-state control bridge and projected into the authoritative player.game-net.PUBLIC PlayerSchema."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "doubleJumpPower: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.doubleJumpPower",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.crouchSpeed",
+        "kind": "property",
+        "signature": {
+          "type": "number",
+          "readonly": false
+        },
+        "capability": "server.player.write"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.crouchSpeed",
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The local member is a finite non-negative number and uses the recovered Player PUBLIC schema field."
+        ],
+        "effect": [
+          "Script writes are queued through the authenticated player-state control bridge and projected into the authoritative player.game-net.PUBLIC PlayerSchema."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "crouchSpeed: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.crouchSpeed",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.crouchAcceleration",
+        "kind": "property",
+        "signature": {
+          "type": "number",
+          "readonly": false
+        },
+        "capability": "server.player.write"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.crouchAcceleration",
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The local member is a finite non-negative number and uses the recovered Player PUBLIC schema field."
+        ],
+        "effect": [
+          "Script writes are queued through the authenticated player-state control bridge and projected into the authoritative player.game-net.PUBLIC PlayerSchema."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "crouchAcceleration: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.crouchAcceleration",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.flySpeed",
+        "kind": "property",
+        "signature": {
+          "type": "number",
+          "readonly": false
+        },
+        "capability": "server.player.write"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.flySpeed",
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The local member is a finite non-negative number and uses the recovered Player PUBLIC schema field."
+        ],
+        "effect": [
+          "Script writes are queued through the authenticated player-state control bridge and projected into the authoritative player.game-net.PUBLIC PlayerSchema."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "flySpeed: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.flySpeed",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.flyAcceleration",
+        "kind": "property",
+        "signature": {
+          "type": "number",
+          "readonly": false
+        },
+        "capability": "server.player.write"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.flyAcceleration",
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The local member is a finite non-negative number and uses the recovered Player PUBLIC schema field."
+        ],
+        "effect": [
+          "Script writes are queued through the authenticated player-state control bridge and projected into the authoritative player.game-net.PUBLIC PlayerSchema."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "flyAcceleration: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.flyAcceleration",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.swimAcceleration",
+        "kind": "property",
+        "signature": {
+          "type": "number",
+          "readonly": false
+        },
+        "capability": "server.player.write"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.swimAcceleration",
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The local member is a finite non-negative number and uses the recovered Player PUBLIC schema field."
+        ],
+        "effect": [
+          "Script writes are queued through the authenticated player-state control bridge and projected into the authoritative player.game-net.PUBLIC PlayerSchema."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "swimAcceleration: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.swimAcceleration",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.swimSpeed",
+        "kind": "property",
+        "signature": {
+          "type": "number",
+          "readonly": false
+        },
+        "capability": "server.player.write"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.swimSpeed",
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The local member is a finite non-negative number and uses the recovered Player PUBLIC schema field."
+        ],
+        "effect": [
+          "Script writes are queued through the authenticated player-state control bridge and projected into the authoritative player.game-net.PUBLIC PlayerSchema."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "swimSpeed: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.swimSpeed",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.walkAcceleration",
+        "kind": "property",
+        "signature": {
+          "type": "number",
+          "readonly": false
+        },
+        "capability": "server.player.write"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.walkAcceleration",
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The local member is a finite non-negative number and uses the recovered Player PUBLIC schema field."
+        ],
+        "effect": [
+          "Script writes are queued through the authenticated player-state control bridge and projected into the authoritative player.game-net.PUBLIC PlayerSchema."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "walkAcceleration: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GamePlayer.js",
+          "symbol": "GamePlayer.walkAcceleration",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
         "id": "server.RuntimePlayer.color",
         "kind": "property",
         "signature": {
@@ -3460,9 +4188,9 @@
     }
   ],
   "summary": {
-    "memberCount": 63,
+    "memberCount": 77,
     "compatible": 8,
-    "partial": 51,
+    "partial": 65,
     "extensions": 4
   }
 }

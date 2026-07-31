@@ -1,5 +1,22 @@
 console.log("[NEA Demo] historical Player client script loaded");
 
+const playerMovementApiFields = Object.freeze([
+  "walkSpeed",
+  "runSpeed",
+  "runAcceleration",
+  "jumpPower",
+  "jumpSpeedFactor",
+  "jumpAccelerationFactor",
+  "doubleJumpPower",
+  "crouchSpeed",
+  "crouchAcceleration",
+  "flySpeed",
+  "flyAcceleration",
+  "swimAcceleration",
+  "swimSpeed",
+  "walkAcceleration",
+]);
+
 const runtimeStatus = UiText.create();
 runtimeStatus.name = "NeaRuntimeStatus";
 runtimeStatus.textContent = [
@@ -19,6 +36,74 @@ runtimeStatus.position.offset.copy(Vec2.create({ x: 20, y: 20 }));
 runtimeStatus.size.offset.copy(Vec2.create({ x: 560, y: 150 }));
 runtimeStatus.parent = ui;
 
+let lastServerStatus = "server: connecting";
+let lastMovementStatus = "movement: waiting for server values";
+
+function updateRuntimeStatus(lines) {
+  runtimeStatus.textContent = [
+    "NEA Client Runtime: active",
+    ...lines,
+    lastMovementStatus,
+  ].join("\n");
+}
+
+function finiteMovementPatch(input) {
+  const patch = {};
+  for (const field of playerMovementApiFields) {
+    const value = input?.[field];
+    if (typeof value === "number" && Number.isFinite(value)) patch[field] = value;
+  }
+  return patch;
+}
+
+function applyMovementPatch(target, patch) {
+  if (!target || typeof target !== "object") return 0;
+  let applied = 0;
+  for (const [field, value] of Object.entries(patch)) {
+    try {
+      if (field in target || Object.isExtensible(target)) {
+        target[field] = value;
+        applied += 1;
+      }
+    } catch {
+      // Some recovered runtime objects are read-only proxies; try the next candidate.
+    }
+  }
+  return applied;
+}
+
+function applyPlayerMovementSync(event) {
+  const patch = finiteMovementPatch(event?.playerMovementApiExample ?? event?.movement ?? event);
+  const fields = Object.keys(patch);
+  if (fields.length === 0) return;
+
+  let applied = 0;
+  const candidates = [
+    globalThis.player,
+    globalThis.localPlayer,
+    globalThis.me,
+    globalThis.world?.player,
+    globalThis.world?.localPlayer,
+    globalThis.game?.player,
+    globalThis.game?.localPlayer,
+    globalThis.app?.game?.player,
+    globalThis.app?.game?.localPlayer,
+  ];
+  for (const candidate of candidates) applied += applyMovementPatch(candidate, patch);
+
+  const statePlayers = globalThis.state?.players
+    ?? globalThis.game?.state?.players
+    ?? globalThis.app?.game?.state?.players
+    ?? globalThis.app?.game?.state?.replica?.players;
+  if (Array.isArray(statePlayers)) {
+    for (const statePlayer of statePlayers) applied += applyMovementPatch(statePlayer, patch);
+  }
+
+  globalThis.__neaPlayerMovementApi = Object.freeze({ ...patch });
+  lastMovementStatus = `movement: ${fields.map(field => `${field}=${patch[field]}`).join(", ")}; local candidates updated=${applied}`;
+  console.log(`[NEA Demo] Player movement API synchronized: ${JSON.stringify(patch)}; local candidates updated=${applied}`);
+}
+
 remoteChannel.sendServerEvent({
   type: "nea-demo:ready",
   runtimeApiVersion: "0.1.0"
@@ -28,14 +113,23 @@ remoteChannel.events.on("client", event => {
   if (event?.type === "nea-demo:welcome") {
     console.log(`[NEA Demo] welcome received at server tick ${event.tick}`);
     const collision = event.collision;
-    runtimeStatus.textContent = [
-      "NEA Client Runtime: active",
+    lastServerStatus = `server: ${event.serverContract} @ tick ${event.tick}`;
+    applyPlayerMovementSync(event);
+    updateRuntimeStatus([
       `client: ${event.clientContract}`,
-      `server: ${event.serverContract} @ tick ${event.tick}`,
+      lastServerStatus,
       `bounds: ${collision.boundsHalfExtents.join(" / ")}`,
       `shape: ${collision.shapeHalfExtents.join(" / ")}`,
       `posture shapes: ${event.postureStatus}`,
-    ].join("\n");
+    ]);
+  }
+  if (event?.type === "nea-demo:player-movement-api-applied") {
+    applyPlayerMovementSync(event);
+    updateRuntimeStatus([
+      "client: dao3-client-runtime/v1",
+      lastServerStatus,
+      "movement event: applied",
+    ]);
   }
   if (event?.type === "nea-demo:ack") {
     console.log(`[NEA Demo] ${event.message}`);
