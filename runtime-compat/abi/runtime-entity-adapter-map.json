@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-entity-adapter-map",
   "version": 1,
-  "generatedAt": "2026-07-31T05:02:41.899Z",
+  "generatedAt": "2026-07-31T05:24:47.699Z",
   "contract": "nea-server-runtime/v1",
   "localObject": {
     "id": "server.object.RuntimeEntity",

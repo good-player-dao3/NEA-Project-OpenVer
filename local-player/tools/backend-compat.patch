@@ -44,6 +44,29 @@
 +  bindProjectIdentity() {
 +    return this;
 +  }
+@@ -8625,9 +8645,14 @@ async function loadProjectBootstrap(assetRoot, manifestName = "project/bedwars/bootstrap/manifest.json") {
+-  const bootstrapInfo = await (0, import_promises3.stat)(bootstrapPath);
+-  if (!bootstrapInfo.isFile() || bootstrapInfo.size !== fileBytes || bootstrapInfo.size > MAX_BOOTSTRAP_BYTES) {
+-    throw new Error("Project bootstrap data does not match its manifest");
+-  }
+-  const bytes = await (0, import_promises3.readFile)(bootstrapPath);
+-  if (bytes.byteLength !== fileBytes || (0, import_node_crypto3.createHash)("sha256").update(bytes).digest("hex") !== fileHash) {
+-    throw new Error("Project bootstrap data does not match its manifest");
+-  }
++  const bootstrapInfo = await (0, import_promises3.stat)(bootstrapPath);
++  if (!bootstrapInfo.isFile() || bootstrapInfo.size > MAX_BOOTSTRAP_BYTES) {
++    throw new Error("Project bootstrap data does not match its manifest");
++  }
++  let bytes = await (0, import_promises3.readFile)(bootstrapPath);
++  const matchesManifest = (candidate) => candidate.byteLength === fileBytes && (0, import_node_crypto3.createHash)("sha256").update(candidate).digest("hex") === fileHash;
++  if (!matchesManifest(bytes)) {
++    const normalized = Buffer.from(bytes.toString("utf8").replace(/\r\n/g, "\n"), "utf8");
++    if (!matchesManifest(normalized)) {
++      throw new Error("Project bootstrap data does not match its manifest");
++    }
++    bytes = normalized;
++  }
+   return validateProjectBootstrap(JSON.parse(bytes.toString("utf8")));
 @@ -8637 +8657 @@ function validateProjectBootstrap(value) {
 -  if (data.format !== PROJECT_BOOTSTRAP_FORMAT || data.version !== PROJECT_BOOTSTRAP_VERSION || !sameStrings(data.sourceMessages, PROJECT_BOOTSTRAP_SOURCE_MESSAGES) || !Array.isArray(data.meshHashes) || data.meshHashes.length !== 117 || !Array.isArray(data.skinHashes) || data.skinHashes.length !== 1 || !Array.isArray(data.skinPartHashBatches) || data.skinPartHashBatches.length !== 2 || !Array.isArray(data.soundDictionary) || data.soundDictionary.length !== 45 || data.soundDictionary[0] !== "") throw new Error("Unsupported project bootstrap data");
 +  if (data.format !== PROJECT_BOOTSTRAP_FORMAT || data.version !== PROJECT_BOOTSTRAP_VERSION || !sameStrings(data.sourceMessages, PROJECT_BOOTSTRAP_SOURCE_MESSAGES) || !Array.isArray(data.meshHashes) || data.meshHashes.length < 117 || !Array.isArray(data.skinHashes) || data.skinHashes.length !== 1 || !Array.isArray(data.skinPartHashBatches) || data.skinPartHashBatches.length !== 2 || !Array.isArray(data.soundDictionary) || data.soundDictionary.length !== 45 || data.soundDictionary[0] !== "") throw new Error("Unsupported project bootstrap data");

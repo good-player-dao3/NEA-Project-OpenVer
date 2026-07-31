@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-compatibility-matrix",
   "version": 1,
-  "generatedAt": "2026-07-31T05:02:42.413Z",
+  "generatedAt": "2026-07-31T05:24:48.164Z",
   "apiVersion": "0.1.0",
   "compatibilityLevel": "experimental",
   "contracts": [

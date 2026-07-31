@@ -33,6 +33,8 @@ test("compatibility patch persists recovered UI, Dialog, chat, player-network, a
   assert.match(patch, /BOX3_CLIENT_UI_MANIFEST/);
   assert.match(patch, /BOX3_CLIENT_RUNTIME_MANIFEST/);
   assert.match(patch, /BOX3_PROJECT_BOOTSTRAP_MANIFEST/);
+  assert.match(patch, /matchesManifest/);
+  assert.match(patch, /replace\(\/\\r\\n\/g, "\\n"\)/);
   assert.match(patch, /BOX3_PLAYER_BODY_PROFILE/);
   assert.match(patch, /normalizeDialogConfig/);
   assert.match(patch, /response\.catch\(\(\) =>/);
