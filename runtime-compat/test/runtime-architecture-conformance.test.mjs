@@ -36,8 +36,19 @@ test("runtime architecture preserves five explicit layers", async () => {
   ]);
   assert.equal(architecture.sharedValues.catalog, "runtime-compat/abi/shared-runtime.json");
   assert.equal(architecture.sharedValues.capability, "shared.math");
+  assert.deepEqual(architecture.sharedValues.capabilities, ["shared.events", "shared.math"]);
   assert.equal(architecture.sharedValues.confirmedGameVector3Entries, 30);
   assert.equal(architecture.sharedValues.partialGameVector3Entries, 1);
+  assert.equal(architecture.sharedValues.confirmedGameBounds3Entries, 11);
+  assert.equal(architecture.sharedValues.partialGameBounds3Entries, 0);
+  assert.equal(architecture.sharedValues.confirmedGameQuaternionEntries, 23);
+  assert.equal(architecture.sharedValues.partialGameQuaternionEntries, 5);
+  assert.equal(architecture.sharedValues.confirmedGameRGBColorEntries, 19);
+  assert.equal(architecture.sharedValues.partialGameRGBColorEntries, 1);
+  assert.equal(architecture.sharedValues.confirmedGameRGBAColorEntries, 19);
+  assert.equal(architecture.sharedValues.partialGameRGBAColorEntries, 1);
+  assert.equal(architecture.sharedValues.confirmedGameEventHandlerTokenEntries, 3);
+  assert.equal(architecture.sharedValues.partialGameEventHandlerTokenEntries, 0);
 });
 
 test("current ABI is composed from executable client server and shared analyses", async () => {
@@ -115,6 +126,8 @@ test("transport and authoritative flows remain separate from script contracts", 
   assert.equal(playerLifecycle.to, "server-script-runtime");
   assert.equal(playerLifecycle.protocol, "player.game-net.session");
   assert.ok(playerLifecycle.evidence.some(item => item.path === "demo-map/test/backend-events.test.mjs"));
+  assert.ok(playerLifecycle.evidence.some(item => item.path === "runtime-compat/test/player-disconnect-destroy-order-conformance.test.mjs"));
+  assert.match(playerLifecycle.description, /world\.onPlayerLeave, player\.onDestroy, then world\.onEntityDestroy/);
   const publicState = architecture.flows.find(flow => flow.id === "public-state");
   assert.equal(publicState.from, "authoritative-game-runtime");
   assert.equal(publicState.to, "client-script-runtime");
@@ -144,14 +157,20 @@ test("client documentation keeps concrete UI and audio owners", async () => {
   assert.equal(docs.entries.some(entry => entry.id.startsWith("client.mediaError.")), false);
 });
 
-test("runtime architecture records the Capability Manifest v10 launch gate", async () => {
+test("runtime architecture records the Capability Manifest v14 launch gate", async () => {
   const architecture = await readJson("abi/runtime-contracts.json");
   const gate = architecture.projectCapabilityManifest;
   assert.equal(gate.format, "nea-project-capability-manifest");
-  assert.equal(gate.version, 10);
-  for (const binding of ["server-modules", "client-modules", "server-capability-grants", "client-capability-grants", "client-ui-state", "asset-file-evidence", "entity-projection-evidence", "runtime-abi-artifacts"]) assert.ok(gate.inputBindings.includes(binding), binding);
+  assert.equal(gate.version, 14);
+  for (const binding of ["server-modules", "client-modules", "server-capability-grants", "client-capability-grants", "client-ui-state", "asset-file-evidence", "entity-projection-evidence", "storage-group-scope", "project-identity", "world-config", "runtime-abi-artifacts"]) assert.ok(gate.inputBindings.includes(binding), binding);
   assert.ok(gate.integrityChecks.includes("asset-file-bytes-sha256"));
+  assert.ok(gate.integrityChecks.includes("storage-scope-semantic-digest"));
+  assert.ok(gate.integrityChecks.includes("project-identity-semantic-digest"));
   assert.ok(gate.integrityChecks.includes("runtime-abi-semantic-digest"));
+  const lifecycleRefinement = gate.projectRefinements.find(item => item.id === "player-lifecycle-event-payload");
+  assert.equal(lifecycleRefinement.globalCompatibility, "partial");
+  assert.equal(lifecycleRefinement.projectState, "ready");
+  assert.match(lifecycleRefinement.condition, /independently gated/);
   for (const stage of ["client-script-publication", "client-ui-publication", "server-script-runtime-construction", "backend-spawn", "player-navigation"]) assert.ok(gate.launchBefore.includes(stage), stage);
 });
 

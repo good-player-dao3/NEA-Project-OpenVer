@@ -20,6 +20,7 @@ test("Capability Manifest propagates input event and nested owners", async () =>
   const manifest = await buildRepositoryProjectCapabilityManifest({
     apiVersion: "0.1.0",
     contracts: { client: "dao3-client-runtime/v1", server: "nea-server-runtime/v1" },
+    projectIdentity: { projectName: "Conformance Project" },
     serverModules: [{ name: "server.js", source: `
       world.onPress(event => {
         event.tick; event.position; event.button; event.pressed; event.raycast;

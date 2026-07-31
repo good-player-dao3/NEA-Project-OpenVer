@@ -51,6 +51,7 @@ test("captured package capability analysis remains generic and evidence-gated", 
   const manifest = await buildRepositoryProjectCapabilityManifest({
     apiVersion: "0.1.0",
     contracts: { client: "dao3-client-runtime/v1", server: "nea-server-runtime/v1" },
+    projectIdentity: { projectName: "Conformance Project" },
     serverModules: [{ name: "server.js", source: "world.onTick(() => {}); world.createEntity({ mesh: 'captured-mesh' });" }],
     clientModules: [{ name: "client.js", source: "const label = UiText.create(); label.text = 'ready';" }],
     serverCapabilities: ["server.world.events", "server.world.entities"],

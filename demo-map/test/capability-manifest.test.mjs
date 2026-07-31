@@ -11,6 +11,8 @@ function manifest(overrides = {}) {
   return buildProjectCapabilityManifest({
     apiVersion: "0.1.0",
     contracts: { client: "dao3-client-runtime/v1", server: "nea-server-runtime/v1" },
+    projectIdentity: { projectName: "Capability Test" },
+    worldConfig: { entityLimit: 3400 },
     serverSource: "world.say('ready');",
     clientSource: "UiText.create();",
     serverCapabilities: ["server.world.chat"],
@@ -25,10 +27,43 @@ function manifest(overrides = {}) {
 test("capability manifest resolves canonical server and client ABI requirements", () => {
   const result = manifest();
   assert.equal(result.format, "nea-project-capability-manifest");
-  assert.equal(result.version, 10);
+  assert.equal(result.version, 14);
   assert.deepEqual(result.requirements.map(item => item.usage), ["UiText.create", "world.say"]);
   assert.ok(result.requirements.every(item => item.canonicalId));
   assert.equal(result.summary.blocked, 0);
+});
+
+test("capability manifest accepts directly evidenced recovered canonical surfaces", () => {
+  const result = manifest({
+    serverSource: "",
+    clientSource: `remoteChannel.events.on("client", () => {});`,
+    serverCapabilities: [],
+    clientCapabilities: ["client.remote-channel"],
+  });
+  const requirement = result.requirements.find(item => item.usage === "remoteChannel.events");
+  assert.equal(requirement.canonicalId, "client.remoteChannel.events");
+  assert.equal(requirement.compatibility, "native");
+  assert.equal(requirement.state, "ready");
+  assert.ok(requirement.reasons.some(reason => reason.includes("direct runtime evidence")));
+});
+
+test("capability manifest keeps weakly evidenced recovered canonical surfaces partial", () => {
+  const recoveredId = "client.remoteChannel.events";
+  const weakRuntime = {
+    ...currentRuntime,
+    entries: currentRuntime.entries.map(entry => entry.id === recoveredId ? {
+      ...entry,
+      evidence: [{ type: "script-corpus", path: "runtime-compat/evidence/script-corpus-usage.json", symbol: recoveredId, confidence: "direct" }],
+    } : entry),
+  };
+  const result = manifest({
+    serverSource: "",
+    clientSource: `remoteChannel.events.on("client", () => {});`,
+    serverCapabilities: [],
+    clientCapabilities: ["client.remote-channel"],
+    currentRuntime: weakRuntime,
+  });
+  assert.equal(result.requirements.find(item => item.usage === "remoteChannel.events").state, "partial");
 });
 
 test("capability manifest records confirmed cross-runtime transport and authoritative flows", () => {
@@ -220,6 +255,149 @@ test("capability manifest blocks outbound chat when delivery flow evidence is ab
   });
   assert.equal(result.dependencies.find(item => item.id === "transport:chat-delivery").state, "blocked");
   assert.equal(result.status, "blocked");
+});
+
+test("capability manifest gates server sound samples, Sound controls, and playback transport", () => {
+  const source = `
+    const target = world.querySelector(".speaker");
+    const worldSound = world.sound("audio/world.mp3");
+    const entitySound = target.sound({ sample: "audio/entity.mp3", radius: 48 });
+    worldSound.pause();
+    entitySound.resume(1.5);
+  `;
+  const blocked = manifest({
+    serverSource: source,
+    clientSource: "",
+    serverCapabilities: ["server.world.entities"],
+    clientCapabilities: [],
+  });
+  assert.deepEqual(blocked.resources.map(item => item.reference), ["audio/entity.mp3", "audio/world.mp3"]);
+  assert.ok(blocked.resources.every(item => item.state === "blocked"));
+  assert.equal(blocked.requirements.find(item => item.usage === "worldSound.pause").canonicalId, "server.Sound.pause");
+  assert.equal(blocked.requirements.find(item => item.usage === "entitySound.resume").canonicalId, "server.Sound.resume");
+  const dependency = blocked.dependencies.find(item => item.id === "transport:sound-playback");
+  assert.equal(dependency.state, "ready");
+  assert.equal(dependency.protocol, "player.sound");
+  assert.equal(blocked.status, "blocked");
+
+  const packaged = manifest({
+    serverSource: source,
+    clientSource: "",
+    serverCapabilities: ["server.world.entities"],
+    clientCapabilities: [],
+    assets: [
+      { name: "audio/world.mp3", kind: "audio", runtimeBinding: "player-block-audio" },
+      { name: "audio/entity.mp3", kind: "audio", runtimeBinding: "player-block-audio" },
+    ],
+  });
+  assert.ok(packaged.resources.every(item => item.state === "ready"));
+  assert.equal(packaged.dependencies.find(item => item.id === "transport:sound-playback").state, "ready");
+  assert.equal(packaged.status, "partial");
+});
+
+test("capability manifest blocks sound calls when player.sound flow evidence is absent", () => {
+  const result = manifest({
+    serverSource: `world.sound("audio/world.mp3");`,
+    clientSource: "",
+    serverCapabilities: ["server.world.entities"],
+    clientCapabilities: [],
+    assets: [{ name: "audio/world.mp3", kind: "audio", runtimeBinding: "player-block-audio" }],
+    runtimeContracts: { ...runtimeContracts, flows: runtimeContracts.flows.filter(flow => flow.id !== "sound-playback") },
+  });
+  assert.equal(result.dependencies.find(item => item.id === "transport:sound-playback").state, "blocked");
+  assert.equal(result.status, "blocked");
+});
+
+test("capability manifest resolves GameBounds3 constructor, static factory, and instance members", () => {
+  const result = manifest({
+    serverSource: `
+      const first = new GameBounds3([0, 0, 0], [4, 4, 4]);
+      const second = GameBounds3.fromPoints([2, 2, 2], [6, 6, 6]);
+      first.intersects(second);
+      first.containsBounds(second);
+      first.lo.x = -1;
+    `,
+    clientSource: "",
+    serverCapabilities: [],
+    clientCapabilities: [],
+  });
+  for (const usage of ["GameBounds3.GameBounds3", "GameBounds3.fromPoints", "first.intersects", "first.containsBounds", "first.lo"]) {
+    const requirement = result.requirements.find(item => item.usage === usage);
+    assert.ok(requirement, usage);
+    assert.equal(requirement.canonicalId, `shared.GameBounds3.${usage.split(".")[1]}`, usage);
+    assert.equal(requirement.capability, "shared.math", usage);
+    assert.equal(requirement.state, "ready", usage);
+  }
+  assert.equal(result.status, "ready");
+});
+
+test("capability manifest resolves intrinsic GameQuaternion surfaces without a project grant", () => {
+  const result = manifest({
+    serverSource: `
+      const first = new GameQuaternion(1, 0, 0, 0);
+      const second = GameQuaternion.fromEuler(0, 90, 0);
+      first.mul(second);
+      first.getAxisAngle(second);
+    `,
+    clientSource: "",
+    serverCapabilities: [],
+    clientCapabilities: [],
+  });
+  for (const usage of ["GameQuaternion.GameQuaternion", "GameQuaternion.fromEuler", "first.mul"]) {
+    const requirement = result.requirements.find(item => item.usage === usage);
+    assert.equal(requirement?.canonicalId, `shared.GameQuaternion.${usage.split(".")[1]}`, usage);
+    assert.equal(requirement?.state, "ready", usage);
+  }
+  const partial = result.requirements.find(item => item.usage === "first.getAxisAngle");
+  assert.equal(partial?.canonicalId, "shared.GameQuaternion.getAxisAngle");
+  assert.equal(partial?.state, "partial");
+  assert.equal(result.status, "partial");
+});
+
+test("capability manifest resolves shared color values on both script sides", () => {
+  const result = manifest({
+    serverSource: `const fog = new GameRGBColor(1, 0, 0); fog.toRGBA(); fog.equals(fog);`,
+    clientSource: `const tint = new GameRGBAColor(1, 1, 1, 0.5); tint.blendEq(new GameRGBColor(0, 0, 0));`,
+    serverCapabilities: [],
+    clientCapabilities: [],
+  });
+  for (const usage of ["GameRGBColor.GameRGBColor", "fog.toRGBA", "GameRGBAColor.GameRGBAColor", "tint.blendEq"]) {
+    const requirement = result.requirements.find(item => item.usage === usage);
+    assert.ok(requirement?.canonicalId.startsWith("shared.Game"), usage);
+    assert.equal(requirement?.state, "ready", usage);
+  }
+  const equality = result.requirements.find(item => item.usage === "fog.equals");
+  assert.equal(equality?.canonicalId, "shared.GameRGBColor.equals");
+  assert.equal(equality?.state, "partial");
+  assert.equal(result.status, "partial");
+});
+
+test("capability manifest propagates event subscription tokens", () => {
+  const result = manifest({
+    serverSource: `const token = world.onTick(() => {}); token.cancel(); token.resume(); token.active();`,
+    clientSource: "",
+    serverCapabilities: ["server.world.events"],
+    clientCapabilities: [],
+  });
+  for (const member of ["cancel", "resume", "active"]) {
+    const requirement = result.requirements.find(item => item.usage === `token.${member}`);
+    assert.equal(requirement?.canonicalId, `shared.GameEventHandlerToken.${member}`, member);
+    assert.equal(requirement?.state, "ready", member);
+  }
+});
+
+test("capability manifest propagates GameEntity.player chains without claiming identity parity", () => {
+  const result = manifest({
+    serverSource: `const entity = world.querySelector("player"); entity.player.directMessage("ready");`,
+    clientSource: "",
+    serverCapabilities: ["server.world.entities", "server.world.chat"],
+    clientCapabilities: [],
+  });
+  const player = result.requirements.find(item => item.usage === "entity.player");
+  assert.equal(player?.canonicalId, "server.GameEntity.player");
+  assert.equal(player?.state, "partial");
+  const message = result.requirements.find(item => item.usage === "player.directMessage");
+  assert.equal(message?.canonicalId, "server.GamePlayerEntity.directMessage");
 });
 
 test("capability manifest requires Player input ingress for click press and release subscriptions", () => {
@@ -529,6 +707,9 @@ test("capability manifest propagates entity, player, and client UI variable owne
   const snapshot = result.requirements.find(item => item.usage === "player.snapshot");
   assert.equal(snapshot.compatibility, "extension");
   assert.equal(snapshot.state, "partial");
+  const playerJoin = result.requirements.find(item => item.usage === "world.onPlayerJoin");
+  assert.equal(playerJoin.state, "ready");
+  assert.ok(playerJoin.reasons.some(reason => reason.includes("gates every accessed GamePlayerEntity member separately")));
   assert.ok(result.requirements.some(item => item.owner === "UiText" && item.canonicalId === "client.UiText.textContent"));
   for (const member of ["anchor", "position", "size"]) {
     const requirement = result.requirements.find(item => item.usage === `label.${member}`);
@@ -861,7 +1042,7 @@ test("capability manifest blocks group storage without authoritative group scope
   assert.equal(blocked.status, "blocked");
   assert.ok(blocked.diagnostics.some(item => item.code === "group-storage-scope-unavailable"));
 
-  const configured = manifest({ serverSource: `storage.getGroupStorage("shared");`, serverCapabilities: ["server.storage"], groupStorageEnabled: true });
+  const configured = manifest({ serverSource: `storage.getGroupStorage("shared");`, serverCapabilities: ["server.storage"], storageScope: { groupId: "group-7" } });
   assert.equal(configured.summary.blockingDiagnostics, 0);
 });
 

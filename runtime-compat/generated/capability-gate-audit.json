@@ -1,7 +1,7 @@
 {
   "format": "nea-capability-gate-audit",
   "version": 1,
-  "generatedAt": "2026-07-31T05:24:48.784Z",
+  "generatedAt": "2026-07-31T09:27:03.091Z",
   "inputs": {
     "corpus": "runtime-compat/generated/script-corpus-gap-report.json",
     "matrix": "runtime-compat/abi/compatibility-matrix.json",
@@ -10,13 +10,13 @@
   "summary": {
     "requirements": 74,
     "gatedRequirements": 59,
-    "ready": 26,
-    "partial": 30,
+    "ready": 34,
+    "partial": 22,
     "blocked": 3,
     "scriptOwned": 15,
     "occurrences": 936,
-    "readyOccurrences": 563,
-    "partialOccurrences": 358,
+    "readyOccurrences": 619,
+    "partialOccurrences": 302,
     "blockedOccurrences": 15
   },
   "requirements": [
@@ -36,8 +36,8 @@
       ],
       "launchState": "blocked",
       "reasons": [
-        "The historical GameChatEvent shape is recovered, but no Player/browser-to-backend chat ingress reaches the local Server Script Runtime.",
-        "No Player/browser-to-backend chat ingress is recovered, so Capability Manifest blocks projects that depend on this event; moderation, cancellation, and transport timing also remain unavailable.",
+        "The historical GameChatEvent consumer reads chatEvents.chats, while the recovered Player game-chat client-to-server surface only sends administrator noticeMessage {title,detail}; no Player chat producer reaches the local Server Script Runtime.",
+        "ScriptShell consumes chatEvents.chats, but the recovered Player game-chat client-to-server surface only carries administrator noticeMessage {title,detail}; no Player chat producer is recovered, so Capability Manifest blocks dependent projects.",
         "The recovered GameChatEvent fields are represented by the Runtime signal shell."
       ]
     },
@@ -57,9 +57,9 @@
       ],
       "launchState": "blocked",
       "reasons": [
-        "The market protocols recover marketplace open/acknowledgement messages but no purchase-success ingress into the local Server Script Runtime.",
-        "No browser-to-backend purchase-success producer or Server Runtime ingress is recovered locally, so Capability Manifest blocks projects that depend on this event.",
-        "The recovered event fields are tick, userId, productId, and orderId."
+        "Historical ScriptShell consumes tick.purchaseSuccessEvents {userId,productId,orderId,messageId} and acknowledges messageId, while the recovered Player market protocol only receives openMarketplace and has no client-to-server result message; no purchase producer reaches the local Server Script Runtime.",
+        "The Player market protocol only receives openMarketplace and exposes no client-to-server result message; no purchase-success producer or Server Runtime ingress is recovered, so Capability Manifest blocks dependent projects.",
+        "The recovered public event fields are tick, userId, productId, and orderId; ScriptShell separately acknowledges the internal messageId after dispatch."
       ]
     },
     {
@@ -79,7 +79,8 @@
       "launchState": "blocked",
       "reasons": [
         "The default local Runtime has no authoritative DAO3 group identity or group-scoped storage provider.",
-        "The function surface exists, but default project runtimes disable cross-map group storage because no authoritative group identity/configuration is available."
+        "Capability Manifest v14 can bind a non-empty project package storage.groupId and the local provider isolates spaces by that id; DAO3 cloud scope, quotas, distributed consistency, and external group authority remain unrecovered.",
+        "The default project Runtime disables group storage when the historical groupId input is empty."
       ]
     },
     {
@@ -122,7 +123,7 @@
         "At least one evidence-backed behavioral gap remains on the executable binding.",
         "Broadcast delivery now uses the recovered Player game-chat.log packet through connected MuDB sessions.",
         "Destroyed sender/receiver endpoints are silently dropped and player removal follows the recovered leave/destroy ordering.",
-        "The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
+        "The recovered FIFO prefix/overflow/tick-drain algorithm and ordered Runtime-to-backend overflow batch are implemented with an evidence-deferred nullable limit; the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
       ]
     },
     {
@@ -146,26 +147,6 @@
       ]
     },
     {
-      "side": "client",
-      "usage": "remoteChannel.events",
-      "occurrences": 22,
-      "sampleCount": 1,
-      "corpusCanonicalId": "client.remoteChannel.events",
-      "canonicalId": "client.remoteChannel.events",
-      "resolution": "current-runtime-recovered",
-      "corpusState": "executable",
-      "compatibility": "native",
-      "capability": "client.remote-channel",
-      "executableBindingIds": [
-        "client.remoteChannel.events"
-      ],
-      "launchState": "partial",
-      "reasons": [
-        "Executable recovered canonical surface is outside the documented declaration matrix and cannot be claimed as fully conformant.",
-        "Executable recovered canonical surface is not present in the documented declaration matrix: client.remoteChannel.events."
-      ]
-    },
-    {
       "side": "server",
       "usage": "world.createEntity",
       "occurrences": 20,
@@ -182,28 +163,8 @@
       "launchState": "partial",
       "reasons": [
         "At least one evidence-backed behavioral gap remains on the executable binding.",
-        "Creation remains synchronous and emits the recovered entity-create lifecycle event. Captured mesh bindings can create an authoritative browser/backend replica with documented transform and model/body fields; unknown meshes deliberately remain script-local rather than receiving a fabricated placeholder.",
+        "Creation remains synchronous, obeys the recovered non-player entityLimit check, returns null at capacity, and emits the recovered entity-create lifecycle event. Captured mesh bindings can create an authoritative browser/backend replica with documented transform and model/body fields; unknown meshes deliberately remain script-local rather than receiving a fabricated placeholder.",
         "Generic native gravity, collision response, and in-place Vector3 mutation replication are still unverified."
-      ]
-    },
-    {
-      "side": "server",
-      "usage": "world.size",
-      "occurrences": 15,
-      "sampleCount": 1,
-      "corpusCanonicalId": "server.world.size",
-      "canonicalId": "server.world.size",
-      "resolution": "current-runtime-recovered",
-      "corpusState": "executable",
-      "compatibility": "emulated",
-      "capability": "server.world.voxels",
-      "executableBindingIds": [
-        "server.world.size"
-      ],
-      "launchState": "partial",
-      "reasons": [
-        "Executable recovered canonical surface is outside the documented declaration matrix and cannot be claimed as fully conformant.",
-        "Executable recovered canonical surface is not present in the documented declaration matrix: server.world.size."
       ]
     },
     {
@@ -271,26 +232,6 @@
     },
     {
       "side": "server",
-      "usage": "gui.remove",
-      "occurrences": 5,
-      "sampleCount": 1,
-      "corpusCanonicalId": "server.GameGUI.remove",
-      "canonicalId": "server.GameGUI.remove",
-      "resolution": "current-runtime-recovered",
-      "corpusState": "executable",
-      "compatibility": "compatible",
-      "capability": "server.gui",
-      "executableBindingIds": [
-        "server.GameGUI.remove"
-      ],
-      "launchState": "partial",
-      "reasons": [
-        "Executable recovered canonical surface is outside the documented declaration matrix and cannot be claimed as fully conformant.",
-        "Executable recovered canonical surface is not present in the documented declaration matrix: server.GameGUI.remove."
-      ]
-    },
-    {
-      "side": "server",
       "usage": "storage.getDataStorage",
       "occurrences": 5,
       "sampleCount": 1,
@@ -327,26 +268,6 @@
       "reasons": [
         "At least one evidence-backed behavioral gap remains on the executable binding.",
         "The recovered impulse-derived GameVoxelContactEvent force is implemented; RuntimePlayer is still only a subset of GamePlayerEntity."
-      ]
-    },
-    {
-      "side": "server",
-      "usage": "gui.setAttribute",
-      "occurrences": 4,
-      "sampleCount": 1,
-      "corpusCanonicalId": "server.GameGUI.setAttribute",
-      "canonicalId": "server.GameGUI.setAttribute",
-      "resolution": "current-runtime-recovered",
-      "corpusState": "executable",
-      "compatibility": "compatible",
-      "capability": "server.gui",
-      "executableBindingIds": [
-        "server.GameGUI.setAttribute"
-      ],
-      "launchState": "partial",
-      "reasons": [
-        "Executable recovered canonical surface is outside the documented declaration matrix and cannot be claimed as fully conformant.",
-        "Executable recovered canonical surface is not present in the documented declaration matrix: server.GameGUI.setAttribute."
       ]
     },
     {
@@ -392,46 +313,6 @@
     },
     {
       "side": "server",
-      "usage": "gui.init",
-      "occurrences": 3,
-      "sampleCount": 1,
-      "corpusCanonicalId": "server.GameGUI.init",
-      "canonicalId": "server.GameGUI.init",
-      "resolution": "current-runtime-recovered",
-      "corpusState": "executable",
-      "compatibility": "compatible",
-      "capability": "server.gui",
-      "executableBindingIds": [
-        "server.GameGUI.init"
-      ],
-      "launchState": "partial",
-      "reasons": [
-        "Executable recovered canonical surface is outside the documented declaration matrix and cannot be claimed as fully conformant.",
-        "Executable recovered canonical surface is not present in the documented declaration matrix: server.GameGUI.init."
-      ]
-    },
-    {
-      "side": "client",
-      "usage": "input.pointerLockEvents",
-      "occurrences": 3,
-      "sampleCount": 1,
-      "corpusCanonicalId": "client.input.pointerLockEvents",
-      "canonicalId": "client.input.pointerLockEvents",
-      "resolution": "current-runtime-recovered",
-      "corpusState": "executable",
-      "compatibility": "native",
-      "capability": "client.ui",
-      "executableBindingIds": [
-        "client.input.pointerLockEvents"
-      ],
-      "launchState": "partial",
-      "reasons": [
-        "Executable recovered canonical surface is outside the documented declaration matrix and cannot be claimed as fully conformant.",
-        "Executable recovered canonical surface is not present in the documented declaration matrix: client.input.pointerLockEvents."
-      ]
-    },
-    {
-      "side": "server",
       "usage": "world.onFluidEnter",
       "occurrences": 3,
       "sampleCount": 1,
@@ -449,46 +330,6 @@
         "At least one evidence-backed behavioral gap remains on the executable binding.",
         "BlockInfo fluid ids, per-tick body overlap transitions, recovered {tick,entity,voxel} fields, and world-before-entity dispatch are implemented.",
         "Native fluid solver timing, buoyancy, drag, and producer-side volume fraction remain unrecovered."
-      ]
-    },
-    {
-      "side": "server",
-      "usage": "gui.getAttribute",
-      "occurrences": 2,
-      "sampleCount": 1,
-      "corpusCanonicalId": "server.GameGUI.getAttribute",
-      "canonicalId": "server.GameGUI.getAttribute",
-      "resolution": "current-runtime-recovered",
-      "corpusState": "executable",
-      "compatibility": "compatible",
-      "capability": "server.gui",
-      "executableBindingIds": [
-        "server.GameGUI.getAttribute"
-      ],
-      "launchState": "partial",
-      "reasons": [
-        "Executable recovered canonical surface is outside the documented declaration matrix and cannot be claimed as fully conformant.",
-        "Executable recovered canonical surface is not present in the documented declaration matrix: server.GameGUI.getAttribute."
-      ]
-    },
-    {
-      "side": "client",
-      "usage": "screen.events",
-      "occurrences": 2,
-      "sampleCount": 1,
-      "corpusCanonicalId": "client.ClientScreen.events",
-      "canonicalId": "client.ClientScreen.events",
-      "resolution": "current-runtime-recovered",
-      "corpusState": "executable",
-      "compatibility": "native",
-      "capability": "client.ui",
-      "executableBindingIds": [
-        "client.ClientScreen.events"
-      ],
-      "launchState": "partial",
-      "reasons": [
-        "Executable recovered canonical surface is outside the documented declaration matrix and cannot be claimed as fully conformant.",
-        "Executable recovered canonical surface is not present in the documented declaration matrix: client.ClientScreen.events."
       ]
     },
     {
@@ -800,6 +641,26 @@
       "reasons": []
     },
     {
+      "side": "client",
+      "usage": "remoteChannel.events",
+      "occurrences": 22,
+      "sampleCount": 1,
+      "corpusCanonicalId": "client.remoteChannel.events",
+      "canonicalId": "client.remoteChannel.events",
+      "resolution": "current-runtime-recovered",
+      "corpusState": "executable",
+      "compatibility": "native",
+      "capability": "client.remote-channel",
+      "executableBindingIds": [
+        "client.remoteChannel.events"
+      ],
+      "launchState": "ready",
+      "reasons": [
+        "Recovered canonical surface is outside the documented declaration matrix, but direct runtime evidence proves the executable contract.",
+        "Direct evidence resolves the recovered current-runtime canonical binding: client.remoteChannel.events."
+      ]
+    },
+    {
       "side": "server",
       "usage": "voxels.setVoxel",
       "occurrences": 17,
@@ -816,6 +677,26 @@
       "launchState": "ready",
       "reasons": [
         "Four Chinese string rotation aliases remain unresolved because the recovered historical source contains mojibake at those switch cases."
+      ]
+    },
+    {
+      "side": "server",
+      "usage": "world.size",
+      "occurrences": 15,
+      "sampleCount": 1,
+      "corpusCanonicalId": "server.world.size",
+      "canonicalId": "server.world.size",
+      "resolution": "current-runtime-recovered",
+      "corpusState": "executable",
+      "compatibility": "emulated",
+      "capability": "server.world.voxels",
+      "executableBindingIds": [
+        "server.world.size"
+      ],
+      "launchState": "ready",
+      "reasons": [
+        "Recovered canonical surface is outside the documented declaration matrix, but direct runtime evidence proves the executable contract.",
+        "Direct evidence resolves the recovered current-runtime canonical binding: server.world.size."
       ]
     },
     {
@@ -972,6 +853,26 @@
       "reasons": []
     },
     {
+      "side": "server",
+      "usage": "gui.remove",
+      "occurrences": 5,
+      "sampleCount": 1,
+      "corpusCanonicalId": "server.GameGUI.remove",
+      "canonicalId": "server.GameGUI.remove",
+      "resolution": "current-runtime-recovered",
+      "corpusState": "executable",
+      "compatibility": "compatible",
+      "capability": "server.gui",
+      "executableBindingIds": [
+        "server.GameGUI.remove"
+      ],
+      "launchState": "ready",
+      "reasons": [
+        "Recovered canonical surface is outside the documented declaration matrix, but direct runtime evidence proves the executable contract.",
+        "Direct evidence resolves the recovered current-runtime canonical binding: server.GameGUI.remove."
+      ]
+    },
+    {
       "side": "client",
       "usage": "screen.name",
       "occurrences": 5,
@@ -1007,6 +908,66 @@
     },
     {
       "side": "server",
+      "usage": "gui.setAttribute",
+      "occurrences": 4,
+      "sampleCount": 1,
+      "corpusCanonicalId": "server.GameGUI.setAttribute",
+      "canonicalId": "server.GameGUI.setAttribute",
+      "resolution": "current-runtime-recovered",
+      "corpusState": "executable",
+      "compatibility": "compatible",
+      "capability": "server.gui",
+      "executableBindingIds": [
+        "server.GameGUI.setAttribute"
+      ],
+      "launchState": "ready",
+      "reasons": [
+        "Recovered canonical surface is outside the documented declaration matrix, but direct runtime evidence proves the executable contract.",
+        "Direct evidence resolves the recovered current-runtime canonical binding: server.GameGUI.setAttribute."
+      ]
+    },
+    {
+      "side": "server",
+      "usage": "gui.init",
+      "occurrences": 3,
+      "sampleCount": 1,
+      "corpusCanonicalId": "server.GameGUI.init",
+      "canonicalId": "server.GameGUI.init",
+      "resolution": "current-runtime-recovered",
+      "corpusState": "executable",
+      "compatibility": "compatible",
+      "capability": "server.gui",
+      "executableBindingIds": [
+        "server.GameGUI.init"
+      ],
+      "launchState": "ready",
+      "reasons": [
+        "Recovered canonical surface is outside the documented declaration matrix, but direct runtime evidence proves the executable contract.",
+        "Direct evidence resolves the recovered current-runtime canonical binding: server.GameGUI.init."
+      ]
+    },
+    {
+      "side": "client",
+      "usage": "input.pointerLockEvents",
+      "occurrences": 3,
+      "sampleCount": 1,
+      "corpusCanonicalId": "client.input.pointerLockEvents",
+      "canonicalId": "client.input.pointerLockEvents",
+      "resolution": "current-runtime-recovered",
+      "corpusState": "executable",
+      "compatibility": "native",
+      "capability": "client.ui",
+      "executableBindingIds": [
+        "client.input.pointerLockEvents"
+      ],
+      "launchState": "ready",
+      "reasons": [
+        "Recovered canonical surface is outside the documented declaration matrix, but direct runtime evidence proves the executable contract.",
+        "Direct evidence resolves the recovered current-runtime canonical binding: client.input.pointerLockEvents."
+      ]
+    },
+    {
+      "side": "server",
       "usage": "voxels.getVoxel",
       "occurrences": 3,
       "sampleCount": 2,
@@ -1021,6 +982,46 @@
       ],
       "launchState": "ready",
       "reasons": []
+    },
+    {
+      "side": "server",
+      "usage": "gui.getAttribute",
+      "occurrences": 2,
+      "sampleCount": 1,
+      "corpusCanonicalId": "server.GameGUI.getAttribute",
+      "canonicalId": "server.GameGUI.getAttribute",
+      "resolution": "current-runtime-recovered",
+      "corpusState": "executable",
+      "compatibility": "compatible",
+      "capability": "server.gui",
+      "executableBindingIds": [
+        "server.GameGUI.getAttribute"
+      ],
+      "launchState": "ready",
+      "reasons": [
+        "Recovered canonical surface is outside the documented declaration matrix, but direct runtime evidence proves the executable contract.",
+        "Direct evidence resolves the recovered current-runtime canonical binding: server.GameGUI.getAttribute."
+      ]
+    },
+    {
+      "side": "client",
+      "usage": "screen.events",
+      "occurrences": 2,
+      "sampleCount": 1,
+      "corpusCanonicalId": "client.ClientScreen.events",
+      "canonicalId": "client.ClientScreen.events",
+      "resolution": "current-runtime-recovered",
+      "corpusState": "executable",
+      "compatibility": "native",
+      "capability": "client.ui",
+      "executableBindingIds": [
+        "client.ClientScreen.events"
+      ],
+      "launchState": "ready",
+      "reasons": [
+        "Recovered canonical surface is outside the documented declaration matrix, but direct runtime evidence proves the executable contract.",
+        "Direct evidence resolves the recovered current-runtime canonical binding: client.ClientScreen.events."
+      ]
     },
     {
       "side": "client",

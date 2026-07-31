@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-architecture-contract",
   "version": 1,
-  "generatedAt": "2026-07-31T05:24:48.309Z",
+  "generatedAt": "2026-07-31T09:27:02.588Z",
   "apiVersion": "0.1.0",
   "compatibilityLevel": "experimental",
   "layers": [
@@ -297,6 +297,7 @@
           "entries": [
             "server.RuntimePlayer.action0Button",
             "server.RuntimePlayer.action1Button",
+            "server.RuntimePlayer.bounds",
             "server.RuntimePlayer.cancelDialogs",
             "server.RuntimePlayer.crouchButton",
             "server.RuntimePlayer.destroyed",
@@ -394,7 +395,8 @@
           "entries": [
             "server.world.airFriction",
             "server.world.fogColor",
-            "server.world.gravity"
+            "server.world.gravity",
+            "server.world.projectName"
           ]
         },
         {
@@ -402,7 +404,10 @@
           "availability": "confirmed",
           "compatibility": "emulated",
           "entries": [
+            "server.RuntimeEntity.addTag",
+            "server.RuntimeEntity.bounds",
             "server.RuntimeEntity.collides",
+            "server.RuntimeEntity.customName",
             "server.RuntimeEntity.destroy",
             "server.RuntimeEntity.destroyed",
             "server.RuntimeEntity.enableDamage",
@@ -410,17 +415,41 @@
             "server.RuntimeEntity.fixed",
             "server.RuntimeEntity.friction",
             "server.RuntimeEntity.gravity",
+            "server.RuntimeEntity.hasTag",
             "server.RuntimeEntity.hp",
             "server.RuntimeEntity.id",
+            "server.RuntimeEntity.isPlayer",
             "server.RuntimeEntity.kind",
+            "server.RuntimeEntity.lookAt",
             "server.RuntimeEntity.mass",
             "server.RuntimeEntity.maxHp",
+            "server.RuntimeEntity.meshColor",
+            "server.RuntimeEntity.meshEmissive",
+            "server.RuntimeEntity.meshInvisible",
+            "server.RuntimeEntity.meshMetalness",
+            "server.RuntimeEntity.meshOffset",
+            "server.RuntimeEntity.meshOrientation",
+            "server.RuntimeEntity.meshScale",
+            "server.RuntimeEntity.meshShininess",
+            "server.RuntimeEntity.nameColor",
+            "server.RuntimeEntity.nameRadius",
+            "server.RuntimeEntity.player",
             "server.RuntimeEntity.position",
+            "server.RuntimeEntity.removeTag",
             "server.RuntimeEntity.restitution",
+            "server.RuntimeEntity.rotateLocal",
+            "server.RuntimeEntity.scaleLocal",
+            "server.RuntimeEntity.showEntityName",
             "server.RuntimeEntity.showHealthBar",
             "server.RuntimeEntity.snapshot",
+            "server.RuntimeEntity.sound",
             "server.RuntimeEntity.tags",
+            "server.RuntimePlayer.addTag",
             "server.RuntimePlayer.destroy",
+            "server.RuntimePlayer.hasTag",
+            "server.RuntimePlayer.isPlayer",
+            "server.RuntimePlayer.removeTag",
+            "server.RuntimePlayer.sound",
             "server.RuntimeRaycastResult.direction",
             "server.RuntimeRaycastResult.distance",
             "server.RuntimeRaycastResult.hit",
@@ -431,13 +460,23 @@
             "server.RuntimeRaycastResult.origin",
             "server.RuntimeRaycastResult.voxel",
             "server.RuntimeRaycastResult.voxelIndex",
+            "server.Sound.pause",
+            "server.Sound.resume",
+            "server.Sound.setCurrentTime",
+            "server.Sound.stop",
             "server.object.RuntimeEntity",
             "server.object.RuntimeRaycastResult",
             "server.world.addCollisionFilter",
+            "server.world.clearCollisionFilters",
+            "server.world.collisionFilters",
             "server.world.createEntity",
+            "server.world.entityQuota",
             "server.world.querySelector",
             "server.world.querySelectorAll",
             "server.world.raycast",
+            "server.world.removeCollisionFilter",
+            "server.world.searchBox",
+            "server.world.sound",
             "server.world.testSelector"
           ]
         },
@@ -688,14 +727,14 @@
   "compatibilityMatrix": {
     "path": "runtime-compat/abi/compatibility-matrix.json",
     "declarations": 599,
-    "executable": 263,
+    "executable": 378,
     "byStatus": {
       "native": 125,
-      "compatible": 50,
-      "partial": 88,
-      "recovered-only": 121,
+      "compatible": 131,
+      "partial": 122,
+      "recovered-only": 93,
       "unavailable": 1,
-      "declared-only": 214
+      "declared-only": 127
     }
   },
   "scriptRuntimes": {
@@ -739,9 +778,23 @@
     "catalog": "runtime-compat/abi/shared-runtime.json",
     "provider": "local-shared-compatibility-runtime",
     "capability": "shared.math",
-    "executableEntries": 35,
+    "capabilities": [
+      "shared.events",
+      "shared.math"
+    ],
+    "executableEntries": 117,
     "confirmedGameVector3Entries": 30,
-    "partialGameVector3Entries": 1
+    "partialGameVector3Entries": 1,
+    "confirmedGameBounds3Entries": 11,
+    "partialGameBounds3Entries": 0,
+    "confirmedGameQuaternionEntries": 23,
+    "partialGameQuaternionEntries": 5,
+    "confirmedGameRGBColorEntries": 19,
+    "partialGameRGBColorEntries": 1,
+    "confirmedGameRGBAColorEntries": 19,
+    "partialGameRGBAColorEntries": 1,
+    "confirmedGameEventHandlerTokenEntries": 3,
+    "partialGameEventHandlerTokenEntries": 0
   },
   "contactEvents": {
     "model": "runtime-compat/abi/contact-event-model.json",
@@ -775,7 +828,7 @@
   },
   "projectCapabilityManifest": {
     "format": "nea-project-capability-manifest",
-    "version": 10,
+    "version": 14,
     "producer": "demo-map/src/capability-manifest.mjs",
     "launchGate": "demo-map/src/capability-launch-gate.mjs",
     "states": [
@@ -804,6 +857,9 @@
       "client-ui-state",
       "asset-file-evidence",
       "entity-projection-evidence",
+      "storage-group-scope",
+      "project-identity",
+      "world-config",
       "runtime-abi-artifacts"
     ],
     "integrityChecks": [
@@ -815,7 +871,24 @@
       "exact-grant-set",
       "canonical-json-digests",
       "asset-file-bytes-sha256",
+      "storage-scope-semantic-digest",
+      "project-identity-semantic-digest",
+      "world-config-semantic-digest",
       "runtime-abi-semantic-digest"
+    ],
+    "projectRefinements": [
+      {
+        "id": "player-lifecycle-event-payload",
+        "apis": [
+          "world.onPlayerJoin",
+          "world.nextPlayerJoin",
+          "world.onPlayerLeave",
+          "world.nextPlayerLeave"
+        ],
+        "globalCompatibility": "partial",
+        "projectState": "ready",
+        "condition": "GameEntityEvent {tick,entity} payload is exact and every accessed GamePlayerEntity member is independently gated"
+      }
     ],
     "launchBefore": [
       "client-script-publication",
@@ -830,6 +903,8 @@
       "demo-map/src/capability-launch-gate.mjs",
       "demo-map/src/capability-input-digest.mjs",
       "demo-map/src/capability-input-normalize.mjs",
+      "demo-map/src/lifecycle-event-refinement.mjs",
+      "runtime-compat/conformance/player-lifecycle-project-refinement.mjs",
       "demo-map/src/server.mjs"
     ]
   },
@@ -842,7 +917,8 @@
       "player.gui",
       "player.game-chat",
       "player.dialog",
-      "player.entity-interact"
+      "player.entity-interact",
+      "player.sound"
     ],
     "remoteChannelEnvelope": {
       "fields": [
@@ -944,6 +1020,45 @@
           "type": "test",
           "path": "runtime-compat/test/backend-chat-transport.test.mjs",
           "symbol": "game-chat outbound packet conformance",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "sound-playback",
+      "from": "server-script-runtime",
+      "to": "player-browser-client",
+      "protocol": "player.sound",
+      "payload": "Dictionary-backed global, positioned, entity-targeted and player-targeted playback plus resume, seek, pause and stop controls; browser media results are not acknowledged",
+      "evidence": [
+        {
+          "type": "protocol-schema",
+          "path": "runtime-compat/abi/protocols.json",
+          "symbol": "player.sound",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/control-client.mjs",
+          "symbol": "sendSoundCommandToBackend",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/server.mjs",
+          "symbol": "ScriptRuntime sound binding",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "local-player/backend/box3-server.cjs",
+          "symbol": "ProjectBootstrapSessions.sendSoundCommand / sound control route",
+          "confidence": "direct"
+        },
+        {
+          "type": "test",
+          "path": "runtime-compat/test/sound-api-conformance.test.mjs",
+          "symbol": "Sound API normalization and controls",
           "confidence": "direct"
         }
       ]
@@ -1190,7 +1305,7 @@
       "from": "player-browser-client",
       "to": "server-script-runtime",
       "protocol": "player.game-net.session",
-      "payload": "Accepted game-net join and MuDB disconnect events use a stable non-reversible SHA-256 bridge label to create and remove RuntimePlayer wrappers",
+      "payload": "Accepted game-net join and MuDB disconnect events use a stable non-reversible SHA-256 bridge label to create and remove RuntimePlayer wrappers; disconnect dispatches world.onPlayerLeave, player.onDestroy, then world.onEntityDestroy with one GameEntityEvent",
       "evidence": [
         {
           "type": "protocol-schema",
@@ -1227,6 +1342,18 @@
           "path": "demo-map/test/runtime.test.mjs",
           "symbol": "RuntimePlayer join/leave event dispatch",
           "confidence": "direct"
+        },
+        {
+          "type": "test",
+          "path": "runtime-compat/test/player-lifecycle-project-refinement-conformance.test.mjs",
+          "symbol": "project lifecycle subscription refinement without global ABI promotion",
+          "confidence": "direct"
+        },
+        {
+          "type": "test",
+          "path": "runtime-compat/test/player-disconnect-destroy-order-conformance.test.mjs",
+          "symbol": "disconnect destroy order and shared GameEntityEvent payload",
+          "confidence": "direct"
         }
       ]
     },
@@ -1250,8 +1377,8 @@
   "demo": {
     "project": {
       "path": "demo-map/project/nea.map.json",
-      "bytes": 1111,
-      "sha256": "42c85a03cbfa069724309b69ae5fb955abd430144238d46034374ef61efec70d"
+      "bytes": 1136,
+      "sha256": "1726d35b3d40fb4d9d5425d0167fdacc868ada96e9724d128c02f6804ba87a2e"
     },
     "scripts": {
       "client": {
@@ -1501,7 +1628,10 @@
           "server.RuntimeDieEvent.damageType",
           "server.RuntimeDieEvent.entity",
           "server.RuntimeDieEvent.tick",
+          "server.RuntimeEntity.addTag",
+          "server.RuntimeEntity.bounds",
           "server.RuntimeEntity.collides",
+          "server.RuntimeEntity.customName",
           "server.RuntimeEntity.destroy",
           "server.RuntimeEntity.destroyed",
           "server.RuntimeEntity.enableDamage",
@@ -1509,12 +1639,25 @@
           "server.RuntimeEntity.fixed",
           "server.RuntimeEntity.friction",
           "server.RuntimeEntity.gravity",
+          "server.RuntimeEntity.hasTag",
           "server.RuntimeEntity.hp",
           "server.RuntimeEntity.hurt",
           "server.RuntimeEntity.id",
+          "server.RuntimeEntity.isPlayer",
           "server.RuntimeEntity.kind",
+          "server.RuntimeEntity.lookAt",
           "server.RuntimeEntity.mass",
           "server.RuntimeEntity.maxHp",
+          "server.RuntimeEntity.meshColor",
+          "server.RuntimeEntity.meshEmissive",
+          "server.RuntimeEntity.meshInvisible",
+          "server.RuntimeEntity.meshMetalness",
+          "server.RuntimeEntity.meshOffset",
+          "server.RuntimeEntity.meshOrientation",
+          "server.RuntimeEntity.meshScale",
+          "server.RuntimeEntity.meshShininess",
+          "server.RuntimeEntity.nameColor",
+          "server.RuntimeEntity.nameRadius",
           "server.RuntimeEntity.nextClick",
           "server.RuntimeEntity.nextDestroy",
           "server.RuntimeEntity.nextDie",
@@ -1533,11 +1676,17 @@
           "server.RuntimeEntity.onTakeDamage",
           "server.RuntimeEntity.onVoxelContact",
           "server.RuntimeEntity.onVoxelSeparate",
+          "server.RuntimeEntity.player",
           "server.RuntimeEntity.position",
+          "server.RuntimeEntity.removeTag",
           "server.RuntimeEntity.restitution",
+          "server.RuntimeEntity.rotateLocal",
           "server.RuntimeEntity.say",
+          "server.RuntimeEntity.scaleLocal",
+          "server.RuntimeEntity.showEntityName",
           "server.RuntimeEntity.showHealthBar",
           "server.RuntimeEntity.snapshot",
+          "server.RuntimeEntity.sound",
           "server.RuntimeEntity.tags",
           "server.RuntimeEntityEvent.entity",
           "server.RuntimeEntityEvent.player",
@@ -1604,7 +1753,9 @@
           "server.RuntimeKeyBoardEvent.tick",
           "server.RuntimePlayer.action0Button",
           "server.RuntimePlayer.action1Button",
+          "server.RuntimePlayer.addTag",
           "server.RuntimePlayer.applyImpulse",
+          "server.RuntimePlayer.bounds",
           "server.RuntimePlayer.cancelDialogs",
           "server.RuntimePlayer.color",
           "server.RuntimePlayer.crouchButton",
@@ -1621,10 +1772,12 @@
           "server.RuntimePlayer.fluidContacts",
           "server.RuntimePlayer.forceRespawn",
           "server.RuntimePlayer.grounded",
+          "server.RuntimePlayer.hasTag",
           "server.RuntimePlayer.health",
           "server.RuntimePlayer.hp",
           "server.RuntimePlayer.hurt",
           "server.RuntimePlayer.id",
+          "server.RuntimePlayer.isPlayer",
           "server.RuntimePlayer.jumpButton",
           "server.RuntimePlayer.maxHp",
           "server.RuntimePlayer.name",
@@ -1653,9 +1806,11 @@
           "server.RuntimePlayer.onVoxelContact",
           "server.RuntimePlayer.onVoxelSeparate",
           "server.RuntimePlayer.position",
+          "server.RuntimePlayer.removeTag",
           "server.RuntimePlayer.sendMessage",
           "server.RuntimePlayer.showHealthBar",
           "server.RuntimePlayer.snapshot",
+          "server.RuntimePlayer.sound",
           "server.RuntimePlayer.spawnPoint",
           "server.RuntimePlayer.velocity",
           "server.RuntimePlayer.walkButton",
@@ -1695,6 +1850,10 @@
           "server.RuntimeVoxelContactEvent.x",
           "server.RuntimeVoxelContactEvent.y",
           "server.RuntimeVoxelContactEvent.z",
+          "server.Sound.pause",
+          "server.Sound.resume",
+          "server.Sound.setCurrentTime",
+          "server.Sound.stop",
           "server.global.gui",
           "server.global.storage",
           "server.global.voxels",
@@ -1727,8 +1886,11 @@
           "server.world.addCollisionFilter",
           "server.world.addZone",
           "server.world.airFriction",
+          "server.world.clearCollisionFilters",
+          "server.world.collisionFilters",
           "server.world.createEntity",
           "server.world.currentTick",
+          "server.world.entityQuota",
           "server.world.fogColor",
           "server.world.gravity",
           "server.world.nextChat",
@@ -1772,12 +1934,16 @@
           "server.world.onTriggerLeave",
           "server.world.onVoxelContact",
           "server.world.onVoxelSeparate",
+          "server.world.projectName",
           "server.world.querySelector",
           "server.world.querySelectorAll",
           "server.world.raycast",
+          "server.world.removeCollisionFilter",
           "server.world.removeZone",
           "server.world.say",
+          "server.world.searchBox",
           "server.world.size",
+          "server.world.sound",
           "server.world.testSelector",
           "server.world.zones"
         ],

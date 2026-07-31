@@ -71,11 +71,15 @@ const requirements = [
   requirement("version-capability-conformance", "complete", "API version, runtime contracts, side-qualified capabilities, compatibility levels and conformance fixtures are enforced.", [
     proof("runtime-compat/abi/runtime-contracts.json", { apiVersion: architecture.apiVersion, contracts: architecture.contracts.map(contract => contract.id) }),
     proof("runtime-compat/abi/compatibility-matrix.json", matrix.statusDefinitions),
+    proof("runtime-compat/conformance/entity-tag-api.mjs", { compatible: ["GameEntity.addTag", "GameEntity.removeTag", "GameEntity.hasTag"], partial: ["GameEntity.tags"] }),
+    proof("runtime-compat/conformance/world-collision-filter-api.mjs", { partial: ["GameWorld.addCollisionFilter", "GameWorld.removeCollisionFilter", "GameWorld.clearCollisionFilters", "GameWorld.collisionFilters"] }),
   ]),
-  requirement("project-capability-launch-gate", capabilityManifestComplete ? "complete" : "partial", "Capability Manifest v10 binds analyzed scripts, grants, UI, resources, entities and semantic Runtime ABI artifacts to the actual package before publication or execution.", [
+  requirement("project-capability-launch-gate", capabilityManifestComplete ? "complete" : "partial", "Capability Manifest v14 binds analyzed scripts, grants, UI, resources, entities, storage group scope, project identity, world entity-limit configuration, static server sound samples and semantic Runtime ABI artifacts to the actual package before publication or execution; sound calls additionally require the evidenced player.sound transport, while exact player lifecycle payloads may be project-ready even though the global player ABI remains partial because accessed members are independently gated.", [
     proof("runtime-compat/abi/runtime-contracts.json", capabilityManifest),
     proof("demo-map/src/capability-launch-gate.mjs", { version: capabilityManifest?.version, inputs: capabilityManifest?.inputBindings, launchBefore: capabilityManifest?.launchBefore }),
-  ], capabilityManifestComplete ? [] : ["Capability Manifest v10 architecture contract or startup ordering is incomplete."]),
+    proof("runtime-compat/conformance/player-lifecycle-project-refinement.mjs", capabilityManifest?.projectRefinements ?? []),
+    proof("runtime-compat/conformance/world-project-identity.mjs", { compatible: "GameWorld.projectName", excluded: ["GameWorld.url", "GameWorld.serverId"] }),
+  ], capabilityManifestComplete ? [] : ["Capability Manifest v14 architecture contract or startup ordering is incomplete."]),
   requirement("demo-contract-bindings", "complete", "Demo client.js and server.js bind separate declared runtime contracts and capabilities.", [
     proof("runtime-compat/abi/runtime-contracts.json", architecture.demo.bindings.map(binding => ({ side: binding.side, contract: binding.contract, resolved: binding.resolved }))),
   ]),

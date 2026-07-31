@@ -13,6 +13,10 @@ const relativeGameVoxelsPath = "demo-map/src/runtime/game-voxels.mjs";
 const gameVoxelsSource = await readFile(resolve(repositoryRoot, relativeGameVoxelsPath), "utf8");
 const relativeGameRaycastPath = "demo-map/src/runtime/game-raycast.mjs";
 const gameRaycastSource = await readFile(resolve(repositoryRoot, relativeGameRaycastPath), "utf8");
+const relativeEntityLookAtPath = "demo-map/src/runtime/entity-look-at.mjs";
+const entityLookAtSource = await readFile(resolve(repositoryRoot, relativeEntityLookAtPath), "utf8");
+const relativeEntityBoundsPath = "demo-map/src/runtime/entity-bounds.mjs";
+const entityBoundsSource = await readFile(resolve(repositoryRoot, relativeEntityBoundsPath), "utf8");
 const relativeGameSelectorPath = "demo-map/src/runtime/game-selector.mjs";
 const gameSelectorSource = await readFile(resolve(repositoryRoot, relativeGameSelectorPath), "utf8");
 const relativeGameGuiPath = "demo-map/src/runtime/game-gui.mjs";
@@ -21,6 +25,8 @@ const relativeGameStoragePath = "demo-map/src/runtime/game-storage.mjs";
 const gameStorageSource = await readFile(resolve(repositoryRoot, relativeGameStoragePath), "utf8");
 const relativeGameWorldPath = "demo-map/src/runtime/game-world.mjs";
 const gameWorldSource = await readFile(resolve(repositoryRoot, relativeGameWorldPath), "utf8");
+const relativeGameSoundPath = "demo-map/src/runtime/game-sound.mjs";
+const gameSoundSource = await readFile(resolve(repositoryRoot, relativeGameSoundPath), "utf8");
 const relativeGameZonesPath = "demo-map/src/runtime/game-zones.mjs";
 const gameZonesSource = await readFile(resolve(repositoryRoot, relativeGameZonesPath), "utf8");
 
@@ -75,9 +81,15 @@ const requiredMarkers = [
   "const force = Vector3.from(contact.force ?? [0, 0, 0])",
   "say: message => {",
   "createEntity: spec => {",
+  "entityQuota: () => Math.max(0, this.entityLimit - this.#entities.size)",
+  "lookAt(targetPosition, meshFacing = \"Z\", up = new Vector3(0, 1, 0))",
+  "rotateLocal(localPosition, axis, radians)",
+  "scaleLocal(localPosition, scale)",
+  "if (this.#entities.size >= this.entityLimit)",
   "querySelector: selector => this.#query(selector)[0] ?? null",
   "testSelector: (selector, entity) => this.#matchesSelector(entity, selector)",
   "raycast: (origin, direction, options) => raycastWorld({",
+  "searchBox: bounds => searchRuntimeEntities(bounds, this.#allQueryableEntities())",
   "onRespawn: handler => this.#listen(\"server.world.events\", this.#signals.respawn, handler)",
   "onTakeDamage: handler => this.#listen(\"server.world.events\", this.#signals.takeDamage, handler)",
   "export function createGameDamageEvent(tick, entity, damage, attacker = null, damageType = \"\")",
@@ -129,11 +141,20 @@ for (const marker of ["export class RuntimeGameZone", "export class GameZoneSyst
 for (const marker of ["export class GameGuiRuntime", 'this.init = (entity, config) =>', 'this.remove = (entity, selector) =>', 'this.getAttribute = (entity, selector, name) =>', 'this.setAttribute = (entity, selector, name, value) =>', "this.onMessage = listener =>", "this.ui = new Proxy"]) {
   if (!gameGuiSource.includes(marker)) throw new Error(`Local GameGUI Runtime no longer contains ${marker}`);
 }
-for (const marker of ["export class LocalGameStorage", "export class RuntimeDataStorage", "export class RuntimeQueryList", "#mutationQueue = Promise.resolve()", "#mutate(operation)", "isJsonValue(value, ancestors)", "Number.isFinite(value)", "Object.getOwnPropertySymbols(value)", "this.getDataStorage = key =>", "this.getGroupStorage = options.groupEnabled", "set: (itemKey, value) =>", "update: (itemKey, handler) =>", "increment: (itemKey, value = 1) =>", "list: (options = {}) =>", "parseConstraintTarget", "resolveConstraintTarget", "compareStorageTargets", "Math.min(100", "remove: itemKey =>", "destroy: () =>", "const start = page * pageSize", "if (next.items.length > 0) this.#items = next.items"]) {
+for (const marker of ["export class LocalGameStorage", "export class RuntimeDataStorage", "export class RuntimeQueryList", "#mutationQueue = Promise.resolve()", "#mutate(operation)", "isJsonValue(value, ancestors)", "Number.isFinite(value)", "Object.getOwnPropertySymbols(value)", "this.getDataStorage = key =>", "group:${groupId}:${key}", "set: (itemKey, value) =>", "update: (itemKey, handler) =>", "increment: (itemKey, value = 1) =>", "list: (options = {}) =>", "parseConstraintTarget", "resolveConstraintTarget", "compareStorageTargets", "Math.min(100", "remove: itemKey =>", "destroy: () =>", "const start = page * pageSize", "if (next.items.length > 0) this.#items = next.items"]) {
   if (!gameStorageSource.includes(marker)) throw new Error(`Local GameStorage Runtime no longer contains ${marker}`);
 }
 for (const marker of ["export class RuntimeRaycastResult", "export function raycastWorld", "return new RuntimeRaycastResult", "options?.ignoreVoxel === true", "options?.ignoreFluid === true", "options?.ignoreEntities === true", "options?.ignoreSelector", "return Infinity", "nearest?.position ?? new Vector3(0, 0, 0)", "voxelIndex:", "hitEntity:"]) {
   if (!gameRaycastSource.includes(marker)) throw new Error(`Local GameWorld.raycast Runtime no longer contains ${marker}`);
+}
+for (const marker of ["export function runtimeEntityBounds", "export function searchRuntimeEntities", "query.intersects(entityBounds)"]) {
+  if (!entityBoundsSource.includes(marker)) throw new Error(`Local GameWorld.searchBox Runtime no longer contains ${marker}`);
+}
+for (const marker of ["export function entityLookAtQuaternion", "export function rotateEntityLocal", "export function scaleEntityLocal", "export function applyHistoricalEntityTransform", "currentZ = new Vector3(0, 0, 1)", "currentZ.x + 0.0001", "new GameQuaternion(x, y, z, w)", "position.add(before).sub(after)"]) {
+  if (!entityLookAtSource.includes(marker)) throw new Error(`Local GameEntity.lookAt Runtime no longer contains ${marker}`);
+}
+for (const marker of ["export class Sound", "export function normalizeWorldSound", "export function normalizeEntitySound", "export function normalizePlayerSound", "min pitch scaling is 0.1"]) {
+  if (!gameSoundSource.includes(marker)) throw new Error(`Local sound Runtime no longer contains ${marker}`);
 }
 for (const marker of ["export class ParsedGameSelector", "this.selector.split(\",\")", "if (token === \"entity\") this.matchAll = true", "component === \"player\"", "this.names.includes(entity.id)", "entity.destroyed === true"]) {
   if (!gameSelectorSource.includes(marker)) throw new Error(`Local GameSelector Runtime no longer contains ${marker}`);
@@ -141,7 +162,7 @@ for (const marker of ["export class ParsedGameSelector", "this.selector.split(\"
 for (const marker of ["export class GameVoxelsRuntime", "id(name)", "getVoxelId(x, y, z)", "setVoxelId(x, y, z, voxel)", "setVoxel(x, y, z, voxel, rotation)", "name(id)", "getVoxel(x, y, z)", "getVoxelRotation(x, y, z)", "this.shape = this.#shape", "this.VoxelTypes ="]) {
   if (!gameVoxelsSource.includes(marker)) throw new Error(`Local GameVoxels Runtime no longer contains ${marker}`);
 }
-for (const marker of ["cancel: () =>", "resume: () =>", "active: () => record.active", "#futures = new Set()", "next(filter)", "future.filter.call(null, event)", "future.reject(error)"]) {
+for (const marker of ["export class GameEventHandlerToken", "return new GameEventHandlerToken(", "record.finished = true", "record.finished = false", "if (!record.inQueue)", "() => !record.finished", "#futures = new Set()", "next(filter)", "future.filter.call(null, event)", "future.reject(error)"]) {
   if (!eventSignalSource.includes(marker)) throw new Error(`Local event token no longer contains ${marker}`);
 }
 
@@ -220,6 +241,7 @@ const entries = [
   entry("server.world.onPlayerPurchaseSuccess", "event", "world", "onPlayerPurchaseSuccess", handler("GamePurchaseSuccessEvent"), "server.world.events", "partial", ["server.GameWorld.onPlayerPurchaseSuccess"]),
   entry("server.world.nextPlayerPurchaseSuccess", "event", "world", "nextPlayerPurchaseSuccess", { parameters: [{ name: "filter", type: "(event: GamePurchaseSuccessEvent) => boolean", optional: true }], returns: "Promise<GamePurchaseSuccessEvent>" }, "server.world.events", "partial", ["server.GameWorld.nextPlayerPurchaseSuccess"]),
   entry("server.world.onTick", "event", "world", "onTick", handler("GameTickEvent"), "server.world.events", "partial", ["server.GameWorld.onTick"]),
+  entry("server.world.sound", "method", "world", "sound", { parameters: [{ name: "config", type: "GameSoundEffect|string" }], returns: "Sound" }, "server.world.entities", "partial", ["server.GameWorld.sound"]),
   entry("server.world.onPlayerJoin", "event", "world", "onPlayerJoin", handler("GameEntityEvent"), "server.world.events"),
   entry("server.world.onPlayerLeave", "event", "world", "onPlayerLeave", handler("GameEntityEvent"), "server.world.events"),
   entry("server.world.nextPlayerLeave", "event", "world", "nextPlayerLeave", { parameters: [{ name: "filter", type: "(event: GameEntityEvent) => boolean", optional: true }], returns: "Promise<GameEntityEvent>" }, "server.world.events", "partial", ["server.GameWorld.nextPlayerLeave"]),
@@ -238,30 +260,58 @@ const entries = [
   entry("server.world.nextTick", "event", "world", "nextTick", { parameters: [{ name: "filter", type: "(event: GameTickEvent) => boolean", optional: true }], returns: "Promise<GameTickEvent>" }, "server.world.events", "partial", ["server.GameWorld.nextTick"]),
   entry("server.world.nextPlayerJoin", "event", "world", "nextPlayerJoin", { parameters: [{ name: "filter", type: "(event: GameEntityEvent) => boolean", optional: true }], returns: "Promise<GameEntityEvent>" }, "server.world.events", "partial", ["server.GameWorld.nextPlayerJoin"]),
   entry("server.world.say", "method", "world", "say", { parameters: [{ name: "message", type: "unknown" }], returns: "void" }, "server.world.chat"),
-  entry("server.world.createEntity", "method", "world", "createEntity", { parameters: [{ name: "spec", type: "LocalEntitySpec" }], returns: "RuntimeEntity" }, "server.world.entities"),
+  entry("server.world.createEntity", "method", "world", "createEntity", { parameters: [{ name: "spec", type: "LocalEntitySpec" }], returns: "RuntimeEntity | null" }, "server.world.entities"),
+  entityQuotaEntry(),
   entry("server.world.querySelector", "method", "world", "querySelector", { parameters: [{ name: "selector", type: "string" }], returns: "RuntimeEntity|null" }, "server.world.entities"),
   entry("server.world.querySelectorAll", "method", "world", "querySelectorAll", { parameters: [{ name: "selector", type: "string" }], returns: "RuntimeEntity[]" }, "server.world.entities"),
   entry("server.world.testSelector", "method", "world", "testSelector", { parameters: [{ name: "selector", type: "GameSelectorString" }, { name: "entity", type: "RuntimeEntity" }], returns: "boolean" }, "server.world.entities", "partial", ["server.GameWorld.testSelector"]),
   raycastEntry(),
+  searchBoxEntry(),
   entry("server.world.addCollisionFilter", "method", "world", "addCollisionFilter", { parameters: [{ name: "aSelector", type: "GameSelectorString" }, { name: "bSelector", type: "GameSelectorString" }], returns: "void" }, "server.world.entities", "partial", ["server.GameWorld.addCollisionFilter"]),
+  entry("server.world.removeCollisionFilter", "method", "world", "removeCollisionFilter", { parameters: [{ name: "aSelector", type: "GameSelectorString" }, { name: "bSelector", type: "GameSelectorString" }], returns: "void" }, "server.world.entities", "partial", ["server.GameWorld.removeCollisionFilter"]),
+  entry("server.world.clearCollisionFilters", "method", "world", "clearCollisionFilters", { parameters: [], returns: "void" }, "server.world.entities", "partial", ["server.GameWorld.clearCollisionFilters"]),
+  entry("server.world.collisionFilters", "method", "world", "collisionFilters", { parameters: [], returns: "string[][]" }, "server.world.entities", "partial", ["server.GameWorld.collisionFilters"]),
+  entry("server.world.projectName", "property", "world", "projectName", { type: "string", readonly: true }, "server.world.config", "compatible", ["server.GameWorld.projectName"]),
   entry("server.world.addZone", "method", "world", "addZone", { parameters: [{ name: "config", type: "Partial<GameZone>" }], returns: "GameZone" }, "server.world.events", "partial", ["server.GameWorld.addZone"]),
   entry("server.world.removeZone", "method", "world", "removeZone", { parameters: [{ name: "zone", type: "GameZone" }], returns: "void" }, "server.world.events", "partial", ["server.GameWorld.removeZone"]),
   entry("server.world.zones", "method", "world", "zones", { parameters: [], returns: "GameZone[]" }, "server.world.events", "partial", ["server.GameWorld.zones"]),
   worldValueEntry("server.world.gravity", "gravity", "number"),
   worldValueEntry("server.world.airFriction", "airFriction", "number"),
   worldValueEntry("server.world.fogColor", "fogColor", "GameRGBColor"),
-  entry("server.object.RuntimeEntity", "object", null, "RuntimeEntity", { properties: ["id", "kind", "position", "collides", "fixed", "gravity", "mass", "friction", "restitution", "tags", "destroyed", "enableInteract", "enableDamage", "showHealthBar", "hp", "maxHp"], methods: ["say", "destroy", "onDestroy", "nextDestroy", "onClick", "nextClick", "onInteract", "nextInteract", "onFluidEnter", "nextFluidEnter", "onFluidLeave", "nextFluidLeave", "onTakeDamage", "nextTakeDamage", "onDie", "nextDie", "hurt", "snapshot"] }, "server.world.entities"),
+  entry("server.object.RuntimeEntity", "object", null, "RuntimeEntity", { properties: ["id", "kind", "position", "bounds", "collides", "fixed", "gravity", "mass", "friction", "restitution", "meshInvisible", "meshScale", "meshOrientation", "meshOffset", "meshColor", "meshMetalness", "meshEmissive", "meshShininess", "showEntityName", "customName", "nameRadius", "nameColor", "tags", "destroyed", "enableInteract", "enableDamage", "showHealthBar", "hp", "maxHp"], methods: ["say", "lookAt", "rotateLocal", "scaleLocal", "destroy", "onDestroy", "nextDestroy", "onClick", "nextClick", "onInteract", "nextInteract", "onFluidEnter", "nextFluidEnter", "onFluidLeave", "nextFluidLeave", "onTakeDamage", "nextTakeDamage", "onDie", "nextDie", "hurt", "snapshot"] }, "server.world.entities"),
   entry("server.RuntimeEntity.id", "property", "RuntimeEntity", "id", { type: "string", readonly: true }, "server.world.entities"),
   entry("server.RuntimeEntity.kind", "property", "RuntimeEntity", "kind", { type: "string", readonly: true }, "server.world.entities"),
   entry("server.RuntimeEntity.position", "property", "RuntimeEntity", "position", { type: "Vector3", readonly: false }, "server.world.entities"),
+  entry("server.RuntimeEntity.bounds", "property", "RuntimeEntity", "bounds", { type: "Vector3", readonly: true }, "server.world.entities", "partial", ["server.GameEntity.bounds"]),
   entry("server.RuntimeEntity.collides", "property", "RuntimeEntity", "collides", { type: "boolean", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.collides"]),
   entry("server.RuntimeEntity.fixed", "property", "RuntimeEntity", "fixed", { type: "boolean", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.fixed"]),
   entry("server.RuntimeEntity.gravity", "property", "RuntimeEntity", "gravity", { type: "boolean", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.gravity"]),
   entry("server.RuntimeEntity.mass", "property", "RuntimeEntity", "mass", { type: "number", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.mass"]),
   entry("server.RuntimeEntity.friction", "property", "RuntimeEntity", "friction", { type: "number", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.friction"]),
   entry("server.RuntimeEntity.restitution", "property", "RuntimeEntity", "restitution", { type: "number", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.restitution"]),
+  entry("server.RuntimeEntity.meshInvisible", "property", "RuntimeEntity", "meshInvisible", { type: "boolean", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.meshInvisible"]),
+  entry("server.RuntimeEntity.meshScale", "property", "RuntimeEntity", "meshScale", { type: "Vector3", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.meshScale"]),
+  entry("server.RuntimeEntity.meshOrientation", "property", "RuntimeEntity", "meshOrientation", { type: "GameQuaternion", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.meshOrientation"]),
+  entry("server.RuntimeEntity.lookAt", "method", "RuntimeEntity", "lookAt", { parameters: [{ name: "targetPosition", type: "GameVector3" }, { name: "meshFacing", type: "\"X\" | \"Y\" | \"Z\"", optional: true }, { name: "up", type: "GameVector3", optional: true }], returns: "void" }, "server.world.entities", "partial", ["server.GameEntity.lookAt"]),
+  entry("server.RuntimeEntity.rotateLocal", "method", "RuntimeEntity", "rotateLocal", { parameters: [{ name: "localPosition", type: "GameVector3" }, { name: "axis", type: "\"X\" | \"Y\" | \"Z\"" }, { name: "rad", type: "number" }], returns: "void" }, "server.world.entities", "partial", ["server.GameEntity.rotateLocal"]),
+  entry("server.RuntimeEntity.scaleLocal", "method", "RuntimeEntity", "scaleLocal", { parameters: [{ name: "localPosition", type: "GameVector3" }, { name: "v", type: "GameVector3" }], returns: "void" }, "server.world.entities", "partial", ["server.GameEntity.scaleLocal"]),
+  entry("server.RuntimeEntity.meshOffset", "property", "RuntimeEntity", "meshOffset", { type: "Vector3", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.meshOffset"]),
+  entry("server.RuntimeEntity.meshColor", "property", "RuntimeEntity", "meshColor", { type: "GameRGBAColor", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.meshColor"]),
+  entry("server.RuntimeEntity.meshMetalness", "property", "RuntimeEntity", "meshMetalness", { type: "number", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.meshMetalness"]),
+  entry("server.RuntimeEntity.meshEmissive", "property", "RuntimeEntity", "meshEmissive", { type: "number", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.meshEmissive"]),
+  entry("server.RuntimeEntity.meshShininess", "property", "RuntimeEntity", "meshShininess", { type: "number", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.meshShininess"]),
+  entry("server.RuntimeEntity.showEntityName", "property", "RuntimeEntity", "showEntityName", { type: "boolean", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.showEntityName"]),
+  entry("server.RuntimeEntity.customName", "property", "RuntimeEntity", "customName", { type: "string", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.customName"]),
+  entry("server.RuntimeEntity.nameRadius", "property", "RuntimeEntity", "nameRadius", { type: "number", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.nameRadius"]),
+  entry("server.RuntimeEntity.nameColor", "property", "RuntimeEntity", "nameColor", { type: "GameRGBColor", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.nameColor"]),
   entry("server.RuntimeEntity.tags", "property", "RuntimeEntity", "tags", { type: "Set<string>", readonly: true }, "server.world.entities"),
   entry("server.RuntimeEntity.say", "method", "RuntimeEntity", "say", { parameters: [{ name: "message", type: "string" }, { name: "options", type: "Partial<{duration:number,hideFloat:boolean}>", optional: true }], returns: "void" }, "server.world.chat", "partial"),
+  entry("server.RuntimeEntity.sound", "method", "RuntimeEntity", "sound", { parameters: [{ name: "config", type: "GameSoundEffect|string" }], returns: "Sound" }, "server.world.entities", "partial", ["server.GameEntity.sound"]),
+  entry("server.RuntimePlayer.sound", "method", "RuntimePlayer", "sound", { parameters: [{ name: "config", type: "GameSoundEffect|string" }], returns: "Sound" }, "server.world.entities", "partial", ["server.GameEntity.sound"]),
+  entry("server.Sound.resume", "method", "Sound", "resume", { parameters: [{ name: "currentTime", type: "number", optional: true }], returns: "void" }, "server.world.entities", "partial", ["shared.Sound.resume"]),
+  entry("server.Sound.setCurrentTime", "method", "Sound", "setCurrentTime", { parameters: [{ name: "currentTime", type: "number" }], returns: "void" }, "server.world.entities", "partial", ["shared.Sound.setCurrentTime"]),
+  entry("server.Sound.pause", "method", "Sound", "pause", { parameters: [], returns: "void" }, "server.world.entities", "partial", ["shared.Sound.pause"]),
+  entry("server.Sound.stop", "method", "Sound", "stop", { parameters: [], returns: "void" }, "server.world.entities", "partial", ["shared.Sound.stop"]),
   entry("server.RuntimeEntity.destroyed", "property", "RuntimeEntity", "destroyed", { type: "boolean", readonly: true }, "server.world.entities", "partial"),
   entry("server.RuntimeEntity.enableDamage", "property", "RuntimeEntity", "enableDamage", { type: "boolean", readonly: false }, "server.world.entities", "partial"),
   entry("server.RuntimeEntity.showHealthBar", "property", "RuntimeEntity", "showHealthBar", { type: "boolean", readonly: false }, "server.world.entities", "partial"),
@@ -273,6 +323,8 @@ const entries = [
   entry("server.RuntimeEntity.onClick", "event", "RuntimeEntity", "onClick", handler("GameClickEvent"), "server.world.events", "partial", ["server.GameEntity.onClick"]),
   entry("server.RuntimeEntity.nextClick", "event", "RuntimeEntity", "nextClick", { parameters: [{ name: "filter", type: "(event: GameClickEvent) => boolean", optional: true }], returns: "Promise<GameClickEvent>" }, "server.world.events", "partial", ["server.GameEntity.nextClick"]),
   entry("server.RuntimeEntity.enableInteract", "property", "RuntimeEntity", "enableInteract", { type: "boolean", readonly: false }, "server.world.entities", "partial", ["server.GameEntity.enableInteract"]),
+  entry("server.RuntimeEntity.isPlayer", "property", "RuntimeEntity", "isPlayer", { type: "boolean", readonly: true }, "server.world.entities", "compatible", ["server.GameEntity.isPlayer"]),
+  entry("server.RuntimeEntity.player", "property", "RuntimeEntity", "player", { type: "GamePlayerEntity|undefined", readonly: true }, "server.world.entities", "partial", ["server.GameEntity.player"]),
   entry("server.RuntimeEntity.onInteract", "event", "RuntimeEntity", "onInteract", handler("GameInteractEvent"), "server.world.events", "partial", ["server.GameEntity.onInteract"]),
   entry("server.RuntimeEntity.nextInteract", "event", "RuntimeEntity", "nextInteract", { parameters: [{ name: "filter", type: "(event: GameInteractEvent) => boolean", optional: true }], returns: "Promise<GameInteractEvent>" }, "server.world.events", "partial", ["server.GameEntity.nextInteract"]),
   entry("server.RuntimeEntity.onFluidEnter", "event", "RuntimeEntity", "onFluidEnter", handler("GameFluidContactEvent"), "server.world.events", "partial", ["server.GameEntity.onFluidEnter"]),
@@ -288,13 +340,17 @@ const entries = [
   entry("server.RuntimeEntity.onDie", "event", "RuntimeEntity", "onDie", handler("GameDieEvent"), "server.world.events", "partial"),
   entry("server.RuntimeEntity.nextDie", "event", "RuntimeEntity", "nextDie", { parameters: [{ name: "filter", type: "(event: GameDieEvent) => boolean", optional: true }], returns: "Promise<GameDieEvent>" }, "server.world.events", "partial"),
   entry("server.RuntimeEntity.hurt", "method", "RuntimeEntity", "hurt", { parameters: [{ name: "amount", type: "number" }, { name: "options", type: "Partial<GameHurtOptions> | string", optional: true }], returns: "void" }, "server.world.events", "partial"),
+  entry("server.RuntimeEntity.addTag", "method", "RuntimeEntity", "addTag", { parameters: [{ name: "tag", type: "string" }], returns: "void" }, "server.world.entities", "compatible", ["server.GameEntity.addTag"]),
+  entry("server.RuntimeEntity.removeTag", "method", "RuntimeEntity", "removeTag", { parameters: [{ name: "tag", type: "string" }], returns: "void" }, "server.world.entities", "compatible", ["server.GameEntity.removeTag"]),
+  entry("server.RuntimeEntity.hasTag", "method", "RuntimeEntity", "hasTag", { parameters: [{ name: "tag", type: "string" }], returns: "boolean" }, "server.world.entities", "compatible", ["server.GameEntity.hasTag"]),
   entry("server.RuntimeEntity.snapshot", "method", "RuntimeEntity", "snapshot", { parameters: [], returns: "RuntimeEntitySnapshot" }, "server.world.entities"),
   ...gameButtonTypeEntries(),
-  entry("server.object.RuntimePlayer", "object", null, "RuntimePlayer", { properties: ["id", "name", "position", "velocity", "grounded", "health", "fluidContacts", "destroyed", "enableDamage", "showHealthBar", "hp", "maxHp", "walkButton", "crouchButton", "jumpButton", "action0Button", "action1Button", "enableAction0", "enableAction1", "enableJump", "enableDoubleJump", "enableCrouch"], methods: ["destroy", "onDestroy", "nextDestroy", "onFluidEnter", "nextFluidEnter", "onFluidLeave", "nextFluidLeave", "applyImpulse", "hurt", "damage", "sendMessage", "dialog", "cancelDialogs", "snapshot"] }, "server.player"),
+  entry("server.object.RuntimePlayer", "object", null, "RuntimePlayer", { properties: ["id", "name", "position", "velocity", "bounds", "grounded", "health", "fluidContacts", "destroyed", "enableDamage", "showHealthBar", "hp", "maxHp", "walkButton", "crouchButton", "jumpButton", "action0Button", "action1Button", "enableAction0", "enableAction1", "enableJump", "enableDoubleJump", "enableCrouch"], methods: ["destroy", "onDestroy", "nextDestroy", "onFluidEnter", "nextFluidEnter", "onFluidLeave", "nextFluidLeave", "applyImpulse", "hurt", "damage", "sendMessage", "dialog", "cancelDialogs", "snapshot"] }, "server.player"),
   entry("server.RuntimePlayer.id", "property", "RuntimePlayer", "id", { type: "string", readonly: true }, "server.player"),
   entry("server.RuntimePlayer.name", "property", "RuntimePlayer", "name", { type: "string", readonly: false }, "server.player.write"),
   entry("server.RuntimePlayer.position", "property", "RuntimePlayer", "position", { type: "Vector3", readonly: false }, "server.player.write"),
   entry("server.RuntimePlayer.velocity", "property", "RuntimePlayer", "velocity", { type: "Vector3", readonly: false }, "server.player.write"),
+  entry("server.RuntimePlayer.bounds", "property", "RuntimePlayer", "bounds", { type: "Vector3", readonly: true }, "server.player", "partial", ["server.GameEntity.bounds"]),
   entry("server.RuntimePlayer.grounded", "property", "RuntimePlayer", "grounded", { type: "boolean", readonly: true }, "server.player"),
   entry("server.RuntimePlayer.health", "property", "RuntimePlayer", "health", { type: "number", readonly: true }, "server.player"),
   entry("server.RuntimePlayer.fluidContacts", "property", "RuntimePlayer", "fluidContacts", { type: "GameFluidContact[]", readonly: true }, "server.player", "partial", ["server.GameEntity.fluidContacts"]),
@@ -307,6 +363,7 @@ const entries = [
   entry("server.RuntimePlayer.onVoxelSeparate", "event", "RuntimePlayer", "onVoxelSeparate", handler("GameVoxelContactEvent"), "server.world.events", "partial", ["server.GameEntity.onVoxelSeparate"]),
   entry("server.RuntimePlayer.nextVoxelSeparate", "event", "RuntimePlayer", "nextVoxelSeparate", { parameters: [{ name: "filter", type: "(event: GameVoxelContactEvent) => boolean", optional: true }], returns: "Promise<GameVoxelContactEvent>" }, "server.world.events", "partial", ["server.GameEntity.nextVoxelSeparate"]),
   entry("server.RuntimePlayer.destroyed", "property", "RuntimePlayer", "destroyed", { type: "boolean", readonly: true }, "server.player", "partial"),
+  entry("server.RuntimePlayer.isPlayer", "property", "RuntimePlayer", "isPlayer", { type: "boolean", readonly: true }, "server.world.entities", "compatible", ["server.GameEntity.isPlayer"]),
   entry("server.RuntimePlayer.enableDamage", "property", "RuntimePlayer", "enableDamage", { type: "boolean", readonly: false }, "server.player.write", "partial"),
   entry("server.RuntimePlayer.showHealthBar", "property", "RuntimePlayer", "showHealthBar", { type: "boolean", readonly: false }, "server.player.write", "partial"),
   entry("server.RuntimePlayer.hp", "property", "RuntimePlayer", "hp", { type: "number", readonly: false }, "server.player.write", "partial"),
@@ -343,6 +400,9 @@ const entries = [
   entry("server.RuntimePlayer.forceRespawn", "method", "RuntimePlayer", "forceRespawn", { parameters: [], returns: "void" }, "server.player.write", "partial", ["server.GamePlayer.forceRespawn"]),
   entry("server.RuntimePlayer.applyImpulse", "method", "RuntimePlayer", "applyImpulse", { parameters: [{ name: "impulse", type: "Vector3Like" }], returns: "void" }, "server.player.write"),
   entry("server.RuntimePlayer.hurt", "method", "RuntimePlayer", "hurt", { parameters: [{ name: "amount", type: "number" }, { name: "options", type: "Partial<GameHurtOptions> | string", optional: true }], returns: "void" }, "server.world.events", "partial"),
+  entry("server.RuntimePlayer.addTag", "method", "RuntimePlayer", "addTag", { parameters: [{ name: "tag", type: "string" }], returns: "void" }, "server.world.entities", "compatible", ["server.GameEntity.addTag"]),
+  entry("server.RuntimePlayer.removeTag", "method", "RuntimePlayer", "removeTag", { parameters: [{ name: "tag", type: "string" }], returns: "void" }, "server.world.entities", "compatible", ["server.GameEntity.removeTag"]),
+  entry("server.RuntimePlayer.hasTag", "method", "RuntimePlayer", "hasTag", { parameters: [{ name: "tag", type: "string" }], returns: "boolean" }, "server.world.entities", "compatible", ["server.GameEntity.hasTag"]),
   entry("server.RuntimePlayer.damage", "method", "RuntimePlayer", "damage", { parameters: [{ name: "amount", "type": "number" }], returns: "number" }, "server.player.write"),
   entry("server.RuntimePlayer.sendMessage", "method", "RuntimePlayer", "sendMessage", { parameters: [{ name: "message", type: "unknown" }], returns: "void" }, "server.world.chat"),
   entry("server.RuntimePlayer.dialog", "method", "RuntimePlayer", "dialog", { parameters: [{ name: "config", type: "Partial<GameDialogCall>" }], returns: "Promise<GameDialogResult>" }, "server.player", "partial", ["server.GamePlayerEntity.dialog"]),
@@ -422,8 +482,8 @@ const adapters = [
   adapter("server.world.onTakeDamage", "server.GameWorld.onTakeDamage", "partial", ["Script-produced GameEntity.hurt calls preserve enableDamage, healing, attacker, damageType, hp transitions, recovered GameDamageEvent fields, native replica.damage state, and game-net hurt effects; non-script engine damage ingress remains unverified."]),
   adapter("server.world.nextTakeDamage", "server.GameWorld.nextTakeDamage", "partial", ["The recovered optional filter, script-produced hurt events, and native client damage transport are implemented; non-script engine damage ingress remains unverified."]),
   adapter("server.world.onDie", "server.GameWorld.onDie", "partial", ["Script-produced hurt emits one GameDieEvent when hp crosses from positive to zero and queues the native game-net die effect; non-script engine death transitions remain unverified."]),
-  adapter("server.world.onChat", "server.GameWorld.onChat", "partial", ["The recovered GameChatEvent fields are represented by the Runtime signal shell.", "No Player/browser-to-backend chat ingress is recovered, so Capability Manifest blocks projects that depend on this event; moderation, cancellation, and transport timing also remain unavailable."]),
-  adapter("server.world.nextChat", "server.GameWorld.nextChat", "partial", ["The recovered optional filter resolves the same typed signal payload.", "No Player/browser-to-backend chat ingress is recovered, so Capability Manifest blocks projects that depend on this event."]),
+  adapter("server.world.onChat", "server.GameWorld.onChat", "partial", ["The recovered GameChatEvent fields are represented by the Runtime signal shell.", "ScriptShell consumes chatEvents.chats, but the recovered Player game-chat client-to-server surface only carries administrator noticeMessage {title,detail}; no Player chat producer is recovered, so Capability Manifest blocks dependent projects."]),
+  adapter("server.world.nextChat", "server.GameWorld.nextChat", "partial", ["The recovered optional filter resolves the same typed signal payload.", "ScriptShell consumes chatEvents.chats, but no matching Player/browser producer is recovered, so Capability Manifest blocks dependent projects."]),
   adapter("server.world.onPress", "server.GameWorld.onPress", "compatible", []),
   adapter("server.world.nextPress", "server.GameWorld.nextPress", "compatible", []),
   adapter("server.world.onClick", "server.GameWorld.onClick", "partial", ["The game-net bridge reconstructs the declared GameClickEvent fields, applies the recovered PlayerFlags mask, and dispatches the same event to world and the clicked entity in historical order.", "Non-player clicks require an authoritative backend entity binding; the latest capture still has two entities without sufficient model evidence for projection."]),
@@ -438,7 +498,7 @@ const adapters = [
   adapter("server.world.nextDie", "server.GameWorld.nextDie", "partial", ["The recovered optional filter resolves script-produced death events; automatic native death-state production remains unverified."]),
   adapter("server.world.onEntityContact", "server.GameWorld.onEntityContact", "partial", ["The event surface is dispatchable; full native GameEntityContactEvent production remains covered separately by the contact model."]),
   adapter("server.world.nextEntityContact", "server.GameWorld.nextEntityContact", "partial", ["The optional filter exists, but the local physics runtime has no bodyContact producer carrying two mapped entities."]),
-  adapter("server.world.onPlayerPurchaseSuccess", "server.GameWorld.onPlayerPurchaseSuccess", "partial", ["The recovered event fields are tick, userId, productId, and orderId.", "No browser-to-backend purchase-success producer or Server Runtime ingress is recovered locally, so Capability Manifest blocks projects that depend on this event."]),
+  adapter("server.world.onPlayerPurchaseSuccess", "server.GameWorld.onPlayerPurchaseSuccess", "partial", ["The recovered public event fields are tick, userId, productId, and orderId; ScriptShell separately acknowledges the internal messageId after dispatch.", "The Player market protocol only receives openMarketplace and exposes no client-to-server result message; no purchase-success producer or Server Runtime ingress is recovered, so Capability Manifest blocks dependent projects."]),
   adapter("server.world.nextPlayerPurchaseSuccess", "server.GameWorld.nextPlayerPurchaseSuccess", "partial", ["The optional filter resolves the typed signal payload if an event is supplied internally.", "No browser-to-backend purchase-success producer or Server Runtime ingress is recovered locally, so Capability Manifest blocks projects that depend on this event."]),
   adapter("server.world.onTick", "server.GameWorld.onTick", "partial", ["The recovered Date.now wall-clock elapsedTimeMS formula and skip = tick - prevTick > 1 formula are implemented.", "The local scheduler advances one tick per callback and has no authoritative multi-tick frame input, so native delayed-frame catch-up behavior remains unavailable."]),
   adapter("server.world.onPlayerJoin", "server.GameWorld.onPlayerJoin", "partial", ["Event fields now match GameEntityEvent, but RuntimePlayer is still only a subset of GamePlayerEntity."]),
@@ -450,8 +510,9 @@ const adapters = [
   adapter("server.world.nextVoxelSeparate", "server.GameWorld.nextVoxelSeparate", "partial", ["The recovered optional filter resolves the same locally produced GameVoxelContactEvent; RuntimePlayer remains a subset and native rigid-body production is not claimed."]),
   adapter("server.world.nextTick", "server.GameWorld.nextTick", "partial", ["The recovered optional filter and GameTickEvent resolution are implemented; elapsedTimeMS, skip, and delayed-tick timing retain the same gaps as world.onTick."]),
   adapter("server.world.nextPlayerJoin", "server.GameWorld.nextPlayerJoin", "partial", ["The recovered optional filter and GameEntityEvent fields are implemented; RuntimePlayer remains a subset of GamePlayerEntity."]),
-  adapter("server.world.say", "server.GameWorld.say", "partial", ["Broadcast delivery now uses the recovered Player game-chat.log packet through connected MuDB sessions.", "Destroyed sender/receiver endpoints are silently dropped and player removal follows the recovered leave/destroy ordering.", "The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."]),
-  adapter("server.world.createEntity", "server.GameWorld.createEntity", "partial", ["Creation remains synchronous and emits the recovered entity-create lifecycle event. Captured mesh bindings can create an authoritative browser/backend replica with documented transform and model/body fields; unknown meshes deliberately remain script-local rather than receiving a fabricated placeholder.", "Generic native gravity, collision response, and in-place Vector3 mutation replication are still unverified."]),
+  adapter("server.world.say", "server.GameWorld.say", "partial", ["Broadcast delivery now uses the recovered Player game-chat.log packet through connected MuDB sessions.", "Destroyed sender/receiver endpoints are silently dropped and player removal follows the recovered leave/destroy ordering.", "The recovered FIFO prefix/overflow/tick-drain algorithm and ordered Runtime-to-backend overflow batch are implemented with an evidence-deferred nullable limit; the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."]),
+  adapter("server.world.createEntity", "server.GameWorld.createEntity", "partial", ["Creation remains synchronous, obeys the recovered non-player entityLimit check, returns null at capacity, and emits the recovered entity-create lifecycle event. Captured mesh bindings can create an authoritative browser/backend replica with documented transform and model/body fields; unknown meshes deliberately remain script-local rather than receiving a fabricated placeholder.", "Generic native gravity, collision response, and in-place Vector3 mutation replication are still unverified."]),
+  adapter("server.world.entityQuota", "server.GameWorld.entityQuota", "compatible", []),
   adapter("server.world.onEntityCreate", "server.GameWorld.onEntityCreate", "partial", ["The recovered GameEntityEvent is emitted for local script-created entities; independent native engine creation is not bridged."]),
   adapter("server.world.nextEntityCreate", "server.GameWorld.nextEntityCreate", "partial", ["The recovered optional filter resolves local script-created entity events; independent native engine creation is not bridged."]),
   adapter("server.world.onEntityDestroy", "server.GameWorld.onEntityDestroy", "partial", ["The recovered GameEntityEvent is emitted for local script destruction; independent native engine destruction is not bridged."]),
@@ -460,27 +521,64 @@ const adapters = [
   adapter("server.world.querySelectorAll", "server.GameWorld.querySelectorAll", "partial", ["Recovered ParsedSelector coercion, comma-union, universal/entity, player, id, tag, destroyed filtering, entity order, and fresh mutable result arrays are implemented.", "The historical testComponent implementation for component names other than player/entity was not recovered and remains unsupported."]),
   adapter("server.world.testSelector", "server.GameWorld.testSelector", "partial", ["The documented and historical (selector, entity) order plus recovered ParsedSelector semantics are implemented.", "Non-player/entity component names remain unsupported because testComponent was not recovered."]),
   adapter("server.world.raycast", "server.GameWorld.raycast", "partial", ["Voxel DDA, fluid filtering, selector filtering, player/entity AABBs, recovered result fields, the historical Infinity maxDistance default, and zero-direction preservation are implemented and exercised by conformance tests and the BedWars corpus.", "The recovered engine raycastBoxes implementation and body-orientation semantics are not available locally; entity intersections therefore remain an explicit AABB approximation. GameWorld.useOBB is a separate world-physics property, not a GameRaycastOptions field."]),
+  adapter("server.world.searchBox", "server.GameWorld.searchBox", "partial", ["RuntimeEntity and RuntimePlayer AABB overlap search uses the recovered body-center half-extents convention shared with zones and raycasts.", "Native oriented-body search and GameWorld.useOBB remain unavailable."]),
   adapter("server.world.addCollisionFilter", "server.GameWorld.addCollisionFilter", "partial", ["Filter registration/list lifecycle is implemented; the local physics solver does not yet consume selector pairs."]),
+  adapter("server.world.removeCollisionFilter", "server.GameWorld.removeCollisionFilter", "partial", ["Exact selector-pair removal and list lifecycle are implemented; the local physics solver does not consume selector pairs."]),
+  adapter("server.world.clearCollisionFilters", "server.GameWorld.clearCollisionFilters", "partial", ["Clearing the full local filter registry is implemented; the local physics solver does not consume selector pairs."]),
+  adapter("server.world.collisionFilters", "server.GameWorld.collisionFilters", "partial", ["The method returns fresh nested arrays for every registered selector pair; the local physics solver does not consume selector pairs."]),
+  adapter("server.world.projectName", "server.GameWorld.projectName", "compatible", []),
   adapter("server.world.addZone", "server.GameWorld.addZone", "partial", ["Zone creation, recovered selector normalization and mutation refresh, collides=false exclusion, polling, enter/leave events, and removal are implemented.", "Non-player/entity component selector tests remain unavailable because historical testComponent was not recovered; native physics-selector force application and client environment projection remain unavailable."]),
   adapter("server.world.removeZone", "server.GameWorld.removeZone", "partial", ["The local Runtime removes the zone and emits recovered leave events for active entities; native physics-selector cleanup and client environment teardown remain unavailable."]),
   adapter("server.world.zones", "server.GameWorld.zones", "partial", ["The recovered callable zones() surface returns a snapshot of locally active RuntimeGameZone objects; native engine-owned list identity is not reproduced."]),
   adapter("server.world.gravity", "server.GameWorld.gravity", "partial", ["Script writes reconfigure runtime-owned Player bodies from the next tick using the recovered world-physics binding and fixed-tick unit conversion.", "The local AuthoritativeGameRuntime only arbitrates transforms, and its Player game-net public state marks physics unused; no recovered mutable browser physics channel exists. Generic RuntimeEntity rigid-body integration also remains unavailable."]),
   adapter("server.world.airFriction", "server.GameWorld.airFriction", "partial", ["Script writes reconfigure runtime-owned Player bodies from the next tick using the recovered airFriction-to-velocityDamping binding and exponential damping formula.", "The local AuthoritativeGameRuntime only arbitrates transforms, and its Player game-net public state marks physics unused; no recovered mutable browser physics channel exists. Generic RuntimeEntity rigid-body integration also remains unavailable."]),
   adapter("server.world.fogColor", "server.GameWorld.fogColor", "partial", ["The recovered GameRGBColor property is script-visible; client rendering propagation remains unimplemented."]),
-  adapter("server.RuntimeEntity.say", "server.GameEntity.say", "partial", ["Mapped live entities emit recovered game-chat.log sender, duration, and hideFloat fields; destroyed senders are silently dropped before logging or transport.", "Unmapped entities remain script-local instead of receiving a fabricated Player id.", "The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."]),
+  adapter("server.RuntimeEntity.say", "server.GameEntity.say", "partial", ["Mapped live entities emit recovered game-chat.log sender, duration, and hideFloat fields; destroyed senders are silently dropped before logging or transport.", "Unmapped entities remain script-local instead of receiving a fabricated Player id.", "The recovered FIFO prefix/overflow/tick-drain algorithm and ordered Runtime-to-backend overflow batch are implemented with an evidence-deferred nullable limit; the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."]),
+  adapter("server.world.sound", "server.GameWorld.sound", "partial", ["The recovered global and positioned sound arguments are sent through the preserved sound MuDB protocol with dictionary-backed sample ids.", "Unknown samples are rejected; browser decode/playback completion and media errors are not acknowledged to the Server Runtime."]),
+  adapter("server.RuntimeEntity.sound", "server.GameEntity.sound", "partial", ["Mapped entities use the recovered entity-position sound union and defaults.", "Script-local entities without a validated backend projection are rejected instead of being fabricated as global or positioned sounds."]),
+  adapter("server.RuntimePlayer.sound", "server.GameEntity.sound", "partial", ["Authoritative players use the recovered player-position sound union and defaults.", "A Player without a backend entity id is rejected instead of receiving a fabricated target id."]),
+  adapter("server.Sound.resume", "shared.Sound.resume", "partial", ["The recovered resume and setCurrentTimeAndResume protocol messages are emitted.", "The browser does not acknowledge playback state or media failure to the Server Runtime."]),
+  adapter("server.Sound.setCurrentTime", "shared.Sound.setCurrentTime", "partial", ["The recovered setCurrentTime protocol message is emitted.", "The browser does not acknowledge the resulting playback position."]),
+  adapter("server.Sound.pause", "shared.Sound.pause", "partial", ["The recovered pause protocol message is emitted.", "The browser does not acknowledge the resulting playback state."]),
+  adapter("server.Sound.stop", "shared.Sound.stop", "partial", ["The recovered stop protocol message is emitted.", "The browser does not acknowledge disposal or media failure."]),
   adapter("server.RuntimeEntity.onClick", "server.GameEntity.onClick", "partial", ["The declared GameClickEvent fields and world-to-target dispatch order are implemented when an authoritative entity binding exists."]),
   adapter("server.RuntimeEntity.enableInteract", "server.GameEntity.enableInteract", "partial", ["The script-visible property is preserved on RuntimeEntity and captured createEntity specifications.", "The authoritative backend replica.interactive field is unused, so writes are not projected to the Player browser and cannot fabricate prompts or range behavior."]),
+  adapter("server.RuntimeEntity.isPlayer", "server.GameEntity.isPlayer", "compatible", []),
+  adapter("server.RuntimeEntity.bounds", "server.GameEntity.bounds", "partial", ["Reads return a copy of the positive body-center half extents used by local zone and raycast geometry and by the validated initial authoritative replica.body.bounds.", "RuntimeEntity bounds are fixed at creation because the canonical declaration is readonly; complete native oriented-body bounds behavior remains unavailable."]),
+  adapter("server.RuntimeEntity.meshInvisible", "server.GameEntity.meshInvisible", "partial", ["The recovered false default and whole-property writes update authoritative replica.model.invisible.", "RuntimePlayer model bindings remain unimplemented."]),
+  adapter("server.RuntimeEntity.meshScale", "server.GameEntity.meshScale", "partial", ["The recovered 1/64 default and whole-property bounded vector writes update authoritative replica.model.scale.", "Nested component mutation and RuntimePlayer model bindings remain unimplemented."]),
+  adapter("server.RuntimeEntity.meshOrientation", "server.GameEntity.meshOrientation", "partial", ["The recovered identity quaternion default and whole-property writes update authoritative replica.body.orientation.", "Nested quaternion mutation, native normalization details, and RuntimePlayer model bindings remain unimplemented."]),
+  adapter("server.RuntimeEntity.lookAt", "server.GameEntity.lookAt", "partial", ["The recovered target coercion, default +Y up vector, invalid-facing fallback, zero-direction fallback, parallel-up perturbation, X/Y/Z matrix layouts, gl-matrix quaternion conversion, and historical component write order are implemented. RuntimeEntity calls reuse the authoritative meshOrientation update path.", "RuntimePlayer lookAt/model orientation binding and nested quaternion mutation projection remain unavailable."]),
+  adapter("server.RuntimeEntity.rotateLocal", "server.GameEntity.rotateLocal", "partial", ["The recovered scale-then-orientation local transform, X/Y/Z radian rotations, quaternion normalization, and before/after pivot-position compensation are implemented. RuntimeEntity calls reuse the authoritative meshOrientation and position update paths.", "RuntimePlayer rotateLocal/model orientation binding and nested quaternion/position mutation projection remain unavailable."]),
+  adapter("server.RuntimeEntity.scaleLocal", "server.GameEntity.scaleLocal", "partial", ["The recovered direct meshScale replacement and before/after transformed-pivot position compensation are implemented using the same scale-then-orientation transform. RuntimeEntity calls reuse the authoritative meshScale and position update paths.", "RuntimePlayer scaleLocal/model scale binding and nested scale/position mutation projection remain unavailable."]),
+  adapter("server.RuntimeEntity.meshOffset", "server.GameEntity.meshOffset", "partial", ["The recovered zero default and whole-property bounded vector writes update authoritative replica.model.offset.", "Nested component mutation and RuntimePlayer model bindings remain unimplemented."]),
+  adapter("server.RuntimeEntity.meshColor", "server.GameEntity.meshColor", "partial", ["The recovered white RGBA default and whole-property normalized color writes update authoritative replica.model.color through the protocol byte encoding.", "Nested component mutation and RuntimePlayer model bindings remain unimplemented."]),
+  adapter("server.RuntimeEntity.meshMetalness", "server.GameEntity.meshMetalness", "partial", ["The recovered zero default and 0..1 writes update authoritative replica.model.metalness.", "RuntimePlayer model bindings remain unimplemented."]),
+  adapter("server.RuntimeEntity.meshEmissive", "server.GameEntity.meshEmissive", "partial", ["The recovered zero default and 0..1 writes update authoritative replica.model.emissive.", "RuntimePlayer model bindings remain unimplemented."]),
+  adapter("server.RuntimeEntity.meshShininess", "server.GameEntity.meshShininess", "partial", ["The recovered zero default and 0..1 writes update authoritative replica.model.shininess.", "RuntimePlayer model bindings remain unimplemented."]),
+  adapter("server.RuntimeEntity.showEntityName", "server.GameEntity.showEntityName", "partial", ["The recovered false default and component enable/disable behavior are implemented through authoritative replica.nameplate creation and deletion.", "RuntimePlayer EntityNameBinding behavior remains unimplemented and complete historical synchronizer scheduling was not recovered."]),
+  adapter("server.RuntimeEntity.customName", "server.GameEntity.customName", "partial", ["The recovered empty-string default and UTF-8 nameplate text projection are implemented for validated captured-mesh RuntimeEntity instances.", "RuntimePlayer EntityNameBinding behavior remains unimplemented."]),
+  adapter("server.RuntimeEntity.nameRadius", "server.GameEntity.nameRadius", "partial", ["The recovered default 16 and protocol range/quantization-compatible finite validation are projected to authoritative replica.nameplate.radius.", "RuntimePlayer EntityNameBinding behavior remains unimplemented."]),
+  adapter("server.RuntimeEntity.nameColor", "server.GameEntity.nameColor", "partial", ["The recovered white default and normalized RGB projection are implemented for authoritative replica.nameplate.color.", "Nested component mutation does not trigger a whole-property bridge and RuntimePlayer EntityNameBinding behavior remains unimplemented."]),
   adapter("server.RuntimeEntity.onInteract", "server.GameEntity.onInteract", "partial", ["Mapped authoritative targets receive the same recovered GameInteractEvent object before the world listener.", "Unmapped and script-local targets cannot receive browser-originated interaction messages."]),
   adapter("server.RuntimeEntity.nextInteract", "server.GameEntity.nextInteract", "partial", ["The optional filter is supported for mapped authoritative interaction targets.", "Interaction component projection remains unavailable."]),
   adapter("server.RuntimeEntity.nextClick", "server.GameEntity.nextClick", "partial", ["The recovered optional filter is implemented; resolution still depends on an authoritative entity binding."]),
+  adapter("server.RuntimeEntity.addTag", "server.GameEntity.addTag", "compatible", []),
+  adapter("server.RuntimeEntity.removeTag", "server.GameEntity.removeTag", "compatible", []),
+  adapter("server.RuntimeEntity.hasTag", "server.GameEntity.hasTag", "compatible", []),
   adapter("server.RuntimeEntity.destroy", "server.GameEntity.destroy", "partial", ["Local destruction removes mapped non-player entities and emits the recovered destroy lifecycle event; native engine-driven destruction remains unverified."]),
   adapter("server.RuntimeEntity.onDestroy", "server.GameEntity.onDestroy", "partial", ["The lifecycle event is emitted exactly once for local destruction; non-script engine destruction remains unverified."]),
   adapter("server.RuntimeEntity.nextDestroy", "server.GameEntity.nextDestroy", "partial", ["The recovered optional filter resolves local destruction events; non-script engine destruction remains unverified."]),
-  adapter("server.RuntimePlayer.destroy", "server.GameEntity.destroy", "partial", ["Player destruction uses the same lifecycle contract while preserving player identity; native disconnect and engine destruction semantics remain unverified."]),
-  adapter("server.RuntimePlayer.onDestroy", "server.GameEntity.onDestroy", "partial", ["The player lifecycle event is emitted for local destruction; native disconnect and engine destruction semantics remain unverified."]),
-  adapter("server.RuntimePlayer.nextDestroy", "server.GameEntity.nextDestroy", "partial", ["The recovered optional filter resolves local player destruction events; native disconnect and engine destruction semantics remain unverified."]),
+  adapter("server.RuntimePlayer.destroy", "server.GameEntity.destroy", "partial", ["The script call is a no-op for players, matching the recovered ScriptEntitySync non-player destroy guard; disconnect lifecycle is handled separately."]),
+  adapter("server.RuntimePlayer.onDestroy", "server.GameEntity.onDestroy", "partial", ["MuDB disconnect emits world.onPlayerLeave, player.onDestroy, then world.onEntityDestroy with one recovered GameEntityEvent; other independent engine destruction sources remain unverified."]),
+  adapter("server.RuntimePlayer.nextDestroy", "server.GameEntity.nextDestroy", "partial", ["The recovered optional filter resolves the disconnect-driven player destroy event; other independent engine destruction sources remain unverified."]),
   adapter("server.RuntimePlayer.onClick", "server.GameEntity.onClick", "partial", ["Clicked players receive the same GameClickEvent after world dispatch when their backend player id is authoritative."]),
   adapter("server.RuntimePlayer.nextClick", "server.GameEntity.nextClick", "partial", ["The recovered optional filter is implemented; resolution still depends on an authoritative backend player id."]),
+  adapter("server.RuntimePlayer.isPlayer", "server.GameEntity.isPlayer", "compatible", []),
+  adapter("server.RuntimePlayer.bounds", "server.GameEntity.bounds", "partial", ["Reads return a copy of the current authoritative Player boundsHalfExtents, including complete posture updates.", "Complete native posture producer coverage remains evidence-deferred; the readonly declaration is preserved."]),
+  adapter("server.RuntimePlayer.addTag", "server.GameEntity.addTag", "compatible", []),
+  adapter("server.RuntimePlayer.removeTag", "server.GameEntity.removeTag", "compatible", []),
+  adapter("server.RuntimePlayer.hasTag", "server.GameEntity.hasTag", "compatible", []),
   adapter("server.RuntimePlayer.walkButton", "server.GamePlayerEntity.walkButton", "compatible", []),
   adapter("server.RuntimePlayer.jumpButton", "server.GamePlayerEntity.jumpButton", "compatible", []),
   adapter("server.RuntimePlayer.action0Button", "server.GamePlayerEntity.action0Button", "compatible", []),
@@ -518,8 +616,8 @@ const adapters = [
   adapter("server.GameGUI.onMessage", "server.GameGUI.onMessage", "compatible", []),
   adapter("server.GameGUI.ui", "server.GameGUI.ui", "compatible", []),
   adapter("server.GameStorage.getDataStorage", "server.GameStorage.getDataStorage", "partial", ["Local JSON persistence implements the recovered data-space operations; native cloud scope, quotas, consistency, and version semantics remain unverified."]),
-  adapter("server.GameStorage.getGroupStorage", "server.GameStorage.getGroupStorage", "partial", ["The function surface exists, but default project runtimes disable cross-map group storage because no authoritative group identity/configuration is available."]),
-  adapter("server.object.RuntimeGameStorage", "server.object.GameStorage", "partial", ["The local root exposes recovered getDataStorage/getGroupStorage methods behind the server.storage capability.", "Cloud map/group identity and isolation remain unrecovered."]),
+  adapter("server.GameStorage.getGroupStorage", "server.GameStorage.getGroupStorage", "partial", ["The default project Runtime disables group storage when the historical groupId input is empty.", "Capability Manifest v14 can bind a non-empty project package storage.groupId and the local provider isolates spaces by that id; DAO3 cloud scope, quotas, distributed consistency, and external group authority remain unrecovered."]),
+  adapter("server.object.RuntimeGameStorage", "server.object.GameStorage", "partial", ["The local root exposes recovered getDataStorage/getGroupStorage methods behind the server.storage capability.", "Configured group storage is isolated by a launch-verified groupId, while DAO3 cloud provider semantics remain unrecovered."]),
   adapter("server.RuntimeDataStorage.key", "server.GameDataStorage.key", "partial", ["The immutable local namespace key is exposed exactly.", "Cloud namespace allocation remains unrecovered."]),
   adapter("server.RuntimeDataStorage.set", "server.GameDataStorage.set", "partial", ["The declared JSONValue union is recursively enforced before dense arrays or plain string-keyed objects persist to the local project file; values that JSON would silently rewrite are rejected.", "DAO3 byte quotas, backend error codes, distributed durability and cross-process consistency remain unrecovered."]),
   adapter("server.RuntimeDataStorage.update", "server.GameDataStorage.update", "partial", ["The previous ReturnValue, async handler, replacement validation and persistence are serialized through one local mutation queue, preventing same-process lost updates.", "The historical distributed ticket-based compare/update protocol, cross-process locking and retry behavior remain unavailable."]),
@@ -1053,6 +1151,35 @@ function raycastEntry() {
     { type: "origin-source", path: "origin/origin/origin/api/GameRaycastResult.js", symbol: "GameRaycastResult", confidence: "direct" },
     { type: "origin-source", path: "origin/origin/origin/sync/ScriptWorldSync.js", symbol: "ScriptWorldSync.raycast", confidence: "direct" },
     { type: "test", path: "demo-map/test/game-raycast.test.mjs", symbol: "GameWorld.raycast conformance", confidence: "direct" },
+  ];
+  return value;
+}
+
+function searchBoxEntry() {
+  const value = entry("server.world.searchBox", "method", "world", "searchBox", {
+    parameters: [{ name: "bounds", type: "GameBounds3" }],
+    returns: "GameEntity[]",
+  }, "server.world.entities", "partial", ["server.GameWorld.searchBox"]);
+  value.notes = ["Implements axis-aligned overlap for RuntimeEntity and RuntimePlayer using recovered body-center half extents. Native oriented-body search remains unavailable."];
+  value.evidence = [
+    { type: "local-source", path: relativeEntityBoundsPath, symbol: "searchRuntimeEntities", confidence: "direct" },
+    { type: "docs", path: "dao3-docs-mirror/markdown/api/GameWorld/querySelectorEntity.md", symbol: "GameWorld.searchBox", confidence: "direct" },
+    { type: "declaration", path: "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts", symbol: "GameWorld.searchBox", confidence: "direct" },
+    { type: "origin-source", path: "origin/origin/origin/ScriptZoneWrapper.js", symbol: "GameEntity.bounds half-extents overlap", confidence: "supporting" },
+    { type: "test", path: "runtime-compat/test/world-search-box-api-conformance.test.mjs", symbol: "GameWorld.searchBox conformance", confidence: "direct" },
+  ];
+  return value;
+}
+
+function entityQuotaEntry() {
+  const value = entry("server.world.entityQuota", "method", "world", "entityQuota", { parameters: [], returns: "number" }, "server.world.entities", "compatible", ["server.GameWorld.entityQuota"]);
+  value.notes = ["Uses the recovered entityLimit - entityCount + playerCount formula, represented locally as entityLimit minus the non-player RuntimeEntity registry size. The project value is launch-bound and defaults to the script-protocol identity 3400."];
+  value.evidence = [
+    { type: "local-source", path: relativeSourcePath, symbol: "world.entityQuota", confidence: "direct" },
+    { type: "origin-source", path: "origin/origin/origin/sync/ScriptEntitySync.js", symbol: "ScriptEntitySync.quota", confidence: "direct" },
+    { type: "protocol", path: "origin/server-protocols.json", symbol: "script-protocol.start.config.entityLimit", confidence: "direct" },
+    { type: "docs", path: "dao3-docs-mirror/markdown/api/GameWorld/entityCD.md", symbol: "GameWorld.entityQuota", confidence: "direct" },
+    { type: "test", path: "runtime-compat/test/world-entity-quota-api-conformance.test.mjs", symbol: "GameWorld.entityQuota conformance", confidence: "direct" },
   ];
   return value;
 }

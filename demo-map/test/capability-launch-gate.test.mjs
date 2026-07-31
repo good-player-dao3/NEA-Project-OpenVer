@@ -3,16 +3,16 @@ import test from "node:test";
 
 import { createHash } from "node:crypto";
 import { digestCapabilityJson } from "../src/capability-input-digest.mjs";
-import { normalizeCapabilityAssets, normalizeCapabilityEntities, normalizeCapabilityRuntimeAbi } from "../src/capability-input-normalize.mjs";
-import { assertProjectCapabilities, deriveProjectCapabilitySummary, evaluateProjectCapabilityManifest, verifyProjectCapabilityAssetFiles, verifyProjectCapabilityAssetInput, verifyProjectCapabilityEntityInput, verifyProjectCapabilityGrants, verifyProjectCapabilityModuleInputs, verifyProjectCapabilityRuntimeAbiInput, verifyProjectCapabilityUiInput } from "../src/capability-launch-gate.mjs";
+import { normalizeCapabilityAssets, normalizeCapabilityEntities, normalizeCapabilityProjectIdentity, normalizeCapabilityRuntimeAbi, normalizeCapabilityStorageScope, normalizeCapabilityWorldConfig } from "../src/capability-input-normalize.mjs";
+import { assertProjectCapabilities, deriveProjectCapabilitySummary, evaluateProjectCapabilityManifest, verifyProjectCapabilityAssetFiles, verifyProjectCapabilityAssetInput, verifyProjectCapabilityEntityInput, verifyProjectCapabilityGrants, verifyProjectCapabilityModuleInputs, verifyProjectCapabilityProjectIdentityInput, verifyProjectCapabilityRuntimeAbiInput, verifyProjectCapabilityStorageScopeInput, verifyProjectCapabilityUiInput, verifyProjectCapabilityWorldConfigInput } from "../src/capability-launch-gate.mjs";
 
 function manifest(overrides = {}) {
   const value = {
     format: "nea-project-capability-manifest",
-    version: 10,
+    version: 14,
     apiVersion: "0.1.0",
     contracts: { client: "dao3-client-runtime/v1", server: "nea-server-runtime/v1" },
-    inputs: { modules: [], capabilities: { server: [], client: [] }, ui: digestCapabilityJson(null), assets: digestCapabilityJson([]), entities: digestCapabilityJson([]), runtimeAbi: digestCapabilityJson(normalizeCapabilityRuntimeAbi(emptyRuntimeCompatibility())) },
+    inputs: { modules: [], capabilities: { server: [], client: [] }, ui: digestCapabilityJson(null), assets: digestCapabilityJson([]), entities: digestCapabilityJson([]), storageScope: digestCapabilityJson({ groupId: null }), projectIdentity: digestCapabilityJson({ projectName: "Capability Test" }), worldConfig: digestCapabilityJson(normalizeCapabilityWorldConfig({ entityLimit: 3400 })), runtimeAbi: digestCapabilityJson(normalizeCapabilityRuntimeAbi(emptyRuntimeCompatibility())) },
     status: "ready",
     requirements: [], modules: [], resources: [], ui: [], entities: [], dependencies: [], diagnostics: [],
     ...overrides,
@@ -79,6 +79,18 @@ test("launch gate binds analyzed UI state to the published Player UI manifest", 
   assert.throws(() => verifyProjectCapabilityUiInput(value, { ...ui, uiTree: {} }), /UI input mismatch/);
   assert.throws(() => verifyProjectCapabilityUiInput(value, null), /UI input mismatch/);
   assert.equal(verifyProjectCapabilityUiInput(manifest(), null).present, false);
+});
+
+test("launch gate rejects a substituted storage scope", () => {
+  const value = manifest({ inputs: { ...manifest().inputs, storageScope: digestCapabilityJson(normalizeCapabilityStorageScope({ groupId: "group-a" })) } });
+  assert.equal(verifyProjectCapabilityStorageScopeInput(value, { groupId: "group-a" }).present, true);
+  assert.throws(() => verifyProjectCapabilityStorageScopeInput(value, { groupId: "group-b" }), /storage scope input mismatch/);
+});
+
+test("launch gate rejects a substituted project identity", () => {
+  const value = manifest({ inputs: { ...manifest().inputs, projectIdentity: digestCapabilityJson(normalizeCapabilityProjectIdentity({ projectName: "Project A" })) } });
+  assert.equal(verifyProjectCapabilityProjectIdentityInput(value, { projectName: "Project A" }).present, true);
+  assert.throws(() => verifyProjectCapabilityProjectIdentityInput(value, { projectName: "Project B" }), /project identity input mismatch/);
 });
 
 test("launch gate binds capability-relevant asset and entity projections", () => {

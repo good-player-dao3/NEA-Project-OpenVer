@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-compatibility-matrix",
   "version": 1,
-  "generatedAt": "2026-07-31T05:24:48.164Z",
+  "generatedAt": "2026-07-31T09:27:02.463Z",
   "apiVersion": "0.1.0",
   "compatibilityLevel": "experimental",
   "contracts": [
@@ -54,11 +54,11 @@
     "entries": 599,
     "byStatus": {
       "native": 125,
-      "compatible": 50,
-      "partial": 88,
-      "recovered-only": 121,
+      "compatible": 131,
+      "partial": 122,
+      "recovered-only": 93,
       "unavailable": 1,
-      "declared-only": 214
+      "declared-only": 127
     },
     "bySide": {
       "client": {
@@ -73,24 +73,24 @@
       "server": {
         "total": 346,
         "native": 0,
-        "compatible": 20,
-        "partial": 87,
-        "recovered-only": 121,
+        "compatible": 26,
+        "partial": 110,
+        "recovered-only": 93,
         "unavailable": 0,
-        "declared-only": 118
+        "declared-only": 117
       },
       "shared": {
         "total": 127,
         "native": 0,
-        "compatible": 30,
-        "partial": 1,
+        "compatible": 105,
+        "partial": 12,
         "recovered-only": 0,
         "unavailable": 0,
-        "declared-only": 96
+        "declared-only": 10
       }
     },
-    "executable": 263,
-    "nonExecutable": 336
+    "executable": 378,
+    "nonExecutable": 221
   },
   "entries": [
     {
@@ -10888,11 +10888,40 @@
         ],
         "returns": "void"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.addTag",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": "server.world.entities",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.addTag",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": "server.world.entities",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimeEntity.addTag",
+          "relation": "object-adapter",
+          "status": "compatible",
+          "capability": "server.world.entities",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.addTag",
+          "relation": "object-adapter",
+          "status": "compatible",
+          "capability": "server.world.entities",
+          "gaps": []
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -10912,6 +10941,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.addTag",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -11114,11 +11149,53 @@
         "type": "GameVector3",
         "readonly": true
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.bounds",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "Reads return a copy of the positive body-center half extents used by local zone and raycast geometry and by the validated initial authoritative replica.body.bounds.",
+            "RuntimeEntity bounds are fixed at creation because the canonical declaration is readonly; complete native oriented-body bounds behavior remains unavailable."
+          ]
+        },
+        {
+          "localId": "server.RuntimePlayer.bounds",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.player",
+          "gaps": [
+            "Reads return a copy of the current authoritative Player boundsHalfExtents, including complete posture updates.",
+            "Complete native posture producer coverage remains evidence-deferred; the readonly declaration is preserved."
+          ]
+        },
+        {
+          "localId": "server.RuntimeEntity.bounds",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "signature: Canonical bounds uses GameVector3; local RuntimeEntity uses the compatible Vector3 implementation.",
+            "effect: Reads return a detached copy of the positive body-center half extents used by local geometry and the validated initial authoritative replica; complete native oriented-body bounds behavior remains unavailable."
+          ]
+        },
+        {
+          "localId": "server.RuntimePlayer.bounds",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.player",
+          "gaps": [
+            "access: The current authoritative Player boundsHalfExtents are exposed through a readonly copy.",
+            "signature: Canonical and local bounds are readonly; local RuntimePlayer uses the compatible Vector3 implementation.",
+            "effect: Complete native posture producer coverage remains evidence-deferred."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -11138,6 +11215,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.bounds",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -11371,11 +11454,32 @@
         "type": "string",
         "readonly": false
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.customName",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "The recovered empty-string default and UTF-8 nameplate text projection are implemented for validated captured-mesh RuntimeEntity instances.",
+            "RuntimePlayer EntityNameBinding behavior remains unimplemented."
+          ]
+        },
+        {
+          "localId": "server.RuntimeEntity.customName",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "effect: UTF-8 text is validated and projected to the authoritative nameplate component when showEntityName is true.",
+            "effect: RuntimePlayer EntityNameBinding behavior remains unavailable."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -11395,6 +11499,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.customName",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -11451,7 +11561,7 @@
           "status": "partial",
           "capability": "server.world.entities",
           "gaps": [
-            "Player destruction uses the same lifecycle contract while preserving player identity; native disconnect and engine destruction semantics remain unverified."
+            "The script call is a no-op for players, matching the recovered ScriptEntitySync non-player destroy guard; disconnect lifecycle is handled separately."
           ]
         },
         {
@@ -12301,11 +12411,40 @@
         ],
         "returns": "boolean"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.hasTag",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": "server.world.entities",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.hasTag",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": "server.world.entities",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimeEntity.hasTag",
+          "relation": "object-adapter",
+          "status": "compatible",
+          "capability": "server.world.entities",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.hasTag",
+          "relation": "object-adapter",
+          "status": "compatible",
+          "capability": "server.world.entities",
+          "gaps": []
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -12325,6 +12464,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.hasTag",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -12977,11 +13122,40 @@
         "type": "boolean",
         "readonly": true
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.isPlayer",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": "server.world.entities",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.isPlayer",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": "server.world.entities",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimeEntity.isPlayer",
+          "relation": "object-adapter",
+          "status": "compatible",
+          "capability": "server.world.entities",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.isPlayer",
+          "relation": "object-adapter",
+          "status": "compatible",
+          "capability": "server.world.entities",
+          "gaps": []
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -13001,6 +13175,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.isPlayer",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -13105,11 +13285,33 @@
         ],
         "returns": "void"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.lookAt",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "The recovered target coercion, default +Y up vector, invalid-facing fallback, zero-direction fallback, parallel-up perturbation, X/Y/Z matrix layouts, gl-matrix quaternion conversion, and historical component write order are implemented. RuntimeEntity calls reuse the authoritative meshOrientation update path.",
+            "RuntimePlayer lookAt/model orientation binding and nested quaternion mutation projection remain unavailable."
+          ]
+        },
+        {
+          "localId": "server.RuntimeEntity.lookAt",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "signature: The canonical optional meshFacing and up parameters, defaults, coercion, and invalid-facing fallback are preserved.",
+            "effect: The recovered matrix/quaternion algorithm and historical component order update RuntimeEntity meshOrientation through the authoritative body-orientation bridge.",
+            "effect: RuntimePlayer model orientation and nested quaternion mutation remain unavailable."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -13129,6 +13331,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.lookAt",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -13387,11 +13595,32 @@
         "type": "GameRGBAColor",
         "readonly": false
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.meshColor",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "The recovered white RGBA default and whole-property normalized color writes update authoritative replica.model.color through the protocol byte encoding.",
+            "Nested component mutation and RuntimePlayer model bindings remain unimplemented."
+          ]
+        },
+        {
+          "localId": "server.RuntimeEntity.meshColor",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "effect: Whole-property normalized RGBA writes are encoded as protocol bytes and update authoritative replica.model.color; nested component mutation does not trigger the bridge.",
+            "effect: RuntimePlayer model binding remains unavailable."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -13411,6 +13640,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.meshColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -13447,11 +13682,32 @@
         "type": "number",
         "readonly": false
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.meshEmissive",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "The recovered zero default and 0..1 writes update authoritative replica.model.emissive.",
+            "RuntimePlayer model bindings remain unimplemented."
+          ]
+        },
+        {
+          "localId": "server.RuntimeEntity.meshEmissive",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "effect: Validated 0..1 writes update authoritative replica.model.emissive.",
+            "effect: RuntimePlayer model binding remains unavailable."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -13471,6 +13727,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.meshEmissive",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -13507,11 +13769,32 @@
         "type": "boolean",
         "readonly": false
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.meshInvisible",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "The recovered false default and whole-property writes update authoritative replica.model.invisible.",
+            "RuntimePlayer model bindings remain unimplemented."
+          ]
+        },
+        {
+          "localId": "server.RuntimeEntity.meshInvisible",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "effect: Whole-property writes update authoritative replica.model.invisible.",
+            "effect: RuntimePlayer model binding remains unavailable."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -13531,6 +13814,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.meshInvisible",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -13567,11 +13856,32 @@
         "type": "number",
         "readonly": false
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.meshMetalness",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "The recovered zero default and 0..1 writes update authoritative replica.model.metalness.",
+            "RuntimePlayer model bindings remain unimplemented."
+          ]
+        },
+        {
+          "localId": "server.RuntimeEntity.meshMetalness",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "effect: Validated 0..1 writes update authoritative replica.model.metalness.",
+            "effect: RuntimePlayer model binding remains unavailable."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -13591,6 +13901,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.meshMetalness",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -13627,11 +13943,33 @@
         "type": "GameVector3",
         "readonly": false
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.meshOffset",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "The recovered zero default and whole-property bounded vector writes update authoritative replica.model.offset.",
+            "Nested component mutation and RuntimePlayer model bindings remain unimplemented."
+          ]
+        },
+        {
+          "localId": "server.RuntimeEntity.meshOffset",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "signature: Canonical meshOffset uses GameVector3; local RuntimeEntity uses the compatible Vector3 implementation.",
+            "effect: Whole-property writes update authoritative replica.model.offset; nested component mutation does not trigger the bridge.",
+            "effect: RuntimePlayer model binding remains unavailable."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -13651,6 +13989,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.meshOffset",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -13687,11 +14031,32 @@
         "type": "GameQuaternion",
         "readonly": false
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.meshOrientation",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "The recovered identity quaternion default and whole-property writes update authoritative replica.body.orientation.",
+            "Nested quaternion mutation, native normalization details, and RuntimePlayer model bindings remain unimplemented."
+          ]
+        },
+        {
+          "localId": "server.RuntimeEntity.meshOrientation",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "effect: Whole-property writes update authoritative replica.body.orientation; nested quaternion mutation does not trigger the bridge.",
+            "effect: Complete native normalization and RuntimePlayer model binding remain unavailable."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -13711,6 +14076,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.meshOrientation",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -13753,11 +14124,33 @@
         "type": "GameVector3",
         "readonly": false
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.meshScale",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "The recovered 1/64 default and whole-property bounded vector writes update authoritative replica.model.scale.",
+            "Nested component mutation and RuntimePlayer model bindings remain unimplemented."
+          ]
+        },
+        {
+          "localId": "server.RuntimeEntity.meshScale",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "signature: Canonical meshScale uses GameVector3; local RuntimeEntity uses the compatible Vector3 implementation.",
+            "effect: Whole-property writes update authoritative replica.model.scale; nested component mutation does not trigger the bridge.",
+            "effect: RuntimePlayer model binding remains unavailable."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -13783,6 +14176,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.meshScale",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -13819,11 +14218,32 @@
         "type": "number",
         "readonly": false
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.meshShininess",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "The recovered zero default and 0..1 writes update authoritative replica.model.shininess.",
+            "RuntimePlayer model bindings remain unimplemented."
+          ]
+        },
+        {
+          "localId": "server.RuntimeEntity.meshShininess",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "effect: Validated 0..1 writes update authoritative replica.model.shininess.",
+            "effect: RuntimePlayer model binding remains unavailable."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -13843,6 +14263,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.meshShininess",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -13939,11 +14365,33 @@
         "type": "GameRGBColor",
         "readonly": false
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.nameColor",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "The recovered white default and normalized RGB projection are implemented for authoritative replica.nameplate.color.",
+            "Nested component mutation does not trigger a whole-property bridge and RuntimePlayer EntityNameBinding behavior remains unimplemented."
+          ]
+        },
+        {
+          "localId": "server.RuntimeEntity.nameColor",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "signature: Canonical nameColor uses GameRGBColor and the local RuntimeEntity uses the same class.",
+            "effect: Whole-property assignments project normalized RGB values to the authoritative nameplate component; nested component mutation does not trigger the bridge.",
+            "effect: RuntimePlayer EntityNameBinding behavior remains unavailable."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -13963,6 +14411,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.nameColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -13999,11 +14453,32 @@
         "type": "number",
         "readonly": false
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.nameRadius",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "The recovered default 16 and protocol range/quantization-compatible finite validation are projected to authoritative replica.nameplate.radius.",
+            "RuntimePlayer EntityNameBinding behavior remains unimplemented."
+          ]
+        },
+        {
+          "localId": "server.RuntimeEntity.nameRadius",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "effect: The recovered default 16 and finite 0..4096 validation are projected to the authoritative nameplate radius.",
+            "effect: RuntimePlayer EntityNameBinding behavior remains unavailable."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -14023,6 +14498,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.nameRadius",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -14232,7 +14713,7 @@
           "status": "partial",
           "capability": "server.world.events",
           "gaps": [
-            "The player lifecycle event is emitted for local destruction; native disconnect and engine destruction semantics remain unverified."
+            "MuDB disconnect emits world.onPlayerLeave, player.onDestroy, then world.onEntityDestroy with one recovered GameEntityEvent; other independent engine destruction sources remain unverified."
           ]
         },
         {
@@ -14250,7 +14731,7 @@
           "status": "partial",
           "capability": "server.world.events",
           "gaps": [
-            "effect: Player destroy is guarded as a no-op; disconnect-driven destroy notification remains unimplemented."
+            "effect: Player.destroy() remains a recovered no-op, while MuDB disconnect removes the wrapper and emits world.onPlayerLeave, player.onDestroy, then world.onEntityDestroy with one shared GameEntityEvent. Other independent engine destruction sources remain unverified."
           ]
         }
       ],
@@ -16216,11 +16697,21 @@
         "type": "GamePlayerEntity| undefined",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.player",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "effect: Non-player entities return undefined as declared. RuntimePlayer returns itself because the local Runtime merges the historical GameEntity shell and GamePlayer facade; historical object identity remains distinct in ScriptEntitySync."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "declared",
         "compatibility": "missing",
@@ -16233,6 +16724,12 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameEntity/isPlayer.md",
           "symbol": "player:GamePlayerEntity| undefined",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -16380,11 +16877,40 @@
         ],
         "returns": "void"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.removeTag",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": "server.world.entities",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.removeTag",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": "server.world.entities",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimeEntity.removeTag",
+          "relation": "object-adapter",
+          "status": "compatible",
+          "capability": "server.world.entities",
+          "gaps": []
+        },
+        {
+          "localId": "server.RuntimePlayer.removeTag",
+          "relation": "object-adapter",
+          "status": "compatible",
+          "capability": "server.world.entities",
+          "gaps": []
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -16404,6 +16930,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.removeTag",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -16585,11 +17117,33 @@
         ],
         "returns": "void"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.rotateLocal",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "The recovered scale-then-orientation local transform, X/Y/Z radian rotations, quaternion normalization, and before/after pivot-position compensation are implemented. RuntimeEntity calls reuse the authoritative meshOrientation and position update paths.",
+            "RuntimePlayer rotateLocal/model orientation binding and nested quaternion/position mutation projection remain unavailable."
+          ]
+        },
+        {
+          "localId": "server.RuntimeEntity.rotateLocal",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "signature: The canonical localPosition, X/Y/Z axis, and radian angle parameters are preserved.",
+            "effect: The recovered scale/orientation transform and pivot compensation update RuntimeEntity meshOrientation and position through existing authoritative bridges.",
+            "effect: RuntimePlayer model orientation and nested quaternion/position mutation remain unavailable."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -16609,6 +17163,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.rotateLocal",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -16692,7 +17252,7 @@
           "gaps": [
             "Mapped live entities emit recovered game-chat.log sender, duration, and hideFloat fields; destroyed senders are silently dropped before logging or transport.",
             "Unmapped entities remain script-local instead of receiving a fabricated Player id.",
-            "The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
+            "The recovered FIFO prefix/overflow/tick-drain algorithm and ordered Runtime-to-backend overflow batch are implemented with an evidence-deferred nullable limit; the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
           ]
         },
         {
@@ -16703,7 +17263,7 @@
           "gaps": [
             "effect: Mapped live entities emit the recovered game-chat.log sender id, duration, and hideFloat fields to every connected Player session; destroyed senders are silently dropped.",
             "effect: Entities without an authoritative backend id remain script-local and do not receive a fabricated sender id or floating bubble.",
-            "effect: The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
+            "effect: The recovered FIFO prefix/overflow/tick-drain algorithm and ordered Runtime-to-backend overflow batch are implemented with an evidence-deferred nullable limit; the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
           ]
         }
       ],
@@ -16814,11 +17374,33 @@
         ],
         "returns": "void"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.scaleLocal",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "The recovered direct meshScale replacement and before/after transformed-pivot position compensation are implemented using the same scale-then-orientation transform. RuntimeEntity calls reuse the authoritative meshScale and position update paths.",
+            "RuntimePlayer scaleLocal/model scale binding and nested scale/position mutation projection remain unavailable."
+          ]
+        },
+        {
+          "localId": "server.RuntimeEntity.scaleLocal",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "signature: The canonical localPosition and replacement GameVector3 scale parameters are preserved.",
+            "effect: The recovered scale replacement and transformed-pivot compensation update RuntimeEntity meshScale and position through existing authoritative bridges.",
+            "effect: RuntimePlayer model scale and nested scale/position mutation remain unavailable."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -16838,6 +17420,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.scaleLocal",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -16874,11 +17462,32 @@
         "type": "boolean",
         "readonly": false
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.showEntityName",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "The recovered false default and component enable/disable behavior are implemented through authoritative replica.nameplate creation and deletion.",
+            "RuntimePlayer EntityNameBinding behavior remains unimplemented and complete historical synchronizer scheduling was not recovered."
+          ]
+        },
+        {
+          "localId": "server.RuntimeEntity.showEntityName",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "effect: The false default and authoritative replica.nameplate create/delete behavior are implemented for validated captured-mesh entities.",
+            "effect: RuntimePlayer EntityNameBinding behavior and complete historical synchronizer scheduling remain unavailable."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -16898,6 +17507,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.showEntityName",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -17043,11 +17658,54 @@
         ],
         "returns": "Sound"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.RuntimeEntity.sound",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "Mapped entities use the recovered entity-position sound union and defaults.",
+            "Script-local entities without a validated backend projection are rejected instead of being fabricated as global or positioned sounds."
+          ]
+        },
+        {
+          "localId": "server.RuntimePlayer.sound",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "Authoritative players use the recovered player-position sound union and defaults.",
+            "A Player without a backend entity id is rejected instead of receiving a fabricated target id."
+          ]
+        },
+        {
+          "localId": "server.RuntimeEntity.sound",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "effect: Mapped entities emit the recovered entity-targeted sound packet with dictionary-backed sample id and historical defaults.",
+            "effect: Entities without an authoritative backend id are rejected instead of receiving a fabricated spatial target.",
+            "effect: Browser media decode, playback completion, and mediaError acknowledgement remain unavailable."
+          ]
+        },
+        {
+          "localId": "server.RuntimePlayer.sound",
+          "relation": "object-adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "effect: Authoritative players emit the recovered player-targeted sound packet with dictionary-backed sample id and historical defaults.",
+            "effect: Players without an authoritative backend id are rejected instead of receiving a fabricated target.",
+            "effect: Browser media decode, playback completion, and mediaError acknowledgement remain unavailable."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -17067,6 +17725,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.sound",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -17116,7 +17780,7 @@
           "gaps": [
             "access: Canonical tags is a method returning string[]; local tags is a readonly Set<string> property whose contents remain mutable.",
             "signature: Property/method shape and collection type differ.",
-            "effect: Canonical addTag/removeTag/hasTag behavior and replication are not implemented."
+            "effect: Canonical addTag/removeTag/hasTag mutation and lookup behavior is implemented; only the canonical tags() array-returning accessor and native replication semantics remain unavailable."
           ]
         }
       ],
@@ -20098,7 +20762,7 @@
             "signature: Canonical directMessage accepts a string; local sendMessage accepts an unknown value and formats it for logging.",
             "effect: Targeted delivery now uses the recovered Player game-chat.log packet with private=true through the bound MuDB session; removed/destroyed receivers are silently dropped.",
             "effect: Player removal marks the RuntimePlayer destroyed and dispatches world.onPlayerLeave, player.onDestroy, then world.onEntityDestroy in recovered order.",
-            "effect: The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
+            "effect: The recovered FIFO prefix/overflow/tick-drain algorithm and ordered Runtime-to-backend overflow batch are implemented with an evidence-deferred nullable limit; the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
           ]
         }
       ],
@@ -25923,7 +26587,8 @@
           "status": "partial",
           "capability": "server.storage",
           "gaps": [
-            "The function surface exists, but default project runtimes disable cross-map group storage because no authoritative group identity/configuration is available."
+            "The default project Runtime disables group storage when the historical groupId input is empty.",
+            "Capability Manifest v14 can bind a non-empty project package storage.groupId and the local provider isolates spaces by that id; DAO3 cloud scope, quotas, distributed consistency, and external group authority remain unrecovered."
           ]
         }
       ],
@@ -28063,11 +28728,21 @@
         "parameters": [],
         "returns": "void"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.world.clearCollisionFilters",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "Clearing the full local filter registry is implemented; the local physics solver does not consume selector pairs."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -28087,6 +28762,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.clearCollisionFilters",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -28123,11 +28804,21 @@
         "parameters": [],
         "returns": "string[][]"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.world.collisionFilters",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "The method returns fresh nested arrays for every registered selector pair; the local physics solver does not consume selector pairs."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -28147,6 +28838,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.collisionFilters",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -28218,7 +28915,7 @@
           "status": "partial",
           "capability": "server.world.entities",
           "gaps": [
-            "Creation remains synchronous and emits the recovered entity-create lifecycle event. Captured mesh bindings can create an authoritative browser/backend replica with documented transform and model/body fields; unknown meshes deliberately remain script-local rather than receiving a fabricated placeholder.",
+            "Creation remains synchronous, obeys the recovered non-player entityLimit check, returns null at capacity, and emits the recovered entity-create lifecycle event. Captured mesh bindings can create an authoritative browser/backend replica with documented transform and model/body fields; unknown meshes deliberately remain script-local rather than receiving a fabricated placeholder.",
             "Generic native gravity, collision response, and in-place Vector3 mutation replication are still unverified."
           ]
         }
@@ -28526,11 +29223,19 @@
         "parameters": [],
         "returns": "number"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.world.entityQuota",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": "server.world.entities",
+          "gaps": []
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -28550,6 +29255,36 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.entityQuota",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "world.entityQuota",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/sync/ScriptEntitySync.js",
+          "symbol": "ScriptEntitySync.quota",
+          "confidence": "direct"
+        },
+        {
+          "type": "protocol",
+          "path": "origin/server-protocols.json",
+          "symbol": "script-protocol.start.config.entityLimit",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameWorld/entityCD.md",
+          "symbol": "GameWorld.entityQuota",
+          "confidence": "direct"
+        },
+        {
+          "type": "test",
+          "path": "runtime-compat/test/world-entity-quota-api-conformance.test.mjs",
+          "symbol": "GameWorld.entityQuota conformance",
           "confidence": "direct"
         }
       ]
@@ -29459,7 +30194,7 @@
           "capability": "server.world.chat",
           "gaps": [
             "The recovered GameChatEvent fields are represented by the Runtime signal shell.",
-            "No Player/browser-to-backend chat ingress is recovered, so Capability Manifest blocks projects that depend on this event; moderation, cancellation, and transport timing also remain unavailable."
+            "ScriptShell consumes chatEvents.chats, but the recovered Player game-chat client-to-server surface only carries administrator noticeMessage {title,detail}; no Player chat producer is recovered, so Capability Manifest blocks dependent projects."
           ]
         }
       ],
@@ -30647,8 +31382,8 @@
           "status": "partial",
           "capability": "server.world.events",
           "gaps": [
-            "The recovered event fields are tick, userId, productId, and orderId.",
-            "No browser-to-backend purchase-success producer or Server Runtime ingress is recovered locally, so Capability Manifest blocks projects that depend on this event."
+            "The recovered public event fields are tick, userId, productId, and orderId; ScriptShell separately acknowledges the internal messageId after dispatch.",
+            "The Player market protocol only receives openMarketplace and exposes no client-to-server result message; no purchase-success producer or Server Runtime ingress is recovered, so Capability Manifest blocks dependent projects."
           ]
         }
       ],
@@ -31590,11 +32325,19 @@
         "type": "string",
         "readonly": true
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "server.world.config",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.world.projectName",
+          "relation": "adapter",
+          "status": "compatible",
+          "capability": "server.world.config",
+          "gaps": []
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -31614,6 +32357,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.projectName",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -32487,11 +33236,21 @@
         ],
         "returns": "void"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.world.removeCollisionFilter",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "Exact selector-pair removal and list lifecycle are implemented; the local physics solver does not consume selector pairs."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -32511,6 +33270,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.removeCollisionFilter",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -32790,7 +33555,7 @@
           "gaps": [
             "Broadcast delivery now uses the recovered Player game-chat.log packet through connected MuDB sessions.",
             "Destroyed sender/receiver endpoints are silently dropped and player removal follows the recovered leave/destroy ordering.",
-            "The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
+            "The recovered FIFO prefix/overflow/tick-drain algorithm and ordered Runtime-to-backend overflow batch are implemented with an evidence-deferred nullable limit; the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
           ]
         }
       ],
@@ -32879,11 +33644,22 @@
         ],
         "returns": "GameEntity[]"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.world.searchBox",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "RuntimeEntity and RuntimePlayer AABB overlap search uses the recovered body-center half-extents convention shared with zones and raycasts.",
+            "Native oriented-body search and GameWorld.useOBB remain unavailable."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -32903,6 +33679,36 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.searchBox",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/entity-bounds.mjs",
+          "symbol": "searchRuntimeEntities",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameWorld/querySelectorEntity.md",
+          "symbol": "GameWorld.searchBox",
+          "confidence": "direct"
+        },
+        {
+          "type": "declaration",
+          "path": "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts",
+          "symbol": "GameWorld.searchBox",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/ScriptZoneWrapper.js",
+          "symbol": "GameEntity.bounds half-extents overlap",
+          "confidence": "supporting"
+        },
+        {
+          "type": "test",
+          "path": "runtime-compat/test/world-search-box-api-conformance.test.mjs",
+          "symbol": "GameWorld.searchBox conformance",
           "confidence": "direct"
         }
       ]
@@ -33743,11 +34549,22 @@
         ],
         "returns": "Sound"
       },
-      "status": "recovered-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.world.sound",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "The recovered global and positioned sound arguments are sent through the preserved sound MuDB protocol with dictionary-backed sample ids.",
+            "Unknown samples are rejected; browser decode/playback completion and media errors are not acknowledged to the Server Runtime."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "confirmed",
         "compatibility": "missing",
@@ -33767,6 +34584,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.sound",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -35229,7 +36052,7 @@
           "capability": "server.storage",
           "gaps": [
             "The local root exposes recovered getDataStorage/getGroupStorage methods behind the server.storage capability.",
-            "Cloud map/group identity and isolation remain unrecovered."
+            "Configured group storage is isolated by a launch-verified groupId, while DAO3 cloud provider semantics remain unrecovered."
           ]
         }
       ],
@@ -36389,16 +37212,26 @@
         ],
         "returns": "boolean"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameBounds3.contains",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -36406,6 +37239,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameBounds3/index.md",
           "symbol": "contains(b:GameVector3): boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-zones.mjs",
+          "symbol": "GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameBounds3.js",
+          "symbol": "GameBounds3",
           "confidence": "direct"
         }
       ]
@@ -36466,16 +37311,26 @@
         ],
         "returns": "boolean"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameBounds3.containsBounds",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -36483,6 +37338,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameBounds3/index.md",
           "symbol": "containsBounds(b:GameBounds3): boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-zones.mjs",
+          "symbol": "GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameBounds3.js",
+          "symbol": "GameBounds3",
           "confidence": "direct"
         }
       ]
@@ -36543,16 +37410,26 @@
         ],
         "returns": "GameBounds3"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameBounds3.copy",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -36560,6 +37437,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameBounds3/index.md",
           "symbol": "copy(b:GameBounds3): GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-zones.mjs",
+          "symbol": "GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameBounds3.js",
+          "symbol": "GameBounds3",
           "confidence": "direct"
         }
       ]
@@ -36610,16 +37499,26 @@
         ],
         "returns": "GameBounds3"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameBounds3.fromPoints",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -36627,6 +37526,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameBounds3/index.md",
           "symbol": "fromPoints(...points:GameVector3[]): GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-zones.mjs",
+          "symbol": "GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameBounds3.js",
+          "symbol": "GameBounds3",
           "confidence": "direct"
         }
       ]
@@ -36709,16 +37620,26 @@
         ],
         "returns": "GameBounds3"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameBounds3.GameBounds3",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -36726,6 +37647,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameBounds3/index.md",
           "symbol": "GameBounds3(lo:GameVector3,hi:GameVector3): GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-zones.mjs",
+          "symbol": "GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameBounds3.js",
+          "symbol": "GameBounds3",
           "confidence": "direct"
         }
       ]
@@ -36762,16 +37695,26 @@
         "type": "GameVector3",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameBounds3.hi",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -36779,6 +37722,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameBounds3/index.md",
           "symbol": "hi: GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-zones.mjs",
+          "symbol": "GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameBounds3.js",
+          "symbol": "GameBounds3",
           "confidence": "direct"
         }
       ]
@@ -36839,16 +37794,26 @@
         ],
         "returns": "GameBounds3"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameBounds3.intersect",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -36856,6 +37821,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameBounds3/index.md",
           "symbol": "intersect(b:GameBounds3): GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-zones.mjs",
+          "symbol": "GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameBounds3.js",
+          "symbol": "GameBounds3",
           "confidence": "direct"
         }
       ]
@@ -36916,16 +37893,26 @@
         ],
         "returns": "boolean"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameBounds3.intersects",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -36933,6 +37920,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameBounds3/index.md",
           "symbol": "intersects(b:GameBounds3): boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-zones.mjs",
+          "symbol": "GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameBounds3.js",
+          "symbol": "GameBounds3",
           "confidence": "direct"
         }
       ]
@@ -36969,16 +37968,26 @@
         "type": "GameVector3",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameBounds3.lo",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -36986,6 +37995,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameBounds3/index.md",
           "symbol": "lo: GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-zones.mjs",
+          "symbol": "GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameBounds3.js",
+          "symbol": "GameBounds3",
           "confidence": "direct"
         }
       ]
@@ -37156,16 +38177,26 @@
         ],
         "returns": "GameBounds3"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameBounds3.set",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -37173,6 +38204,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameBounds3/index.md",
           "symbol": "set(lox:number, loy:number, loz:number, hix:number, hiy:number, hiz:number): GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-zones.mjs",
+          "symbol": "GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameBounds3.js",
+          "symbol": "GameBounds3",
           "confidence": "direct"
         }
       ]
@@ -37209,16 +38252,26 @@
         "parameters": [],
         "returns": "string"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameBounds3.toString",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -37226,6 +38279,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameBounds3/index.md",
           "symbol": "toString(): string",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-zones.mjs",
+          "symbol": "GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameBounds3.js",
+          "symbol": "GameBounds3",
           "confidence": "direct"
         }
       ]
@@ -37262,16 +38327,27 @@
         "parameters": [],
         "returns": "boolean"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.events",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameEventHandlerToken.active",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.events",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source",
+          "player-bundle"
         ]
       },
       "evidence": [
@@ -37279,6 +38355,30 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameEventHandlerToken/index.md",
           "symbol": "active(): boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/event-signal.mjs",
+          "symbol": "GameEventHandlerToken / EventSignal.on",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEventHandlerToken.js",
+          "symbol": "GameEventHandlerToken",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/ScriptDispatcher.js",
+          "symbol": "ScriptDispatcher.channel",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/734.8dcb480d99773395.js",
+          "symbol": "GameEventHandlerToken",
           "confidence": "direct"
         }
       ]
@@ -37315,16 +38415,27 @@
         "parameters": [],
         "returns": "void"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.events",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameEventHandlerToken.cancel",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.events",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source",
+          "player-bundle"
         ]
       },
       "evidence": [
@@ -37332,6 +38443,30 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameEventHandlerToken/index.md",
           "symbol": "cancel(): void",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/event-signal.mjs",
+          "symbol": "GameEventHandlerToken / EventSignal.on",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEventHandlerToken.js",
+          "symbol": "GameEventHandlerToken",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/ScriptDispatcher.js",
+          "symbol": "ScriptDispatcher.channel",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/734.8dcb480d99773395.js",
+          "symbol": "GameEventHandlerToken",
           "confidence": "direct"
         }
       ]
@@ -37368,16 +38503,27 @@
         "parameters": [],
         "returns": "void"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.events",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameEventHandlerToken.resume",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.events",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source",
+          "player-bundle"
         ]
       },
       "evidence": [
@@ -37385,6 +38531,30 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameEventHandlerToken/index.md",
           "symbol": "resume(): void",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/event-signal.mjs",
+          "symbol": "GameEventHandlerToken / EventSignal.on",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEventHandlerToken.js",
+          "symbol": "GameEventHandlerToken",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/ScriptDispatcher.js",
+          "symbol": "ScriptDispatcher.channel",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/734.8dcb480d99773395.js",
+          "symbol": "GameEventHandlerToken",
           "confidence": "direct"
         }
       ]
@@ -37445,16 +38615,26 @@
         ],
         "returns": "GameQuaternion"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.add",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -37462,6 +38642,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "add(v:GameQuaternion): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -37522,16 +38714,26 @@
         ],
         "returns": "number"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.angle",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -37539,6 +38741,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "angle(q:GameQuaternion): number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -37575,16 +38789,26 @@
         "parameters": [],
         "returns": "GameQuaternion"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.clone",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -37592,6 +38816,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "clone(): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -37652,16 +38888,26 @@
         ],
         "returns": "GameQuaternion"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.copy",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -37669,6 +38915,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "copy(v:GameQuaternion): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -37729,16 +38987,26 @@
         ],
         "returns": "GameQuaternion"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.div",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -37746,6 +39014,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "div(q:GameQuaternion): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -37806,16 +39086,26 @@
         ],
         "returns": "number"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.dot",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -37823,6 +39113,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "dot(q:GameQuaternion): number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -37883,16 +39185,27 @@
         ],
         "returns": "boolean"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.equals",
+          "relation": "exact",
+          "status": "partial",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "partial",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source",
+          "player-bundle"
         ]
       },
       "evidence": [
@@ -37901,6 +39214,24 @@
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "equals(v:GameQuaternion): boolean",
           "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/457.36bf26873ad51e54.js",
+          "symbol": "module 48388 EPSILON = 1e-6",
+          "confidence": "supporting"
         }
       ]
     },
@@ -37982,16 +39313,26 @@
         ],
         "returns": "GameQuaternion"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.fromAxisAngle",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -37999,6 +39340,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "fromAxisAngle(axis:GameVector3,rad:number): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -38103,16 +39456,26 @@
         ],
         "returns": "GameQuaternion"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.fromEuler",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -38120,6 +39483,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "fromEuler(x:number,y:number,z:number): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -38246,16 +39621,26 @@
         ],
         "returns": "GameQuaternion"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.GameQuaternion",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -38263,6 +39648,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "GameQuaternion(w: number, x: number, y: number, z: number): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -38323,16 +39720,27 @@
         ],
         "returns": "{angle:number;axis:GameVector3}"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.getAxisAngle",
+          "relation": "exact",
+          "status": "partial",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "partial",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source",
+          "player-bundle"
         ]
       },
       "evidence": [
@@ -38341,6 +39749,24 @@
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "getAxisAngle(_q:GameQuaternion): {angle:number;axis:GameVector3}",
           "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/457.36bf26873ad51e54.js",
+          "symbol": "module 48388 EPSILON = 1e-6",
+          "confidence": "supporting"
         }
       ]
     },
@@ -38376,16 +39802,27 @@
         "parameters": [],
         "returns": "GameQuaternion"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.inv",
+          "relation": "exact",
+          "status": "partial",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "partial",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source",
+          "player-bundle"
         ]
       },
       "evidence": [
@@ -38394,6 +39831,24 @@
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "inv(): GameQuaternion",
           "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/457.36bf26873ad51e54.js",
+          "symbol": "module 48388 EPSILON = 1e-6",
+          "confidence": "supporting"
         }
       ]
     },
@@ -38429,16 +39884,26 @@
         "parameters": [],
         "returns": "number"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.mag",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -38446,6 +39911,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "mag(): number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -38506,16 +39983,26 @@
         ],
         "returns": "GameQuaternion"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.mul",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -38523,6 +40010,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "mul(q:GameQuaternion): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -38559,16 +40058,26 @@
         "parameters": [],
         "returns": "GameQuaternion"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.normalize",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -38576,6 +40085,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "normalize(): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -38636,16 +40157,26 @@
         ],
         "returns": "GameQuaternion"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.rotateX",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -38653,6 +40184,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "rotateX(_rad: number): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -38713,16 +40256,26 @@
         ],
         "returns": "GameQuaternion"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.rotateY",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -38730,6 +40283,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "rotateY(_rad: number): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -38790,16 +40355,26 @@
         ],
         "returns": "GameQuaternion"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.rotateZ",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -38807,6 +40382,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "rotateZ(_rad: number): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -38889,16 +40476,27 @@
         ],
         "returns": "GameQuaternion"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.rotationBetween",
+          "relation": "exact",
+          "status": "partial",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "partial",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source",
+          "player-bundle"
         ]
       },
       "evidence": [
@@ -38907,6 +40505,24 @@
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "rotationBetween(a:GameVector3,b:GameVector3): GameQuaternion",
           "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/457.36bf26873ad51e54.js",
+          "symbol": "module 48388 EPSILON = 1e-6",
+          "confidence": "supporting"
         }
       ]
     },
@@ -39032,16 +40648,26 @@
         ],
         "returns": "GameQuaternion"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.set",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -39049,6 +40675,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "set(w: number, x: number, y: number, z: number): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -39131,16 +40769,27 @@
         ],
         "returns": "GameQuaternion"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.slerp",
+          "relation": "exact",
+          "status": "partial",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "partial",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source",
+          "player-bundle"
         ]
       },
       "evidence": [
@@ -39149,6 +40798,24 @@
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "slerp(q: GameQuaternion, n: number): GameQuaternion",
           "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/457.36bf26873ad51e54.js",
+          "symbol": "module 48388 EPSILON = 1e-6",
+          "confidence": "supporting"
         }
       ]
     },
@@ -39184,16 +40851,26 @@
         "parameters": [],
         "returns": "number"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.sqrMag",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -39201,6 +40878,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "sqrMag(): number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -39261,16 +40950,26 @@
         ],
         "returns": "GameQuaternion"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.sub",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -39278,6 +40977,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "sub(v:GameQuaternion): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -39314,16 +41025,26 @@
         "parameters": [],
         "returns": "string"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.toString",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -39331,6 +41052,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "toString(): string",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -39367,16 +41100,26 @@
         "type": "number",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.w",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -39384,6 +41127,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "w: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -39420,16 +41175,26 @@
         "type": "number",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.x",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -39437,6 +41202,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "x: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -39473,16 +41250,26 @@
         "type": "number",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.y",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -39490,6 +41277,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "y: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -39526,16 +41325,26 @@
         "type": "number",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameQuaternion.z",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -39543,6 +41352,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "z: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ]
@@ -39579,16 +41400,26 @@
         "type": "number",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBAColor.a",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -39596,6 +41427,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "a: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ]
@@ -39656,16 +41499,26 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBAColor.add",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -39673,6 +41526,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "add(rgba:GameRGBAColor): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ]
@@ -39733,16 +41598,26 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBAColor.addEq",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -39750,6 +41625,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "addEq(rgba:GameRGBAColor): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ]
@@ -39786,16 +41673,26 @@
         "type": "number",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBAColor.b",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -39803,6 +41700,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "b: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ]
@@ -39863,16 +41772,26 @@
         ],
         "returns": "GameRGBColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBAColor.blendEq",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -39880,6 +41799,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "blendEq(rgb:GameRGBColor): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ]
@@ -39916,16 +41847,26 @@
         "parameters": [],
         "returns": "GameRGBAColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBAColor.clone",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -39933,6 +41874,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "clone(): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ]
@@ -39993,16 +41946,26 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBAColor.copy",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -40010,6 +41973,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "copy(c:GameRGBAColor): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ]
@@ -40070,16 +42045,26 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBAColor.div",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -40087,6 +42072,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "div(rgba:GameRGBAColor): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ]
@@ -40147,16 +42144,26 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBAColor.divEq",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -40164,6 +42171,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "divEq(rgba:GameRGBAColor): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ]
@@ -40224,16 +42243,27 @@
         ],
         "returns": "boolean"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBAColor.equals",
+          "relation": "exact",
+          "status": "partial",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "partial",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source",
+          "player-bundle"
         ]
       },
       "evidence": [
@@ -40242,6 +42272,24 @@
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "equals(rgba:GameRGBAColor): boolean",
           "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/457.36bf26873ad51e54.js",
+          "symbol": "module 48388 EPSILON = 1e-6",
+          "confidence": "supporting"
         }
       ]
     },
@@ -40277,16 +42325,26 @@
         "type": "number",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBAColor.g",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -40294,6 +42352,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "g: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ]
@@ -40420,16 +42490,26 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBAColor.GameRGBAColor",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -40437,6 +42517,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "GameRGBAColor(r: number, g: number, b: number, a: number): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ]
@@ -40519,16 +42611,26 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBAColor.lerp",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -40536,6 +42638,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "lerp(rgba: GameRGBAColor, n: number): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ]
@@ -40596,16 +42710,26 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBAColor.mul",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -40613,6 +42737,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "mul(rgba:GameRGBAColor): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ]
@@ -40673,16 +42809,26 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBAColor.mulEq",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -40690,6 +42836,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "mulEq(rgba:GameRGBAColor): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ]
@@ -40726,16 +42884,26 @@
         "type": "number",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBAColor.r",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -40743,6 +42911,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "r: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ]
@@ -40869,16 +43049,26 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBAColor.set",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -40886,6 +43076,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "set(r: number, g: number, b: number, a: number): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ]
@@ -40946,16 +43148,26 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBAColor.sub",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -40963,6 +43175,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "sub(rgba:GameRGBAColor): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ]
@@ -41023,16 +43247,26 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBAColor.subEq",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -41040,6 +43274,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "subEq(rgba:GameRGBAColor): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ]
@@ -41076,16 +43322,26 @@
         "parameters": [],
         "returns": "string"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBAColor.toString",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -41093,6 +43349,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "toString(): string",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ]
@@ -41153,16 +43421,26 @@
         ],
         "returns": "GameRGBColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBColor.add",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -41170,6 +43448,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "add(rgb:GameRGBColor): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ]
@@ -41230,16 +43520,26 @@
         ],
         "returns": "GameRGBColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBColor.addEq",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -41247,6 +43547,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "addEq(rgb:GameRGBColor): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ]
@@ -41283,16 +43595,26 @@
         "type": "number",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBColor.b",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -41300,6 +43622,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "b: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ]
@@ -41336,16 +43670,26 @@
         "parameters": [],
         "returns": "GameRGBColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBColor.clone",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -41353,6 +43697,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "clone(): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ]
@@ -41413,16 +43769,26 @@
         ],
         "returns": "GameRGBColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBColor.copy",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -41430,6 +43796,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "copy(c:GameRGBColor): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ]
@@ -41490,16 +43868,26 @@
         ],
         "returns": "GameRGBColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBColor.div",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -41507,6 +43895,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "div(rgb:GameRGBColor): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ]
@@ -41567,16 +43967,26 @@
         ],
         "returns": "GameRGBColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBColor.divEq",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -41584,6 +43994,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "divEq(rgb:GameRGBColor): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ]
@@ -41644,16 +44066,27 @@
         ],
         "returns": "boolean"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBColor.equals",
+          "relation": "exact",
+          "status": "partial",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "partial",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source",
+          "player-bundle"
         ]
       },
       "evidence": [
@@ -41662,6 +44095,24 @@
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "equals(rgb:GameRGBColor): boolean",
           "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/457.36bf26873ad51e54.js",
+          "symbol": "module 48388 EPSILON = 1e-6",
+          "confidence": "supporting"
         }
       ]
     },
@@ -41697,16 +44148,26 @@
         "type": "number",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBColor.g",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -41714,6 +44175,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "g: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ]
@@ -41818,16 +44291,26 @@
         ],
         "returns": "GameRGBColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBColor.GameRGBColor",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -41835,6 +44318,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "GameRGBColor(r: number, g: number, b: number): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ]
@@ -41917,16 +44412,26 @@
         ],
         "returns": "GameRGBColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBColor.lerp",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -41934,6 +44439,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "lerp(rgb:GameRGBColor,n: number): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ]
@@ -41994,16 +44511,26 @@
         ],
         "returns": "GameRGBColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBColor.mul",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -42011,6 +44538,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "mul(rgb:GameRGBColor): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ]
@@ -42071,16 +44610,26 @@
         ],
         "returns": "GameRGBColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBColor.mulEq",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -42088,6 +44637,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "mulEq(rgb:GameRGBColor): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ]
@@ -42124,16 +44685,26 @@
         "type": "number",
         "readonly": false
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBColor.r",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -42141,6 +44712,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "r: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ]
@@ -42177,16 +44760,26 @@
         "parameters": [],
         "returns": "GameRGBColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBColor.random",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -42194,6 +44787,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "random(): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ]
@@ -42298,16 +44903,26 @@
         ],
         "returns": "GameRGBColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBColor.set",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -42315,6 +44930,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "set(r: number, g: number, b: number): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ]
@@ -42375,16 +45002,26 @@
         ],
         "returns": "GameRGBColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBColor.sub",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -42392,6 +45029,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "sub(rgb:GameRGBColor): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ]
@@ -42452,16 +45101,26 @@
         ],
         "returns": "GameRGBColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBColor.subEq",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -42469,6 +45128,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "subEq(rgb:GameRGBColor): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ]
@@ -42505,16 +45176,26 @@
         "parameters": [],
         "returns": "GameRGBAColor"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBColor.toRGBA",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -42522,6 +45203,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "toRGBA(): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ]
@@ -42558,16 +45251,26 @@
         "parameters": [],
         "returns": "string"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "compatible",
+      "executable": true,
+      "capability": "shared.math",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "shared.GameRGBColor.toString",
+          "relation": "exact",
+          "status": "compatible",
+          "capability": "shared.math",
+          "gaps": []
+        }
+      ],
       "recovery": {
-        "availability": "declared",
-        "compatibility": "missing",
+        "availability": "confirmed",
+        "compatibility": "emulated",
         "evidenceTypes": [
-          "docs"
+          "docs",
+          "local-source",
+          "origin-source"
         ]
       },
       "evidence": [
@@ -42575,6 +45278,18 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "toString(): string",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ]
@@ -45649,11 +48364,22 @@
         "parameters": [],
         "returns": "void"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.Sound.pause",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "The recovered pause protocol message is emitted.",
+            "The browser does not acknowledge the resulting playback state."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "declared",
         "compatibility": "missing",
@@ -45666,6 +48392,12 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/Sound/index.md",
           "symbol": "pause(): void",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -45726,11 +48458,22 @@
         ],
         "returns": "void"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.Sound.resume",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "The recovered resume and setCurrentTimeAndResume protocol messages are emitted.",
+            "The browser does not acknowledge playback state or media failure to the Server Runtime."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "declared",
         "compatibility": "missing",
@@ -45743,6 +48486,12 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/Sound/index.md",
           "symbol": "resume(currentTime?:number): void",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -45803,11 +48552,22 @@
         ],
         "returns": "void"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.Sound.setCurrentTime",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "The recovered setCurrentTime protocol message is emitted.",
+            "The browser does not acknowledge the resulting playback position."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "declared",
         "compatibility": "missing",
@@ -45820,6 +48580,12 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/Sound/index.md",
           "symbol": "setCurrentTime(currentTime:number): void",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -45856,11 +48622,22 @@
         "parameters": [],
         "returns": "void"
       },
-      "status": "declared-only",
-      "executable": false,
-      "capability": null,
+      "status": "partial",
+      "executable": true,
+      "capability": "server.world.entities",
       "unavailableReason": null,
-      "localBindings": [],
+      "localBindings": [
+        {
+          "localId": "server.Sound.stop",
+          "relation": "adapter",
+          "status": "partial",
+          "capability": "server.world.entities",
+          "gaps": [
+            "The recovered stop protocol message is emitted.",
+            "The browser does not acknowledge disposal or media failure."
+          ]
+        }
+      ],
       "recovery": {
         "availability": "declared",
         "compatibility": "missing",
@@ -45873,6 +48650,12 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/Sound/index.md",
           "symbol": "stop(): void",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]

@@ -50,6 +50,19 @@ test("treats list cursor as a page index and only sorts when requested", async (
   assert.deepEqual(natural.getCurrentPage().map(item => item.key), ["b", "a", "c"]);
 });
 
+test("group storage requires and isolates an explicit group identity", async () => {
+  const root = await mkdtemp(join(tmpdir(), "nea-storage-groups-"));
+  const file = join(root, "storage.json");
+  const first = new LocalGameStorage({ file, groupId: "group-a" }).getGroupStorage("shared");
+  const second = new LocalGameStorage({ file, groupId: "group-b" }).getGroupStorage("shared");
+  await first.set("score", 7);
+  assert.equal(await second.get("score"), undefined);
+  await second.set("score", 9);
+  assert.equal((await first.get("score")).value, 7);
+  assert.equal((await second.get("score")).value, 9);
+  assert.throws(() => new LocalGameStorage({ file, groupId: " group-a" }), /Invalid storage groupId/);
+});
+
 test("applies nested list constraints, fallback warnings, numeric filters, and page-size cap", async () => {
   const root = await mkdtemp(join(tmpdir(), "nea-storage-constraints-"));
   const warnings = [];
