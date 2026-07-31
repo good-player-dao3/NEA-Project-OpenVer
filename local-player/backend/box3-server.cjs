@@ -8647,11 +8647,15 @@ async function loadProjectBootstrap(assetRoot, manifestName = "project/bedwars/b
     throw new Error("Project bootstrap data does not match its manifest");
   }
   let bytes = await (0, import_promises3.readFile)(bootstrapPath);
+  const describeManifestMismatch = (candidate) => {
+    const actualHash = (0, import_node_crypto3.createHash)("sha256").update(candidate).digest("hex");
+    return `Project bootstrap data does not match its manifest: expected bytes=${fileBytes} sha256=${fileHash}, received bytes=${candidate.byteLength} sha256=${actualHash}`;
+  };
   const matchesManifest = (candidate) => candidate.byteLength === fileBytes && (0, import_node_crypto3.createHash)("sha256").update(candidate).digest("hex") === fileHash;
   if (!matchesManifest(bytes)) {
     const normalized = Buffer.from(bytes.toString("utf8").replace(/\r\n/g, "\n"), "utf8");
     if (!matchesManifest(normalized)) {
-      throw new Error("Project bootstrap data does not match its manifest");
+      throw new Error(describeManifestMismatch(bytes));
     }
     bytes = normalized;
   }
@@ -10715,12 +10719,12 @@ var EntityRegistry = class {
       ...transform.friction === void 0 ? {} : { friction: transform.friction },
       ...transform.restitution === void 0 ? {} : { restitution: transform.restitution }
     };
-    if (Object.keys(body).length > 0) {
+    if (Object.keys(body).length > 0 || transform.model !== void 0 || transform.nameplate !== void 0) {
       if (!entity.replica) throw new Error("Runtime entity has no render replica");
       entity.replica = snapshotRuntimeEntityReplica({
         body: { ...entity.replica.body, ...body },
-        model: entity.replica.model,
-        ...entity.replica.nameplate === void 0 ? {} : { nameplate: entity.replica.nameplate }
+        model: transform.model === void 0 ? entity.replica.model : { ...entity.replica.model, ...transform.model },
+        ...transform.nameplate === null ? {} : transform.nameplate !== void 0 ? { nameplate: transform.nameplate } : entity.replica.nameplate === void 0 ? {} : { nameplate: entity.replica.nameplate }
       });
     }
     return snapshotEntity(entity);
@@ -10781,6 +10785,23 @@ function validateTransform(transform) {
   requireOptionalFinite(transform.mass, "runtime entity body mass", 0, 1e6);
   requireOptionalFinite(transform.friction, "runtime entity body friction", 0, 1e6);
   requireOptionalFinite(transform.restitution, "runtime entity body restitution", 0, 1e6);
+  if (transform.model !== void 0) {
+    if (!transform.model || typeof transform.model !== "object" || Array.isArray(transform.model)) throw new RangeError("runtime entity model update is invalid");
+    if (transform.model.meshId !== void 0) throw new RangeError("runtime entity model meshId cannot be changed");
+    requireOptionalBoolean(transform.model.invisible, "runtime entity model invisible");
+    if (transform.model.color !== void 0) requireRgba2(transform.model.color, "runtime entity model color");
+    if (transform.model.scale !== void 0) requireVector2(transform.model.scale, "runtime entity model scale");
+    if (transform.model.offset !== void 0) requireVector2(transform.model.offset, "runtime entity model offset");
+    requireOptionalFinite(transform.model.emissive, "runtime entity model emissive", 0, 1);
+    requireOptionalFinite(transform.model.shininess, "runtime entity model shininess", 0, 1);
+    requireOptionalFinite(transform.model.metalness, "runtime entity model metalness", 0, 1);
+  }
+  if (transform.nameplate !== void 0 && transform.nameplate !== null) {
+    if (!transform.nameplate || typeof transform.nameplate !== "object" || Array.isArray(transform.nameplate)) throw new RangeError("runtime entity nameplate is invalid");
+    requireText2(transform.nameplate.text, "runtime entity nameplate text");
+    requireOptionalFinite(transform.nameplate.radius, "runtime entity nameplate radius", 0, 4096);
+    if (transform.nameplate.color !== void 0) requireRgb2(transform.nameplate.color, "runtime entity nameplate color");
+  }
 }
 function validateReplica(replica) {
   if (!replica || typeof replica !== "object" || !replica.body || !replica.model) {
@@ -13750,6 +13771,33 @@ var ProjectBootstrapSessions = class {
     session.sound = client;
     return this.flush(session);
   }
+  sendSoundCommand(command) {
+    const recipients = [...this.sessions.values()].filter((session) => session.soundSent && session.sound);
+    if (recipients.length === 0) return false;
+    if (command.action === "play") {
+      const sampleId = this.options.bootstrap.soundDictionary.indexOf(command.sample);
+      if (sampleId < 0) throw new Error(`Sound sample is not present in the project bootstrap dictionary: ${command.sample}`);
+      const payload = {
+        gain: command.gain,
+        pitch: command.pitch,
+        radius: command.radius,
+        sampleId,
+        soundId: command.soundId,
+        position: command.position
+      };
+      for (const session of recipients) session.sound.message.play(payload);
+      return recipients.length;
+    }
+    const messageName = command.action === "setCurrentTimeAndResume" ? "setCurrentTimeAndResume" : command.action;
+    for (const session of recipients) {
+      if (command.action === "setCurrentTime" || command.action === "setCurrentTimeAndResume") {
+        session.sound.message[messageName]({ soundId: command.soundId, currentTime: command.currentTime });
+      } else {
+        session.sound.message[messageName](command.soundId);
+      }
+    }
+    return recipients.length;
+  }
   connectTerrain(client) {
     const session = this.getOrCreate(client.sessionId);
     session.terrain = client;
@@ -14817,7 +14865,7 @@ var LegacyHistoricalProjectInstance = class {
       ...entity.enableInteract === void 0 ? {} : { interactable: entity.enableInteract },
       replica: {
         body: {
-          bounds: mesh.bounds,
+          bounds: entity.bounds ?? mesh.bounds,
           ...entity.meshOrientation === void 0 ? {} : { orientation: entity.meshOrientation },
           ...entity.collides === void 0 ? {} : { collides: entity.collides },
           ...entity.fixed === void 0 ? {} : { fixed: entity.fixed },
@@ -14835,7 +14883,8 @@ var LegacyHistoricalProjectInstance = class {
           ...entity.meshEmissive === void 0 ? {} : { emissive: entity.meshEmissive },
           ...entity.meshShininess === void 0 ? {} : { shininess: entity.meshShininess },
           ...entity.meshMetalness === void 0 ? {} : { metalness: entity.meshMetalness }
-        }
+        },
+        ...entity.nameplate === null || entity.nameplate === void 0 ? {} : { nameplate: entity.nameplate }
       }
     });
   }
@@ -14865,6 +14914,17 @@ var LegacyHistoricalProjectInstance = class {
   }
   sendChatMessage(sessionId, message) {
     return sessionId === void 0 ? this.gameChatSessions.broadcastLog(message) : this.gameChatSessions.sendLog(sessionId, message);
+  }
+  sendChatMessages(deliveries) {
+    if (!Array.isArray(deliveries)) throw new TypeError("chat deliveries must be an array");
+    let delivered = 0;
+    for (const delivery of deliveries) {
+      if (!delivery || typeof delivery !== "object" || Array.isArray(delivery)) throw new TypeError("chat delivery must be an object");
+      if (delivery.session !== void 0 && typeof delivery.session !== "string") throw new TypeError("chat session must be a string");
+      const count = this.sendChatMessage(delivery.session, delivery.message);
+      delivered += delivery.session === void 0 ? count : count === false ? 0 : 1;
+    }
+    return delivered;
   }
   openUserProfile(sessionId, userId) {
     return this.playerProtocolSessions.openUserProfile(sessionId, userId);
@@ -16658,6 +16718,10 @@ var Box3Server = class {
     if (!guiSessions?.hasActiveClient(sessionId)) return false;
     return guiSessions.command(sessionId, command);
   }
+  sendSoundCommand(command) {
+    if (!this.running) return false;
+    return this.historicalProjectInstance?.projectBootstrapSessions.sendSoundCommand(command) ?? false;
+  }
   openDialog(sessionId, config) {
     if (!this.running) return false;
     const dialogSessions = this.historicalProjectInstance?.dialogSessions;
@@ -17229,6 +17293,28 @@ async function startNeaControlBridge(server, logger) {
         response.end(JSON.stringify(delivered ? { ok: true } : { ok: false, error: "session not connected" }));
         return;
       }
+      if (request.method === "POST" && url.pathname === "/__nea/control/sound-command") {
+        const command = body.command;
+        if (!command || typeof command !== "object" || Array.isArray(command)) throw new Error("sound command is required");
+        if (!Number.isSafeInteger(command.soundId) || command.soundId < 1) throw new Error("soundId must be a positive safe integer");
+        if (!["play", "resume", "pause", "stop", "setCurrentTime", "setCurrentTimeAndResume"].includes(command.action)) throw new Error("invalid sound command action");
+        if (command.action === "play") {
+          if (typeof command.sample !== "string" || command.sample.length === 0) throw new Error("sound sample is required");
+          if (!Number.isFinite(command.gain) || command.gain < 0) throw new Error("sound gain must be non-negative");
+          if (!Number.isFinite(command.pitch) || command.pitch < 0.1) throw new Error("sound pitch must be at least 0.1");
+          if (!Number.isFinite(command.radius) || command.radius < 0) throw new Error("sound radius must be non-negative");
+          const position = command.position;
+          if (!position || typeof position !== "object" || !["global", "player", "entity", "position"].includes(position.type)) throw new Error("invalid sound position");
+          if (position.type === "position" && !isNeaVector(position.data)) throw new Error("sound position data must be a finite vector");
+          if ((position.type === "player" || position.type === "entity") && (!Number.isSafeInteger(position.data) || position.data < 1)) throw new Error("sound target must be a positive entity id");
+        } else if ((command.action === "setCurrentTime" || command.action === "setCurrentTimeAndResume") && !Number.isFinite(command.currentTime)) {
+          throw new Error("sound currentTime must be finite");
+        }
+        const delivered = server.sendSoundCommand(command);
+        response.statusCode = delivered === false ? 404 : 200;
+        response.end(JSON.stringify(delivered === false ? { ok: false, error: "sound client not connected" } : { ok: true, delivered }));
+        return;
+      }
       if (request.method === "POST" && url.pathname === "/__nea/control/gui-command") {
         if (typeof body.session !== "string" || !body.command || typeof body.command !== "object" || Array.isArray(body.command)) {
           throw new Error("session and GUI command are required");
@@ -17272,6 +17358,12 @@ async function startNeaControlBridge(server, logger) {
         return;
       }
       if (request.method === "POST" && url.pathname === "/__nea/control/chat-message") {
+        if (body.deliveries !== void 0) {
+          const delivered = server.sendChatMessages(body.deliveries);
+          response.statusCode = 200;
+          response.end(JSON.stringify({ ok: true, delivered }));
+          return;
+        }
         if (body.session !== void 0 && typeof body.session !== "string") throw new Error("chat session must be a string");
         const delivered = server.sendChatMessage(body.session, body.message);
         if (body.session !== void 0 && delivered === false) {

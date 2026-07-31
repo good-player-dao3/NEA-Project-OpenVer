@@ -7,11 +7,13 @@ const backendUrl = new URL("../../local-player/backend/box3-server.cjs", import.
 const bundleToolUrl = new URL("../../local-player/tools/bundle-backend.cjs", import.meta.url);
 const applyToolUrl = new URL("../../local-player/tools/apply-backend-compat-patch.cjs", import.meta.url);
 const patchUrl = new URL("../../local-player/tools/backend-compat.patch", import.meta.url);
+const soundPatchUrl = new URL("../../local-player/tools/backend-sound-compat.patch", import.meta.url);
 
 const backend = await readFile(backendUrl, "utf8");
 const bundleTool = await readFile(bundleToolUrl, "utf8");
 const applyTool = await readFile(applyToolUrl, "utf8");
 const patch = await readFile(patchUrl, "utf8");
+const soundPatch = await readFile(soundPatchUrl, "utf8");
 
 test("backend rebuild applies the audited compatibility patch after generic RemoteChannel", () => {
   const genericIndex = bundleTool.indexOf("patchGenericRemoteChannelBundle(process.argv[4])");
@@ -20,6 +22,13 @@ test("backend rebuild applies the audited compatibility patch after generic Remo
   assert.ok(compatIndex > genericIndex);
   assert.match(applyTool, /backend compatibility patch baseline/);
   assert.match(applyTool, /backend compatibility patch output/);
+  assert.match(applyTool, /backend compatibility patch intermediate output/);
+});
+
+test("audited backend sound patch persists the player.sound control chain", () => {
+  assert.match(soundPatch, /sendSoundCommand\(command\)/);
+  assert.match(soundPatch, /session\.sound\.message\.play\(payload\)/);
+  assert.match(soundPatch, /__nea\/control\/sound-command/);
 });
 
 test("audited backend target hash matches the checked-in runtime bundle", () => {
@@ -33,6 +42,8 @@ test("compatibility patch persists recovered UI, Dialog, chat, player-network, a
   assert.match(patch, /BOX3_CLIENT_UI_MANIFEST/);
   assert.match(patch, /BOX3_CLIENT_RUNTIME_MANIFEST/);
   assert.match(patch, /BOX3_PROJECT_BOOTSTRAP_MANIFEST/);
+  assert.match(patch, /describeManifestMismatch/);
+  assert.match(patch, /expected bytes=\$\{fileBytes\} sha256=\$\{fileHash\}/);
   assert.match(patch, /matchesManifest/);
   assert.match(patch, /replace\(\/\\r\\n\/g, "\\n"\)/);
   assert.match(patch, /BOX3_PLAYER_BODY_PROFILE/);
@@ -46,6 +57,7 @@ test("compatibility patch persists recovered UI, Dialog, chat, player-network, a
   assert.match(patch, /GuiSessions/);
   assert.match(patch, /__nea\/control\/gui-command/);
   assert.match(patch, /broadcastLog/);
+  assert.match(patch, /sendChatMessages/);
   assert.match(patch, /__nea\/control\/chat-message/);
   assert.match(patch, /resolveSessionLabel/);
   assert.match(patch, /MuQuantizedVec3/);
@@ -64,6 +76,11 @@ test("compatibility patch persists recovered UI, Dialog, chat, player-network, a
   assert.match(patch, /resolveRuntimeMesh/);
   assert.match(patch, /__nea\/control\/entity-create/);
   assert.match(patch, /__nea\/control\/entity-state/);
+  assert.match(patch, /bounds: entity\.bounds \?\? mesh\.bounds/);
+  assert.match(patch, /transform\.nameplate/);
+  assert.match(patch, /entity\.nameplate === null/);
+  assert.match(patch, /transform\.model/);
+  assert.match(patch, /runtime entity model meshId cannot be changed/);
   assert.match(patch, /transform\.collides/);
   assert.match(patch, /transform\.fixed/);
   assert.match(patch, /transform\.gravity/);

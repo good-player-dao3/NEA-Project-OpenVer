@@ -398,6 +398,40 @@ test("world.say and player.directMessage use separate recovered chat delivery sc
   ]);
 });
 
+test("configured chat FIFO drains overflow in order at the next tick boundary", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-chat-fifo-")), "project");
+  await importMapProject(source, output);
+  await writeFile(join(output, "scripts", "server.js"), `
+    world.onPlayerJoin(({ entity }) => {
+      world.say("first");
+      entity.player.directMessage("second");
+      world.say("third");
+    });
+  `, "utf8");
+  const deliveries = [];
+  const batches = [];
+  const runtime = await ScriptRuntime.load(output, {
+    blockCatalog,
+    chatMessagesPerTick: 1,
+    logger: { info() {}, warn() {}, error() {} },
+    sendChatMessage: (playerId, message) => deliveries.push({ playerId, message }),
+    sendChatMessages: batch => {
+      batches.push(structuredClone(batch));
+      deliveries.push(...batch.map(delivery => ({ playerId: delivery.sessionId, message: delivery.message })));
+    },
+  });
+  await runtime.start();
+  runtime.addPlayer({ id: "chat-fifo-player" });
+  assert.deepEqual(deliveries.map(item => item.message.text), ["first"]);
+  runtime.tick();
+  await new Promise(resolve => setImmediate(resolve));
+  runtime.stop();
+  assert.deepEqual(deliveries.map(item => item.message.text), ["first", "second", "third"]);
+  assert.equal(deliveries[1].playerId, "chat-fifo-player");
+  assert.deepEqual(batches.map(batch => batch.map(delivery => delivery.message.text)), [["second", "third"]]);
+});
+
 test("GameEntity.say projects recovered sender, duration, and hideFloat fields only for mapped entities", async () => {
   const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
   const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-entity-chat-")), "project");

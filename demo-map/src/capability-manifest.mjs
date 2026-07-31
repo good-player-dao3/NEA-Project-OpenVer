@@ -1,10 +1,12 @@
 import { createHash } from "node:crypto";
 import { digestCapabilityJson } from "./capability-input-digest.mjs";
-import { normalizeCapabilityAssets, normalizeCapabilityEntities, normalizeCapabilityRuntimeAbi } from "./capability-input-normalize.mjs";
+import { normalizeCapabilityAssets, normalizeCapabilityEntities, normalizeCapabilityProjectIdentity, normalizeCapabilityRuntimeAbi, normalizeCapabilityStorageScope, normalizeCapabilityWorldConfig } from "./capability-input-normalize.mjs";
+import { refinePlayerLifecycleRequirement } from "./lifecycle-event-refinement.mjs";
+import { isEvidenceBackedRecoveredCanonical } from "./recovered-canonical-evidence.mjs";
 
 const ROOT_OWNERS = Object.freeze({
-  server: Object.freeze({ world: "GameWorld", voxels: "GameVoxels", storage: "GameStorage", gui: "GameGUI", remoteChannel: "remoteChannel" }),
-  client: Object.freeze({ input: "ClientInput", screen: "ClientScreen", ui: "UiNode", remoteChannel: "remoteChannel" }),
+  server: Object.freeze({ world: "GameWorld", voxels: "GameVoxels", storage: "GameStorage", gui: "GameGUI", remoteChannel: "remoteChannel", GameBounds3: "GameBounds3", GameQuaternion: "GameQuaternion", GameRGBColor: "GameRGBColor", GameRGBAColor: "GameRGBAColor" }),
+  client: Object.freeze({ input: "ClientInput", screen: "ClientScreen", ui: "UiNode", remoteChannel: "remoteChannel", GameQuaternion: "GameQuaternion", GameRGBColor: "GameRGBColor", GameRGBAColor: "GameRGBAColor" }),
 });
 
 const ALIASES = Object.freeze({
@@ -74,6 +76,11 @@ const EVENT_PAYLOAD_OWNERS = Object.freeze({
 });
 
 const EVIDENCE_BLOCKED_REQUIREMENTS = Object.freeze({
+  "server.GameEntity.anchorOffset": "The recovered API declares anchorOffset and model resources expose render-box and rigid-body offsets, but no local source proves which offset, sign, scaling, or update lifecycle populates GameEntity.anchorOffset. A constant zero value would fabricate geometry metadata.",
+  "server.GameEntity.chatSound": "The recovered API declares chatSound and ScriptEntitySync invokes an unavailable SoundBinding over state.sound.entity, but no local binding source or protocol field proves how chatSound is serialized, diffed, or consumed. Replaying entity.sound() from say() would fabricate continuous component semantics.",
+  "server.GameEntity.hurtSound": "The recovered API declares hurtSound and ScriptEntitySync invokes an unavailable SoundBinding over state.sound.entity, but no local binding source or protocol field proves how hurtSound is serialized, diffed, or consumed. Replaying entity.sound() from damage events would fabricate continuous component semantics.",
+  "server.GameEntity.dieSound": "The recovered API declares dieSound and ScriptEntitySync invokes an unavailable SoundBinding over state.sound.entity, but no local binding source or protocol field proves how dieSound is serialized, diffed, or consumed. Replaying entity.sound() from death events would fabricate continuous component semantics.",
+  "server.GameEntity.interactSound": "The recovered API declares interactSound and ScriptEntitySync invokes an unavailable SoundBinding over state.sound.entity, but no local binding source or protocol field proves how interactSound is serialized, diffed, or consumed. Replaying entity.sound() from interaction ingress would fabricate continuous component semantics and recipient scoping.",
   "server.GamePlayerEntity.onKeyDown": "The recovered Player input packet has no keyDownState or equivalent keyboard-state field, so RuntimePlayer.onKeyDown has no producer.",
   "server.GamePlayerEntity.onKeyUp": "The recovered Player input packet has no prevKeyDownState or equivalent keyboard-state field, so RuntimePlayer.onKeyUp has no producer.",
   "server.GameWorld.onEntityContact": "The local physics runtime has no bodyContact producer carrying two mapped entities; the generic collider contact stream is not GameEntityContactEvent.",
@@ -88,6 +95,9 @@ const EVIDENCE_BLOCKED_REQUIREMENTS = Object.freeze({
 });
 
 export function buildProjectCapabilityManifest(options) {
+  const storageScope = normalizeCapabilityStorageScope(options.storageScope);
+  const projectIdentity = normalizeCapabilityProjectIdentity(options.projectIdentity);
+  const worldConfig = normalizeCapabilityWorldConfig(options.worldConfig);
   const matrix = new Map(options.compatibilityMatrix.entries.map(entry => [entry.id, entry]));
   const current = new Map(options.currentRuntime.entries.map(entry => [entry.id, entry]));
   const serverModules = normalizeModules(options.serverModules, "server.js", options.serverSource);
@@ -99,14 +109,14 @@ export function buildProjectCapabilityManifest(options) {
   const requirements = [
     ...serverModules.flatMap(module => analyzeScript("server", module.source, options.serverCapabilities ?? [], matrix, current, module.name, serverOwners.get(normalizeModuleName(module.name)), serverScriptOwned)),
     ...clientModules.flatMap(module => analyzeScript("client", module.source, options.clientCapabilities ?? [], matrix, current, module.name, clientOwners.get(normalizeModuleName(module.name)), clientScriptOwned)),
-  ].sort((left, right) => left.side.localeCompare(right.side) || left.usage.localeCompare(right.usage));
+  ].map(refinePlayerLifecycleRequirement).sort((left, right) => left.side.localeCompare(right.side) || left.usage.localeCompare(right.usage));
   const modules = analyzeModules({ server: serverModules, client: clientModules });
   const resources = analyzeResources(serverModules, clientModules, options.assets ?? [], options.entities ?? []);
   const ui = analyzeUi(clientModules, options.uiState ?? null, options.assets ?? []);
   const entities = analyzeEntities(serverModules, options.entities ?? [], options.assets ?? []);
   const dependencies = analyzeCrossRuntimeDependencies(requirements, clientModules, entities, options.runtimeContracts ?? null);
   const diagnostics = [
-    ...serverModules.flatMap(module => analyzeStaticUncertainty("server", module, serverOwners.get(normalizeModuleName(module.name)), { groupStorageEnabled: options.groupStorageEnabled === true })),
+    ...serverModules.flatMap(module => analyzeStaticUncertainty("server", module, serverOwners.get(normalizeModuleName(module.name)), { groupStorageAvailable: storageScope.groupId !== null })),
     ...clientModules.flatMap(module => analyzeStaticUncertainty("client", module, clientOwners.get(normalizeModuleName(module.name)))),
   ].sort((left, right) => left.side.localeCompare(right.side) || left.module.localeCompare(right.module) || left.code.localeCompare(right.code));
   const blocked = requirements.filter(item => item.state === "blocked");
@@ -125,7 +135,7 @@ export function buildProjectCapabilityManifest(options) {
   const partialDependencies = dependencies.filter(item => item.state === "partial");
   return Object.freeze({
     format: "nea-project-capability-manifest",
-    version: 10,
+    version: 14,
     apiVersion: options.apiVersion,
     contracts: structuredClone(options.contracts),
     inputs: Object.freeze({
@@ -140,6 +150,9 @@ export function buildProjectCapabilityManifest(options) {
       ui: digestCapabilityJson(options.uiState ?? null),
       assets: digestCapabilityJson(normalizeCapabilityAssets(options.assets ?? [])),
       entities: digestCapabilityJson(normalizeCapabilityEntities(options.entities ?? [])),
+      storageScope: digestCapabilityJson(storageScope),
+      projectIdentity: digestCapabilityJson(projectIdentity),
+      worldConfig: digestCapabilityJson(worldConfig),
       runtimeAbi: digestCapabilityJson(normalizeCapabilityRuntimeAbi({ currentRuntime: options.currentRuntime, compatibilityMatrix: options.compatibilityMatrix, runtimeContracts: options.runtimeContracts })),
     }),
     status: blocked.length + blockedModules.length + blockedResources.length + blockedEntities.length + blockedUi.length + blockingDiagnostics.length + blockedDependencies.length > 0 ? "blocked" : partial.length + partialResources.length + partialEntities.length + partialUi.length + partialDependencies.length + partialDiagnostics.length > 0 ? "partial" : "ready",
@@ -194,6 +207,32 @@ function analyzeCrossRuntimeDependencies(requirements, clientModules, entities, 
     || outboundChatLocalIds.has(item.localExtensionId)
   ));
   if (outboundChat.length > 0) addTransport("transport:chat-delivery", "chat-delivery", "player.game-chat", outboundChat.map(item => `${item.module}:${item.usage}`));
+  const soundCanonicalIds = new Set([
+    "server.GameWorld.sound",
+    "server.GameEntity.sound",
+    "shared.Sound.resume",
+    "shared.Sound.setCurrentTime",
+    "shared.Sound.pause",
+    "shared.Sound.stop",
+    "server.Sound.resume",
+    "server.Sound.setCurrentTime",
+    "server.Sound.pause",
+    "server.Sound.stop",
+  ]);
+  const soundLocalIds = new Set([
+    "server.world.sound",
+    "server.RuntimeEntity.sound",
+    "server.RuntimePlayer.sound",
+    "server.Sound.resume",
+    "server.Sound.setCurrentTime",
+    "server.Sound.pause",
+    "server.Sound.stop",
+  ]);
+  const soundRequirements = requirements.filter(item => item.operation === "call" && (
+    soundCanonicalIds.has(item.canonicalId)
+    || soundLocalIds.has(item.localExtensionId)
+  ));
+  if (soundRequirements.length > 0) addTransport("transport:sound-playback", "sound-playback", "player.sound", soundRequirements.map(item => `${item.module}:${item.usage}`));
   const inputEventCanonicalIds = new Set([
     "server.GameWorld.onClick",
     "server.GameWorld.nextClick",
@@ -350,14 +389,17 @@ function analyzeScript(side, source, capabilities, matrix, current, moduleName, 
     const bindingSelection = selectCurrentBinding(declaration, current, item.owner);
     const binding = bindingSelection?.binding ?? current.get(canonicalId) ?? localExtension;
     const capability = binding?.capability ?? declaration?.capability ?? null;
-    const missingCapability = capability !== null && !capabilities.includes(capability);
+    const missingCapability = capability !== null && !isIntrinsicCapability(capability) && !capabilities.includes(capability);
     const evidenceBlockReason = canonicalId ? EVIDENCE_BLOCKED_REQUIREMENTS[canonicalId] ?? null : null;
     const executable = declaration?.executable === true || binding?.availability === "confirmed" || localExtension !== null || scriptOwned;
     const compatibility = scriptOwned ? "script-owned" : localExtension ? "extension" : bindingSelection?.localBinding.status ?? binding?.compatibility ?? binding?.status ?? declaration?.status ?? "unclassified";
     const refinement = selectorLiteralRefinement(side, source, item);
-    const state = scriptOwned ? "script-owned" : !executable || missingCapability || evidenceBlockReason ? "blocked" : refinement?.state === "ready" ? "ready" : compatibility === "partial" || compatibility === "extension" || (!declaration && binding) ? "partial" : "ready";
+    const recoveredCanonicalReady = !declaration && binding ? isEvidenceBackedRecoveredCanonical(binding) : false;
+    const state = scriptOwned ? "script-owned" : !executable || missingCapability || evidenceBlockReason ? "blocked" : refinement?.state === "ready" || recoveredCanonicalReady ? "ready" : compatibility === "partial" || compatibility === "extension" || (!declaration && binding) ? "partial" : "ready";
     const reasons = [];
-    if (canonicalId && !declaration && binding) reasons.push(`Executable recovered canonical surface is not present in the documented declaration matrix: ${canonicalId}.`);
+    if (canonicalId && !declaration && binding) reasons.push(recoveredCanonicalReady
+      ? `Recovered canonical surface is outside the documented declaration matrix, but direct runtime evidence proves the executable contract: ${canonicalId}.`
+      : `Executable recovered canonical surface is not present in the documented declaration matrix: ${canonicalId}.`);
     else if (!canonicalId && localExtension) reasons.push(`Executable local extension is not a canonical DAO3 declaration: ${localExtension.id}.`);
     else if (scriptOwned) reasons.push("Project script-owned surface established by a static assignment in the project module graph; it is not a DAO3 Runtime ABI claim.");
     else if (!canonicalId) reasons.push("No canonical DAO3 ABI declaration was resolved for this usage.");
@@ -437,6 +479,10 @@ function selectCurrentBinding(declaration, current, inferredOwner) {
   return bindings.find(item => item.binding.owner === preferredOwner) ?? bindings[0] ?? null;
 }
 
+function isIntrinsicCapability(capability) {
+  return capability === "shared.math" || capability === "shared.events";
+}
+
 function scanUsages(side, source, inferredOwners = new Map()) {
   const usages = new Map();
   const add = (usage, owner = null, operation = "read") => usages.set(`${owner ?? ""}:${usage}:${operation}`, { usage, owner, operation });
@@ -445,6 +491,14 @@ function scanUsages(side, source, inferredOwners = new Map()) {
   const scanSource = maskJavaScriptNonCode(source);
   const memberPattern = new RegExp(`\\b(${roots.join("|")})\\.([A-Za-z_$][\\w$]*)`, "g");
   for (const match of scanSource.matchAll(memberPattern)) if (!variables.has(match[1])) add(`${match[1]}.${match[2]}`, null, memberOperation(source, match.index + match[0].length));
+  if (side === "server") {
+    for (const match of scanSource.matchAll(/\bnew\s+GameBounds3\s*\(/g)) add("GameBounds3.GameBounds3", "GameBounds3", "call");
+    for (const match of scanSource.matchAll(/\bnew\s+GameQuaternion\s*\(/g)) add("GameQuaternion.GameQuaternion", "GameQuaternion", "call");
+  }
+  for (const owner of ["GameRGBColor", "GameRGBAColor"]) {
+    const pattern = new RegExp(`\\bnew\\s+${owner}\\s*\\(`, "g");
+    for (const match of scanSource.matchAll(pattern)) add(`${owner}.${owner}`, owner, "call");
+  }
   for (const [name, owners] of variables) {
     const pattern = new RegExp(`\\b${escapeRegex(name)}\\.([A-Za-z_$][\\w$]*)`, "g");
     for (const match of scanSource.matchAll(pattern)) for (const owner of owners) add(`${name}.${match[1]}`, owner, memberOperation(source, match.index + match[0].length));
@@ -569,6 +623,9 @@ function resolveCanonicalId(side, usage, matrix, current, inferredOwner = null) 
   if (alias && (matrix.has(alias) || current.has(alias))) return alias;
   const [root, member] = usage.split(".");
   const owner = inferredOwner ?? ROOT_OWNERS[side][root] ?? root;
+  const shared = `shared.${owner}.${member}`;
+  if (matrix.has(shared)) return shared;
+  if (current.get(shared)?.availability === "confirmed") return shared;
   const preferred = `${side}.${owner}.${member}`;
   if (matrix.has(preferred)) return preferred;
   const direct = `${side}.${root}.${member}`;
@@ -616,13 +673,17 @@ function inferVariableOwners(side, source) {
     owners.add(owner);
     result.set(name, owners);
   };
+  for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:new\s+(GameRGBColor|GameRGBAColor)\s*\(|GameRGBColor\.random\s*\()/g)) add(match[1], match[2] ?? "GameRGBColor");
   if (side === "server") {
+    for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:new\s+GameBounds3\s*\(|GameBounds3\.fromPoints\s*\()/g)) add(match[1], "GameBounds3");
+    for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:new\s+GameQuaternion\s*\(|GameQuaternion\.(?:rotationBetween|fromAxisAngle|fromEuler)\s*\()/g)) add(match[1], "GameQuaternion");
     for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*world\.addZone\s*\(/g)) add(match[1], "GameZone");
     for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*world\.raycast\s*\(/g)) add(match[1], "GameRaycastResult");
     for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*storage\.(?:getDataStorage|getGroupStorage)\s*\(/g)) add(match[1], "GameDataStorage");
     const dataStorages = new Set([...result.entries()].filter(([, owners]) => owners.has("GameDataStorage")).map(([name]) => name));
     for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*([A-Za-z_$][\w$]*)\.list\s*\(/g)) if (dataStorages.has(match[2])) add(match[1], "QueryList");
     for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*world\.(?:querySelector|createEntity)\s*\(/g)) add(match[1], "GameEntity");
+    for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*world\.sound\s*\(/g)) add(match[1], "Sound");
     const raycastResults = new Set([...result.entries()].filter(([, owners]) => owners.has("GameRaycastResult")).map(([name]) => name));
     for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*([A-Za-z_$][\w$]*)\.hitEntity\b/g)) if (raycastResults.has(match[2])) add(match[1], "GameEntity");
     const entityCollections = new Set();
@@ -637,6 +698,11 @@ function inferVariableOwners(side, source) {
       inferEventPayloadOwners(source, new Set(["world", ...result.keys()]), add);
     } while ([...result.values()].reduce((count, owners) => count + owners.size, 0) > ownerCount);
     inferEventMemberResults(source, result, add);
+    for (const [name, owners] of result) {
+      if (!owners.has("GameEntity") && !owners.has("GamePlayerEntity")) continue;
+      const pattern = new RegExp(`\\b(?:const|let|var)\\s+([A-Za-z_$][\\w$]*)\\s*=\\s*${escapeRegex(name)}\\.sound\\s*\\(`, "g");
+      for (const match of source.matchAll(pattern)) add(match[1], "Sound");
+    }
   } else {
     for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(Ui[A-Za-z_$][\w$]*)\.create\s*\(/g)) add(match[1], match[2]);
     for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:ui|screen|[A-Za-z_$][\w$]*)\.findChildByName\s*\(/g)) add(match[1], "UiNode");
@@ -660,6 +726,10 @@ function inferVariableOwners(side, source) {
       }
     }
     if (!changed) break;
+  }
+  const knownReceivers = new Set([...Object.keys(ROOT_OWNERS[side]), ...result.keys()]);
+  for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*([A-Za-z_$][\w$]*)\.on[A-Z][A-Za-z_$\w]*\s*\(/g)) {
+    if (knownReceivers.has(match[2])) add(match[1], "GameEventHandlerToken");
   }
   return result;
 }
@@ -852,9 +922,9 @@ function analyzeStaticUncertainty(side, module, inferredOwners = new Map(), opti
     }
   }
   if (side === "server") {
-    if (!options.groupStorageEnabled && /\bstorage\.getGroupStorage\s*\(/.test(module.source)) add("group-storage-scope-unavailable", "getGroupStorage() requires an authoritative group identity and storage provider; the default local project Runtime has neither.");
-    if (/\bworld\.(?:onChat|nextChat)\s*\(/.test(module.source)) add("chat-ingress-unavailable", "The historical GameChatEvent shape is recovered, but no Player/browser-to-backend chat ingress reaches the local Server Script Runtime.");
-    if (/\bworld\.(?:onPlayerPurchaseSuccess|nextPlayerPurchaseSuccess)\s*\(/.test(module.source)) add("purchase-success-ingress-unavailable", "The recovered market protocols expose marketplace open/acknowledgement messages but no browser or backend purchase-success ingress into the local Server Script Runtime.");
+    if (!options.groupStorageAvailable && /\bstorage\.getGroupStorage\s*\(/.test(module.source)) add("group-storage-scope-unavailable", "getGroupStorage() requires a non-empty launch-verified storage groupId; the default local project Runtime has none.");
+    if (/\bworld\.(?:onChat|nextChat)\s*\(/.test(module.source)) add("chat-ingress-unavailable", "The historical GameChatEvent consumer reads chatEvents.chats, while the recovered Player game-chat client-to-server surface only sends administrator noticeMessage {title,detail}; no Player chat producer reaches the local Server Script Runtime.");
+    if (/\bworld\.(?:onPlayerPurchaseSuccess|nextPlayerPurchaseSuccess)\s*\(/.test(module.source)) add("purchase-success-ingress-unavailable", "Historical ScriptShell consumes tick.purchaseSuccessEvents {userId,productId,orderId,messageId} and acknowledges messageId, while the recovered Player market protocol only receives openMarketplace and has no client-to-server result message; no purchase producer reaches the local Server Script Runtime.");
     for (const match of module.source.matchAll(/\bworld\.(?:querySelector|querySelectorAll|testSelector)\s*\(\s*(["'])(.*?)\1/g)) {
       for (const part of match[2].split(",")) {
         const token = part.trim();
@@ -981,9 +1051,24 @@ function analyzeResources(serverModules, clientModules, assets, entities) {
     for (const match of module.source.matchAll(/\bAudio\s*\(\s*(["'])(.*?)\1/g)) add("audio", match[2], module.name);
     for (const match of module.source.matchAll(/\b(?:src|image)\s*[:=]\s*(["'])(.*?)\1/g)) add("client-asset", match[2], module.name);
   }
-  for (const module of serverModules) for (const match of module.source.matchAll(/\bmesh\s*:\s*(["'])(.*?)\1/g)) add("mesh", match[2], module.name);
+  for (const module of serverModules) {
+    for (const match of module.source.matchAll(/\bmesh\s*:\s*(["'])(.*?)\1/g)) add("mesh", match[2], module.name);
+    for (const reference of collectStaticServerSoundReferences(module.source)) add("audio", reference, module.name);
+  }
   for (const entity of entities) if (typeof entity.mesh === "string" && entity.mesh.length > 0) add("mesh", entity.mesh, `entity:${entity.id ?? entity.name ?? "unknown"}`);
   return [...result.values()].sort((left, right) => left.kind.localeCompare(right.kind) || left.reference.localeCompare(right.reference));
+}
+
+function collectStaticServerSoundReferences(source) {
+  const owners = inferVariableOwners("server", source);
+  const targets = ["world", ...[...owners.entries()].filter(([, values]) => values.has("GameEntity") || values.has("GamePlayerEntity")).map(([name]) => name)];
+  const result = new Set();
+  for (const target of targets) {
+    const call = `${escapeRegex(target)}\\s*\\.\\s*sound\\s*\\(`;
+    for (const match of source.matchAll(new RegExp(`\\b${call}\\s*(["'])(.*?)\\1`, "g"))) result.add(match[2]);
+    for (const match of source.matchAll(new RegExp(`\\b${call}\\s*\\{[\\s\\S]{0,512}?\\bsample\\s*:\\s*(["'])(.*?)\\1`, "g"))) result.add(match[2]);
+  }
+  return [...result];
 }
 
 function audioContentAddress(reference) {

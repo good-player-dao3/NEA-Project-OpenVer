@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import test from "node:test";
-import { cancelDialogsOnBackend, getPlayerStateFromBackend, openDialogOnBackend, queuePlayerStateToBackend, sendChatMessageToBackend, sendClientEventToBackend, sendGuiCommandToBackend } from "../src/control-client.mjs";
+import { cancelDialogsOnBackend, getPlayerStateFromBackend, openDialogOnBackend, queuePlayerStateToBackend, sendChatMessagesToBackend, sendChatMessageToBackend, sendClientEventToBackend, sendGuiCommandToBackend } from "../src/control-client.mjs";
 
 test("control client rejects an invalid token and accepts an authenticated delivery", async () => {
   const received = [];
@@ -84,10 +84,18 @@ test("control client sends broadcast and private chat messages", async () => {
   const port = server.address().port;
   await sendChatMessageToBackend({ port, token: "expected", message: { text: "broadcast", senderId: 0, private: false, duration: 0, hideFloat: false } });
   await sendChatMessageToBackend({ port, token: "expected", session: "local...0004", message: { text: "private", senderId: 0, private: true, duration: 0, hideFloat: false } });
+  await sendChatMessagesToBackend({ port, token: "expected", deliveries: [
+    { message: { text: "overflow-a", senderId: 0, private: false, duration: 0, hideFloat: false } },
+    { session: "local...0004", message: { text: "overflow-b", senderId: 0, private: true, duration: 0, hideFloat: false } },
+  ] });
   await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
   assert.deepEqual(received, [
     { url: "/__nea/control/chat-message", body: { message: { text: "broadcast", senderId: 0, private: false, duration: 0, hideFloat: false } } },
     { url: "/__nea/control/chat-message", body: { session: "local...0004", message: { text: "private", senderId: 0, private: true, duration: 0, hideFloat: false } } },
+    { url: "/__nea/control/chat-message", body: { deliveries: [
+      { message: { text: "overflow-a", senderId: 0, private: false, duration: 0, hideFloat: false } },
+      { session: "local...0004", message: { text: "overflow-b", senderId: 0, private: true, duration: 0, hideFloat: false } },
+    ] } },
   ]);
 });
 

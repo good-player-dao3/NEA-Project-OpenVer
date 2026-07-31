@@ -1,7 +1,7 @@
 # NEA Runtime Compatibility Phase 5 Audit
 
-Generated: 2026-07-31T05:24:48.891Z
-Overall status: **complete**
+Generated: 2026-07-31T09:27:03.222Z
+Overall status: **partial**
 
 ## Requirements
 
@@ -16,8 +16,8 @@ Client Script Runtime, Server Script Runtime, MuDB transport and authoritative s
 
 Every locally documented canonical declaration, kind-qualified member signature and recovered MuDB message has an explicit machine-readable record with availability, compatibility and evidence.
 
-- runtime-compat/generated/api-abi-completeness.json: {"status":"complete","summary":{"documentation":{"entries":599,"memberVariants":602,"byKind":{"method":245,"event":53,"property":265,"global":17,"object":22}},"catalogs":{"client":133,"server":1109,"shared":131},"compatibilityMatrix":{"entries":599,"coveredDocumentationEntries":599},"protocols":{"catalogs":32,"messages":180,"byDirection":{"server-to-client":86,"client-to-server":94}},"gaps":0}}
-- runtime-compat/abi/compatibility-matrix.json: {"declarations":599,"byStatus":{"native":125,"compatible":50,"partial":88,"recovered-only":121,"unavailable":1,"declared-only":214}}
+- runtime-compat/generated/api-abi-completeness.json: {"status":"complete","summary":{"documentation":{"entries":599,"memberVariants":602,"byKind":{"method":245,"event":53,"property":265,"global":17,"object":22}},"catalogs":{"client":133,"server":1144,"shared":131},"compatibilityMatrix":{"entries":599,"coveredDocumentationEntries":599},"protocols":{"catalogs":32,"messages":180,"byDirection":{"server-to-client":86,"client-to-server":94}},"gaps":0}}
+- runtime-compat/abi/compatibility-matrix.json: {"declarations":599,"byStatus":{"native":125,"compatible":131,"partial":122,"recovered-only":93,"unavailable":1,"declared-only":127}}
 - runtime-compat/abi/protocols.json: {"protocols":32,"messages":180,"byDirection":{"server-to-client":86,"client-to-server":94}}
 
 ### player-standing-body: complete
@@ -48,13 +48,18 @@ API version, runtime contracts, side-qualified capabilities, compatibility level
 
 - runtime-compat/abi/runtime-contracts.json: {"apiVersion":"0.1.0","contracts":["dao3-client-runtime/v1","nea-server-runtime/v1"]}
 - runtime-compat/abi/compatibility-matrix.json: {"native":"Executable in the historical runtime provider with direct evidence.","compatible":"Executable locally with conformance evidence sufficient for the documented contract.","partial":"Executable locally, but one or more access, signature or behavioral gaps remain.","recovered-only":"The historical declaration or implementation is recovered, but no local executable binding exists.","unavailable":"Direct runtime evidence proves that the selected historical provider does not expose this declaration to scripts.","declared-only":"Only the documentation declaration is currently recovered."}
+- runtime-compat/conformance/entity-tag-api.mjs: {"compatible":["GameEntity.addTag","GameEntity.removeTag","GameEntity.hasTag"],"partial":["GameEntity.tags"]}
+- runtime-compat/conformance/world-collision-filter-api.mjs: {"partial":["GameWorld.addCollisionFilter","GameWorld.removeCollisionFilter","GameWorld.clearCollisionFilters","GameWorld.collisionFilters"]}
 
-### project-capability-launch-gate: complete
+### project-capability-launch-gate: partial
 
-Capability Manifest v10 binds analyzed scripts, grants, UI, resources, entities and semantic Runtime ABI artifacts to the actual package before publication or execution.
+Capability Manifest v14 binds analyzed scripts, grants, UI, resources, entities, storage group scope, project identity, world entity-limit configuration, static server sound samples and semantic Runtime ABI artifacts to the actual package before publication or execution; sound calls additionally require the evidenced player.sound transport, while exact player lifecycle payloads may be project-ready even though the global player ABI remains partial because accessed members are independently gated.
 
-- runtime-compat/abi/runtime-contracts.json: {"format":"nea-project-capability-manifest","version":10,"producer":"demo-map/src/capability-manifest.mjs","launchGate":"demo-map/src/capability-launch-gate.mjs","states":["ready","partial","blocked","script-owned"],"evidenceCollections":["requirements","modules","resources","ui","entities","dependencies","diagnostics"],"inputBindings":["api-version","client-contract","server-contract","server-modules","client-modules","server-capability-grants","client-capability-grants","client-ui-state","asset-file-evidence","entity-projection-evidence","runtime-abi-artifacts"],"integrityChecks":["closed-state-vocabulary","derived-summary-counts","derived-launch-status","declared-derived-status-match","exact-module-set","exact-grant-set","canonical-json-digests","asset-file-bytes-sha256","runtime-abi-semantic-digest"],"launchBefore":["client-script-publication","client-ui-publication","block-catalog-load","server-script-runtime-construction","backend-spawn","player-navigation"],"evidence":["demo-map/src/capability-manifest.mjs","demo-map/src/capability-launch-gate.mjs","demo-map/src/capability-input-digest.mjs","demo-map/src/capability-input-normalize.mjs","demo-map/src/server.mjs"]}
-- demo-map/src/capability-launch-gate.mjs: {"version":10,"inputs":["api-version","client-contract","server-contract","server-modules","client-modules","server-capability-grants","client-capability-grants","client-ui-state","asset-file-evidence","entity-projection-evidence","runtime-abi-artifacts"],"launchBefore":["client-script-publication","client-ui-publication","block-catalog-load","server-script-runtime-construction","backend-spawn","player-navigation"]}
+- runtime-compat/abi/runtime-contracts.json: {"format":"nea-project-capability-manifest","version":14,"producer":"demo-map/src/capability-manifest.mjs","launchGate":"demo-map/src/capability-launch-gate.mjs","states":["ready","partial","blocked","script-owned"],"evidenceCollections":["requirements","modules","resources","ui","entities","dependencies","diagnostics"],"inputBindings":["api-version","client-contract","server-contract","server-modules","client-modules","server-capability-grants","client-capability-grants","client-ui-state","asset-file-evidence","entity-projection-evidence","storage-group-scope","project-identity","world-config","runtime-abi-artifacts"],"integrityChecks":["closed-state-vocabulary","derived-summary-counts","derived-launch-status","declared-derived-status-match","exact-module-set","exact-grant-set","canonical-json-digests","asset-file-bytes-sha256","storage-scope-semantic-digest","project-identity-semantic-digest","world-config-semantic-digest","runtime-abi-semantic-digest"],"projectRefinements":[{"id":"player-lifecycle-event-payload","apis":["world.onPlayerJoin","world.nextPlayerJoin","world.onPlayerLeave","world.nextPlayerLeave"],"globalCompatibility":"partial","projectState":"ready","condition":"GameEntityEvent {tick,entity} payload is exact and every accessed GamePlayerEntity member is independently gated"}],"launchBefore":["client-script-publication","client-ui-publication","block-catalog-load","server-script-runtime-construction","backend-spawn","player-navigation"],"evidence":["demo-map/src/capability-manifest.mjs","demo-map/src/capability-launch-gate.mjs","demo-map/src/capability-input-digest.mjs","demo-map/src/capability-input-normalize.mjs","demo-map/src/lifecycle-event-refinement.mjs","runtime-compat/conformance/player-lifecycle-project-refinement.mjs","demo-map/src/server.mjs"]}
+- demo-map/src/capability-launch-gate.mjs: {"version":14,"inputs":["api-version","client-contract","server-contract","server-modules","client-modules","server-capability-grants","client-capability-grants","client-ui-state","asset-file-evidence","entity-projection-evidence","storage-group-scope","project-identity","world-config","runtime-abi-artifacts"],"launchBefore":["client-script-publication","client-ui-publication","block-catalog-load","server-script-runtime-construction","backend-spawn","player-navigation"]}
+- runtime-compat/conformance/player-lifecycle-project-refinement.mjs: [{"id":"player-lifecycle-event-payload","apis":["world.onPlayerJoin","world.nextPlayerJoin","world.onPlayerLeave","world.nextPlayerLeave"],"globalCompatibility":"partial","projectState":"ready","condition":"GameEntityEvent {tick,entity} payload is exact and every accessed GamePlayerEntity member is independently gated"}]
+- runtime-compat/conformance/world-project-identity.mjs: {"compatible":"GameWorld.projectName","excluded":["GameWorld.url","GameWorld.serverId"]}
+- Remaining: Capability Manifest v14 architecture contract or startup ordering is incomplete.
 
 ### demo-contract-bindings: complete
 
@@ -66,7 +71,7 @@ Demo client.js and server.js bind separate declared runtime contracts and capabi
 
 The generated gap report uses the same canonical compatibility matrix classification.
 
-- runtime-compat/generated/gap-report.json: {"executable":263,"compatibilityStatus":{"native":125,"compatible":50,"partial":88,"recovered-only":121,"unavailable":1,"declared-only":214}}
+- runtime-compat/generated/gap-report.json: {"executable":378,"compatibilityStatus":{"native":125,"compatible":131,"partial":122,"recovered-only":93,"unavailable":1,"declared-only":127}}
 
 ## Deferred Evidence
 

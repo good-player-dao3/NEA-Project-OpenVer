@@ -43,5 +43,7 @@ test("backend preserves game-chat sessions and authenticated control ingress", (
   assert.ok(backend.includes("this.gameChatSessions = new GameChatSessions();"));
   assert.ok(backend.includes("/__nea/control/chat-message"));
   assert.ok(backend.includes("server.sendChatMessage(body.session, body.message)"));
+  assert.ok(backend.includes("server.sendChatMessages(body.deliveries)"));
+  assert.match(backend, /sendChatMessages\(deliveries\)/);
   assert.ok(backend.includes("if (schema === gameChat) context.gameChatSessions.connect(client)"));
 });

@@ -3,8 +3,8 @@ import { createHash } from "node:crypto";
 import test from "node:test";
 
 import { digestCapabilityJson } from "../../demo-map/src/capability-input-digest.mjs";
-import { normalizeCapabilityAssets, normalizeCapabilityEntities, normalizeCapabilityRuntimeAbi } from "../../demo-map/src/capability-input-normalize.mjs";
-import { capabilityLaunchGateCollections, deriveProjectCapabilitySummary, evaluateProjectCapabilityManifest, verifyProjectCapabilityAssetFiles, verifyProjectCapabilityAssetInput, verifyProjectCapabilityEntityInput, verifyProjectCapabilityGrants, verifyProjectCapabilityModuleInputs, verifyProjectCapabilityRuntimeAbiInput, verifyProjectCapabilityUiInput } from "../../demo-map/src/capability-launch-gate.mjs";
+import { normalizeCapabilityAssets, normalizeCapabilityEntities, normalizeCapabilityProjectIdentity, normalizeCapabilityRuntimeAbi, normalizeCapabilityStorageScope, normalizeCapabilityWorldConfig } from "../../demo-map/src/capability-input-normalize.mjs";
+import { capabilityLaunchGateCollections, deriveProjectCapabilitySummary, evaluateProjectCapabilityManifest, verifyProjectCapabilityAssetFiles, verifyProjectCapabilityAssetInput, verifyProjectCapabilityEntityInput, verifyProjectCapabilityGrants, verifyProjectCapabilityModuleInputs, verifyProjectCapabilityProjectIdentityInput, verifyProjectCapabilityRuntimeAbiInput, verifyProjectCapabilityStorageScopeInput, verifyProjectCapabilityUiInput, verifyProjectCapabilityWorldConfigInput } from "../../demo-map/src/capability-launch-gate.mjs";
 import { capabilityLaunchGateContract } from "../conformance/capability-launch-gate.mjs";
 
 test("project launch gate covers every manifest evidence collection", () => {
@@ -100,6 +100,26 @@ test("launch gate binds semantic Runtime ABI artifacts while ignoring generated 
   assert.throws(() => verifyProjectCapabilityRuntimeAbiInput(manifest, regenerated), /Runtime ABI input mismatch/);
 });
 
+test("launch gate binds the project name used by world.projectName", () => {
+  const manifest = emptyManifest();
+  manifest.inputs.projectIdentity = digestCapabilityJson(normalizeCapabilityProjectIdentity({ projectName: "Project A" }));
+  assert.equal(verifyProjectCapabilityProjectIdentityInput(manifest, { projectName: "Project A" }).present, true);
+  assert.throws(() => verifyProjectCapabilityProjectIdentityInput(manifest, { projectName: "Project B" }), /project identity input mismatch/);
+});
+
+test("launch gate binds the world entity limit", () => {
+  const manifest = emptyManifest();
+  manifest.inputs.worldConfig = digestCapabilityJson(normalizeCapabilityWorldConfig({ entityLimit: 12 }));
+  assert.equal(verifyProjectCapabilityWorldConfigInput(manifest, { entityLimit: 12 }).present, true);
+  assert.throws(() => verifyProjectCapabilityWorldConfigInput(manifest, { entityLimit: 13 }), /world config input mismatch/);
+});
+
+test("launch gate contract records static sound samples and playback transport", () => {
+  assert.equal(capabilityLaunchGateContract.manifestVersion, 14);
+  assert.equal(capabilityLaunchGateContract.bindsStaticServerSoundSamples, true);
+  assert.equal(capabilityLaunchGateContract.requiresSoundPlaybackTransport, true);
+});
+
 function emptyManifest() {
   const manifest = Object.fromEntries(capabilityLaunchGateContract.collections.map(name => [name, []]));
   return Object.assign(manifest, {
@@ -107,7 +127,7 @@ function emptyManifest() {
     version: capabilityLaunchGateContract.manifestVersion,
     apiVersion: "0.1.0",
     contracts: { client: "dao3-client-runtime/v1", server: "nea-server-runtime/v1" },
-    inputs: { modules: [], capabilities: { server: [], client: [] }, ui: digestCapabilityJson(null), assets: digestCapabilityJson([]), entities: digestCapabilityJson([]), runtimeAbi: digestCapabilityJson(normalizeCapabilityRuntimeAbi(emptyRuntimeCompatibility())) },
+    inputs: { modules: [], capabilities: { server: [], client: [] }, ui: digestCapabilityJson(null), assets: digestCapabilityJson([]), entities: digestCapabilityJson([]), storageScope: digestCapabilityJson({ groupId: null }), projectIdentity: digestCapabilityJson(normalizeCapabilityProjectIdentity({ projectName: "Conformance Project" })), worldConfig: digestCapabilityJson(normalizeCapabilityWorldConfig({ entityLimit: 3400 })), runtimeAbi: digestCapabilityJson(normalizeCapabilityRuntimeAbi(emptyRuntimeCompatibility())) },
     status: "ready",
   });
 }

@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-player-adapter-map",
   "version": 1,
-  "generatedAt": "2026-07-31T05:24:47.793Z",
+  "generatedAt": "2026-07-31T09:27:02.101Z",
   "contract": "nea-server-runtime/v1",
   "localObject": {
     "id": "server.object.RuntimePlayer",
@@ -270,6 +270,110 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.destroyed",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.isPlayer",
+        "kind": "property",
+        "signature": {
+          "type": "boolean",
+          "readonly": true
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.isPlayer",
+          "kind": "property",
+          "signature": {
+            "type": "boolean",
+            "readonly": true
+          }
+        }
+      ],
+      "status": "compatible",
+      "implements": [
+        "server.GameEntity.isPlayer"
+      ],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": []
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/isPlayer.md",
+          "symbol": "只读isPlayer: boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.isPlayer",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.bounds",
+        "kind": "property",
+        "signature": {
+          "type": "Vector3",
+          "readonly": true
+        },
+        "capability": "server.player"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.bounds",
+          "kind": "property",
+          "signature": {
+            "type": "GameVector3",
+            "readonly": true
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [
+          "The current authoritative Player boundsHalfExtents are exposed through a readonly copy."
+        ],
+        "signature": [
+          "Canonical and local bounds are readonly; local RuntimePlayer uses the compatible Vector3 implementation."
+        ],
+        "effect": [
+          "Complete native posture producer coverage remains evidence-deferred."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/physics.md",
+          "symbol": "只读bounds:GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.bounds",
           "confidence": "direct"
         }
       ]
@@ -808,6 +912,75 @@
     },
     {
       "local": {
+        "id": "server.RuntimePlayer.sound",
+        "kind": "method",
+        "signature": {
+          "parameters": [
+            {
+              "name": "config",
+              "type": "GameSoundEffect|string"
+            }
+          ],
+          "returns": "Sound"
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.sound",
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "config",
+                "optional": false,
+                "type": "GameSoundEffect| string",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameSoundEffect \\",
+                  "description": "string | 音乐配置，也可以只填写音乐路径"
+                }
+              }
+            ],
+            "returns": "Sound"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "Authoritative players emit the recovered player-targeted sound packet with dictionary-backed sample id and historical defaults.",
+          "Players without an authoritative backend id are rejected instead of receiving a fabricated target.",
+          "Browser media decode, playback completion, and mediaError acknowledgement remain unavailable."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/music.md",
+          "symbol": "sound(config:GameSoundEffect| string):Sound",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.sound",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
         "id": "server.RuntimePlayer.onDestroy",
         "kind": "event",
         "signature": {
@@ -849,7 +1022,7 @@
         "access": [],
         "signature": [],
         "effect": [
-          "Player destroy is guarded as a no-op; disconnect-driven destroy notification remains unimplemented."
+          "Player.destroy() remains a recovered no-op, while MuDB disconnect removes the wrapper and emits world.onPlayerLeave, player.onDestroy, then world.onEntityDestroy with one shared GameEntityEvent. Other independent engine destruction sources remain unverified."
         ]
       },
       "evidence": [
@@ -896,7 +1069,7 @@
         "access": [],
         "signature": [],
         "effect": [
-          "The optional filter surface exists; disconnect-driven player destroy notification remains unimplemented."
+          "The optional filter resolves the disconnect-driven player destroy event; other independent engine destruction sources remain unverified."
         ]
       },
       "evidence": [
@@ -2692,6 +2865,207 @@
     },
     {
       "local": {
+        "id": "server.RuntimePlayer.addTag",
+        "kind": "method",
+        "signature": {
+          "parameters": [
+            {
+              "name": "tag",
+              "type": "string"
+            }
+          ],
+          "returns": "void"
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.addTag",
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "tag",
+                "optional": false,
+                "type": "string",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "string",
+                  "description": "要添加的标签名"
+                }
+              }
+            ],
+            "returns": "void"
+          }
+        }
+      ],
+      "status": "compatible",
+      "implements": [
+        "server.GameEntity.addTag"
+      ],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": []
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/label.md",
+          "symbol": "addTag(tag:string): void",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.addTag",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.removeTag",
+        "kind": "method",
+        "signature": {
+          "parameters": [
+            {
+              "name": "tag",
+              "type": "string"
+            }
+          ],
+          "returns": "void"
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.removeTag",
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "tag",
+                "optional": false,
+                "type": "string",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "string",
+                  "description": "要移除的标签名"
+                }
+              }
+            ],
+            "returns": "void"
+          }
+        }
+      ],
+      "status": "compatible",
+      "implements": [
+        "server.GameEntity.removeTag"
+      ],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": []
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/label.md",
+          "symbol": "removeTag(tag:string): void",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.removeTag",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.hasTag",
+        "kind": "method",
+        "signature": {
+          "parameters": [
+            {
+              "name": "tag",
+              "type": "string"
+            }
+          ],
+          "returns": "boolean"
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.hasTag",
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "tag",
+                "optional": false,
+                "type": "string",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "string",
+                  "description": "要检测的标签名"
+                }
+              }
+            ],
+            "returns": "boolean"
+          }
+        }
+      ],
+      "status": "compatible",
+      "implements": [
+        "server.GameEntity.hasTag"
+      ],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": []
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/label.md",
+          "symbol": "hasTag(tag:string): boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.hasTag",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
         "id": "server.RuntimePlayer.applyImpulse",
         "kind": "method",
         "signature": {
@@ -2805,7 +3179,7 @@
         "effect": [
           "Targeted delivery now uses the recovered Player game-chat.log packet with private=true through the bound MuDB session; removed/destroyed receivers are silently dropped.",
           "Player removal marks the RuntimePlayer destroyed and dispatches world.onPlayerLeave, player.onDestroy, then world.onEntityDestroy in recovered order.",
-          "The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
+          "The recovered FIFO prefix/overflow/tick-drain algorithm and ordered Runtime-to-backend overflow batch are implemented with an evidence-deferred nullable limit; the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
         ]
       },
       "evidence": [
@@ -3086,9 +3460,9 @@
     }
   ],
   "summary": {
-    "memberCount": 57,
-    "compatible": 4,
-    "partial": 49,
+    "memberCount": 63,
+    "compatible": 8,
+    "partial": 51,
     "extensions": 4
   }
 }

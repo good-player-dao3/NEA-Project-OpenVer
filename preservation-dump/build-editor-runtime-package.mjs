@@ -24,6 +24,7 @@ const clientCapabilities = publicRuntimeCapabilities(runtimeCompatibility.curren
 const runtimeTemplate = await discoverRuntimeTemplate(templateArchive, templateProjectIdArg, templateWorldManifestArg);
 const templateWorld = runtimeTemplate.world;
 const packageId = `captured-${publish.gameId}`;
+const projectDisplayName = `Captured ${publish.gameId}`;
 const archiveRoot = join(outputRoot, "archive");
 const packageRoot = join(outputRoot, "project");
 const archiveProjectRoot = join(archiveRoot, "project", packageId);
@@ -242,13 +243,14 @@ const capabilityManifest = await buildRepositoryProjectCapabilityManifest({
   assets: capabilityAssets,
   entities: entities.map((entity, index) => ({ id: entityNodes[index]?.id, kind: entity.kind, mesh: entity.source?.mesh ?? "" })),
   uiState: { defaultScreenId: project.defaultScreenId, uiTree: project.uiTree },
+  projectIdentity: { projectName: projectDisplayName },
 });
 await writeJson(join(packageRoot, "capabilities", "manifest.json"), capabilityManifest);
 
 await writeJson(join(packageRoot, "dao3.project.json"), {
   formatVersion: "dao3-project/v1",
   packageId,
-  display: { name: `Captured ${publish.gameId}`, description: "Locally recovered editor project runtime package." },
+  display: { name: projectDisplayName, description: "Locally recovered editor project runtime package." },
   engine: {
     runtimeApiVersion: "0.1.0",
     tickRate: 20,
