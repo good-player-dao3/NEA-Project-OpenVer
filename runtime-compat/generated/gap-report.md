@@ -1,27 +1,27 @@
 # Runtime Compatibility Gap Report
 
-Generated: 2026-07-31T05:24:48.552Z
+Generated: 2026-07-31T09:27:02.861Z
 
 ## Summary
 
 - Documentation declarations: 599
-- Current contract entries: 504
-- Recovered compatible entries: 456
-- Identifier/canonical matches: 263
-- Documented declarations still missing: 336
+- Current contract entries: 625
+- Recovered compatible entries: 491
+- Identifier/canonical matches: 378
+- Documented declarations still missing: 221
 - Local extensions not joined to documentation: 265
 - Native: 125
-- Compatible: 50
-- Partial: 88
-- Recovered only: 121
+- Compatible: 131
+- Partial: 122
+- Recovered only: 93
 - Unavailable in selected provider: 1
-- Declared only: 214
+- Declared only: 127
 
 ## By Runtime Side
 
 - client: 125/126 represented; 1 missing
-- server: 107/346 represented; 239 missing
-- shared: 31/127 represented; 96 missing
+- server: 136/346 represented; 210 missing
+- shared: 117/127 represented; 10 missing
 
 ## Recovery vs Implementation
 

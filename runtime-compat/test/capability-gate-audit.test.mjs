@@ -37,13 +37,25 @@ test("capability gate audit classifies every anonymous corpus requirement conser
       assert.equal(declaration.executable, true, `${requirement.canonicalId} is not executable`);
     }
     const localBinding = declaration?.localBindings?.find(item => item.localId === bindingId);
-    assert.equal(requirement.launchState === "partial", (localBinding?.status ?? declaration?.status ?? binding.compatibility ?? binding.status) === "partial" || requirement.resolution === "current-runtime-recovered");
+    const effectiveCompatibility = localBinding?.status ?? declaration?.status ?? binding.compatibility ?? binding.status;
+    if (requirement.resolution === "current-runtime-recovered" && requirement.launchState === "ready") {
+      assert.ok(requirement.reasons.some(reason => reason.includes("Direct evidence resolves")));
+    } else {
+      assert.equal(requirement.launchState === "partial", effectiveCompatibility === "partial" || requirement.resolution === "current-runtime-recovered");
+    }
   }
   const byUsage = new Map(audit.requirements.map(item => [`${item.side}:${item.usage}`, item]));
   for (const usage of ["world.raycast", "world.onClick", "storage.getDataStorage"]) {
     assert.equal(byUsage.get(`server:${usage}`)?.launchState, "partial", `${usage} must not be overstated as ready`);
   }
   assert.equal(byUsage.get("server:world.onChat")?.launchState, "blocked");
+  assert.equal(byUsage.get("client:remoteChannel.events")?.launchState, "ready");
+  assert.equal(byUsage.get("client:input.pointerLockEvents")?.launchState, "ready");
+  assert.equal(byUsage.get("client:screen.events")?.launchState, "ready");
+  assert.equal(byUsage.get("server:world.size")?.launchState, "ready");
+  for (const usage of ["gui.init", "gui.remove", "gui.getAttribute", "gui.setAttribute"]) {
+    assert.equal(byUsage.get(`server:${usage}`)?.launchState, "ready", `${usage} has direct origin, transport, local implementation, and test evidence`);
+  }
   assert.equal(byUsage.get("server:world.querySelectorAll")?.canonicalId, "server.GameWorld.querySelectorAll");
   assert.equal(byUsage.get("server:world.querySelectorAll")?.resolution, "matrix-owner");
 });

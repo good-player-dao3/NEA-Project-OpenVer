@@ -19,6 +19,7 @@ test("Capability Manifest propagates interact initiator and target owners", asyn
   const manifest = await buildRepositoryProjectCapabilityManifest({
     apiVersion: "0.1.0",
     contracts: { client: "dao3-client-runtime/v1", server: "nea-server-runtime/v1" },
+    projectIdentity: { projectName: "Conformance Project" },
     serverModules: [{ name: "server.js", source: `
       world.onInteract(event => {
         event.tick;

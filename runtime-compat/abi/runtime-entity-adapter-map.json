@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-entity-adapter-map",
   "version": 1,
-  "generatedAt": "2026-07-31T05:24:47.699Z",
+  "generatedAt": "2026-07-31T09:27:02.007Z",
   "contract": "nea-server-runtime/v1",
   "localObject": {
     "id": "server.object.RuntimeEntity",
@@ -960,6 +960,961 @@
     },
     {
       "local": {
+        "id": "server.RuntimeEntity.isPlayer",
+        "kind": "property",
+        "signature": {
+          "type": "boolean",
+          "readonly": true
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.isPlayer",
+          "kind": "property",
+          "signature": {
+            "type": "boolean",
+            "readonly": true
+          }
+        }
+      ],
+      "status": "compatible",
+      "implements": [
+        "server.GameEntity.isPlayer"
+      ],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": []
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/isPlayer.md",
+          "symbol": "只读isPlayer: boolean",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.player",
+        "kind": "property",
+        "signature": {
+          "type": "GamePlayerEntity|undefined",
+          "readonly": true
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.player",
+          "kind": "property",
+          "signature": {
+            "type": "GamePlayerEntity| undefined",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "Non-player entities return undefined as declared. RuntimePlayer returns itself because the local Runtime merges the historical GameEntity shell and GamePlayer facade; historical object identity remains distinct in ScriptEntitySync."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/isPlayer.md",
+          "symbol": "player:GamePlayerEntity| undefined",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.bounds",
+        "kind": "property",
+        "signature": {
+          "type": "Vector3",
+          "readonly": true
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.bounds",
+          "kind": "property",
+          "signature": {
+            "type": "GameVector3",
+            "readonly": true
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "Canonical bounds uses GameVector3; local RuntimeEntity uses the compatible Vector3 implementation."
+        ],
+        "effect": [
+          "Reads return a detached copy of the positive body-center half extents used by local geometry and the validated initial authoritative replica; complete native oriented-body bounds behavior remains unavailable."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/physics.md",
+          "symbol": "只读bounds:GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.meshInvisible",
+        "kind": "property",
+        "signature": {
+          "type": "boolean",
+          "readonly": false
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.meshInvisible",
+          "kind": "property",
+          "signature": {
+            "type": "boolean",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "Whole-property writes update authoritative replica.model.invisible.",
+          "RuntimePlayer model binding remains unavailable."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/appearance.md",
+          "symbol": "meshInvisible: boolean",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.meshScale",
+        "kind": "property",
+        "signature": {
+          "type": "Vector3",
+          "readonly": false
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.meshScale",
+          "kind": "property",
+          "signature": {
+            "type": "GameVector3",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "Canonical meshScale uses GameVector3; local RuntimeEntity uses the compatible Vector3 implementation."
+        ],
+        "effect": [
+          "Whole-property writes update authoritative replica.model.scale; nested component mutation does not trigger the bridge.",
+          "RuntimePlayer model binding remains unavailable."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/appearance.md",
+          "symbol": "meshScale:GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/physics.md",
+          "symbol": "meshScale:GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.meshOrientation",
+        "kind": "property",
+        "signature": {
+          "type": "GameQuaternion",
+          "readonly": false
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.meshOrientation",
+          "kind": "property",
+          "signature": {
+            "type": "GameQuaternion",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "Whole-property writes update authoritative replica.body.orientation; nested quaternion mutation does not trigger the bridge.",
+          "Complete native normalization and RuntimePlayer model binding remain unavailable."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/appearance.md",
+          "symbol": "meshOrientation:GameQuaternion",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.lookAt",
+        "kind": "method",
+        "signature": {
+          "parameters": [
+            {
+              "name": "targetPosition",
+              "type": "GameVector3"
+            },
+            {
+              "name": "meshFacing",
+              "type": "\"X\" | \"Y\" | \"Z\"",
+              "optional": true
+            },
+            {
+              "name": "up",
+              "type": "GameVector3",
+              "optional": true
+            }
+          ],
+          "returns": "void"
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.lookAt",
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "targetPosition",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "世界坐标，希望让实体朝向的位置"
+                }
+              },
+              {
+                "name": "meshFacing",
+                "optional": true,
+                "type": "\"X\" | \"Y\" | \"Z\"",
+                "documentation": {
+                  "required": null,
+                  "default": "Z",
+                  "type": "\"X\" \\",
+                  "description": "\"Y\" \\ | \"Z\" | 定义模型在未旋转状态下的参考方向，处理模型设计时未朝向 Z 轴时的情况： - 当取 X、Z 时，定义模型的正方向分别为 X、Z 轴正方向，上方向为 Y 轴正方向 - 当取 Y 时，定义模型的正方向为 Y 轴正方向，上方向为 Z 轴正方向 - 默认值为 Z，即模型设计时朝向 Z 轴正方向"
+                }
+              },
+              {
+                "name": "up",
+                "optional": true,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": null,
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "上向量，默认取 Y 轴正方向"
+                }
+              }
+            ],
+            "returns": "void"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The canonical optional meshFacing and up parameters, defaults, coercion, and invalid-facing fallback are preserved."
+        ],
+        "effect": [
+          "The recovered matrix/quaternion algorithm and historical component order update RuntimeEntity meshOrientation through the authoritative body-orientation bridge.",
+          "RuntimePlayer model orientation and nested quaternion mutation remain unavailable."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/appearance.md",
+          "symbol": "lookAt(targetPosition:GameVector3,meshFacing?:\"X\" | \"Y\" | \"Z\",up?:GameVector3): void",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.rotateLocal",
+        "kind": "method",
+        "signature": {
+          "parameters": [
+            {
+              "name": "localPosition",
+              "type": "GameVector3"
+            },
+            {
+              "name": "axis",
+              "type": "\"X\" | \"Y\" | \"Z\""
+            },
+            {
+              "name": "rad",
+              "type": "number"
+            }
+          ],
+          "returns": "void"
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.rotateLocal",
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "localPosition",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "自身坐标系中的位置向量，表示待旋转的点"
+                }
+              },
+              {
+                "name": "axis",
+                "optional": false,
+                "type": "\"X\" | \"Y\" | \"Z\"",
+                "documentation": {
+                  "required": "是",
+                  "default": "Z",
+                  "type": "\"X\" \\",
+                  "description": "\"Y\" \\ | \"Z\" | 指定旋转轴"
+                }
+              },
+              {
+                "name": "rad",
+                "optional": false,
+                "type": "number",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "number",
+                  "description": "旋转的角度，以弧度为单位"
+                }
+              }
+            ],
+            "returns": "void"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The canonical localPosition, X/Y/Z axis, and radian angle parameters are preserved."
+        ],
+        "effect": [
+          "The recovered scale/orientation transform and pivot compensation update RuntimeEntity meshOrientation and position through existing authoritative bridges.",
+          "RuntimePlayer model orientation and nested quaternion/position mutation remain unavailable."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/appearance.md",
+          "symbol": "rotateLocal(localPosition:GameVector3,axis:\"X\" | \"Y\" | \"Z\",rad:number): void",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.scaleLocal",
+        "kind": "method",
+        "signature": {
+          "parameters": [
+            {
+              "name": "localPosition",
+              "type": "GameVector3"
+            },
+            {
+              "name": "v",
+              "type": "GameVector3"
+            }
+          ],
+          "returns": "void"
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.scaleLocal",
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "localPosition",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "自身坐标系中的位置向量，表示待缩放的点"
+                }
+              },
+              {
+                "name": "v",
+                "optional": false,
+                "type": "GameVector3",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameVector3",
+                  "description": "缩放向量，表示在 x、y、z 轴上的缩放因子"
+                }
+              }
+            ],
+            "returns": "void"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The canonical localPosition and replacement GameVector3 scale parameters are preserved."
+        ],
+        "effect": [
+          "The recovered scale replacement and transformed-pivot compensation update RuntimeEntity meshScale and position through existing authoritative bridges.",
+          "RuntimePlayer model scale and nested scale/position mutation remain unavailable."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/appearance.md",
+          "symbol": "scaleLocal(localPosition:GameVector3,v:GameVector3): void",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.meshOffset",
+        "kind": "property",
+        "signature": {
+          "type": "Vector3",
+          "readonly": false
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.meshOffset",
+          "kind": "property",
+          "signature": {
+            "type": "GameVector3",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "Canonical meshOffset uses GameVector3; local RuntimeEntity uses the compatible Vector3 implementation."
+        ],
+        "effect": [
+          "Whole-property writes update authoritative replica.model.offset; nested component mutation does not trigger the bridge.",
+          "RuntimePlayer model binding remains unavailable."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/appearance.md",
+          "symbol": "meshOffset:GameVector3",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.meshColor",
+        "kind": "property",
+        "signature": {
+          "type": "GameRGBAColor",
+          "readonly": false
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.meshColor",
+          "kind": "property",
+          "signature": {
+            "type": "GameRGBAColor",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "Whole-property normalized RGBA writes are encoded as protocol bytes and update authoritative replica.model.color; nested component mutation does not trigger the bridge.",
+          "RuntimePlayer model binding remains unavailable."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/appearance.md",
+          "symbol": "meshColor:GameRGBAColor",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.meshMetalness",
+        "kind": "property",
+        "signature": {
+          "type": "number",
+          "readonly": false
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.meshMetalness",
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "Validated 0..1 writes update authoritative replica.model.metalness.",
+          "RuntimePlayer model binding remains unavailable."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/appearance.md",
+          "symbol": "meshMetalness: number",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.meshEmissive",
+        "kind": "property",
+        "signature": {
+          "type": "number",
+          "readonly": false
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.meshEmissive",
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "Validated 0..1 writes update authoritative replica.model.emissive.",
+          "RuntimePlayer model binding remains unavailable."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/appearance.md",
+          "symbol": "meshEmissive: number",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.meshShininess",
+        "kind": "property",
+        "signature": {
+          "type": "number",
+          "readonly": false
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.meshShininess",
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "Validated 0..1 writes update authoritative replica.model.shininess.",
+          "RuntimePlayer model binding remains unavailable."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/appearance.md",
+          "symbol": "meshShininess: number",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.showEntityName",
+        "kind": "property",
+        "signature": {
+          "type": "boolean",
+          "readonly": false
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.showEntityName",
+          "kind": "property",
+          "signature": {
+            "type": "boolean",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "The false default and authoritative replica.nameplate create/delete behavior are implemented for validated captured-mesh entities.",
+          "RuntimePlayer EntityNameBinding behavior and complete historical synchronizer scheduling remain unavailable."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/appearance.md",
+          "symbol": "showEntityName: boolean",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.customName",
+        "kind": "property",
+        "signature": {
+          "type": "string",
+          "readonly": false
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.customName",
+          "kind": "property",
+          "signature": {
+            "type": "string",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "UTF-8 text is validated and projected to the authoritative nameplate component when showEntityName is true.",
+          "RuntimePlayer EntityNameBinding behavior remains unavailable."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/appearance.md",
+          "symbol": "customName: string",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.nameRadius",
+        "kind": "property",
+        "signature": {
+          "type": "number",
+          "readonly": false
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.nameRadius",
+          "kind": "property",
+          "signature": {
+            "type": "number",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "The recovered default 16 and finite 0..4096 validation are projected to the authoritative nameplate radius.",
+          "RuntimePlayer EntityNameBinding behavior remains unavailable."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/appearance.md",
+          "symbol": "nameRadius: number",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.nameColor",
+        "kind": "property",
+        "signature": {
+          "type": "GameRGBColor",
+          "readonly": false
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.nameColor",
+          "kind": "property",
+          "signature": {
+            "type": "GameRGBColor",
+            "readonly": false
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "Canonical nameColor uses GameRGBColor and the local RuntimeEntity uses the same class."
+        ],
+        "effect": [
+          "Whole-property assignments project normalized RGB values to the authoritative nameplate component; nested component mutation does not trigger the bridge.",
+          "RuntimePlayer EntityNameBinding behavior remains unavailable."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/appearance.md",
+          "symbol": "nameColor:GameRGBColor",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
         "id": "server.RuntimeEntity.onInteract",
         "kind": "event",
         "signature": {
@@ -1125,6 +2080,189 @@
     },
     {
       "local": {
+        "id": "server.RuntimeEntity.addTag",
+        "kind": "method",
+        "signature": {
+          "parameters": [
+            {
+              "name": "tag",
+              "type": "string"
+            }
+          ],
+          "returns": "void"
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.addTag",
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "tag",
+                "optional": false,
+                "type": "string",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "string",
+                  "description": "要添加的标签名"
+                }
+              }
+            ],
+            "returns": "void"
+          }
+        }
+      ],
+      "status": "compatible",
+      "implements": [
+        "server.GameEntity.addTag"
+      ],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": []
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/label.md",
+          "symbol": "addTag(tag:string): void",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.removeTag",
+        "kind": "method",
+        "signature": {
+          "parameters": [
+            {
+              "name": "tag",
+              "type": "string"
+            }
+          ],
+          "returns": "void"
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.removeTag",
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "tag",
+                "optional": false,
+                "type": "string",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "string",
+                  "description": "要移除的标签名"
+                }
+              }
+            ],
+            "returns": "void"
+          }
+        }
+      ],
+      "status": "compatible",
+      "implements": [
+        "server.GameEntity.removeTag"
+      ],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": []
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/label.md",
+          "symbol": "removeTag(tag:string): void",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.hasTag",
+        "kind": "method",
+        "signature": {
+          "parameters": [
+            {
+              "name": "tag",
+              "type": "string"
+            }
+          ],
+          "returns": "boolean"
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.hasTag",
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "tag",
+                "optional": false,
+                "type": "string",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "string",
+                  "description": "要检测的标签名"
+                }
+              }
+            ],
+            "returns": "boolean"
+          }
+        }
+      ],
+      "status": "compatible",
+      "implements": [
+        "server.GameEntity.hasTag"
+      ],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": []
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/label.md",
+          "symbol": "hasTag(tag:string): boolean",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
         "id": "server.RuntimeEntity.tags",
         "kind": "property",
         "signature": {
@@ -1153,7 +2291,7 @@
           "Property/method shape and collection type differ."
         ],
         "effect": [
-          "Canonical addTag/removeTag/hasTag behavior and replication are not implemented."
+          "Canonical addTag/removeTag/hasTag mutation and lookup behavior is implemented; only the canonical tags() array-returning accessor and native replication semantics remain unavailable."
         ]
       },
       "evidence": [
@@ -1226,7 +2364,7 @@
         "effect": [
           "Mapped live entities emit the recovered game-chat.log sender id, duration, and hideFloat fields to every connected Player session; destroyed senders are silently dropped.",
           "Entities without an authoritative backend id remain script-local and do not receive a fabricated sender id or floating bubble.",
-          "The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
+          "The recovered FIFO prefix/overflow/tick-drain algorithm and ordered Runtime-to-backend overflow batch are implemented with an evidence-deferred nullable limit; the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
         ]
       },
       "evidence": [
@@ -1240,6 +2378,69 @@
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameEntity/input.md",
           "symbol": "say(message:string,options?: Partial): void",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimeEntity.sound",
+        "kind": "method",
+        "signature": {
+          "parameters": [
+            {
+              "name": "config",
+              "type": "GameSoundEffect|string"
+            }
+          ],
+          "returns": "Sound"
+        },
+        "capability": "server.world.entities"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.sound",
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "config",
+                "optional": false,
+                "type": "GameSoundEffect| string",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "GameSoundEffect \\",
+                  "description": "string | 音乐配置，也可以只填写音乐路径"
+                }
+              }
+            ],
+            "returns": "Sound"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "Mapped entities emit the recovered entity-targeted sound packet with dictionary-backed sample id and historical defaults.",
+          "Entities without an authoritative backend id are rejected instead of receiving a fabricated spatial target.",
+          "Browser media decode, playback completion, and mediaError acknowledgement remain unavailable."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/music.md",
+          "symbol": "sound(config:GameSoundEffect| string):Sound",
           "confidence": "direct"
         }
       ]
@@ -1954,8 +3155,9 @@
     }
   ],
   "summary": {
-    "memberCount": 38,
-    "partial": 36,
+    "memberCount": 60,
+    "compatible": 4,
+    "partial": 54,
     "extensions": 2
   }
 }

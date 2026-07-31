@@ -1,5 +1,5 @@
 export const capabilityLaunchGateContract = Object.freeze({
-  manifestVersion: 10,
+  manifestVersion: 14,
   collections: Object.freeze(["requirements", "modules", "resources", "ui", "entities", "dependencies", "diagnostics"]),
   statusOrder: Object.freeze(["ready", "partial", "blocked"]),
   requirementStates: Object.freeze(["ready", "partial", "blocked", "script-owned"]),
@@ -19,6 +19,10 @@ export const capabilityLaunchGateContract = Object.freeze({
   verifiesAssetFileBytesAndSha256: true,
   bindsRuntimeAbiArtifactsDigest: true,
   bindsEntityProjectionEvidenceDigest: true,
+  bindsStorageScopeDigest: true,
+  bindsProjectIdentityDigest: true,
+  bindsStaticServerSoundSamples: true,
+  requiresSoundPlaybackTransport: true,
   derivesSummaryCounts: true,
   rejectsSummaryMismatch: true,
   blocksBeforeRuntimeStart: true,

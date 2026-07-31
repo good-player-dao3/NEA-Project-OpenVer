@@ -71,10 +71,12 @@ export function validateMapManifest(value) {
       clientContract: requireContract(runtime.clientContract, "/runtime/clientContract", "dao3-client-runtime/"),
       serverContract: requireContract(runtime.serverContract, "/runtime/serverContract", "nea-server-runtime/"),
       compatibilityLevel: requireCompatibilityLevel(runtime.compatibilityLevel, "/runtime/compatibilityLevel"),
+      groupId: runtime.groupId === undefined || runtime.groupId === null || runtime.groupId === "" ? null : requireGroupId(runtime.groupId, "/runtime/groupId"),
     }),
     world: Object.freeze({
       shape,
       spawn,
+      entityLimit: world.entityLimit === undefined ? 3400 : requireInteger(world.entityLimit, "/world/entityLimit", 0, 1000000),
       terrain: requirePackagePath(world.terrain, "/world/terrain"),
       entities: requirePackagePath(world.entities, "/world/entities"),
       physics: world.physics === undefined || world.physics === null
@@ -92,6 +94,12 @@ export function validateMapManifest(value) {
       clientCapabilities: Object.freeze(clientCapabilities),
     }),
   });
+}
+
+function requireGroupId(value, path) {
+  const groupId = requireText(value, path, 256);
+  if (groupId.trim() !== groupId || /[\u0000-\u001f\u007f]/.test(groupId)) throw new Error(`${path} must not contain surrounding whitespace or control characters`);
+  return groupId;
 }
 
 export function validateUiSource(value) {

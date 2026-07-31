@@ -16,6 +16,7 @@ test("Capability Manifest types chat payloads while retaining the ingress blocke
   const manifest = await buildRepositoryProjectCapabilityManifest({
     apiVersion: "0.1.0",
     contracts: { client: "dao3-client-runtime/v1", server: "nea-server-runtime/v1" },
+    projectIdentity: { projectName: "Conformance Project" },
     serverModules: [{ name: "server.js", source: `
       world.onChat(event => { event.tick; event.message; const speaker = event.entity; speaker.destroyed; });
       const command = event => event.message.startsWith("/");

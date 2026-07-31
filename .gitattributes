@@ -1,5 +1,6 @@
 # Keep source and generated text stable across Windows and CI.
 * text=auto
+.gitattributes text eol=lf
 
 *.cjs text eol=lf
 *.css text eol=lf
@@ -7,6 +8,7 @@
 *.json text eol=lf
 *.md text eol=lf
 *.mjs text eol=lf
+*.patch text eol=lf
 *.ps1 text eol=crlf
 *.ts text eol=lf
 *.yml text eol=lf

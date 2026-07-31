@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-abi",
   "version": 1,
-  "generatedAt": "2026-07-31T05:24:48.022Z",
+  "generatedAt": "2026-07-31T09:27:02.343Z",
   "side": "shared",
   "entries": [
     {
@@ -568,18 +568,31 @@
         ],
         "returns": "boolean"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-三维空间"
+        "Declared by documentation page: S-三维空间",
+        "The local formula and mutation/return behavior match the recovered origin GameBounds3 source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameBounds3/index.md",
           "symbol": "contains(b:GameVector3): boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-zones.mjs",
+          "symbol": "GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameBounds3.js",
+          "symbol": "GameBounds3",
           "confidence": "direct"
         }
       ],
@@ -639,18 +652,31 @@
         ],
         "returns": "boolean"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-三维空间"
+        "Declared by documentation page: S-三维空间",
+        "The local formula and mutation/return behavior match the recovered origin GameBounds3 source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameBounds3/index.md",
           "symbol": "containsBounds(b:GameBounds3): boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-zones.mjs",
+          "symbol": "GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameBounds3.js",
+          "symbol": "GameBounds3",
           "confidence": "direct"
         }
       ],
@@ -710,18 +736,31 @@
         ],
         "returns": "GameBounds3"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-三维空间"
+        "Declared by documentation page: S-三维空间",
+        "The local formula and mutation/return behavior match the recovered origin GameBounds3 source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameBounds3/index.md",
           "symbol": "copy(b:GameBounds3): GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-zones.mjs",
+          "symbol": "GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameBounds3.js",
+          "symbol": "GameBounds3",
           "confidence": "direct"
         }
       ],
@@ -776,18 +815,31 @@
         ],
         "returns": "GameBounds3"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-三维空间"
+        "Declared by documentation page: S-三维空间",
+        "The local formula and mutation/return behavior match the recovered origin GameBounds3 source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameBounds3/index.md",
           "symbol": "fromPoints(...points:GameVector3[]): GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-zones.mjs",
+          "symbol": "GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameBounds3.js",
+          "symbol": "GameBounds3",
           "confidence": "direct"
         }
       ],
@@ -823,7 +875,7 @@
     {
       "id": "shared.GameBounds3.GameBounds3",
       "side": "shared",
-      "kind": "method",
+      "kind": "constructor",
       "owner": "GameBounds3",
       "name": "GameBounds3",
       "signature": {
@@ -853,18 +905,31 @@
         ],
         "returns": "GameBounds3"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-三维空间"
+        "Declared by documentation page: S-三维空间",
+        "The recovered constructor reference semantics are preserved for GameVector3-compatible local Vector3 instances; array/object coercion remains a local compatibility extension."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameBounds3/index.md",
           "symbol": "GameBounds3(lo:GameVector3,hi:GameVector3): GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-zones.mjs",
+          "symbol": "GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameBounds3.js",
+          "symbol": "GameBounds3",
           "confidence": "direct"
         }
       ],
@@ -923,18 +988,31 @@
         "type": "GameVector3",
         "readonly": false
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-三维空间"
+        "Declared by documentation page: S-三维空间",
+        "The local formula and mutation/return behavior match the recovered origin GameBounds3 source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameBounds3/index.md",
           "symbol": "hi: GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-zones.mjs",
+          "symbol": "GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameBounds3.js",
+          "symbol": "GameBounds3",
           "confidence": "direct"
         }
       ],
@@ -982,18 +1060,31 @@
         ],
         "returns": "GameBounds3"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-三维空间"
+        "Declared by documentation page: S-三维空间",
+        "The local formula and mutation/return behavior match the recovered origin GameBounds3 source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameBounds3/index.md",
           "symbol": "intersect(b:GameBounds3): GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-zones.mjs",
+          "symbol": "GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameBounds3.js",
+          "symbol": "GameBounds3",
           "confidence": "direct"
         }
       ],
@@ -1053,18 +1144,31 @@
         ],
         "returns": "boolean"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-三维空间"
+        "Declared by documentation page: S-三维空间",
+        "The local formula and mutation/return behavior match the recovered origin GameBounds3 source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameBounds3/index.md",
           "symbol": "intersects(b:GameBounds3): boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-zones.mjs",
+          "symbol": "GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameBounds3.js",
+          "symbol": "GameBounds3",
           "confidence": "direct"
         }
       ],
@@ -1112,18 +1216,31 @@
         "type": "GameVector3",
         "readonly": false
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-三维空间"
+        "Declared by documentation page: S-三维空间",
+        "The local formula and mutation/return behavior match the recovered origin GameBounds3 source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameBounds3/index.md",
           "symbol": "lo: GameVector3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-zones.mjs",
+          "symbol": "GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameBounds3.js",
+          "symbol": "GameBounds3",
           "confidence": "direct"
         }
       ],
@@ -1226,18 +1343,31 @@
         ],
         "returns": "GameBounds3"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-三维空间"
+        "Declared by documentation page: S-三维空间",
+        "The local formula and mutation/return behavior match the recovered origin GameBounds3 source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameBounds3/index.md",
           "symbol": "set(lox:number, loy:number, loz:number, hix:number, hiy:number, hiz:number): GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-zones.mjs",
+          "symbol": "GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameBounds3.js",
+          "symbol": "GameBounds3",
           "confidence": "direct"
         }
       ],
@@ -1340,18 +1470,31 @@
         "parameters": [],
         "returns": "string"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-三维空间"
+        "Declared by documentation page: S-三维空间",
+        "The local formula and mutation/return behavior match the recovered origin GameBounds3 source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameBounds3/index.md",
           "symbol": "toString(): string",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/game-zones.mjs",
+          "symbol": "GameBounds3",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameBounds3.js",
+          "symbol": "GameBounds3",
           "confidence": "direct"
         }
       ],
@@ -1387,18 +1530,43 @@
         "parameters": [],
         "returns": "boolean"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.events",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-事件监听"
+        "Declared by documentation page: S-事件监听",
+        "The local token state machine matches recovered ScriptDispatcher cancel, resume, active, and dispatcher-destroy behavior."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameEventHandlerToken/index.md",
           "symbol": "active(): boolean",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/event-signal.mjs",
+          "symbol": "GameEventHandlerToken / EventSignal.on",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEventHandlerToken.js",
+          "symbol": "GameEventHandlerToken",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/ScriptDispatcher.js",
+          "symbol": "ScriptDispatcher.channel",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/734.8dcb480d99773395.js",
+          "symbol": "GameEventHandlerToken",
           "confidence": "direct"
         }
       ],
@@ -1434,18 +1602,43 @@
         "parameters": [],
         "returns": "void"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.events",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-事件监听"
+        "Declared by documentation page: S-事件监听",
+        "The local token state machine matches recovered ScriptDispatcher cancel, resume, active, and dispatcher-destroy behavior."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameEventHandlerToken/index.md",
           "symbol": "cancel(): void",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/event-signal.mjs",
+          "symbol": "GameEventHandlerToken / EventSignal.on",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEventHandlerToken.js",
+          "symbol": "GameEventHandlerToken",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/ScriptDispatcher.js",
+          "symbol": "ScriptDispatcher.channel",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/734.8dcb480d99773395.js",
+          "symbol": "GameEventHandlerToken",
           "confidence": "direct"
         }
       ],
@@ -1481,18 +1674,43 @@
         "parameters": [],
         "returns": "void"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.events",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-事件监听"
+        "Declared by documentation page: S-事件监听",
+        "The local token state machine matches recovered ScriptDispatcher cancel, resume, active, and dispatcher-destroy behavior."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameEventHandlerToken/index.md",
           "symbol": "resume(): void",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/event-signal.mjs",
+          "symbol": "GameEventHandlerToken / EventSignal.on",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEventHandlerToken.js",
+          "symbol": "GameEventHandlerToken",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/ScriptDispatcher.js",
+          "symbol": "ScriptDispatcher.channel",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/734.8dcb480d99773395.js",
+          "symbol": "GameEventHandlerToken",
           "confidence": "direct"
         }
       ],
@@ -1540,18 +1758,31 @@
         ],
         "returns": "GameQuaternion"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "add(v:GameQuaternion): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -1611,18 +1842,31 @@
         ],
         "returns": "number"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "angle(q:GameQuaternion): number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -1670,18 +1914,31 @@
         "parameters": [],
         "returns": "GameQuaternion"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "clone(): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -1729,18 +1986,31 @@
         ],
         "returns": "GameQuaternion"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "copy(v:GameQuaternion): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -1800,18 +2070,31 @@
         ],
         "returns": "GameQuaternion"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "div(q:GameQuaternion): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -1871,18 +2154,31 @@
         ],
         "returns": "number"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "dot(q:GameQuaternion): number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -1942,12 +2238,13 @@
         ],
         "returns": "boolean"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "partial",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The recovered formula is implemented, but its EPSILON$2 binding is absent from the extracted origin class; the local 1e-6 value has only supporting archived-Player evidence."
       ],
       "evidence": [
         {
@@ -1955,6 +2252,24 @@
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "equals(v:GameQuaternion): boolean",
           "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/457.36bf26873ad51e54.js",
+          "symbol": "module 48388 EPSILON = 1e-6",
+          "confidence": "supporting"
         }
       ],
       "kinds": [
@@ -2024,18 +2339,31 @@
         ],
         "returns": "GameQuaternion"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "fromAxisAngle(axis:GameVector3,rad:number): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -2128,18 +2456,31 @@
         ],
         "returns": "GameQuaternion"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "fromEuler(x:number,y:number,z:number): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -2202,7 +2543,7 @@
     {
       "id": "shared.GameQuaternion.GameQuaternion",
       "side": "shared",
-      "kind": "method",
+      "kind": "constructor",
       "owner": "GameQuaternion",
       "name": "GameQuaternion",
       "signature": {
@@ -2254,18 +2595,31 @@
         ],
         "returns": "GameQuaternion"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "GameQuaternion(w: number, x: number, y: number, z: number): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -2358,12 +2712,13 @@
         ],
         "returns": "{angle:number;axis:GameVector3}"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "partial",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The recovered formula is implemented, but its EPSILON$2 binding is absent from the extracted origin class; the local 1e-6 value has only supporting archived-Player evidence."
       ],
       "evidence": [
         {
@@ -2371,6 +2726,24 @@
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "getAxisAngle(_q:GameQuaternion): {angle:number;axis:GameVector3}",
           "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/457.36bf26873ad51e54.js",
+          "symbol": "module 48388 EPSILON = 1e-6",
+          "confidence": "supporting"
         }
       ],
       "kinds": [
@@ -2417,12 +2790,13 @@
         "parameters": [],
         "returns": "GameQuaternion"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "partial",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The recovered formula is implemented, but its EPSILON$2 binding is absent from the extracted origin class; the local 1e-6 value has only supporting archived-Player evidence."
       ],
       "evidence": [
         {
@@ -2430,6 +2804,24 @@
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "inv(): GameQuaternion",
           "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/457.36bf26873ad51e54.js",
+          "symbol": "module 48388 EPSILON = 1e-6",
+          "confidence": "supporting"
         }
       ],
       "kinds": [
@@ -2464,18 +2856,31 @@
         "parameters": [],
         "returns": "number"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "mag(): number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -2523,18 +2928,31 @@
         ],
         "returns": "GameQuaternion"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "mul(q:GameQuaternion): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -2582,18 +3000,31 @@
         "parameters": [],
         "returns": "GameQuaternion"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "normalize(): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -2641,18 +3072,31 @@
         ],
         "returns": "GameQuaternion"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "rotateX(_rad: number): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -2712,18 +3156,31 @@
         ],
         "returns": "GameQuaternion"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "rotateY(_rad: number): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -2783,18 +3240,31 @@
         ],
         "returns": "GameQuaternion"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "rotateZ(_rad: number): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -2865,12 +3335,13 @@
         ],
         "returns": "GameQuaternion"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "partial",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The recovered formula is implemented, but its EPSILON$2 binding is absent from the extracted origin class; the local 1e-6 value has only supporting archived-Player evidence."
       ],
       "evidence": [
         {
@@ -2878,6 +3349,24 @@
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "rotationBetween(a:GameVector3,b:GameVector3): GameQuaternion",
           "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/457.36bf26873ad51e54.js",
+          "symbol": "module 48388 EPSILON = 1e-6",
+          "confidence": "supporting"
         }
       ],
       "kinds": [
@@ -2980,18 +3469,31 @@
         ],
         "returns": "GameQuaternion"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "set(w: number, x: number, y: number, z: number): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -3095,12 +3597,13 @@
         ],
         "returns": "GameQuaternion"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "partial",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The recovered formula is implemented, but its EPSILON$2 binding is absent from the extracted origin class; the local 1e-6 value has only supporting archived-Player evidence."
       ],
       "evidence": [
         {
@@ -3108,6 +3611,24 @@
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "slerp(q: GameQuaternion, n: number): GameQuaternion",
           "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/457.36bf26873ad51e54.js",
+          "symbol": "module 48388 EPSILON = 1e-6",
+          "confidence": "supporting"
         }
       ],
       "kinds": [
@@ -3165,18 +3686,31 @@
         "parameters": [],
         "returns": "number"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "sqrMag(): number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -3224,18 +3758,31 @@
         ],
         "returns": "GameQuaternion"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "sub(v:GameQuaternion): GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -3283,18 +3830,31 @@
         "parameters": [],
         "returns": "string"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "toString(): string",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -3330,18 +3890,31 @@
         "type": "number",
         "readonly": false
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "w: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -3377,18 +3950,31 @@
         "type": "number",
         "readonly": false
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "x: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -3424,18 +4010,31 @@
         "type": "number",
         "readonly": false
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "y: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -3471,18 +4070,31 @@
         "type": "number",
         "readonly": false
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-四元数"
+        "Declared by documentation page: S-四元数",
+        "The local formula, argument order, return shape, and mutation behavior match the recovered origin GameQuaternion source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameQuaternion/index.md",
           "symbol": "z: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/quaternion.mjs",
+          "symbol": "GameQuaternion",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameQuaternion.js",
+          "symbol": "GameQuaternion",
           "confidence": "direct"
         }
       ],
@@ -3518,18 +4130,31 @@
         "type": "number",
         "readonly": false
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGBA 颜色"
+        "Declared by documentation page: S-RGBA 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "a: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ],
@@ -3577,18 +4202,31 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGBA 颜色"
+        "Declared by documentation page: S-RGBA 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "add(rgba:GameRGBAColor): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ],
@@ -3648,18 +4286,31 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGBA 颜色"
+        "Declared by documentation page: S-RGBA 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "addEq(rgba:GameRGBAColor): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ],
@@ -3707,18 +4358,31 @@
         "type": "number",
         "readonly": false
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGBA 颜色"
+        "Declared by documentation page: S-RGBA 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "b: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ],
@@ -3766,18 +4430,31 @@
         ],
         "returns": "GameRGBColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGBA 颜色"
+        "Declared by documentation page: S-RGBA 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "blendEq(rgb:GameRGBColor): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ],
@@ -3825,18 +4502,31 @@
         "parameters": [],
         "returns": "GameRGBAColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGBA 颜色"
+        "Declared by documentation page: S-RGBA 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "clone(): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ],
@@ -3884,18 +4574,31 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGBA 颜色"
+        "Declared by documentation page: S-RGBA 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "copy(c:GameRGBAColor): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ],
@@ -3955,18 +4658,31 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGBA 颜色"
+        "Declared by documentation page: S-RGBA 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "div(rgba:GameRGBAColor): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ],
@@ -4026,18 +4742,31 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGBA 颜色"
+        "Declared by documentation page: S-RGBA 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "divEq(rgba:GameRGBAColor): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ],
@@ -4097,12 +4826,13 @@
         ],
         "returns": "boolean"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "partial",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGBA 颜色"
+        "Declared by documentation page: S-RGBA 颜色",
+        "The recovered equality formula is implemented, but its EPSILON$2 binding is absent from the extracted origin class; the local 1e-6 value has only supporting archived-Player evidence."
       ],
       "evidence": [
         {
@@ -4110,6 +4840,24 @@
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "equals(rgba:GameRGBAColor): boolean",
           "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/457.36bf26873ad51e54.js",
+          "symbol": "module 48388 EPSILON = 1e-6",
+          "confidence": "supporting"
         }
       ],
       "kinds": [
@@ -4156,18 +4904,31 @@
         "type": "number",
         "readonly": false
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGBA 颜色"
+        "Declared by documentation page: S-RGBA 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "g: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ],
@@ -4196,7 +4957,7 @@
     {
       "id": "shared.GameRGBAColor.GameRGBAColor",
       "side": "shared",
-      "kind": "method",
+      "kind": "constructor",
       "owner": "GameRGBAColor",
       "name": "GameRGBAColor",
       "signature": {
@@ -4248,18 +5009,31 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGBA 颜色"
+        "Declared by documentation page: S-RGBA 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "GameRGBAColor(r: number, g: number, b: number, a: number): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ],
@@ -4363,18 +5137,31 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGBA 颜色"
+        "Declared by documentation page: S-RGBA 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "lerp(rgba: GameRGBAColor, n: number): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ],
@@ -4445,18 +5232,31 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGBA 颜色"
+        "Declared by documentation page: S-RGBA 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "mul(rgba:GameRGBAColor): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ],
@@ -4516,18 +5316,31 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGBA 颜色"
+        "Declared by documentation page: S-RGBA 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "mulEq(rgba:GameRGBAColor): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ],
@@ -4575,18 +5388,31 @@
         "type": "number",
         "readonly": false
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGBA 颜色"
+        "Declared by documentation page: S-RGBA 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "r: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ],
@@ -4667,18 +5493,31 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGBA 颜色"
+        "Declared by documentation page: S-RGBA 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "set(r: number, g: number, b: number, a: number): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ],
@@ -4771,18 +5610,31 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGBA 颜色"
+        "Declared by documentation page: S-RGBA 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "sub(rgba:GameRGBAColor): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ],
@@ -4842,18 +5694,31 @@
         ],
         "returns": "GameRGBAColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGBA 颜色"
+        "Declared by documentation page: S-RGBA 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "subEq(rgba:GameRGBAColor): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ],
@@ -4901,18 +5766,31 @@
         "parameters": [],
         "returns": "string"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGBA 颜色"
+        "Declared by documentation page: S-RGBA 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBAColor/index.md",
           "symbol": "toString(): string",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBAColor.js",
+          "symbol": "GameRGBAColor",
           "confidence": "direct"
         }
       ],
@@ -4960,18 +5838,31 @@
         ],
         "returns": "GameRGBColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGB 颜色"
+        "Declared by documentation page: S-RGB 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "add(rgb:GameRGBColor): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ],
@@ -5031,18 +5922,31 @@
         ],
         "returns": "GameRGBColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGB 颜色"
+        "Declared by documentation page: S-RGB 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "addEq(rgb:GameRGBColor): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ],
@@ -5090,18 +5994,31 @@
         "type": "number",
         "readonly": false
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGB 颜色"
+        "Declared by documentation page: S-RGB 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "b: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ],
@@ -5137,18 +6054,31 @@
         "parameters": [],
         "returns": "GameRGBColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGB 颜色"
+        "Declared by documentation page: S-RGB 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "clone(): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ],
@@ -5196,18 +6126,31 @@
         ],
         "returns": "GameRGBColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGB 颜色"
+        "Declared by documentation page: S-RGB 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "copy(c:GameRGBColor): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ],
@@ -5267,18 +6210,31 @@
         ],
         "returns": "GameRGBColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGB 颜色"
+        "Declared by documentation page: S-RGB 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "div(rgb:GameRGBColor): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ],
@@ -5338,18 +6294,31 @@
         ],
         "returns": "GameRGBColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGB 颜色"
+        "Declared by documentation page: S-RGB 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "divEq(rgb:GameRGBColor): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ],
@@ -5409,12 +6378,13 @@
         ],
         "returns": "boolean"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "partial",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGB 颜色"
+        "Declared by documentation page: S-RGB 颜色",
+        "The recovered equality formula is implemented, but its EPSILON$2 binding is absent from the extracted origin class; the local 1e-6 value has only supporting archived-Player evidence."
       ],
       "evidence": [
         {
@@ -5422,6 +6392,24 @@
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "equals(rgb:GameRGBColor): boolean",
           "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "player-bundle",
+          "path": "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/457.36bf26873ad51e54.js",
+          "symbol": "module 48388 EPSILON = 1e-6",
+          "confidence": "supporting"
         }
       ],
       "kinds": [
@@ -5468,18 +6456,31 @@
         "type": "number",
         "readonly": false
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGB 颜色"
+        "Declared by documentation page: S-RGB 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "g: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ],
@@ -5508,7 +6509,7 @@
     {
       "id": "shared.GameRGBColor.GameRGBColor",
       "side": "shared",
-      "kind": "method",
+      "kind": "constructor",
       "owner": "GameRGBColor",
       "name": "GameRGBColor",
       "signature": {
@@ -5549,18 +6550,31 @@
         ],
         "returns": "GameRGBColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGB 颜色"
+        "Declared by documentation page: S-RGB 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "GameRGBColor(r: number, g: number, b: number): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ],
@@ -5653,18 +6667,31 @@
         ],
         "returns": "GameRGBColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGB 颜色"
+        "Declared by documentation page: S-RGB 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "lerp(rgb:GameRGBColor,n: number): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ],
@@ -5735,18 +6762,31 @@
         ],
         "returns": "GameRGBColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGB 颜色"
+        "Declared by documentation page: S-RGB 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "mul(rgb:GameRGBColor): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ],
@@ -5806,18 +6846,31 @@
         ],
         "returns": "GameRGBColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGB 颜色"
+        "Declared by documentation page: S-RGB 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "mulEq(rgb:GameRGBColor): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ],
@@ -5865,18 +6918,31 @@
         "type": "number",
         "readonly": false
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGB 颜色"
+        "Declared by documentation page: S-RGB 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "r: number",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ],
@@ -5912,18 +6978,31 @@
         "parameters": [],
         "returns": "GameRGBColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGB 颜色"
+        "Declared by documentation page: S-RGB 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "random(): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ],
@@ -5993,18 +7072,31 @@
         ],
         "returns": "GameRGBColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGB 颜色"
+        "Declared by documentation page: S-RGB 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "set(r: number, g: number, b: number): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ],
@@ -6086,18 +7178,31 @@
         ],
         "returns": "GameRGBColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGB 颜色"
+        "Declared by documentation page: S-RGB 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "sub(rgb:GameRGBColor): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ],
@@ -6157,18 +7262,31 @@
         ],
         "returns": "GameRGBColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGB 颜色"
+        "Declared by documentation page: S-RGB 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "subEq(rgb:GameRGBColor): GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ],
@@ -6216,18 +7334,31 @@
         "parameters": [],
         "returns": "GameRGBAColor"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGB 颜色"
+        "Declared by documentation page: S-RGB 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "toRGBA(): GameRGBAColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ],
@@ -6263,18 +7394,31 @@
         "parameters": [],
         "returns": "string"
       },
-      "availability": "declared",
-      "compatibility": "missing",
-      "capability": null,
-      "since": null,
+      "availability": "confirmed",
+      "compatibility": "emulated",
+      "capability": "shared.math",
+      "since": "0.1.0",
       "notes": [
-        "Declared by documentation page: S-RGB 颜色"
+        "Declared by documentation page: S-RGB 颜色",
+        "The local component formula, zero-divisor behavior, return type, and mutation behavior match the recovered origin color source."
       ],
       "evidence": [
         {
           "type": "docs",
           "path": "dao3-docs-mirror/markdown/api/GameRGBColor/index.md",
           "symbol": "toString(): string",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/colors.mjs",
+          "symbol": "GameRGBColor",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameRGBColor.js",
+          "symbol": "GameRGBColor",
           "confidence": "direct"
         }
       ],

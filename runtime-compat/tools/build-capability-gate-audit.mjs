@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { isEvidenceBackedRecoveredCanonical } from "../../demo-map/src/recovered-canonical-evidence.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const corpus = await readJson("generated/script-corpus-gap-report.json");
@@ -9,9 +10,9 @@ const current = await readJson("abi/current-runtime.json");
 const entries = new Map(matrix.entries.map(entry => [entry.id, entry]));
 const currentEntries = new Map(current.entries.map(entry => [entry.id, entry]));
 const evidenceBlockers = new Map([
-  ["server:world.onChat", "The historical GameChatEvent shape is recovered, but no Player/browser-to-backend chat ingress reaches the local Server Script Runtime."],
+  ["server:world.onChat", "The historical GameChatEvent consumer reads chatEvents.chats, while the recovered Player game-chat client-to-server surface only sends administrator noticeMessage {title,detail}; no Player chat producer reaches the local Server Script Runtime."],
   ["server:storage.getGroupStorage", "The default local Runtime has no authoritative DAO3 group identity or group-scoped storage provider."],
-  ["server:world.onPlayerPurchaseSuccess", "The market protocols recover marketplace open/acknowledgement messages but no purchase-success ingress into the local Server Script Runtime."],
+  ["server:world.onPlayerPurchaseSuccess", "Historical ScriptShell consumes tick.purchaseSuccessEvents {userId,productId,orderId,messageId} and acknowledges messageId, while the recovered Player market protocol only receives openMarketplace and has no client-to-server result message; no purchase producer reaches the local Server Script Runtime."],
 ]);
 
 const requirements = corpus.requirements.map(requirement => {
@@ -39,8 +40,10 @@ const requirements = corpus.requirements.map(requirement => {
     launchState = "blocked";
     reasons.push(`Canonical ABI is ${declaration.status} and has no executable local binding.`);
   } else if (!declaration && selectedBinding) {
-    launchState = "partial";
-    reasons.push("Executable recovered canonical surface is outside the documented declaration matrix and cannot be claimed as fully conformant.");
+    launchState = isEvidenceBackedRecoveredCanonical(selectedBinding) ? "ready" : "partial";
+    reasons.push(launchState === "ready"
+      ? "Recovered canonical surface is outside the documented declaration matrix, but direct runtime evidence proves the executable contract."
+      : "Executable recovered canonical surface is outside the documented declaration matrix and lacks sufficient evidence for a ready launch claim.");
   } else if (effectiveCompatibility === "partial") {
     launchState = "partial";
     reasons.push("At least one evidence-backed behavioral gap remains on the executable binding.");
@@ -48,7 +51,9 @@ const requirements = corpus.requirements.map(requirement => {
     launchState = "ready";
   }
   const gaps = [...new Set(executableBindings.flatMap(binding => binding.gaps ?? []).map(sanitizeEvidenceText))].sort();
-  if (!declaration && selectedBinding) reasons.push(`Executable recovered canonical surface is not present in the documented declaration matrix: ${selectedBinding.id}.`);
+  if (!declaration && selectedBinding) reasons.push(launchState === "ready"
+    ? `Direct evidence resolves the recovered current-runtime canonical binding: ${selectedBinding.id}.`
+    : `Executable recovered canonical surface is not present in the documented declaration matrix: ${selectedBinding.id}.`);
   reasons.push(...gaps.filter(gap => !reasons.includes(gap)));
   return Object.freeze({
     side: requirement.side,

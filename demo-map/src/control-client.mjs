@@ -13,6 +13,18 @@ export async function sendClientEventToBackend(options) {
   return result;
 }
 
+export async function sendSoundCommandToBackend(options) {
+  const response = await fetch(`http://127.0.0.1:${options.port}/__nea/control/sound-command`, {
+    method: "POST",
+    headers: { authorization: `Bearer ${options.token}`, "content-type": "application/json" },
+    body: JSON.stringify({ command: options.command }),
+    signal: options.signal,
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || result.ok !== true) throw new Error(result.error ?? `Backend sound bridge failed with HTTP ${response.status}`);
+  return result.delivered;
+}
+
 export async function sendChatMessageToBackend(options) {
   const response = await fetch(`http://127.0.0.1:${options.port}/__nea/control/chat-message`, {
     method: "POST",
@@ -24,6 +36,21 @@ export async function sendChatMessageToBackend(options) {
       ...(options.session === undefined ? {} : { session: options.session }),
       message: options.message,
     }),
+    signal: options.signal,
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || result.ok !== true) throw new Error(result.error ?? `Backend chat bridge failed with HTTP ${response.status}`);
+  return result;
+}
+
+export async function sendChatMessagesToBackend(options) {
+  const response = await fetch(`http://127.0.0.1:${options.port}/__nea/control/chat-message`, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${options.token}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ deliveries: options.deliveries }),
     signal: options.signal,
   });
   const result = await response.json().catch(() => ({}));
