@@ -1,7 +1,7 @@
 {
   "format": "nea-api-abi-completeness",
   "version": 1,
-  "generatedAt": "2026-07-31T04:51:23.519Z",
+  "generatedAt": "2026-07-31T05:02:42.685Z",
   "status": "complete",
   "signatureModel": "member-variants-v1",
   "rules": {

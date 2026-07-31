@@ -44,7 +44,7 @@ Compatibility conclusions are generated from local declarations, historical bund
 
 ## Quick Start
 
-Prerequisites: a supported Node.js runtime and the tracked repository assets.
+Prerequisites: a supported Node.js runtime, the tracked repository assets, and network access for the pinned MuDB compiler on the first clean start.
 
 ```powershell
 npm --prefix demo-map start
