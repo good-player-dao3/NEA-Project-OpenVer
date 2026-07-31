@@ -27,6 +27,7 @@ const entries = new Map(abi.entries.map(entry => [entry.id, entry]));
 const declarations = new Map(serverCatalog.entries.map(entry => [entry.id, entry]));
 const aggregated = new Map();
 const assignments = new Map();
+const evidenceBoundary = readEvidenceBoundary(evidence);
 
 for (const sample of evidence.samples) {
   for (const side of ["client", "server"]) {
@@ -66,7 +67,10 @@ const report = {
   format: "nea-script-corpus-compatibility-gap-report",
   version: 2,
   generatedAt: new Date().toISOString(),
-  evidence: "Middleware/runtime-compat/evidence/script-corpus-usage.json",
+  evidence: {
+    input: "Middleware/runtime-compat/evidence/script-corpus-usage.json",
+    ...evidenceBoundary,
+  },
   summary: {
     samples: evidence.samples.length,
     requirements: requirements.length,
@@ -113,11 +117,25 @@ function priority(item, state) {
   return item.count * stateWeight * sideWeight * criticalWeight;
 }
 
+function readEvidenceBoundary(value) {
+  const provenance = value.provenance;
+  const keys = ["sourceClass", "redactionStatus", "publicStatus", "reproducibilityLimit"];
+  const hasCompleteMetadata = provenance
+    && typeof provenance === "object"
+    && keys.every(key => typeof provenance[key] === "string" && provenance[key].length > 0);
+  if (!hasCompleteMetadata) {
+    throw new Error("Script corpus evidence must declare complete provenance boundaries.");
+  }
+  return Object.fromEntries(keys.map(key => [key, provenance[key]]));
+}
+
 function renderMarkdown(value) {
   const lines = [
     "# Script Corpus Compatibility Gap Report", "", `Generated: ${value.generatedAt}`, "",
     "Private source paths, work identities, and event type names are excluded. Samples only prioritize unified ABI work.", "",
     "A custom extension is reported only when the corpus contains a direct member assignment and the native ABI catalogs contain no matching declaration.", "",
+    "## Evidence Boundaries", "", `- Source class: ${value.evidence.sourceClass}`, `- Redaction: ${value.evidence.redactionStatus}`,
+    `- Publication status: ${value.evidence.publicStatus}`, `- Reproducibility limit: ${value.evidence.reproducibilityLimit}`, "",
     "## Summary", "", `- Anonymous samples: ${value.summary.samples}`, `- Distinct API requirements: ${value.summary.requirements}`,
     `- Executable: ${value.summary.executable}`, `- Partial: ${value.summary.partial}`, `- Unavailable: ${value.summary.unavailable}`,
     `- Missing native ABI: ${value.summary.missing}`, `- Unclassified surfaces: ${value.summary.unclassified}`, `- Script-defined custom extensions: ${value.summary.customExtensions}`, "",

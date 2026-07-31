@@ -1,10 +1,17 @@
 # Script Corpus Compatibility Gap Report
 
-Generated: 2026-07-31T09:27:02.976Z
+Generated: 2026-07-31T16:20:17.097Z
 
 Private source paths, work identities, and event type names are excluded. Samples only prioritize unified ABI work.
 
 A custom extension is reported only when the corpus contains a direct member assignment and the native ABI catalogs contain no matching declaration.
+
+## Evidence Boundaries
+
+- Source class: approved-local-private-inspection
+- Redaction: anonymous-aggregate
+- Publication status: public-sanitized
+- Reproducibility limit: Requires an approved local private source; this aggregate cannot recreate source code, source paths, work identities, member-assignment paths, or event type names.
 
 ## Summary
 
