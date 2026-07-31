@@ -919,8 +919,12 @@ export class ScriptRuntime {
 
   #resolveHurtAttacker(attacker) {
     if (!attacker || typeof attacker !== "object") return null;
-    if ([...this.#players.values()].includes(attacker)) return attacker;
-    if ([...this.#entities.values()].includes(attacker)) return attacker;
+    for (const player of this.#players.values()) {
+      if (player === attacker) return attacker;
+    }
+    for (const entity of this.#entities.values()) {
+      if (entity === attacker) return attacker;
+    }
     return null;
   }
 
