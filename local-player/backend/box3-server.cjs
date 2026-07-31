@@ -8643,12 +8643,17 @@ async function loadProjectBootstrap(assetRoot, manifestName = "project/bedwars/b
   if (typeof fileHash !== "string" || !SHA256.test(fileHash)) throw new Error("Invalid project bootstrap file hash");
   const bootstrapPath = resolveInside3((0, import_node_path4.dirname)(manifestPath), fileName);
   const bootstrapInfo = await (0, import_promises3.stat)(bootstrapPath);
-  if (!bootstrapInfo.isFile() || bootstrapInfo.size !== fileBytes || bootstrapInfo.size > MAX_BOOTSTRAP_BYTES) {
+  if (!bootstrapInfo.isFile() || bootstrapInfo.size > MAX_BOOTSTRAP_BYTES) {
     throw new Error("Project bootstrap data does not match its manifest");
   }
-  const bytes = await (0, import_promises3.readFile)(bootstrapPath);
-  if (bytes.byteLength !== fileBytes || (0, import_node_crypto3.createHash)("sha256").update(bytes).digest("hex") !== fileHash) {
-    throw new Error("Project bootstrap data does not match its manifest");
+  let bytes = await (0, import_promises3.readFile)(bootstrapPath);
+  const matchesManifest = (candidate) => candidate.byteLength === fileBytes && (0, import_node_crypto3.createHash)("sha256").update(candidate).digest("hex") === fileHash;
+  if (!matchesManifest(bytes)) {
+    const normalized = Buffer.from(bytes.toString("utf8").replace(/\r\n/g, "\n"), "utf8");
+    if (!matchesManifest(normalized)) {
+      throw new Error("Project bootstrap data does not match its manifest");
+    }
+    bytes = normalized;
   }
   return validateProjectBootstrap(JSON.parse(bytes.toString("utf8")));
 }

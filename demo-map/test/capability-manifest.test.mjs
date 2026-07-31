@@ -602,6 +602,26 @@ test("capability manifest inventories project and script-created entity projecti
   assert.equal(result.summary.blockedEntities, 0);
 });
 
+test("capability manifest inventories every dynamic createEntity call without fabricating projection", () => {
+  const result = manifest({
+    serverSource: `
+      const spec = makeEntitySpec();
+      world.createEntity(spec);
+      world.createEntity({ id: "dynamic-mesh", mesh: selectedMesh, nested: { value: true } });
+      world.createEntity({ id: "known", mesh: "captured.mesh", nested: { value: true } });
+    `,
+    serverCapabilities: ["server.world.entities"],
+    assets: [{ name: "captured.mesh", runtimeBinding: "validated-mesh" }],
+  });
+  const scriptEntities = result.entities.filter(item => item.source === "script");
+  assert.equal(scriptEntities.length, 3);
+  assert.deepEqual(scriptEntities.map(item => item.occurrence).sort((left, right) => left - right), [1, 2, 3]);
+  assert.ok(scriptEntities.some(item => item.callShape === "dynamic-expression" && item.projection === "dynamic-spec-script-local-unless-validated-at-runtime" && item.state === "partial"));
+  assert.ok(scriptEntities.some(item => item.id === "dynamic-mesh" && item.mesh === null && item.projection === "dynamic-mesh-script-local-unless-validated-at-runtime" && item.state === "partial"));
+  assert.ok(scriptEntities.some(item => item.id === "known" && item.mesh === "captured.mesh" && item.projection === "validated-mesh-binding" && item.state === "ready"));
+  assert.equal(result.dependencies.filter(item => item.id === "authoritative:runtime-entity-projection").length, 1);
+});
+
 test("capability manifest blocks project mesh projection but keeps unknown script meshes local", () => {
   const result = manifest({
     serverSource: `world.createEntity({ id: "temporary", mesh: "unknown.mesh" });`,

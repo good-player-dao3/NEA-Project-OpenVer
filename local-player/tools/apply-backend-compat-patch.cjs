@@ -3,7 +3,7 @@ const { readFileSync, writeFileSync } = require("node:fs");
 const { join } = require("node:path");
 
 const BASE_SHA256 = "d35b3db79e93c03021fcb0ad62bf20d89e4bef470553bff17be6c9e3a61cc097";
-const TARGET_SHA256 = "781760ff619c95c7eab835dabc198e08b3b445177ffa479a3893bf10e1b68b43";
+const TARGET_SHA256 = "ab169d4ffcb93dd239dad255b0c6fa895e43815af2c7cadba1276e6bcfa30241";
 
 function applyBackendCompatPatch(bundlePath) {
   const source = readFileSync(bundlePath, "utf8");
