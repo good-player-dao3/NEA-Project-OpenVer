@@ -1,5 +1,3 @@
-[中文](docs_zh-cn/README.md)
-
 # NEA Project OpenVer
 
 NEA Project OpenVer is a source-available preservation and compatibility project for the discontinued `dao3.fun` game runtime. It is an evidence-first local implementation: preserved packages, Script Runtime behavior, MuDB transport, and the authoritative runtime are kept as separate layers rather than treated as one opaque Player binary.
