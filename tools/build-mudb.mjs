@@ -68,11 +68,14 @@ function installToolchain() {
   }, null, 2)}\n`);
 
   console.log(`[mudb] installing typescript@${TYPESCRIPT_VERSION} into tools/.mudb-toolchain`);
-  const install = spawnSync(process.platform === "win32" ? "npm.cmd" : "npm", ["install", "--no-audit", "--no-fund", "--ignore-scripts"], {
+  const npmArguments = ["install", "--no-audit", "--no-fund", "--ignore-scripts"];
+  const npmExecPath = process.env.npm_execpath;
+  const install = npmExecPath && existsSync(npmExecPath)
+    ? spawnSync(process.execPath, [npmExecPath, ...npmArguments], { cwd: toolchainRoot, stdio: "inherit" })
+    : spawnSync(process.platform === "win32" ? "npm.cmd" : "npm", npmArguments, {
     cwd: toolchainRoot,
     stdio: "inherit",
-    shell: process.platform === "win32",
-  });
+    });
   if (install.status !== 0) fail("could not install the TypeScript toolchain; the first build needs network access");
 }
 
