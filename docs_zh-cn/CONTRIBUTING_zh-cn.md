@@ -4,7 +4,7 @@
 
 ## 在修改代码之前
 
-1. 阅读[仓库布局](docs/repository-layout.md)和[开放版本政策](docs/open-version.md)。
+1. 阅读[仓库布局](./docs/repository-layout_zh-cn.md)和[开放版本政策](./docs/open-version_zh-cn.md)。
 2. 找到拥有该行为的现有运行时层。不要引入并行的 Player 或脚本运行时。
 3. 定位直接的本地证据：文档、声明、历史捆绑包、已记录的传输、保留的运行时代码或真实脚本用法。
 4. 当证据无法确立行为时，记录兼容性缺口，而不是进行猜测。

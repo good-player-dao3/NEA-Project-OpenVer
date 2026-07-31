@@ -1,4 +1,4 @@
-[中文](README_zh-cn.md)
+[中文](docs_zh-cn/README.md)
 
 # NEA Project OpenVer
 
