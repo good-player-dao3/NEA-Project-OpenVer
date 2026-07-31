@@ -8,13 +8,25 @@ export class FixedStepPlayerPhysics {
     this.gravity = finiteOption(options.gravity, DEFAULT_GRAVITY);
     this.maxFallSpeed = Math.abs(finiteOption(options.maxFallSpeed, DEFAULT_MAX_FALL_SPEED));
     this.stepHeight = Math.max(0, finiteOption(options.stepHeight, 1.25));
+    this.daoWorldPhysics = null;
+  }
+
+  setDaoWorldPhysics(gravity, velocityDamping, tickRate) {
+    const normalizedTickRate = Number(tickRate);
+    if (!Number.isFinite(normalizedTickRate) || normalizedTickRate <= 0) throw new RangeError("tickRate must be positive and finite");
+    this.daoWorldPhysics = Object.freeze({
+      gravity: Number(gravity) || 0,
+      velocityDamping: Number(velocityDamping) > 1e-6 ? Number(velocityDamping) : 0,
+      tickRate: normalizedTickRate,
+    });
   }
 
   step(body, deltaTime) {
     if (!Number.isFinite(deltaTime) || deltaTime <= 0) throw new RangeError("deltaTime must be positive and finite");
     sanitize(body);
     const wasGrounded = body.grounded;
-    body.velocity.y = Math.max(-this.maxFallSpeed, body.velocity.y + this.gravity * deltaTime);
+    if (this.daoWorldPhysics) applyDaoWorldPhysics(body, deltaTime, this.daoWorldPhysics, this.maxFallSpeed);
+    else body.velocity.y = Math.max(-this.maxFallSpeed, body.velocity.y + this.gravity * deltaTime);
     body.grounded = false;
     const collisions = [];
 
@@ -68,6 +80,20 @@ export class FixedStepPlayerPhysics {
       ...fluids,
     });
   }
+}
+
+function applyDaoWorldPhysics(body, deltaTime, physics, maxFallSpeed) {
+  const deltaTicks = deltaTime * physics.tickRate;
+  const velocityScale = physics.velocityDamping > 0 ? Math.exp(-physics.velocityDamping * deltaTicks) : 1;
+  const accelerationFactor = physics.velocityDamping > 0
+    ? (1 - velocityScale) / physics.velocityDamping
+    : deltaTicks;
+  body.velocity.x *= velocityScale;
+  body.velocity.y = Math.max(
+    -maxFallSpeed,
+    velocityScale * body.velocity.y + physics.tickRate * accelerationFactor * physics.gravity,
+  );
+  body.velocity.z *= velocityScale;
 }
 
 function fluidState(world, body) {

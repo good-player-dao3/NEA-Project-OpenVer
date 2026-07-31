@@ -1,7 +1,7 @@
 {
   "format": "nea-physics-player-posture-abi",
   "version": 2,
-  "generatedAt": "2026-07-30T11:06:44.980Z",
+  "generatedAt": "2026-07-31T04:39:05.683Z",
   "stateEncoding": {
     "PlayerFlyState": {
       "shift": 0,

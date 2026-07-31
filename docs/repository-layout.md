@@ -11,7 +11,7 @@ This repository contains executable compatibility code alongside historical pres
 | `local-player/` | Recovered Player hosting, compatibility backend, launchers, Player-side adapters | `npm --prefix local-player test` when applicable |
 | `preservation-dump/` | Live capture and editor export tools | Individual `node --check` and self-tests |
 | `works/` | Local catalog for recovered works and import-development fixtures | Private work contents remain ignored |
-| `docs/` | Repository-wide layout, architecture, and open-version policy | Documentation review |
+| `docs/` | Repository-wide layout, architecture, cold-start guide, and open-version policy | Documentation review |
 | `tools/` | Small Windows-safe maintenance helpers | Tool-specific checks |
 
 New executable behavior should normally belong to one of these directories. Do not create another runtime or Player implementation at the repository root.

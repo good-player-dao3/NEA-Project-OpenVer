@@ -169,12 +169,12 @@ const memberSpecs = [
   }),
   partial("server.RuntimePlayer.onClick", ["server.GameEntity.onClick"], {
     access: [],
-    signature: ["The recovered GameClickEvent fields are exposed; the historical optional listener filter remains unimplemented."],
+    signature: ["The recovered onClick(handler) listener signature and GameClickEvent fields are exposed."],
     effect: ["A clicked player receives the same event object after world.onClick when its backend entity id is authoritative."],
   }),
   originPartial("server.RuntimePlayer.nextClick", ["server.GameEntity.nextClick"], {
     access: [],
-    signature: ["The historical optional filter remains unimplemented."],
+    signature: ["The recovered nextClick(filter?) promise signature and optional filter are implemented."],
     effect: ["Resolution depends on an authoritative backend player id."],
   }),
   partial("server.RuntimePlayer.onPress", ["server.GamePlayerEntity.onPress"], {
@@ -248,7 +248,7 @@ const memberSpecs = [
   partial("server.RuntimePlayer.sendMessage", ["server.GamePlayerEntity.directMessage"], {
     access: [],
     signature: ["Canonical directMessage accepts a string; local sendMessage accepts an unknown value and formats it for logging."],
-    effect: ["Targeted delivery now uses the recovered Player game-chat.log packet with private=true through the bound MuDB session.", "The historical MAX_CHATS_PER_TICK buffering/flush policy and Player display acknowledgement remain unimplemented."],
+    effect: ["Targeted delivery now uses the recovered Player game-chat.log packet with private=true through the bound MuDB session; removed/destroyed receivers are silently dropped.", "Player removal marks the RuntimePlayer destroyed and dispatches world.onPlayerLeave, player.onDestroy, then world.onEntityDestroy in recovered order.", "The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."],
   }, ["server.GamePlayer.directMessage"]),
   partial("server.RuntimePlayer.dialog", ["server.GamePlayerEntity.dialog"], {
     access: [],

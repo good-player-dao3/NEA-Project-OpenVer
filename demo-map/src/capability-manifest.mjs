@@ -17,6 +17,15 @@ const ALIASES = Object.freeze({
   "client:input.pointerLockEvents": "client.input.pointerLockEvents",
 });
 
+const OWNER_BASES = Object.freeze({
+  UiRenderable: Object.freeze(["UiNode"]),
+  UiBox: Object.freeze(["UiRenderable"]),
+  UiScrollBox: Object.freeze(["UiRenderable"]),
+  UiText: Object.freeze(["UiRenderable"]),
+  UiInput: Object.freeze(["UiText"]),
+  UiImage: Object.freeze(["UiRenderable"]),
+});
+
 const EVENT_PAYLOAD_OWNERS = Object.freeze({
   onTick: "GameTickEvent",
   nextTick: "GameTickEvent",
@@ -345,7 +354,8 @@ function analyzeScript(side, source, capabilities, matrix, current, moduleName, 
     const evidenceBlockReason = canonicalId ? EVIDENCE_BLOCKED_REQUIREMENTS[canonicalId] ?? null : null;
     const executable = declaration?.executable === true || binding?.availability === "confirmed" || localExtension !== null || scriptOwned;
     const compatibility = scriptOwned ? "script-owned" : bindingSelection?.localBinding.status ?? binding?.compatibility ?? binding?.status ?? declaration?.status ?? (localExtension ? "extension" : "unclassified");
-    const state = scriptOwned ? "script-owned" : !executable || missingCapability || evidenceBlockReason ? "blocked" : compatibility === "partial" || compatibility === "extension" || (!declaration && binding) ? "partial" : "ready";
+    const refinement = selectorLiteralRefinement(side, source, item);
+    const state = scriptOwned ? "script-owned" : !executable || missingCapability || evidenceBlockReason ? "blocked" : refinement?.state === "ready" ? "ready" : compatibility === "partial" || compatibility === "extension" || (!declaration && binding) ? "partial" : "ready";
     const reasons = [];
     if (canonicalId && !declaration && binding) reasons.push(`Executable recovered canonical surface is not present in the documented declaration matrix: ${canonicalId}.`);
     else if (!canonicalId && localExtension) reasons.push(`Executable local extension is not a canonical DAO3 declaration: ${localExtension.id}.`);
@@ -355,9 +365,56 @@ function analyzeScript(side, source, capabilities, matrix, current, moduleName, 
     else if (!executable) reasons.push(`Canonical ABI is ${compatibility} and has no executable local binding.`);
     if (missingCapability) reasons.push(`Required capability is not granted: ${capability}.`);
     if (evidenceBlockReason) reasons.push(evidenceBlockReason);
-    for (const gap of bindingSelection?.localBinding.gaps ?? []) if (!reasons.includes(gap)) reasons.push(gap);
+    for (const gap of bindingSelection?.localBinding.gaps ?? []) {
+      if (refinement?.state === "ready" && /testComponent|component names/i.test(gap)) continue;
+      if (!reasons.includes(gap)) reasons.push(gap);
+    }
+    if (refinement?.reason && !reasons.includes(refinement.reason)) reasons.push(refinement.reason);
     return Object.freeze({ side, module: moduleName, usage: item.usage, owner: item.owner, operation: item.operation, canonicalId, localExtensionId: localExtension?.id ?? null, compatibility, capability, state, reasons });
   });
+}
+
+function selectorLiteralRefinement(side, source, item) {
+  if (side !== "server" || item.operation !== "call") return null;
+  const member = /^world\.(querySelector|querySelectorAll|testSelector)$/.exec(item.usage)?.[1];
+  if (!member) return null;
+  const callPattern = new RegExp(`\\bworld\\.${member}\\s*\\(`, "g");
+  let count = 0;
+  for (const match of source.matchAll(callPattern)) {
+    count += 1;
+    const literal = readSimpleStringLiteral(source, match.index + match[0].length);
+    if (literal === null || !hasOnlyRecoveredSelectorTokens(literal)) return null;
+  }
+  if (count === 0) return null;
+  return Object.freeze({
+    state: "ready",
+    reason: `All ${count} ${item.usage} call${count === 1 ? "" : "s"} use only statically proven recovered selector tokens; the unrecovered generic testComponent path is not required by this project.`,
+  });
+}
+
+function readSimpleStringLiteral(source, start) {
+  let index = start;
+  while (/\s/.test(source[index] ?? "")) index += 1;
+  const quote = source[index];
+  if (quote !== '"' && quote !== "'") return null;
+  let value = "";
+  for (index += 1; index < source.length; index += 1) {
+    const char = source[index];
+    if (char === quote) return value;
+    if (char === "\\" || char === "\n" || char === "\r") return null;
+    value += char;
+  }
+  return null;
+}
+
+function hasOnlyRecoveredSelectorTokens(selector) {
+  for (const part of selector.split(",")) {
+    const token = part.trim();
+    if (token.length === 0 || token === "entity" || token === "player" || token.startsWith("*")) continue;
+    if ((token.startsWith(".") || token.startsWith("#")) && !/\s/.test(token)) continue;
+    return false;
+  }
+  return true;
 }
 
 function collectScriptOwnedSurfaces(side, modules, ownersByModule, matrix, current) {
@@ -481,11 +538,26 @@ function resolveCanonicalId(side, usage, matrix, current, inferredOwner = null) 
   const direct = `${side}.${root}.${member}`;
   if (matrix.has(direct)) return direct;
   if (current.get(direct)?.availability === "confirmed") return direct;
-  const owners = owner === "GamePlayerEntity" ? new Set([owner, "GameEntity"]) : new Set([owner, root]);
+  const owners = ownerCandidates(owner, root);
   const candidates = [...matrix.values()].filter(entry => entry.side === side && entry.name === member && owners.has(entry.owner));
   if (candidates.length === 1) return candidates[0].id;
   const recoveredCandidates = [...current.values()].filter(entry => entry.side === side && entry.name === member && owners.has(entry.owner) && entry.availability === "confirmed");
   return recoveredCandidates.length === 1 ? recoveredCandidates[0].id : null;
+}
+
+function ownerCandidates(owner, root) {
+  const result = new Set([owner, root]);
+  if (owner === "GamePlayerEntity") result.add("GameEntity");
+  const pending = [owner];
+  while (pending.length > 0) {
+    const current = pending.pop();
+    for (const base of OWNER_BASES[current] ?? []) {
+      if (result.has(base)) continue;
+      result.add(base);
+      pending.push(base);
+    }
+  }
+  return result;
 }
 
 function resolveLocalExtension(side, usage, inferredOwner, current) {

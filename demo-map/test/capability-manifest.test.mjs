@@ -450,6 +450,39 @@ test("capability manifest gates recovered world configuration properties", () =>
   }
 });
 
+test("capability manifest refines supported literal selectors without changing the global partial ABI", () => {
+  const result = manifest({
+    serverSource: `
+      world.querySelectorAll("player");
+      world.querySelectorAll(".team,#spawn,*");
+      world.querySelector("entity");
+      world.testSelector("#target", world.querySelector("player"));
+    `,
+    serverCapabilities: ["server.world.entities"],
+  });
+  for (const usage of ["world.querySelector", "world.querySelectorAll", "world.testSelector"]) {
+    const requirement = result.requirements.find(item => item.usage === usage);
+    assert.equal(requirement.compatibility, "partial");
+    assert.equal(requirement.state, "ready");
+    assert.ok(requirement.reasons.some(reason => reason.includes("statically proven recovered selector tokens")));
+    assert.equal(requirement.reasons.some(reason => reason.includes("testComponent implementation")), false);
+  }
+});
+
+test("capability manifest keeps dynamic and unknown component selectors partial", () => {
+  const dynamic = manifest({
+    serverSource: `const selector = getSelector(); world.querySelectorAll(selector);`,
+    serverCapabilities: ["server.world.entities"],
+  });
+  assert.equal(dynamic.requirements.find(item => item.usage === "world.querySelectorAll").state, "partial");
+  const component = manifest({
+    serverSource: `world.querySelectorAll("rigidbody");`,
+    serverCapabilities: ["server.world.entities"],
+  });
+  assert.equal(component.requirements.find(item => item.usage === "world.querySelectorAll").state, "partial");
+  assert.ok(component.diagnostics.some(item => item.code === "selector-component-unverified"));
+});
+
 test("capability manifest reports unknown API surfaces without inventing bindings", () => {
   const result = manifest({ serverSource: "world.notRecovered();" });
   const requirement = result.requirements.find(item => item.usage === "world.notRecovered");
@@ -484,6 +517,9 @@ test("capability manifest propagates entity, player, and client UI variable owne
     clientSource: `
       const label = UiText.create();
       label.textContent = "ready";
+      label.anchor.copy(Vec2.create({ x: 0, y: 0 }));
+      label.position.offset.copy(Vec2.create({ x: 20, y: 20 }));
+      label.size.offset.copy(Vec2.create({ x: 560, y: 150 }));
     `,
     serverCapabilities: ["server.world.entities", "server.world.events", "server.world.chat", "server.player"],
   });
@@ -493,7 +529,13 @@ test("capability manifest propagates entity, player, and client UI variable owne
   assert.equal(snapshot.compatibility, "extension");
   assert.equal(snapshot.state, "partial");
   assert.ok(result.requirements.some(item => item.owner === "UiText" && item.canonicalId === "client.UiText.textContent"));
-  assert.deepEqual(result.ui, [{ side: "client", module: "client.js", variable: "label", type: "UiText", source: "create", lookupName: null, receiver: "UiText", matchIds: [], state: "ready", reason: null, properties: ["textContent"] }]);
+  for (const member of ["anchor", "position", "size"]) {
+    const requirement = result.requirements.find(item => item.usage === `label.${member}`);
+    assert.equal(requirement.owner, "UiText");
+    assert.equal(requirement.canonicalId, `client.UiRenderable.${member}`);
+    assert.equal(requirement.state, "ready");
+  }
+  assert.deepEqual(result.ui, [{ side: "client", module: "client.js", variable: "label", type: "UiText", source: "create", lookupName: null, receiver: "UiText", matchIds: [], state: "ready", reason: null, properties: ["anchor", "position", "size", "textContent"] }]);
 });
 
 test("capability manifest verifies static UI lookups against the packaged tree", () => {

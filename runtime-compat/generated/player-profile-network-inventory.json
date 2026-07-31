@@ -1,7 +1,7 @@
 {
   "format": "nea-player-profile-network-inventory",
   "version": 1,
-  "generatedAt": "2026-07-30T11:06:43.633Z",
+  "generatedAt": "2026-07-31T04:39:05.042Z",
   "source": {
     "path": "local-player/.profile/Default",
     "policy": "Only non-secret store metadata, static resource paths, hashes, byte counts and fixed protocol keyword counts are emitted.",

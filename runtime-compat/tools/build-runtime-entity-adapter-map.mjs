@@ -53,7 +53,7 @@ const specs = [
   }),
   partial("server.RuntimeEntity.onClick", "server.GameEntity.onClick", {
     access: [],
-    signature: ["The recovered GameClickEvent fields are exposed; the historical optional listener filter remains unimplemented."],
+    signature: ["The recovered onClick(handler) listener signature and GameClickEvent fields are exposed."],
     effect: ["World and clicked-entity double dispatch is implemented when game-net supplies an authoritative entity binding."],
   }),
   partial("server.RuntimeEntity.onFluidEnter", "server.GameEntity.onFluidEnter", {
@@ -113,7 +113,7 @@ const specs = [
   }),
   originPartial("server.RuntimeEntity.nextClick", "server.GameEntity.nextClick", {
     access: [],
-    signature: ["The historical optional filter remains unimplemented."],
+    signature: ["The recovered nextClick(filter?) promise signature and optional filter are implemented."],
     effect: ["Resolution depends on an authoritative backend entity binding."],
   }),
   partial("server.RuntimeEntity.tags", "server.GameEntity.tags", {
@@ -124,7 +124,7 @@ const specs = [
   partial("server.RuntimeEntity.say", "server.GameEntity.say", {
     access: [],
     signature: [],
-    effect: ["Mapped entities emit the recovered game-chat.log sender id, duration, and hideFloat fields to every connected Player session.", "Entities without an authoritative backend id remain script-local and do not receive a fabricated sender id or floating bubble.", "The historical MAX_CHATS_PER_TICK buffering and Player display acknowledgement remain unimplemented."],
+    effect: ["Mapped live entities emit the recovered game-chat.log sender id, duration, and hideFloat fields to every connected Player session; destroyed senders are silently dropped.", "Entities without an authoritative backend id remain script-local and do not receive a fabricated sender id or floating bubble.", "The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."],
   }),
   partial("server.RuntimeEntity.destroyed", "server.GameEntity.destroyed", {
     access: [],
