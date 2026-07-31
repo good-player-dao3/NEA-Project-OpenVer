@@ -109,6 +109,19 @@ remoteChannel.sendServerEvent({
   runtimeApiVersion: "0.1.0"
 });
 
+input.pointerLockEvents.add("pointerlockchange", ({ isLocked }) => {
+  const pointerStatus = isLocked ? "pointer: locked" : "pointer: unlocked";
+  updateRuntimeStatus([
+    "client: dao3-client-runtime/v1",
+    lastServerStatus,
+    pointerStatus,
+  ]);
+  remoteChannel.sendServerEvent({
+    type: "nea-demo:pointer-lock",
+    isLocked: Boolean(isLocked),
+  });
+});
+
 remoteChannel.events.on("client", event => {
   if (event?.type === "nea-demo:welcome") {
     console.log(`[NEA Demo] welcome received at server tick ${event.tick}`);
