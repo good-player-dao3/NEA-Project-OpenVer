@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+  workflow_dispatch:
+
+# A newer push on the same ref supersedes the run still in flight.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tests (${{ matrix.os }}, Node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        # `import.meta.dirname` is used across the tooling, so Node 20.11+ is the floor.
+        node: ['24']
+
+    steps:
+      # Windows runners default to core.autocrlf=true, which would rewrite every
+      # text file on checkout. .gitattributes pins LF, and runtime-compat asserts
+      # byte-exact SHA-256 hashes, so the checkout must stay identical to Linux.
+      - name: Pin LF checkout on Windows
+        if: runner.os == 'Windows'
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      # mudb is published as TypeScript and ignores its own compiled output, while
+      # the demo-map runtime imports `../../mudb/schema`. Without this compile step a
+      # fresh clone fails to resolve those imports and three demo-map suites die.
+      - name: Restore mudb dependencies
+        id: mudb-cache
+        uses: actions/cache@v4
+        with:
+          path: mudb/node_modules
+          key: mudb-${{ matrix.os }}-node${{ matrix.node }}-${{ hashFiles('mudb/package.json') }}
+
+      # --ignore-scripts skips the pinned native addons (bufferutil, utf-8-validate).
+      # They are runtime-only extras for `ws` and are not needed to run `tsc`.
+      - name: Install mudb dependencies
+        if: steps.mudb-cache.outputs.cache-hit != 'true'
+        working-directory: mudb
+        run: npm install --ignore-scripts --no-audit --no-fund
+
+      - name: Compile mudb transport
+        working-directory: mudb
+        run: npm run build
+
+      - name: demo-map — validate project import
+        working-directory: demo-map
+        run: npm run validate
+
+      # Every suite reports even after an earlier one fails, so a single drift
+      # cannot mask a regression in another layer.
+      - name: demo-map — script runtime tests
+        if: ${{ !cancelled() }}
+        working-directory: demo-map
+        run: node --test
+
+      - name: preservation-dump — projection tests
+        if: ${{ !cancelled() }}
+        working-directory: preservation-dump
+        run: node --test
+
+      - name: runtime-compat — conformance tests
+        if: ${{ !cancelled() }}
+        working-directory: runtime-compat
+        run: node --test
