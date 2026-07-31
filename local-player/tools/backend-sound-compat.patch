@@ -76,4 +76,3 @@ index 81306a8..01f34b4 100644
        if (request.method === "POST" && url.pathname === "/__nea/control/gui-command") {
          if (typeof body.session !== "string" || !body.command || typeof body.command !== "object" || Array.isArray(body.command)) {
            throw new Error("session and GUI command are required");
-
