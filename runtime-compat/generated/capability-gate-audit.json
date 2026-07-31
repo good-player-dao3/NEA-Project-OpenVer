@@ -1,7 +1,7 @@
 {
   "format": "nea-capability-gate-audit",
   "version": 1,
-  "generatedAt": "2026-07-31T04:51:23.853Z",
+  "generatedAt": "2026-07-31T05:02:43.084Z",
   "inputs": {
     "corpus": "runtime-compat/generated/script-corpus-gap-report.json",
     "matrix": "runtime-compat/abi/compatibility-matrix.json",

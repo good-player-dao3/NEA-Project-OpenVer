@@ -353,7 +353,7 @@ function analyzeScript(side, source, capabilities, matrix, current, moduleName, 
     const missingCapability = capability !== null && !capabilities.includes(capability);
     const evidenceBlockReason = canonicalId ? EVIDENCE_BLOCKED_REQUIREMENTS[canonicalId] ?? null : null;
     const executable = declaration?.executable === true || binding?.availability === "confirmed" || localExtension !== null || scriptOwned;
-    const compatibility = scriptOwned ? "script-owned" : bindingSelection?.localBinding.status ?? binding?.compatibility ?? binding?.status ?? declaration?.status ?? (localExtension ? "extension" : "unclassified");
+    const compatibility = scriptOwned ? "script-owned" : localExtension ? "extension" : bindingSelection?.localBinding.status ?? binding?.compatibility ?? binding?.status ?? declaration?.status ?? "unclassified";
     const refinement = selectorLiteralRefinement(side, source, item);
     const state = scriptOwned ? "script-owned" : !executable || missingCapability || evidenceBlockReason ? "blocked" : refinement?.state === "ready" ? "ready" : compatibility === "partial" || compatibility === "extension" || (!declaration && binding) ? "partial" : "ready";
     const reasons = [];
@@ -449,6 +449,20 @@ function scanUsages(side, source, inferredOwners = new Map()) {
     const pattern = new RegExp(`\\b${escapeRegex(name)}\\.([A-Za-z_$][\\w$]*)`, "g");
     for (const match of scanSource.matchAll(pattern)) for (const owner of owners) add(`${name}.${match[1]}`, owner, memberOperation(source, match.index + match[0].length));
   }
+  for (const [name, owners] of variables) {
+    const pattern = new RegExp(`\\b${escapeRegex(name)}\\.([A-Za-z_$][\\w$]*)\\.([A-Za-z_$][\\w$]*)`, "g");
+    for (const match of scanSource.matchAll(pattern)) {
+      for (const owner of owners) {
+        const nestedOwner = memberResultOwner(owner, match[1]);
+        if (nestedOwner) add(`${match[1]}.${match[2]}`, nestedOwner, memberOperation(source, match.index + match[0].length));
+      }
+    }
+  }
+  if (side === "server") {
+    for (const match of scanSource.matchAll(/\bworld\.querySelector\s*\([^)]*\)\s*\.\s*([A-Za-z_$][\w$]*)/g)) {
+      add(`entity.${match[1]}`, "GameEntity", memberOperation(source, match.index + match[0].length));
+    }
+  }
   if (side === "client") {
     for (const match of scanSource.matchAll(/\b(Ui[A-Za-z_$][\w$]*)\.create\b/g)) add(`${match[1]}.create`, null, "call");
     for (const match of scanSource.matchAll(/\b(UiScreen)\.getAllScreen\b/g)) add(`${match[1]}.getAllScreen`, null, "call");
@@ -460,6 +474,28 @@ function scanUsages(side, source, inferredOwners = new Map()) {
     for (const match of source.matchAll(pattern)) for (const owner of owners) add(`${name}.${match[2]}`, owner, memberOperation(source, match.index + match[0].length));
   }
   return [...usages.values()].sort((left, right) => left.usage.localeCompare(right.usage) || String(left.owner).localeCompare(String(right.owner)) || left.operation.localeCompare(right.operation));
+}
+
+function memberResultOwner(owner, member) {
+  if (owner === "GameEntity" && member === "player") return "GamePlayerEntity";
+  if (owner === "GameChatEvent" && member === "player") return "GamePlayerEntity";
+  if (owner === "GameClickEvent") {
+    if (member === "entity") return "GameEntity";
+    if (member === "clicker") return "GamePlayerEntity";
+    if (member === "raycast") return "GameRaycastResult";
+  }
+  if (owner === "GameInputEvent") {
+    if (member === "entity") return "GamePlayerEntity";
+    if (member === "raycast") return "GameRaycastResult";
+  }
+  if (owner === "GameEntityEvent" && member === "entity") return "GameEntity";
+  if ((owner === "GameDamageEvent" || owner === "GameDieEvent") && (member === "entity" || member === "attacker")) return "GameEntity";
+  if (owner === "GameRespawnEvent" && member === "entity") return "GamePlayerEntity";
+  if (owner === "GameInteractEvent") {
+    if (member === "entity") return "GamePlayerEntity";
+    if (member === "targetEntity") return "GameEntity";
+  }
+  return null;
 }
 
 function maskJavaScriptNonCode(source) {
@@ -809,8 +845,11 @@ function analyzeStaticUncertainty(side, module, inferredOwners = new Map(), opti
   for (const match of module.source.matchAll(/\bimport\s*\(([^)]+)\)/g)) if (!/^\s*["'][^"']+["']\s*$/.test(match[1])) add("dynamic-import", "Dynamic import specifier is not a string literal.");
   const names = new Set([...Object.keys(ROOT_OWNERS[side]), ...inferredOwners.keys()]);
   for (const name of names) {
-    const pattern = new RegExp(`\\b${escapeRegex(name)}\\s*\\[\\s*([^\]"'][^\]]*)\\]`, "g");
-    if (pattern.test(module.source)) add("dynamic-member", `Computed member access cannot be resolved statically: ${name}[...].`);
+    const pattern = new RegExp(`\\b${escapeRegex(name)}\\s*\\[\\s*([^\\]]+)\\]`, "g");
+    for (const match of module.source.matchAll(pattern)) {
+      if (/^(["'])[A-Za-z_$][\w$]*\1$/.test(match[1].trim())) continue;
+      add("dynamic-member", `Computed member access cannot be resolved statically: ${name}[...].`);
+    }
   }
   if (side === "server") {
     if (!options.groupStorageEnabled && /\bstorage\.getGroupStorage\s*\(/.test(module.source)) add("group-storage-scope-unavailable", "getGroupStorage() requires an authoritative group identity and storage provider; the default local project Runtime has neither.");

@@ -39,6 +39,9 @@
 # Rebuildable demo output
 /demo-map/build/
 
+# Pinned TypeScript compiler fetched by tools/build-mudb.mjs
+/tools/.mudb-toolchain/
+
 # Duplicate standalone worktree; the preserved snapshot lives under Lokibox/box-go
 /box-go/
 
@@ -55,6 +58,7 @@
 
 # Logs, caches, and transient files
 *.log
+*.marscode
 *.pid
 *.tmp
 *.temp

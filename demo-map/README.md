@@ -19,6 +19,20 @@ npm start
 
 The Demo starts the historical Player on `4322` and a random-token, loopback-only Script Runtime control bridge on `4323`. Set `NEA_DEMO_CONTROL_PORT` to move the bridge or `NEA_DEMO_CONTROL_TOKEN` only for deterministic local testing.
 
+## MuDB build
+
+`src/server.mjs` and three test suites load the preserved block catalog through `../../local-player/src/block-info.mjs`, which requires `mudb/schema` and `mudb/stream`. MuDB is vendored as TypeScript and ignores its own compiled output, so a fresh clone has no such modules and those suites fail to resolve their imports.
+
+`npm test` and `npm start` therefore run `../tools/build-mudb.mjs` first. The script compiles only the `schema` and `stream` layers, skips work when the emitted files are newer than `mudb/src`, and on its first run installs a pinned TypeScript into the gitignored `tools/.mudb-toolchain/`. Every later run is a no-op, so only the first build needs network access.
+
+```powershell
+npm run build:mudb              # compile explicitly
+node ..\tools\build-mudb.mjs --check    # verify without building
+node ..\tools\build-mudb.mjs --force    # recompile unconditionally
+```
+
+The script reuses `mudb/node_modules` when MuDB's own dependencies are already installed, so a full `npm install` inside `mudb/` keeps working.
+
 The server-side player model runs fixed-step physics at 20 Hz. Historical Player module 7166 confirms the upright default half extents `0.45 / 1.1 / 0.45`, while Lokibox confirms that `rx/ry/rz` are broadphase bounds and `hsx/hsy/hsz` are separate shape half extents. Player positions remain rigid-body-center coordinates. Runtime snapshots expose the exact collider source and AABB used by the solver. A complete authoritative `bodyHalfExtents` plus `bodyShapeHalfExtents` update replaces the current collider; explicit unknown (`null`) posture shapes preserve it, and partial updates are rejected.
 
 Run `npm run probe:remote` while the Demo is active to create a real MuDB session and verify ack, checkpoint, and hazard events end to end.

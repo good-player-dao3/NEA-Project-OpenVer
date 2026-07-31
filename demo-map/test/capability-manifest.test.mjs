@@ -42,6 +42,7 @@ test("capability manifest records confirmed cross-runtime transport and authorit
     "authoritative:state-write",
     "transport:client-event",
     "transport:client-module-delivery",
+    "transport:player-session-lifecycle",
     "transport:server-event",
   ]);
   assert.ok(result.dependencies.every(item => item.state === "ready"));
@@ -111,7 +112,7 @@ test("capability manifest blocks a required transport flow when contract evidenc
 test("capability manifest uses the effective current-runtime binding status", () => {
   const result = manifest({
     serverSource: `world.onChat(() => {}); world.raycast({ origin: [0, 0, 0], direction: [1, 0, 0] }); storage.getDataStorage("scores");`,
-    serverCapabilities: ["server.world.chat", "server.world.entities"],
+    serverCapabilities: ["server.world.chat", "server.world.entities", "server.storage"],
   });
   for (const usage of ["world.onChat", "world.raycast", "storage.getDataStorage"]) {
     const requirement = result.requirements.find(item => item.usage === usage);
@@ -246,8 +247,8 @@ test("capability manifest requires entity-interact ingress for world and entity 
   });
   const dependency = result.dependencies.find(item => item.id === "transport:entity-interact-ingress");
   assert.equal(dependency.state, "ready");
-  assert.equal(dependency.protocolFamily, "player.entity-interact");
-  assert.deepEqual(dependency.requiredBy, ["server.js:world.onInteract"]);
+  assert.equal(dependency.protocol, "player.entity-interact");
+  assert.deepEqual(dependency.requiredBy, ["server.js:entity.onInteract", "server.js:world.onInteract"]);
 });
 
 test("capability manifest blocks interact subscriptions when ingress evidence is absent", () => {
