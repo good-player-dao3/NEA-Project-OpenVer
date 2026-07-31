@@ -56,6 +56,8 @@ The default demo is then available at:
 http://127.0.0.1:4322/play/nea-script-lab?contentId=100110008
 ```
 
+The command must stay running: it starts both the Server Script Runtime and the Player compatibility backend. Starting `local-player/backend/box3-server.cjs` by itself only serves the Player shell and does not run map scripts. For a clean-clone walkthrough, expected logs, port-conflict recovery, and Capability Manifest troubleshooting, see [Cold Start Guide](docs/cold-start.md).
+
 For repository validation, run the documented package commands when you are ready:
 
 ```powershell

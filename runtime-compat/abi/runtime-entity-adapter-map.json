@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-entity-adapter-map",
   "version": 1,
-  "generatedAt": "2026-07-31T04:04:31.036Z",
+  "generatedAt": "2026-07-31T04:51:22.795Z",
   "contract": "nea-server-runtime/v1",
   "localObject": {
     "id": "server.object.RuntimeEntity",
@@ -445,7 +445,7 @@
       "gaps": {
         "access": [],
         "signature": [
-          "The recovered GameClickEvent fields are exposed; the historical optional listener filter remains unimplemented."
+          "The recovered onClick(handler) listener signature and GameClickEvent fields are exposed."
         ],
         "effect": [
           "World and clicked-entity double dispatch is implemented when game-net supplies an authoritative entity binding."
@@ -1102,7 +1102,7 @@
       "gaps": {
         "access": [],
         "signature": [
-          "The historical optional filter remains unimplemented."
+          "The recovered nextClick(filter?) promise signature and optional filter are implemented."
         ],
         "effect": [
           "Resolution depends on an authoritative backend entity binding."
@@ -1224,9 +1224,9 @@
         "access": [],
         "signature": [],
         "effect": [
-          "Mapped entities emit the recovered game-chat.log sender id, duration, and hideFloat fields to every connected Player session.",
+          "Mapped live entities emit the recovered game-chat.log sender id, duration, and hideFloat fields to every connected Player session; destroyed senders are silently dropped.",
           "Entities without an authoritative backend id remain script-local and do not receive a fabricated sender id or floating bubble.",
-          "The historical MAX_CHATS_PER_TICK buffering and Player display acknowledgement remain unimplemented."
+          "The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
         ]
       },
       "evidence": [

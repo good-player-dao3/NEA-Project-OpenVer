@@ -80,6 +80,8 @@ export class ScriptRuntime {
   #outboundEvents = [];
   #collisionFilters = new Map();
   #validatedMeshNames = new Set();
+  #world;
+  #worldPhysicsSnapshot;
   #now;
   #prevTickMS;
   #signals = {
@@ -260,6 +262,7 @@ export class ScriptRuntime {
     const timing = createTickTiming(this.currentTick, prevTick, now, this.#prevTickMS);
     this.#prevTickMS = now;
     const deltaTime = 1 / this.tickRate;
+    this.#syncWorldPhysics();
     for (const player of this.#players.values()) {
       const contacts = player._authority === "backend"
         ? this.physics.observe(player._body)
@@ -318,7 +321,11 @@ export class ScriptRuntime {
     const player = this.#players.get(id);
     if (!player) return false;
     this.#players.delete(id);
-    this.#signals.playerLeave.emit(createGameEntityEvent(this.currentTick, player), error => this.#reportError("playerLeave", error));
+    player._destroyed = true;
+    const event = createGameEntityEvent(this.currentTick, player);
+    this.#signals.playerLeave.emit(event, error => this.#reportError("playerLeave", error));
+    player._signals.destroy.emit(event, error => this.#reportError("entityDestroy", error));
+    this.#signals.entityDestroy.emit(event, error => this.#reportError("entityDestroy", error));
     return true;
   }
 
@@ -570,6 +577,8 @@ export class ScriptRuntime {
       collisionFilters: () => [...this.#collisionFilters.values()].map(pair => [...pair]),
     };
     const world = Object.defineProperties(new GameWorld(), Object.getOwnPropertyDescriptors(worldProperties));
+    this.#world = world;
+    this.#worldPhysicsSnapshot = Object.freeze({ gravity: world.gravity, airFriction: world.airFriction });
     const guardedWorld = createCapabilityFacade(world, () => this.#require("server.world.config"), WORLD_CONFIG_CAPABILITY_MEMBERS);
     const sendRemoteEvent = (player, event) => {
       const playerId = this.#playerIds.get(player);
@@ -700,6 +709,15 @@ export class ScriptRuntime {
     entity._signals[signalName].emit(event, error => this.#reportError(`${entity.id}.${signalName}`, error));
   }
 
+  #syncWorldPhysics() {
+    if (!this.#world || !this.#worldPhysicsSnapshot) return;
+    const gravity = this.#world.gravity;
+    const airFriction = this.#world.airFriction;
+    if (Object.is(gravity, this.#worldPhysicsSnapshot.gravity) && Object.is(airFriction, this.#worldPhysicsSnapshot.airFriction)) return;
+    this.physics.setDaoWorldPhysics(gravity, airFriction, this.tickRate);
+    this.#worldPhysicsSnapshot = Object.freeze({ gravity, airFriction });
+  }
+
   #allQueryableEntities() {
     return [...this.#entities.values(), ...this.#players.values()];
   }
@@ -751,6 +769,7 @@ export class ScriptRuntime {
 
   _messagePlayer(player, message) {
     this.#require("server.world.chat");
+    if (!isLiveChatEntity(player)) return;
     const text = String(message);
     this.#messages.push({ tick: this.currentTick, playerId: player.id, text });
     this.logger.info(`[script:player:${player.name}] ${text}`);
@@ -759,6 +778,7 @@ export class ScriptRuntime {
 
   _messageEntity(entity, message, options) {
     this.#require("server.world.chat");
+    if (!isLiveChatEntity(entity)) return;
     const text = String(message);
     const duration = options?.duration ? options.duration === Infinity ? -1 : Number(options.duration) : 0;
     const hideFloat = Boolean(options?.hideFloat);
@@ -1090,6 +1110,10 @@ export function createRuntimeEntity(input, runtime = null) {
       return Object.freeze({ id: this.id, name: this.name, kind: this.kind, position: this.position.toArray(), tags: [...this.tags].sort(), destroyed: this.destroyed, enableDamage: this.enableDamage, showHealthBar: this.showHealthBar, hp: this.hp, maxHp: this.maxHp });
     },
   };
+}
+
+export function isLiveChatEntity(entity) {
+  return Boolean(entity && entity.destroyed === false);
 }
 
 function createRuntimePlayer(runtime, input) {

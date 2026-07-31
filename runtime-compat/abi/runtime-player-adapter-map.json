@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-player-adapter-map",
   "version": 1,
-  "generatedAt": "2026-07-31T04:04:31.299Z",
+  "generatedAt": "2026-07-31T04:51:22.888Z",
   "contract": "nea-server-runtime/v1",
   "localObject": {
     "id": "server.object.RuntimePlayer",
@@ -1840,7 +1840,7 @@
       "gaps": {
         "access": [],
         "signature": [
-          "The recovered GameClickEvent fields are exposed; the historical optional listener filter remains unimplemented."
+          "The recovered onClick(handler) listener signature and GameClickEvent fields are exposed."
         ],
         "effect": [
           "A clicked player receives the same event object after world.onClick when its backend entity id is authoritative."
@@ -1889,7 +1889,7 @@
       "gaps": {
         "access": [],
         "signature": [
-          "The historical optional filter remains unimplemented."
+          "The recovered nextClick(filter?) promise signature and optional filter are implemented."
         ],
         "effect": [
           "Resolution depends on an authoritative backend player id."
@@ -2803,8 +2803,9 @@
           "Canonical directMessage accepts a string; local sendMessage accepts an unknown value and formats it for logging."
         ],
         "effect": [
-          "Targeted delivery now uses the recovered Player game-chat.log packet with private=true through the bound MuDB session.",
-          "The historical MAX_CHATS_PER_TICK buffering/flush policy and Player display acknowledgement remain unimplemented."
+          "Targeted delivery now uses the recovered Player game-chat.log packet with private=true through the bound MuDB session; removed/destroyed receivers are silently dropped.",
+          "Player removal marks the RuntimePlayer destroyed and dispatches world.onPlayerLeave, player.onDestroy, then world.onEntityDestroy in recovered order.",
+          "The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
         ]
       },
       "evidence": [

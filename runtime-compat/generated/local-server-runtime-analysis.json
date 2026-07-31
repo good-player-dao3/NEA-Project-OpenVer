@@ -1,11 +1,11 @@
 {
   "format": "nea-local-server-runtime-analysis",
   "version": 1,
-  "generatedAt": "2026-07-31T04:04:30.479Z",
+  "generatedAt": "2026-07-31T04:51:22.620Z",
   "source": {
     "path": "demo-map/src/runtime/script-runtime.mjs",
-    "bytes": 67271,
-    "sha256": "b4cae7adeb5a34c196f1149249d3aa6b41d690547caee6072906bc110c6b2ee3"
+    "bytes": 68368,
+    "sha256": "612f334de1ab3afa501d8ae1cb45fb7610f4fbfe6f28022ad8779d9bb1de10a2"
   },
   "eventTokenSource": {
     "path": "demo-map/src/runtime/event-signal.mjs",
@@ -14359,7 +14359,8 @@
       "status": "partial",
       "gaps": [
         "Broadcast delivery now uses the recovered Player game-chat.log packet through connected MuDB sessions.",
-        "The historical MAX_CHATS_PER_TICK buffering/flush policy and Player display acknowledgement remain unimplemented."
+        "Destroyed sender/receiver endpoints are silently dropped and player removal follows the recovered leave/destroy ordering.",
+        "The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
       ]
     },
     {
@@ -14477,7 +14478,8 @@
       "canonicalId": "server.GameWorld.gravity",
       "status": "partial",
       "gaps": [
-        "The recovered property is script-visible, but writes do not yet reconfigure the fixed-step physics engine."
+        "Script writes reconfigure runtime-owned Player bodies from the next tick using the recovered world-physics binding and fixed-tick unit conversion.",
+        "The local AuthoritativeGameRuntime only arbitrates transforms, and its Player game-net public state marks physics unused; no recovered mutable browser physics channel exists. Generic RuntimeEntity rigid-body integration also remains unavailable."
       ]
     },
     {
@@ -14485,7 +14487,8 @@
       "canonicalId": "server.GameWorld.airFriction",
       "status": "partial",
       "gaps": [
-        "The recovered property is script-visible, but writes do not yet reconfigure the fixed-step physics engine."
+        "Script writes reconfigure runtime-owned Player bodies from the next tick using the recovered airFriction-to-velocityDamping binding and exponential damping formula.",
+        "The local AuthoritativeGameRuntime only arbitrates transforms, and its Player game-net public state marks physics unused; no recovered mutable browser physics channel exists. Generic RuntimeEntity rigid-body integration also remains unavailable."
       ]
     },
     {
@@ -14501,9 +14504,9 @@
       "canonicalId": "server.GameEntity.say",
       "status": "partial",
       "gaps": [
-        "Mapped entities emit recovered game-chat.log sender, duration, and hideFloat fields.",
+        "Mapped live entities emit recovered game-chat.log sender, duration, and hideFloat fields; destroyed senders are silently dropped before logging or transport.",
         "Unmapped entities remain script-local instead of receiving a fabricated Player id.",
-        "Historical MAX_CHATS_PER_TICK buffering and Player display acknowledgement remain unimplemented."
+        "The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
       ]
     },
     {

@@ -1,12 +1,12 @@
 {
   "format": "nea-player-network-body-analysis",
   "version": 1,
-  "generatedAt": "2026-07-30T11:06:39.605Z",
+  "generatedAt": "2026-07-31T04:39:03.305Z",
   "sources": {
     "backend": {
       "path": "local-player/backend/box3-server.cjs",
-      "bytes": 645578,
-      "sha256": "ecb7d1109d2ea0e3e288a073d88de7a920b1325d53ce249e6b48a0ce15fe98f3"
+      "bytes": 652833,
+      "sha256": "781760ff619c95c7eab835dabc198e08b3b445177ffa479a3893bf10e1b68b43"
     },
     "demoPhysics": {
       "path": "demo-map/project/world/physics.json",

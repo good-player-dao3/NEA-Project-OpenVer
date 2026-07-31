@@ -119,6 +119,18 @@ test("horizontal movement stops at a voxel wall", () => {
   assert.equal(body.velocity.x, 0);
 });
 
+test("DAO world gravity and air friction use the recovered exponential fixed-tick integration", () => {
+  const physics = physicsWith([], { gravity: 0, maxFallSpeed: 1_000 });
+  const body = playerBody({ position: [0, 10, 0], velocity: [20, 10, -5] });
+  physics.setDaoWorldPhysics(-0.1, 0.01, 20);
+  physics.step(body, 0.05);
+  const velocityScale = Math.exp(-0.01);
+  const accelerationFactor = (1 - velocityScale) / 0.01;
+  assert.ok(Math.abs(body.velocity.x - 20 * velocityScale) < 1e-12);
+  assert.ok(Math.abs(body.velocity.y - (10 * velocityScale + 20 * accelerationFactor * -0.1)) < 1e-12);
+  assert.ok(Math.abs(body.velocity.z - -5 * velocityScale) < 1e-12);
+});
+
 test("ground contacts enter once and separate after takeoff", () => {
   const physics = physicsWith([{ position: [0, 0, 0], blockId: 631 }]);
   const body = playerBody({ position: [0.5, 1.9, 0.5] });

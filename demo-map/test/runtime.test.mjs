@@ -176,6 +176,22 @@ test("world configuration properties require the dedicated runtime capability", 
   runtime.stop();
 });
 
+test("world gravity and airFriction writes reconfigure runtime-owned Player physics on the next tick", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-world-physics-write-")), "project");
+  await importMapProject(source, output);
+  await writeFile(join(output, "scripts", "server.js"), `world.gravity = 0; world.airFriction = Math.log(2);`, "utf8");
+  const runtime = await ScriptRuntime.load(output, { blockCatalog, logger: { info() {}, warn() {}, error() {} } });
+  await runtime.start();
+  runtime.stop();
+  const player = runtime.addPlayer({ id: "world-physics-player" });
+  player.velocity = [10, 4, -2];
+  runtime.tick();
+  assert.ok(Math.abs(player.velocity.x - 5) < 1e-12);
+  assert.ok(Math.abs(player.velocity.y - 2) < 1e-12);
+  assert.ok(Math.abs(player.velocity.z - -1) < 1e-12);
+});
+
 test("preserves captured source tags outside the project-package carrier grammar", async () => {
   const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
   const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-source-tags-")), "project");
@@ -407,6 +423,52 @@ test("GameEntity.say projects recovered sender, duration, and hideFloat fields o
     message: { text: "mapped", senderId: 27, private: false, duration: -1, hideFloat: true },
   }]);
   assert.ok(snapshot.messages.some(message => message.entityId === "local-speaker" && message.text === "local only"));
+});
+
+test("destroyed chat endpoints are silent and player removal emits recovered destroy ordering", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-chat-lifecycle-")), "project");
+  await importMapProject(source, output);
+  await writeFile(join(output, "scripts", "server.js"), `
+    let watchedPlayer;
+    world.onPlayerJoin(({ entity }) => {
+      watchedPlayer = entity;
+      entity.chatLifecycle = [];
+      entity.onDestroy(event => entity.chatLifecycle.push(["player.onDestroy", event.entity === entity]));
+    });
+    world.onPlayerLeave(event => watchedPlayer.chatLifecycle.push(["playerLeave", event.entity === watchedPlayer]));
+    world.onEntityDestroy(event => watchedPlayer.chatLifecycle.push(["entityDestroy", event.entity === watchedPlayer]));
+  `, "utf8");
+  const deliveries = [];
+  const runtime = await ScriptRuntime.load(output, {
+    blockCatalog,
+    logger: { info() {}, warn() {}, error() {} },
+    sendChatMessage: (playerId, message) => deliveries.push({ playerId, message }),
+  });
+  await runtime.start();
+  const player = runtime.addPlayer({ id: "chat-receiver" });
+  const entity = runtime.createEntity({ id: "chat-sender" });
+  runtime.bindAuthoritativeEntity(entity.id, 41);
+  player.directMessage("before leave");
+  entity.say("before destroy");
+  assert.equal(runtime.removePlayer(player.id), true);
+  entity.destroy();
+  player.directMessage("after leave");
+  entity.say("after destroy");
+  await new Promise(resolve => setImmediate(resolve));
+  runtime.stop();
+  assert.equal(player.destroyed, true);
+  assert.equal(entity.destroyed, true);
+  assert.deepEqual(deliveries, [
+    { playerId: "chat-receiver", message: { text: "before leave", senderId: 0, private: true, duration: 0, hideFloat: false } },
+    { playerId: undefined, message: { text: "before destroy", senderId: 41, private: false, duration: 0, hideFloat: false } },
+  ]);
+  assert.deepEqual(player.chatLifecycle, [
+    ["playerLeave", true],
+    ["player.onDestroy", true],
+    ["entityDestroy", true],
+    ["entityDestroy", false],
+  ]);
 });
 
 test("GamePlayer color, spawnPoint, forceRespawn, and respawn events match recovered usage", async () => {

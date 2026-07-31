@@ -1,7 +1,7 @@
 {
   "format": "nea-local-shared-runtime-analysis",
   "version": 1,
-  "generatedAt": "2026-07-30T11:06:40.686Z",
+  "generatedAt": "2026-07-31T04:39:03.689Z",
   "source": {
     "path": "demo-map/src/runtime/vector3.mjs",
     "bytes": 4274,

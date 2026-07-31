@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-compatibility-matrix",
   "version": 1,
-  "generatedAt": "2026-07-31T04:04:32.113Z",
+  "generatedAt": "2026-07-31T04:51:23.253Z",
   "apiVersion": "0.1.0",
   "compatibilityLevel": "experimental",
   "contracts": [
@@ -14112,7 +14112,7 @@
           "status": "partial",
           "capability": "server.world.events",
           "gaps": [
-            "signature: The recovered GameClickEvent fields are exposed; the historical optional listener filter remains unimplemented.",
+            "signature: The recovered onClick(handler) listener signature and GameClickEvent fields are exposed.",
             "effect: World and clicked-entity double dispatch is implemented when game-net supplies an authoritative entity binding."
           ]
         },
@@ -14122,7 +14122,7 @@
           "status": "partial",
           "capability": "server.world.events",
           "gaps": [
-            "signature: The recovered GameClickEvent fields are exposed; the historical optional listener filter remains unimplemented.",
+            "signature: The recovered onClick(handler) listener signature and GameClickEvent fields are exposed.",
             "effect: A clicked player receives the same event object after world.onClick when its backend entity id is authoritative."
           ]
         }
@@ -16690,9 +16690,9 @@
           "status": "partial",
           "capability": "server.world.chat",
           "gaps": [
-            "Mapped entities emit recovered game-chat.log sender, duration, and hideFloat fields.",
+            "Mapped live entities emit recovered game-chat.log sender, duration, and hideFloat fields; destroyed senders are silently dropped before logging or transport.",
             "Unmapped entities remain script-local instead of receiving a fabricated Player id.",
-            "Historical MAX_CHATS_PER_TICK buffering and Player display acknowledgement remain unimplemented."
+            "The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
           ]
         },
         {
@@ -16701,9 +16701,9 @@
           "status": "partial",
           "capability": "server.world.chat",
           "gaps": [
-            "effect: Mapped entities emit the recovered game-chat.log sender id, duration, and hideFloat fields to every connected Player session.",
+            "effect: Mapped live entities emit the recovered game-chat.log sender id, duration, and hideFloat fields to every connected Player session; destroyed senders are silently dropped.",
             "effect: Entities without an authoritative backend id remain script-local and do not receive a fabricated sender id or floating bubble.",
-            "effect: The historical MAX_CHATS_PER_TICK buffering and Player display acknowledgement remain unimplemented."
+            "effect: The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
           ]
         }
       ],
@@ -20096,8 +20096,9 @@
           "capability": "server.world.chat",
           "gaps": [
             "signature: Canonical directMessage accepts a string; local sendMessage accepts an unknown value and formats it for logging.",
-            "effect: Targeted delivery now uses the recovered Player game-chat.log packet with private=true through the bound MuDB session.",
-            "effect: The historical MAX_CHATS_PER_TICK buffering/flush policy and Player display acknowledgement remain unimplemented."
+            "effect: Targeted delivery now uses the recovered Player game-chat.log packet with private=true through the bound MuDB session; removed/destroyed receivers are silently dropped.",
+            "effect: Player removal marks the RuntimePlayer destroyed and dispatches world.onPlayerLeave, player.onDestroy, then world.onEntityDestroy in recovered order.",
+            "effect: The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
           ]
         }
       ],
@@ -27770,7 +27771,8 @@
           "status": "partial",
           "capability": "server.world.config",
           "gaps": [
-            "The recovered property is script-visible, but writes do not yet reconfigure the fixed-step physics engine."
+            "Script writes reconfigure runtime-owned Player bodies from the next tick using the recovered airFriction-to-velocityDamping binding and exponential damping formula.",
+            "The local AuthoritativeGameRuntime only arbitrates transforms, and its Player game-net public state marks physics unused; no recovered mutable browser physics channel exists. Generic RuntimeEntity rigid-body integration also remains unavailable."
           ]
         }
       ],
@@ -29235,7 +29237,8 @@
           "status": "partial",
           "capability": "server.world.config",
           "gaps": [
-            "The recovered property is script-visible, but writes do not yet reconfigure the fixed-step physics engine."
+            "Script writes reconfigure runtime-owned Player bodies from the next tick using the recovered world-physics binding and fixed-tick unit conversion.",
+            "The local AuthoritativeGameRuntime only arbitrates transforms, and its Player game-net public state marks physics unused; no recovered mutable browser physics channel exists. Generic RuntimeEntity rigid-body integration also remains unavailable."
           ]
         }
       ],
@@ -32786,7 +32789,8 @@
           "capability": "server.world.chat",
           "gaps": [
             "Broadcast delivery now uses the recovered Player game-chat.log packet through connected MuDB sessions.",
-            "The historical MAX_CHATS_PER_TICK buffering/flush policy and Player display acknowledgement remain unimplemented."
+            "Destroyed sender/receiver endpoints are silently dropped and player removal follows the recovered leave/destroy ordering.",
+            "The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
           ]
         }
       ],

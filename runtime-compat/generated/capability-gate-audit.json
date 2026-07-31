@@ -1,7 +1,7 @@
 {
   "format": "nea-capability-gate-audit",
   "version": 1,
-  "generatedAt": "2026-07-31T04:04:33.351Z",
+  "generatedAt": "2026-07-31T04:51:23.853Z",
   "inputs": {
     "corpus": "runtime-compat/generated/script-corpus-gap-report.json",
     "matrix": "runtime-compat/abi/compatibility-matrix.json",
@@ -121,7 +121,8 @@
       "reasons": [
         "At least one evidence-backed behavioral gap remains on the executable binding.",
         "Broadcast delivery now uses the recovered Player game-chat.log packet through connected MuDB sessions.",
-        "The historical MAX_CHATS_PER_TICK buffering/flush policy and Player display acknowledgement remain unimplemented."
+        "Destroyed sender/receiver endpoints are silently dropped and player removal follows the recovered leave/destroy ordering.",
+        "The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."
       ]
     },
     {
@@ -568,7 +569,8 @@
       "launchState": "partial",
       "reasons": [
         "At least one evidence-backed behavioral gap remains on the executable binding.",
-        "The recovered property is script-visible, but writes do not yet reconfigure the fixed-step physics engine."
+        "Script writes reconfigure runtime-owned Player bodies from the next tick using the recovered airFriction-to-velocityDamping binding and exponential damping formula.",
+        "The local AuthoritativeGameRuntime only arbitrates transforms, and its Player game-net public state marks physics unused; no recovered mutable browser physics channel exists. Generic RuntimeEntity rigid-body integration also remains unavailable."
       ]
     },
     {
@@ -608,7 +610,8 @@
       "launchState": "partial",
       "reasons": [
         "At least one evidence-backed behavioral gap remains on the executable binding.",
-        "The recovered property is script-visible, but writes do not yet reconfigure the fixed-step physics engine."
+        "Script writes reconfigure runtime-owned Player bodies from the next tick using the recovered world-physics binding and fixed-tick unit conversion.",
+        "The local AuthoritativeGameRuntime only arbitrates transforms, and its Player game-net public state marks physics unused; no recovered mutable browser physics channel exists. Generic RuntimeEntity rigid-body integration also remains unavailable."
       ]
     },
     {
