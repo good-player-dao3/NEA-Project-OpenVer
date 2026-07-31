@@ -2,6 +2,9 @@
 /dump/private/
 /local-player/.profile/
 /preservation-dump/authorize-arenapro.mjs
+/browser-profile/
+/browser-profiles/
+/user-data-dir/
 **/browser-profile/
 **/browser-profiles/
 **/user-data-dir/
@@ -16,6 +19,11 @@
 **/Web Data
 **/Web Data-journal
 **/Local State
+**/History
+**/History-journal
+**/TransportSecurity
+**/Trust Tokens
+**/Trust Tokens-journal
 
 # Dependency trees
 **/node_modules/
@@ -72,7 +80,19 @@ Thumbs.db
 /NEA-Project.7z
 /.workspace/
 /HANDOFF.md
+/NEXT_AGENT_HANDOFF.md
 /NEXT_AI_PROMPT.md
+
+# Authentication exports and machine-local secrets
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/auth-state.json
+**/storage-state.json
+**/oauth-state.json
+**/credentials.json
+**/secrets.json
 
 # Private imported works and recovered map sources
 /works/private/

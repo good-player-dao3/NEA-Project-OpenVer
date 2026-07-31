@@ -171,6 +171,8 @@ function inferSide(parts) {
 
 function inferOwner(parts) {
   if (parts[0] === "RemoteChannel") return "remoteChannel";
+  if (parts[0] === "GameDataStorage" && parts.at(-1).toLowerCase() === "getspace.md") return "GameStorage";
+  if (parts[0] === "GameDataStorage" && parts.at(-1).toLowerCase() === "getspace.md") return "GameStorage";
   if (parts[0] === "ClientUI") {
     const filename = parts.at(-1).replace(/\.md$/i, "");
     if (filename.toLowerCase() === "input") return "input";

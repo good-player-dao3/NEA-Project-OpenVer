@@ -5,6 +5,13 @@ import { readFile } from "node:fs/promises";
 
 const backend = await readFile(new URL("../../local-player/backend/box3-server.cjs", import.meta.url), "utf8");
 
+test("backend exposes authenticated dialog open and cancel-all control operations", () => {
+  assert.match(backend, /\/__nea\/control\/dialog"/);
+  assert.match(backend, /\/__nea\/control\/dialog-cancel-all/);
+  assert.match(backend, /server\.openDialog\(body\.session, body\.config\)/);
+  assert.match(backend, /server\.cancelDialogs\(body\.session\)/);
+});
+
 function loadDialogSessions() {
   const start = backend.indexOf("var maximumRpcId = 4294967295;");
   const end = backend.indexOf("// legacy/box3-compat/src/session/gui-sessions.ts", start);

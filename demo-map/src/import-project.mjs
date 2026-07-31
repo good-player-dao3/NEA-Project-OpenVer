@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { expandTerrain, loadMapSource, RUNTIME_API_VERSION } from "./format.mjs";
 import { buildRepositoryProjectCapabilityManifest } from "./project-capability.mjs";
 
-export async function importMapProject(sourceRoot, outputRoot) {
+export async function importMapProject(sourceRoot, outputRoot, options = {}) {
   const source = await loadMapSource(sourceRoot);
   const destination = resolve(outputRoot);
   const terrain = expandTerrain(source.terrain);
@@ -27,6 +27,7 @@ export async function importMapProject(sourceRoot, outputRoot) {
   const serverScript = serverModules.find(module => module.sourcePath === source.manifest.scripts.server)?.source;
   const clientScript = clientModules.find(module => module.sourcePath === source.manifest.scripts.client) ?? null;
   const capabilityManifest = await buildRepositoryProjectCapabilityManifest({
+    runtimeCompatibility: options.runtimeCompatibility,
     apiVersion: source.manifest.runtime.apiVersion,
     contracts: { client: source.manifest.runtime.clientContract, server: source.manifest.runtime.serverContract },
     serverSource: serverScript,
@@ -102,7 +103,10 @@ export async function importMapProject(sourceRoot, outputRoot) {
     voxelCount: terrain.length,
     entityCount: source.entities.length,
     assetCount: assets.length,
+    assets: Object.freeze(assets),
+    entities: source.entities,
     clientScript: clientScript === null ? null : Object.freeze({ name: clientScript.name, bytes: clientScript.source, sha256: clientScript.sha256 }),
+    serverModules: Object.freeze(serverModules.map(module => Object.freeze({ name: module.name, bytes: module.source, sha256: module.sha256 }))),
     clientModules: Object.freeze(clientModules.map(module => Object.freeze({ name: module.name, bytes: module.source, sha256: module.sha256 }))),
     clientUiState: source.ui,
     capabilityManifest,

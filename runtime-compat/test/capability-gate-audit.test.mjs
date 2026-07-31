@@ -29,18 +29,23 @@ test("capability gate audit classifies every anonymous corpus requirement conser
     const declaration = entries.get(requirement.canonicalId);
     if (requirement.launchState === "blocked") continue;
     assert.ok(requirement.executableBindingIds.length > 0, `${requirement.canonicalId} has no executable binding`);
-    const binding = requirement.executableBindingIds.map(id => currentEntries.get(id)).find(Boolean);
+    const bindingId = requirement.executableBindingIds.find(id => currentEntries.has(id));
+    const binding = currentEntries.get(bindingId);
     assert.ok(binding, `${requirement.canonicalId} has no current-runtime binding`);
     if (requirement.resolution !== "current-runtime-recovered") {
       assert.ok(declaration, `${requirement.side}:${requirement.usage} has no compatibility declaration`);
       assert.equal(declaration.executable, true, `${requirement.canonicalId} is not executable`);
     }
-    assert.equal(requirement.launchState === "partial", (binding.compatibility ?? binding.status ?? declaration?.status) === "partial" || requirement.resolution === "current-runtime-recovered");
+    const localBinding = declaration?.localBindings?.find(item => item.localId === bindingId);
+    assert.equal(requirement.launchState === "partial", (localBinding?.status ?? declaration?.status ?? binding.compatibility ?? binding.status) === "partial" || requirement.resolution === "current-runtime-recovered");
   }
   const byUsage = new Map(audit.requirements.map(item => [`${item.side}:${item.usage}`, item]));
-  for (const usage of ["world.onChat", "world.raycast", "world.onClick", "storage.getDataStorage"]) {
+  for (const usage of ["world.raycast", "world.onClick", "storage.getDataStorage"]) {
     assert.equal(byUsage.get(`server:${usage}`)?.launchState, "partial", `${usage} must not be overstated as ready`);
   }
+  assert.equal(byUsage.get("server:world.onChat")?.launchState, "blocked");
+  assert.equal(byUsage.get("server:world.querySelectorAll")?.canonicalId, "server.GameWorld.querySelectorAll");
+  assert.equal(byUsage.get("server:world.querySelectorAll")?.resolution, "matrix-owner");
 });
 
 test("capability gate audit contains no private source identity", async () => {

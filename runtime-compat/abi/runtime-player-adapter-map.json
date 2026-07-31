@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-player-adapter-map",
   "version": 1,
-  "generatedAt": "2026-07-30T16:52:50.011Z",
+  "generatedAt": "2026-07-31T04:04:31.299Z",
   "contract": "nea-server-runtime/v1",
   "localObject": {
     "id": "server.object.RuntimePlayer",
@@ -270,6 +270,488 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.destroyed",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.fluidContacts",
+        "kind": "property",
+        "signature": {
+          "type": "GameFluidContact[]",
+          "readonly": true
+        },
+        "capability": "server.player"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.fluidContacts",
+          "kind": "property",
+          "signature": {
+            "type": "GameFluidContact[]",
+            "readonly": true
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "Active fluid voxel ids and a local body-AABB overlap fraction are exposed; the native producer's exact volume-fraction formula remains unrecovered."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/physics.md",
+          "symbol": "只读fluidContacts:GameFluidContact[]",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.fluidContacts",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.onFluidEnter",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "handler",
+              "type": "(GameFluidContactEvent)=>void"
+            }
+          ],
+          "returns": "listener-token"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.onFluidEnter",
+          "kind": "event",
+          "signature": {
+            "parameters": [
+              {
+                "name": "handler",
+                "optional": false,
+                "type": "(event:GameFluidContactEvent)=>void",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "function",
+                  "description": "监听到进入液体的实体的处理函数"
+                }
+              }
+            ],
+            "returns": "GameEventHandlerToken"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "BlockInfo fluid overlap transitions emit the recovered event to world before entity; native fluid solver timing, buoyancy, and drag remain unrecovered."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/input.md",
+          "symbol": "事件onFluidEnter(handler:(event:GameFluidContactEvent)=>void):GameEventHandlerToken",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.onFluidEnter",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.nextFluidEnter",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "filter",
+              "type": "(event: GameFluidContactEvent) => boolean",
+              "optional": true
+            }
+          ],
+          "returns": "Promise<GameFluidContactEvent>"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "The optional filter resolves locally produced fluid-enter events; native producer timing remains unrecovered."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.nextFluidEnter",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.onFluidLeave",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "handler",
+              "type": "(GameFluidContactEvent)=>void"
+            }
+          ],
+          "returns": "listener-token"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.onFluidLeave",
+          "kind": "event",
+          "signature": {
+            "parameters": [
+              {
+                "name": "handler",
+                "optional": false,
+                "type": "(event:GameFluidContactEvent)=>void",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "function",
+                  "description": "监听到离开液体的实体的处理函数"
+                }
+              }
+            ],
+            "returns": "GameEventHandlerToken"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "BlockInfo fluid overlap transitions emit the recovered event to world before entity; native fluid solver timing remains unrecovered."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/input.md",
+          "symbol": "事件onFluidLeave(handler:(event:GameFluidContactEvent)=>void):GameEventHandlerToken",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.onFluidLeave",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.nextFluidLeave",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "filter",
+              "type": "(event: GameFluidContactEvent) => boolean",
+              "optional": true
+            }
+          ],
+          "returns": "Promise<GameFluidContactEvent>"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "The optional filter resolves locally produced fluid-leave events; native producer timing remains unrecovered."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.nextFluidLeave",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.onVoxelContact",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "handler",
+              "type": "(GameVoxelContactEvent)=>void"
+            }
+          ],
+          "returns": "listener-token"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.onVoxelContact",
+          "kind": "event",
+          "signature": {
+            "parameters": [
+              {
+                "name": "handler",
+                "optional": false,
+                "type": "(event:GameVoxelContactEvent)=>void",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "function",
+                  "description": "监听到触碰方块的实体的处理函数"
+                }
+              }
+            ],
+            "returns": "GameEventHandlerToken"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "The local fixed-step Player body produces the typed event after world dispatch; native rigid-body collision equivalence remains unverified."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/input.md",
+          "symbol": "事件onVoxelContact(handler:(event:GameVoxelContactEvent)=>void):GameEventHandlerToken",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.onVoxelContact",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.nextVoxelContact",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "filter",
+              "type": "(event: GameVoxelContactEvent) => boolean",
+              "optional": true
+            }
+          ],
+          "returns": "Promise<GameVoxelContactEvent>"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "The filtered future resolves locally produced Player voxel contacts; native rigid-body collision equivalence remains unverified."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.nextVoxelContact",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.onVoxelSeparate",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "handler",
+              "type": "(GameVoxelContactEvent)=>void"
+            }
+          ],
+          "returns": "listener-token"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GameEntity.onVoxelSeparate",
+          "kind": "event",
+          "signature": {
+            "parameters": [
+              {
+                "name": "handler",
+                "optional": false,
+                "type": "(event:GameVoxelContactEvent)=>void",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "function",
+                  "description": "监听到停止触碰方块的实体的处理函数"
+                }
+              }
+            ],
+            "returns": "GameEventHandlerToken"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "The local fixed-step Player body produces the typed event after world dispatch; native rigid-body separation equivalence remains unverified."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameEntity/input.md",
+          "symbol": "事件onVoxelSeparate(handler:(event:GameVoxelContactEvent)=>void):GameEventHandlerToken",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.onVoxelSeparate",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.nextVoxelSeparate",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "filter",
+              "type": "(event: GameVoxelContactEvent) => boolean",
+              "optional": true
+            }
+          ],
+          "returns": "Promise<GameVoxelContactEvent>"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "The filtered future resolves locally produced Player voxel separations; native rigid-body separation equivalence remains unverified."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "origin-source",
+          "path": "origin/origin/origin/api/GameEntity.js",
+          "symbol": "GameEntity.nextVoxelSeparate",
           "confidence": "direct"
         }
       ]
@@ -1212,7 +1694,7 @@
           "parameters": [
             {
               "name": "handler",
-              "type": "({tick,entity,player})=>void"
+              "type": "(GameRespawnEvent)=>void"
             }
           ],
           "returns": "listener-token"
@@ -1281,11 +1763,11 @@
           "parameters": [
             {
               "name": "filter",
-              "type": "(event: {tick,entity,player}) => boolean",
+              "type": "(event: GameRespawnEvent) => boolean",
               "optional": true
             }
           ],
-          "returns": "Promise<{tick,entity,player}>"
+          "returns": "Promise<GameRespawnEvent>"
         },
         "capability": "server.world.events"
       },
@@ -1324,7 +1806,7 @@
           "parameters": [
             {
               "name": "handler",
-              "type": "({tick,entity,clicker,button,distance,clickerPosition,raycast})=>void"
+              "type": "(GameClickEvent)=>void"
             }
           ],
           "returns": "listener-token"
@@ -1436,7 +1918,7 @@
           "parameters": [
             {
               "name": "handler",
-              "type": "({tick,entity,position,button,pressed,raycast})=>void"
+              "type": "(GameInputEvent)=>void"
             }
           ],
           "returns": "listener-token"
@@ -1548,7 +2030,7 @@
           "parameters": [
             {
               "name": "handler",
-              "type": "({tick,entity,position,button,pressed,raycast})=>void"
+              "type": "(GameInputEvent)=>void"
             }
           ],
           "returns": "listener-token"
@@ -1648,6 +2130,128 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GamePlayer.js",
           "symbol": "GamePlayer.nextRelease",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.onKeyDown",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "handler",
+              "type": "(GameKeyBoardEvent)=>void"
+            }
+          ],
+          "returns": "listener-token"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.onKeyDown",
+          "kind": "event",
+          "signature": {
+            "parameters": [
+              {
+                "name": "handler",
+                "optional": false,
+                "type": "(event:GameKeyBoardEvent)=>void",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "function",
+                  "description": "监听到玩家按下键盘时的处理函数"
+                }
+              }
+            ],
+            "returns": "GameEventHandlerToken"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "The event channel exists, but current Player input packets have no recovered keyboard-state field and therefore no local producer."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "事件onKeyDown(handler:(event:GameKeyBoardEvent)=>void):GameEventHandlerToken",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.onKeyUp",
+        "kind": "event",
+        "signature": {
+          "parameters": [
+            {
+              "name": "handler",
+              "type": "(GameKeyBoardEvent)=>void"
+            }
+          ],
+          "returns": "listener-token"
+        },
+        "capability": "server.world.events"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.onKeyUp",
+          "kind": "event",
+          "signature": {
+            "parameters": [
+              {
+                "name": "handler",
+                "optional": false,
+                "type": "(event:GameKeyBoardEvent)=>void",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "function",
+                  "description": "监听到玩家松开键盘时的处理函数"
+                }
+              }
+            ],
+            "returns": "GameEventHandlerToken"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [],
+        "effect": [
+          "The event channel exists, but current Player input packets have no recovered previous keyboard-state field and therefore no local producer."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/input.md",
+          "symbol": "事件onKeyUp(handler:(event:GameKeyBoardEvent)=>void):GameEventHandlerToken",
           "confidence": "direct"
         }
       ]
@@ -2226,6 +2830,115 @@
     },
     {
       "local": {
+        "id": "server.RuntimePlayer.dialog",
+        "kind": "method",
+        "signature": {
+          "parameters": [
+            {
+              "name": "config",
+              "type": "Partial<GameDialogCall>"
+            }
+          ],
+          "returns": "Promise<GameDialogResult>"
+        },
+        "capability": "server.player"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.dialog",
+          "kind": "method",
+          "signature": {
+            "parameters": [
+              {
+                "name": "config",
+                "optional": false,
+                "type": "Partial",
+                "documentation": {
+                  "required": "是",
+                  "default": null,
+                  "type": "Partial‹GameDialogCall›",
+                  "description": "互动配置"
+                }
+              }
+            ],
+            "returns": "Promise"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The local promise resolves to the recovered protocol result union; complete GameDialogCall optional fields remain only partially normalized."
+        ],
+        "effect": [
+          "The call opens a native Player dialog through the recovered dialog.open RPC and resolves when dialog.close returns the matching rpcId."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/chat.md",
+          "symbol": "dialog(config:Partial): Promise",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
+        "id": "server.RuntimePlayer.cancelDialogs",
+        "kind": "method",
+        "signature": {
+          "parameters": [],
+          "returns": "void"
+        },
+        "capability": "server.player"
+      },
+      "canonicalTargets": [
+        {
+          "id": "server.GamePlayerEntity.cancelDialogs",
+          "kind": "method",
+          "signature": {
+            "parameters": [],
+            "returns": "void"
+          }
+        }
+      ],
+      "status": "partial",
+      "implements": [],
+      "gaps": {
+        "access": [],
+        "signature": [
+          "The canonical method returns void; the local backend reports a cancellation count internally but the script facade does not expose it."
+        ],
+        "effect": [
+          "Every pending dialog for the bound Player session is rejected and the recovered dialog.cancelDialogs packet is delivered."
+        ]
+      },
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GamePlayerEntity/chat.md",
+          "symbol": "cancelDialogs(): void",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "local": {
         "id": "server.RuntimePlayer.snapshot",
         "kind": "method",
         "signature": {
@@ -2282,6 +2995,48 @@
       ]
     },
     {
+      "localFactory": "createGameRespawnEvent",
+      "canonicalObject": "server.GameRespawnEvent",
+      "status": "partial",
+      "canonicalFields": [
+        "tick",
+        "entity"
+      ],
+      "localAliases": [],
+      "gaps": [
+        "Local forceRespawn and projected respawn state produce the recovered payload; automatic native respawn production remains unimplemented."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "createGameRespawnEvent",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "localFactory": "createGameKeyBoardEvent",
+      "canonicalObject": "server.GameKeyBoardEvent",
+      "status": "partial",
+      "canonicalFields": [
+        "tick",
+        "keyCode"
+      ],
+      "localAliases": [],
+      "gaps": [
+        "Current Player input packets contain button transitions but no keyboard-state arrays, so the typed object has no runtime producer."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "createGameKeyBoardEvent",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
       "localFactory": "createGameDamageEvent",
       "canonicalObject": "server.GameDamageEvent",
       "status": "partial",
@@ -2330,9 +3085,9 @@
     }
   ],
   "summary": {
-    "memberCount": 44,
+    "memberCount": 57,
     "compatible": 4,
-    "partial": 36,
+    "partial": 49,
     "extensions": 4
   }
 }

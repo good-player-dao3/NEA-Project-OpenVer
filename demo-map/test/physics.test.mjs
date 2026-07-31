@@ -98,6 +98,19 @@ test("broadphase bounds do not enlarge the contact shape", () => {
   assert.equal(body.velocity.x, 0);
 });
 
+test("fluid voxels produce stable enter active and leave transitions", () => {
+  const world = new VoxelCollisionWorld({ voxels: [{ position: [0, 0, 0], blockId: 7 }], fluidIds: [7] });
+  const physics = new FixedStepPlayerPhysics(world, { gravity: 0 });
+  const body = playerBody({ position: [0.5, 0.5, 0.5] });
+  const entered = physics.observe(body);
+  assert.equal(entered.fluidEntered[0].voxel, 7);
+  assert.equal(entered.fluids[0].volume > 0, true);
+  assert.equal(physics.observe(body).fluidEntered.length, 0);
+  body.position.set(3, 3, 3);
+  const left = physics.observe(body);
+  assert.equal(left.fluidLeft[0].voxel, 7);
+});
+
 test("horizontal movement stops at a voxel wall", () => {
   const physics = physicsWith([{ position: [2, 1, 0], blockId: 95 }], { gravity: 0 });
   const body = playerBody({ position: [0.5, 1, 0.5], velocity: [100, 0, 0] });

@@ -16,6 +16,14 @@ const apiAbiCompleteness = await readJson("generated/api-abi-completeness.json")
 const gap = await readJson("generated/gap-report.json");
 const apiAbiStatus = apiAbiCompleteness.status === "complete" ? "complete" : "partial";
 const apiAbiRemaining = apiAbiCompleteness.gaps.slice(0, 20).map(item => `${item.domain}:${item.id}:${item.field} - ${item.rule}`);
+const capabilityManifest = architecture.projectCapabilityManifest;
+const capabilityManifestComplete = capabilityManifest?.format === "nea-project-capability-manifest"
+  && capabilityManifest.version === 10
+  && ["requirements", "modules", "resources", "ui", "entities", "dependencies", "diagnostics"].every(name => capabilityManifest.evidenceCollections.includes(name))
+  && ["server-modules", "client-modules", "server-capability-grants", "client-capability-grants", "client-ui-state", "asset-file-evidence", "entity-projection-evidence", "runtime-abi-artifacts"].every(name => capabilityManifest.inputBindings.includes(name))
+  && capabilityManifest.integrityChecks.includes("asset-file-bytes-sha256")
+  && capabilityManifest.integrityChecks.includes("runtime-abi-semantic-digest")
+  && ["client-script-publication", "client-ui-publication", "server-script-runtime-construction", "backend-spawn", "player-navigation"].every(name => capabilityManifest.launchBefore.includes(name));
 
 const requirements = [
   requirement("layered-architecture", "complete", "Client Script Runtime, Server Script Runtime, MuDB transport and authoritative state are separate layers.", [
@@ -64,6 +72,10 @@ const requirements = [
     proof("runtime-compat/abi/runtime-contracts.json", { apiVersion: architecture.apiVersion, contracts: architecture.contracts.map(contract => contract.id) }),
     proof("runtime-compat/abi/compatibility-matrix.json", matrix.statusDefinitions),
   ]),
+  requirement("project-capability-launch-gate", capabilityManifestComplete ? "complete" : "partial", "Capability Manifest v10 binds analyzed scripts, grants, UI, resources, entities and semantic Runtime ABI artifacts to the actual package before publication or execution.", [
+    proof("runtime-compat/abi/runtime-contracts.json", capabilityManifest),
+    proof("demo-map/src/capability-launch-gate.mjs", { version: capabilityManifest?.version, inputs: capabilityManifest?.inputBindings, launchBefore: capabilityManifest?.launchBefore }),
+  ], capabilityManifestComplete ? [] : ["Capability Manifest v10 architecture contract or startup ordering is incomplete."]),
   requirement("demo-contract-bindings", "complete", "Demo client.js and server.js bind separate declared runtime contracts and capabilities.", [
     proof("runtime-compat/abi/runtime-contracts.json", architecture.demo.bindings.map(binding => ({ side: binding.side, contract: binding.contract, resolved: binding.resolved }))),
   ]),

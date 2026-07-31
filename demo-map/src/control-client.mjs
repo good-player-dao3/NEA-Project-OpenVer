@@ -146,3 +146,15 @@ export async function openDialogOnBackend(options) {
   if (!response.ok || result.ok !== true) throw new Error(result.error ?? `Backend dialog bridge failed with HTTP ${response.status}`);
   return result.result;
 }
+
+export async function cancelDialogsOnBackend(options) {
+  const response = await fetch(`http://127.0.0.1:${options.port}/__nea/control/dialog-cancel-all`, {
+    method: "POST",
+    headers: { authorization: `Bearer ${options.token}`, "content-type": "application/json" },
+    body: JSON.stringify({ session: options.session }),
+    signal: options.signal,
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || result.ok !== true) throw new Error(result.error ?? `Backend dialog cancellation bridge failed with HTTP ${response.status}`);
+  return result.cancelled;
+}

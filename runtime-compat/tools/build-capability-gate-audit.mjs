@@ -8,18 +8,28 @@ const matrix = await readJson("abi/compatibility-matrix.json");
 const current = await readJson("abi/current-runtime.json");
 const entries = new Map(matrix.entries.map(entry => [entry.id, entry]));
 const currentEntries = new Map(current.entries.map(entry => [entry.id, entry]));
+const evidenceBlockers = new Map([
+  ["server:world.onChat", "The historical GameChatEvent shape is recovered, but no Player/browser-to-backend chat ingress reaches the local Server Script Runtime."],
+  ["server:storage.getGroupStorage", "The default local Runtime has no authoritative DAO3 group identity or group-scoped storage provider."],
+  ["server:world.onPlayerPurchaseSuccess", "The market protocols recover marketplace open/acknowledgement messages but no purchase-success ingress into the local Server Script Runtime."],
+]);
 
 const requirements = corpus.requirements.map(requirement => {
   const resolution = resolveRequirement(requirement);
   const declaration = resolution.declaration;
   const scriptOwned = requirement.state === "custom-extension";
   const executableBindings = declaration?.localBindings?.filter(binding => binding.status !== "unavailable" && binding.status !== "declared-only") ?? (resolution.binding ? [{ localId: resolution.binding.id, capability: resolution.binding.capability, gaps: [] }] : []);
-  const selectedBinding = resolution.binding ?? executableBindings.map(binding => currentEntries.get(binding.localId)).find(Boolean);
+  const selectedLocalBinding = executableBindings.find(binding => currentEntries.has(binding.localId));
+  const selectedBinding = resolution.binding ?? (selectedLocalBinding ? currentEntries.get(selectedLocalBinding.localId) : undefined);
   const executable = declaration ? declaration.executable === true && selectedBinding !== undefined : selectedBinding?.availability === "confirmed";
-  const effectiveCompatibility = selectedBinding?.compatibility ?? selectedBinding?.status ?? declaration?.status ?? requirement.compatibility;
+  const effectiveCompatibility = resolution.binding?.compatibility ?? selectedLocalBinding?.status ?? declaration?.status ?? selectedBinding?.compatibility ?? selectedBinding?.status ?? requirement.compatibility;
   let launchState;
   const reasons = [];
-  if (scriptOwned) {
+  const evidenceBlocker = evidenceBlockers.get(`${requirement.side}:${requirement.name}`);
+  if (evidenceBlocker) {
+    launchState = "blocked";
+    reasons.push(evidenceBlocker);
+  } else if (scriptOwned) {
     launchState = "script-owned";
     reasons.push("Corpus assignment evidence identifies a script-owned extension, not a DAO3 Runtime requirement.");
   } else if (!declaration && !selectedBinding) {
@@ -133,9 +143,6 @@ function launchRank(state) {
 function resolveRequirement(requirement) {
   const exact = entries.get(requirement.canonicalId);
   if (exact) return { declaration: exact, binding: null, method: "matrix-exact" };
-  const local = currentEntries.get(requirement.canonicalId);
-  for (const implemented of local?.implements ?? []) if (entries.has(implemented)) return { declaration: entries.get(implemented), binding: local, method: "current-implements-matrix" };
-  if (local?.availability === "confirmed") return { declaration: null, binding: local, method: "current-runtime-recovered" };
   const [rootOwner, member] = requirement.name.split(".", 2);
   const canonicalOwner = {
     server: { world: "GameWorld", voxels: "GameVoxels", gui: "GameGUI", storage: "GameStorage", remoteChannel: "remoteChannel" },
@@ -145,6 +152,9 @@ function resolveRequirement(requirement) {
     const preferred = entries.get(`${requirement.side}.${canonicalOwner}.${member}`);
     if (preferred) return { declaration: preferred, binding: null, method: "matrix-owner" };
   }
+  const local = currentEntries.get(requirement.canonicalId);
+  for (const implemented of local?.implements ?? []) if (entries.has(implemented)) return { declaration: entries.get(implemented), binding: local, method: "current-implements-matrix" };
+  if (local?.availability === "confirmed") return { declaration: null, binding: local, method: "current-runtime-recovered" };
   const candidates = matrix.entries.filter(entry => entry.side === requirement.side && entry.name === member && (!canonicalOwner || entry.owner === canonicalOwner));
   if (candidates.length === 1) return { declaration: candidates[0], binding: null, method: "matrix-unique-member" };
   const recovered = current.entries.filter(entry => entry.side === requirement.side && entry.name === member && (!canonicalOwner || entry.owner === canonicalOwner) && entry.availability === "confirmed");

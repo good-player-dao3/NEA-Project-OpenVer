@@ -1,3 +1,7 @@
+import { createHash } from "node:crypto";
+import { digestCapabilityJson } from "./capability-input-digest.mjs";
+import { normalizeCapabilityAssets, normalizeCapabilityEntities, normalizeCapabilityRuntimeAbi } from "./capability-input-normalize.mjs";
+
 const ROOT_OWNERS = Object.freeze({
   server: Object.freeze({ world: "GameWorld", voxels: "GameVoxels", storage: "GameStorage", gui: "GameGUI", remoteChannel: "remoteChannel" }),
   client: Object.freeze({ input: "ClientInput", screen: "ClientScreen", ui: "UiNode", remoteChannel: "remoteChannel" }),
@@ -11,6 +15,67 @@ const ALIASES = Object.freeze({
   "client:screen.events": "client.ClientScreen.events",
   "client:remoteChannel.events": "client.remoteChannel.events",
   "client:input.pointerLockEvents": "client.input.pointerLockEvents",
+});
+
+const EVENT_PAYLOAD_OWNERS = Object.freeze({
+  onTick: "GameTickEvent",
+  nextTick: "GameTickEvent",
+  onChat: "GameChatEvent",
+  nextChat: "GameChatEvent",
+  onPlayerPurchaseSuccess: "GamePurchaseSuccessEvent",
+  nextPlayerPurchaseSuccess: "GamePurchaseSuccessEvent",
+  onKeyDown: "GameKeyBoardEvent",
+  onKeyUp: "GameKeyBoardEvent",
+  onEntityContact: "GameEntityContactEvent",
+  nextEntityContact: "GameEntityContactEvent",
+  onEntitySeparate: "GameEntityContactEvent",
+  nextEntitySeparate: "GameEntityContactEvent",
+  onClick: "GameClickEvent",
+  nextClick: "GameClickEvent",
+  onPress: "GameInputEvent",
+  nextPress: "GameInputEvent",
+  onRelease: "GameInputEvent",
+  nextRelease: "GameInputEvent",
+  onPlayerJoin: "GameEntityEvent",
+  nextPlayerJoin: "GameEntityEvent",
+  onPlayerLeave: "GameEntityEvent",
+  nextPlayerLeave: "GameEntityEvent",
+  onEntityCreate: "GameEntityEvent",
+  nextEntityCreate: "GameEntityEvent",
+  onEntityDestroy: "GameEntityEvent",
+  nextEntityDestroy: "GameEntityEvent",
+  onDestroy: "GameEntityEvent",
+  nextDestroy: "GameEntityEvent",
+  onTakeDamage: "GameDamageEvent",
+  nextTakeDamage: "GameDamageEvent",
+  onDie: "GameDieEvent",
+  nextDie: "GameDieEvent",
+  onRespawn: "GameRespawnEvent",
+  nextRespawn: "GameRespawnEvent",
+  onInteract: "GameInteractEvent",
+  nextInteract: "GameInteractEvent",
+  onFluidEnter: "GameFluidContactEvent",
+  nextFluidEnter: "GameFluidContactEvent",
+  onFluidLeave: "GameFluidContactEvent",
+  nextFluidLeave: "GameFluidContactEvent",
+  onVoxelContact: "GameVoxelContactEvent",
+  nextVoxelContact: "GameVoxelContactEvent",
+  onVoxelSeparate: "GameVoxelContactEvent",
+  nextVoxelSeparate: "GameVoxelContactEvent",
+});
+
+const EVIDENCE_BLOCKED_REQUIREMENTS = Object.freeze({
+  "server.GamePlayerEntity.onKeyDown": "The recovered Player input packet has no keyDownState or equivalent keyboard-state field, so RuntimePlayer.onKeyDown has no producer.",
+  "server.GamePlayerEntity.onKeyUp": "The recovered Player input packet has no prevKeyDownState or equivalent keyboard-state field, so RuntimePlayer.onKeyUp has no producer.",
+  "server.GameWorld.onEntityContact": "The local physics runtime has no bodyContact producer carrying two mapped entities; the generic collider contact stream is not GameEntityContactEvent.",
+  "server.GameWorld.nextEntityContact": "The local physics runtime has no bodyContact producer carrying two mapped entities; the generic collider contact stream is not GameEntityContactEvent.",
+  "server.world.nextEntityContact": "The local physics runtime has no bodyContact producer carrying two mapped entities; the generic collider contact stream is not GameEntityContactEvent.",
+  "server.GameWorld.onEntitySeparate": "The local physics runtime has no bodySeparate producer carrying two mapped entities; the generic collider separation stream is not GameEntityContactEvent.",
+  "server.GameWorld.nextEntitySeparate": "The local physics runtime has no bodySeparate producer carrying two mapped entities; the generic collider separation stream is not GameEntityContactEvent.",
+  "server.GameEntity.onEntityContact": "The local physics runtime has no bodyContact producer carrying two mapped entities; entity contact subscriptions have no producer.",
+  "server.GameEntity.nextEntityContact": "The local physics runtime has no bodyContact producer carrying two mapped entities; entity contact subscriptions have no producer.",
+  "server.GameEntity.onEntitySeparate": "The local physics runtime has no bodySeparate producer carrying two mapped entities; entity separation subscriptions have no producer.",
+  "server.GameEntity.nextEntitySeparate": "The local physics runtime has no bodySeparate producer carrying two mapped entities; entity separation subscriptions have no producer.",
 });
 
 export function buildProjectCapabilityManifest(options) {
@@ -30,9 +95,9 @@ export function buildProjectCapabilityManifest(options) {
   const resources = analyzeResources(serverModules, clientModules, options.assets ?? [], options.entities ?? []);
   const ui = analyzeUi(clientModules, options.uiState ?? null, options.assets ?? []);
   const entities = analyzeEntities(serverModules, options.entities ?? [], options.assets ?? []);
-  const dependencies = analyzeCrossRuntimeDependencies(requirements, clientModules, options.runtimeContracts ?? null);
+  const dependencies = analyzeCrossRuntimeDependencies(requirements, clientModules, entities, options.runtimeContracts ?? null);
   const diagnostics = [
-    ...serverModules.flatMap(module => analyzeStaticUncertainty("server", module, serverOwners.get(normalizeModuleName(module.name)))),
+    ...serverModules.flatMap(module => analyzeStaticUncertainty("server", module, serverOwners.get(normalizeModuleName(module.name)), { groupStorageEnabled: options.groupStorageEnabled === true })),
     ...clientModules.flatMap(module => analyzeStaticUncertainty("client", module, clientOwners.get(normalizeModuleName(module.name)))),
   ].sort((left, right) => left.side.localeCompare(right.side) || left.module.localeCompare(right.module) || left.code.localeCompare(right.code));
   const blocked = requirements.filter(item => item.state === "blocked");
@@ -46,15 +111,30 @@ export function buildProjectCapabilityManifest(options) {
   const blockedUi = ui.filter(item => item.state === "blocked");
   const partialUi = ui.filter(item => item.state === "partial");
   const blockingDiagnostics = diagnostics.filter(item => item.state === "blocked");
+  const partialDiagnostics = diagnostics.filter(item => item.state === "partial");
   const blockedDependencies = dependencies.filter(item => item.state === "blocked");
   const partialDependencies = dependencies.filter(item => item.state === "partial");
   return Object.freeze({
     format: "nea-project-capability-manifest",
-    version: 5,
+    version: 10,
     apiVersion: options.apiVersion,
     contracts: structuredClone(options.contracts),
-    status: blocked.length + blockedModules.length + blockedResources.length + blockedEntities.length + blockedUi.length + blockingDiagnostics.length + blockedDependencies.length > 0 ? "blocked" : partial.length + partialResources.length + partialEntities.length + partialUi.length + partialDependencies.length > 0 ? "partial" : "ready",
-    summary: Object.freeze({ requirements: requirements.length, ready: requirements.filter(item => item.state === "ready").length, partial: partial.length, blocked: blocked.length, scriptOwned: scriptOwned.length, modules: modules.length, blockedModules: blockedModules.length, resources: resources.length, partialResources: partialResources.length, blockedResources: blockedResources.length, uiNodes: ui.length, partialUi: partialUi.length, blockedUi: blockedUi.length, entities: entities.length, partialEntities: partialEntities.length, blockedEntities: blockedEntities.length, dependencies: dependencies.length, partialDependencies: partialDependencies.length, blockedDependencies: blockedDependencies.length, diagnostics: diagnostics.length, blockingDiagnostics: blockingDiagnostics.length }),
+    inputs: Object.freeze({
+      modules: Object.freeze([
+        ...serverModules.map(module => moduleInput("server", module)),
+        ...clientModules.map(module => moduleInput("client", module)),
+      ].sort((left, right) => left.side.localeCompare(right.side) || left.name.localeCompare(right.name))),
+      capabilities: Object.freeze({
+        server: Object.freeze([...new Set(options.serverCapabilities ?? [])].sort()),
+        client: Object.freeze([...new Set(options.clientCapabilities ?? [])].sort()),
+      }),
+      ui: digestCapabilityJson(options.uiState ?? null),
+      assets: digestCapabilityJson(normalizeCapabilityAssets(options.assets ?? [])),
+      entities: digestCapabilityJson(normalizeCapabilityEntities(options.entities ?? [])),
+      runtimeAbi: digestCapabilityJson(normalizeCapabilityRuntimeAbi({ currentRuntime: options.currentRuntime, compatibilityMatrix: options.compatibilityMatrix, runtimeContracts: options.runtimeContracts })),
+    }),
+    status: blocked.length + blockedModules.length + blockedResources.length + blockedEntities.length + blockedUi.length + blockingDiagnostics.length + blockedDependencies.length > 0 ? "blocked" : partial.length + partialResources.length + partialEntities.length + partialUi.length + partialDependencies.length + partialDiagnostics.length > 0 ? "partial" : "ready",
+    summary: Object.freeze({ requirements: requirements.length, ready: requirements.filter(item => item.state === "ready").length, partial: partial.length, blocked: blocked.length, scriptOwned: scriptOwned.length, modules: modules.length, blockedModules: blockedModules.length, resources: resources.length, partialResources: partialResources.length, blockedResources: blockedResources.length, uiNodes: ui.length, partialUi: partialUi.length, blockedUi: blockedUi.length, entities: entities.length, partialEntities: partialEntities.length, blockedEntities: blockedEntities.length, dependencies: dependencies.length, partialDependencies: partialDependencies.length, blockedDependencies: blockedDependencies.length, diagnostics: diagnostics.length, partialDiagnostics: partialDiagnostics.length, blockingDiagnostics: blockingDiagnostics.length }),
     requirements,
     modules,
     resources,
@@ -65,7 +145,12 @@ export function buildProjectCapabilityManifest(options) {
   });
 }
 
-function analyzeCrossRuntimeDependencies(requirements, clientModules, runtimeContracts) {
+function moduleInput(side, module) {
+  const bytes = Buffer.from(module.source, "utf8");
+  return Object.freeze({ side, name: module.name, bytes: bytes.byteLength, sha256: createHash("sha256").update(bytes).digest("hex") });
+}
+
+function analyzeCrossRuntimeDependencies(requirements, clientModules, entities, runtimeContracts) {
   if (!runtimeContracts) return [];
   const flows = new Map((runtimeContracts.flows ?? []).map(flow => [flow.id, flow]));
   const transport = runtimeContracts.transport ?? {};
@@ -85,6 +170,148 @@ function analyzeCrossRuntimeDependencies(requirements, clientModules, runtimeCon
   if (serverEvents.length > 0) addTransport("transport:server-event", "server-event", "player.remote-channel", serverEvents.map(item => `${item.module}:${item.usage}`));
   const guiRequirements = requirements.filter(item => item.capability === "server.gui");
   if (guiRequirements.length > 0) addTransport("transport:gui", "gui-command", "player.gui", guiRequirements.map(item => `${item.module}:${item.usage}`));
+  const outboundChatCanonicalIds = new Set([
+    "server.GameWorld.say",
+    "server.GameEntity.say",
+    "server.GamePlayerEntity.directMessage",
+  ]);
+  const outboundChatLocalIds = new Set([
+    "server.world.say",
+    "server.RuntimeEntity.say",
+    "server.RuntimePlayer.sendMessage",
+  ]);
+  const outboundChat = requirements.filter(item => item.operation === "call" && (
+    outboundChatCanonicalIds.has(item.canonicalId)
+    || outboundChatLocalIds.has(item.localExtensionId)
+  ));
+  if (outboundChat.length > 0) addTransport("transport:chat-delivery", "chat-delivery", "player.game-chat", outboundChat.map(item => `${item.module}:${item.usage}`));
+  const inputEventCanonicalIds = new Set([
+    "server.GameWorld.onClick",
+    "server.GameWorld.nextClick",
+    "server.GameWorld.onPress",
+    "server.GameWorld.nextPress",
+    "server.GameWorld.onRelease",
+    "server.GameWorld.nextRelease",
+    "server.GameEntity.onClick",
+    "server.GameEntity.nextClick",
+    "server.GamePlayer.onPress",
+    "server.GamePlayer.nextPress",
+    "server.GamePlayer.onRelease",
+    "server.GamePlayer.nextRelease",
+  ]);
+  const inputEventLocalIds = new Set([
+    "server.world.onClick",
+    "server.world.nextClick",
+    "server.world.onPress",
+    "server.world.nextPress",
+    "server.world.onRelease",
+    "server.world.nextRelease",
+    "server.RuntimeEntity.onClick",
+    "server.RuntimeEntity.nextClick",
+    "server.RuntimePlayer.onClick",
+    "server.RuntimePlayer.nextClick",
+    "server.RuntimePlayer.onPress",
+    "server.RuntimePlayer.nextPress",
+    "server.RuntimePlayer.onRelease",
+    "server.RuntimePlayer.nextRelease",
+  ]);
+  const inputEvents = requirements.filter(item => item.operation === "call" && (
+    inputEventCanonicalIds.has(item.canonicalId)
+    || inputEventLocalIds.has(item.localExtensionId)
+  ));
+  if (inputEvents.length > 0) addTransport("transport:input-event-ingress", "input-event-ingress", "player.game-net", inputEvents.map(item => `${item.module}:${item.usage}`));
+  const interactCanonicalIds = new Set([
+    "server.GameWorld.onInteract",
+    "server.GameWorld.nextInteract",
+    "server.GameEntity.onInteract",
+    "server.GameEntity.nextInteract",
+  ]);
+  const interactLocalIds = new Set([
+    "server.world.onInteract",
+    "server.world.nextInteract",
+    "server.RuntimeEntity.onInteract",
+    "server.RuntimeEntity.nextInteract",
+  ]);
+  const interactEvents = requirements.filter(item => item.operation === "call" && (
+    interactCanonicalIds.has(item.canonicalId)
+    || interactLocalIds.has(item.localExtensionId)
+  ));
+  if (interactEvents.length > 0) addTransport("transport:entity-interact-ingress", "entity-interact-ingress", "player.entity-interact", interactEvents.map(item => `${item.module}:${item.usage}`));
+  const damageProjectionMembers = new Set([
+    "server.GameEntity.hp",
+    "server.GameEntity.maxHp",
+    "server.GameEntity.showHealthBar",
+  ]);
+  const damageProjectionCalls = new Set([
+    "server.GameEntity.hurt",
+    "server.GamePlayerEntity.forceRespawn",
+  ]);
+  const damageProjectionLocalIds = new Set([
+    "server.RuntimeEntity.hp",
+    "server.RuntimeEntity.maxHp",
+    "server.RuntimeEntity.showHealthBar",
+    "server.RuntimeEntity.hurt",
+    "server.RuntimePlayer.hp",
+    "server.RuntimePlayer.maxHp",
+    "server.RuntimePlayer.showHealthBar",
+    "server.RuntimePlayer.hurt",
+    "server.RuntimePlayer.forceRespawn",
+  ]);
+  const damageProjection = requirements.filter(item => (
+    (item.operation === "write" && damageProjectionMembers.has(item.canonicalId))
+    || (item.operation === "call" && damageProjectionCalls.has(item.canonicalId))
+    || ((item.operation === "write" || item.operation === "call") && damageProjectionLocalIds.has(item.localExtensionId))
+  ));
+  if (damageProjection.length > 0) addTransport("transport:damage-state-projection", "damage-state-projection", "player.game-net", damageProjection.map(item => `${item.module}:${item.usage}`));
+  const projectedScriptEntities = entities.filter(entity => entity.source === "script" && entity.projection === "validated-mesh-binding" && entity.state === "ready");
+  if (projectedScriptEntities.length > 0) {
+    const flow = flows.get("runtime-entity-projection");
+    const ready = authoritativeRuntime.id === "nea-authoritative-runtime/v1"
+      && flow?.from === "server-script-runtime"
+      && flow?.to === "authoritative-game-runtime"
+      && flow?.protocol === "nea-control.runtime-entity";
+    result.push(Object.freeze({
+      id: "authoritative:runtime-entity-projection",
+      category: "authoritative-state",
+      layers: Object.freeze([flow?.from ?? "server-script-runtime", flow?.to ?? "authoritative-game-runtime"]),
+      contract: authoritativeRuntime.id ?? null,
+      protocol: flow?.protocol ?? null,
+      flow: "runtime-entity-projection",
+      requiredBy: Object.freeze(projectedScriptEntities.map(entity => `${entity.module}:world.createEntity#${entity.occurrence}`).sort()),
+      state: ready ? "ready" : "blocked",
+      reason: ready ? null : "Validated runtime entity projection flow is unavailable.",
+    }));
+  }
+  const dialogCanonicalIds = new Set([
+    "server.GamePlayerEntity.dialog",
+    "server.GamePlayerEntity.cancelDialogs",
+  ]);
+  const dialogLocalIds = new Set([
+    "server.RuntimePlayer.dialog",
+    "server.RuntimePlayer.cancelDialogs",
+  ]);
+  const dialogs = requirements.filter(item => item.operation === "call" && (
+    dialogCanonicalIds.has(item.canonicalId)
+    || dialogLocalIds.has(item.localExtensionId)
+  ));
+  if (dialogs.length > 0) addTransport("transport:dialog-rpc", "dialog-rpc", "player.dialog", dialogs.map(item => `${item.module}:${item.usage}`));
+  const lifecycleCanonicalIds = new Set([
+    "server.GameWorld.onPlayerJoin",
+    "server.GameWorld.nextPlayerJoin",
+    "server.GameWorld.onPlayerLeave",
+    "server.GameWorld.nextPlayerLeave",
+  ]);
+  const lifecycleLocalIds = new Set([
+    "server.world.onPlayerJoin",
+    "server.world.nextPlayerJoin",
+    "server.world.onPlayerLeave",
+    "server.world.nextPlayerLeave",
+  ]);
+  const playerLifecycle = requirements.filter(item => item.operation === "call" && (
+    lifecycleCanonicalIds.has(item.canonicalId)
+    || lifecycleLocalIds.has(item.localExtensionId)
+  ));
+  if (playerLifecycle.length > 0) addTransport("transport:player-session-lifecycle", "player-session-lifecycle", "player.game-net", playerLifecycle.map(item => `${item.module}:${item.usage}`));
   const authoritativeWriteMembers = new Set([
     "server.GameEntity.position",
     "server.GameEntity.velocity",
@@ -115,9 +342,10 @@ function analyzeScript(side, source, capabilities, matrix, current, moduleName, 
     const binding = bindingSelection?.binding ?? current.get(canonicalId) ?? localExtension;
     const capability = binding?.capability ?? declaration?.capability ?? null;
     const missingCapability = capability !== null && !capabilities.includes(capability);
+    const evidenceBlockReason = canonicalId ? EVIDENCE_BLOCKED_REQUIREMENTS[canonicalId] ?? null : null;
     const executable = declaration?.executable === true || binding?.availability === "confirmed" || localExtension !== null || scriptOwned;
     const compatibility = scriptOwned ? "script-owned" : bindingSelection?.localBinding.status ?? binding?.compatibility ?? binding?.status ?? declaration?.status ?? (localExtension ? "extension" : "unclassified");
-    const state = scriptOwned ? "script-owned" : !executable || missingCapability ? "blocked" : compatibility === "partial" || compatibility === "extension" || (!declaration && binding) ? "partial" : "ready";
+    const state = scriptOwned ? "script-owned" : !executable || missingCapability || evidenceBlockReason ? "blocked" : compatibility === "partial" || compatibility === "extension" || (!declaration && binding) ? "partial" : "ready";
     const reasons = [];
     if (canonicalId && !declaration && binding) reasons.push(`Executable recovered canonical surface is not present in the documented declaration matrix: ${canonicalId}.`);
     else if (!canonicalId && localExtension) reasons.push(`Executable local extension is not a canonical DAO3 declaration: ${localExtension.id}.`);
@@ -126,6 +354,7 @@ function analyzeScript(side, source, capabilities, matrix, current, moduleName, 
     else if (declaration?.status === "unavailable" && declaration.unavailableReason) reasons.push(declaration.unavailableReason);
     else if (!executable) reasons.push(`Canonical ABI is ${compatibility} and has no executable local binding.`);
     if (missingCapability) reasons.push(`Required capability is not granted: ${capability}.`);
+    if (evidenceBlockReason) reasons.push(evidenceBlockReason);
     for (const gap of bindingSelection?.localBinding.gaps ?? []) if (!reasons.includes(gap)) reasons.push(gap);
     return Object.freeze({ side, module: moduleName, usage: item.usage, owner: item.owner, operation: item.operation, canonicalId, localExtensionId: localExtension?.id ?? null, compatibility, capability, state, reasons });
   });
@@ -147,7 +376,7 @@ function collectScriptOwnedSurfaces(side, modules, ownersByModule, matrix, curre
 
 function selectCurrentBinding(declaration, current, inferredOwner) {
   const bindings = declaration?.localBindings?.map(localBinding => ({ localBinding, binding: current.get(localBinding.localId) })).filter(item => item.binding) ?? [];
-  const preferredOwner = { GamePlayerEntity: "RuntimePlayer", GameEntity: "RuntimeEntity" }[inferredOwner];
+  const preferredOwner = { GamePlayerEntity: "RuntimePlayer", GameEntity: "RuntimeEntity", GameTickEvent: "RuntimeTickEvent", GameChatEvent: "RuntimeChatEvent", GamePurchaseSuccessEvent: "RuntimePurchaseSuccessEvent", GameKeyBoardEvent: "RuntimeKeyBoardEvent", GameClickEvent: "RuntimeClickEvent", GameInputEvent: "RuntimeInputEvent", GameEntityEvent: "RuntimeEntityEvent", GameDamageEvent: "RuntimeDamageEvent", GameDieEvent: "RuntimeDieEvent", GameRespawnEvent: "RuntimeRespawnEvent", GameInteractEvent: "RuntimeInteractEvent", GameFluidContactEvent: "RuntimeFluidContactEvent", GameVoxelContactEvent: "RuntimeVoxelContactEvent" }[inferredOwner];
   return bindings.find(item => item.binding.owner === preferredOwner) ?? bindings[0] ?? null;
 }
 
@@ -156,15 +385,16 @@ function scanUsages(side, source, inferredOwners = new Map()) {
   const add = (usage, owner = null, operation = "read") => usages.set(`${owner ?? ""}:${usage}:${operation}`, { usage, owner, operation });
   const roots = Object.keys(ROOT_OWNERS[side]);
   const variables = mergeOwnerMaps(inferVariableOwners(side, source), inferredOwners);
+  const scanSource = maskJavaScriptNonCode(source);
   const memberPattern = new RegExp(`\\b(${roots.join("|")})\\.([A-Za-z_$][\\w$]*)`, "g");
-  for (const match of source.matchAll(memberPattern)) if (!variables.has(match[1])) add(`${match[1]}.${match[2]}`, null, memberOperation(source, match.index + match[0].length));
+  for (const match of scanSource.matchAll(memberPattern)) if (!variables.has(match[1])) add(`${match[1]}.${match[2]}`, null, memberOperation(source, match.index + match[0].length));
   for (const [name, owners] of variables) {
     const pattern = new RegExp(`\\b${escapeRegex(name)}\\.([A-Za-z_$][\\w$]*)`, "g");
-    for (const match of source.matchAll(pattern)) for (const owner of owners) add(`${name}.${match[1]}`, owner, memberOperation(source, match.index + match[0].length));
+    for (const match of scanSource.matchAll(pattern)) for (const owner of owners) add(`${name}.${match[1]}`, owner, memberOperation(source, match.index + match[0].length));
   }
   if (side === "client") {
-    for (const match of source.matchAll(/\b(Ui[A-Za-z_$][\w$]*)\.create\b/g)) add(`${match[1]}.create`, null, "call");
-    for (const match of source.matchAll(/\b(UiScreen)\.getAllScreen\b/g)) add(`${match[1]}.getAllScreen`, null, "call");
+    for (const match of scanSource.matchAll(/\b(Ui[A-Za-z_$][\w$]*)\.create\b/g)) add(`${match[1]}.create`, null, "call");
+    for (const match of scanSource.matchAll(/\b(UiScreen)\.getAllScreen\b/g)) add(`${match[1]}.getAllScreen`, null, "call");
   }
   const literalRootPattern = new RegExp(`\\b(${roots.join("|")})\\s*\\[\\s*(["'])([A-Za-z_$][\\w$]*)\\2\\s*\\]`, "g");
   for (const match of source.matchAll(literalRootPattern)) add(`${match[1]}.${match[3]}`, null, memberOperation(source, match.index + match[0].length));
@@ -173,6 +403,64 @@ function scanUsages(side, source, inferredOwners = new Map()) {
     for (const match of source.matchAll(pattern)) for (const owner of owners) add(`${name}.${match[2]}`, owner, memberOperation(source, match.index + match[0].length));
   }
   return [...usages.values()].sort((left, right) => left.usage.localeCompare(right.usage) || String(left.owner).localeCompare(String(right.owner)) || left.operation.localeCompare(right.operation));
+}
+
+function maskJavaScriptNonCode(source) {
+  const chars = [...source];
+  let index = 0;
+  const mask = position => { chars[position] = " "; };
+  const scanString = quote => {
+    mask(index++);
+    while (index < source.length) {
+      const char = source[index];
+      mask(index++);
+      if (char === "\\" && index < source.length) mask(index++);
+      else if (char === quote) return;
+    }
+  };
+  const scanTemplate = () => {
+    mask(index++);
+    while (index < source.length) {
+      const char = source[index];
+      if (char === "\\") { mask(index++); if (index < source.length) mask(index++); continue; }
+      if (char === "`") { mask(index++); return; }
+      if (char === "$" && source[index + 1] === "{") {
+        mask(index++); mask(index++); scanCode(true); continue;
+      }
+      mask(index++);
+    }
+  };
+  const scanCode = stopAtTemplateBrace => {
+    let braceDepth = stopAtTemplateBrace ? 1 : 0;
+    while (index < source.length) {
+      const char = source[index];
+      if (stopAtTemplateBrace && char === "{") { braceDepth += 1; index += 1; continue; }
+      if (stopAtTemplateBrace && char === "}") {
+        braceDepth -= 1;
+        if (braceDepth === 0) { mask(index++); return; }
+        index += 1;
+        continue;
+      }
+      if (char === "'" || char === '"') { scanString(char); continue; }
+      if (char === "`") { scanTemplate(); continue; }
+      if (char === "/" && source[index + 1] === "/") {
+        mask(index++); mask(index++);
+        while (index < source.length && source[index] !== "\n") mask(index++);
+        continue;
+      }
+      if (char === "/" && source[index + 1] === "*") {
+        mask(index++); mask(index++);
+        while (index < source.length) {
+          if (source[index] === "*" && source[index + 1] === "/") { mask(index++); mask(index++); break; }
+          mask(index++);
+        }
+        continue;
+      }
+      index += 1;
+    }
+  };
+  scanCode(false);
+  return chars.join("");
 }
 
 function memberOperation(source, offset) {
@@ -203,8 +491,13 @@ function resolveCanonicalId(side, usage, matrix, current, inferredOwner = null) 
 function resolveLocalExtension(side, usage, inferredOwner, current) {
   if (!inferredOwner) return null;
   const member = usage.split(".")[1];
-  const localOwner = { GameEntity: "RuntimeEntity", GamePlayerEntity: "RuntimePlayer" }[inferredOwner] ?? inferredOwner;
-  const candidates = [...current.values()].filter(entry => entry.side === side && entry.owner === localOwner && entry.name === member && !(entry.implements?.length > 0));
+  const localOwner = { GameEntity: "RuntimeEntity", GamePlayerEntity: "RuntimePlayer", GameZone: "RuntimeGameZone", QueryList: "RuntimeQueryList", GameRaycastResult: "RuntimeRaycastResult", GameTickEvent: "RuntimeTickEvent", GameChatEvent: "RuntimeChatEvent", GamePurchaseSuccessEvent: "RuntimePurchaseSuccessEvent", GameKeyBoardEvent: "RuntimeKeyBoardEvent", GameClickEvent: "RuntimeClickEvent", GameInputEvent: "RuntimeInputEvent", GameEntityEvent: "RuntimeEntityEvent", GameDamageEvent: "RuntimeDamageEvent", GameDieEvent: "RuntimeDieEvent", GameRespawnEvent: "RuntimeRespawnEvent", GameInteractEvent: "RuntimeInteractEvent", GameFluidContactEvent: "RuntimeFluidContactEvent", GameVoxelContactEvent: "RuntimeVoxelContactEvent" }[inferredOwner] ?? inferredOwner;
+  const candidates = [...current.values()].filter(entry => entry.side === side
+    && entry.owner === localOwner
+    && entry.name === member
+    && (["GameZone", "QueryList", "GameRaycastResult", "GameTickEvent", "GameChatEvent", "GamePurchaseSuccessEvent", "GameKeyBoardEvent", "GameClickEvent", "GameInputEvent", "GameEntityEvent", "GameDamageEvent", "GameDieEvent", "GameRespawnEvent", "GameInteractEvent", "GameFluidContactEvent", "GameVoxelContactEvent"].includes(inferredOwner)
+      || !(entry.implements?.length > 0)
+      || entry.implements.every(canonicalId => !current.has(canonicalId))));
   return candidates.length === 1 ? candidates[0] : null;
 }
 
@@ -216,15 +509,26 @@ function inferVariableOwners(side, source) {
     result.set(name, owners);
   };
   if (side === "server") {
+    for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*world\.addZone\s*\(/g)) add(match[1], "GameZone");
+    for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*world\.raycast\s*\(/g)) add(match[1], "GameRaycastResult");
+    for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*storage\.(?:getDataStorage|getGroupStorage)\s*\(/g)) add(match[1], "GameDataStorage");
+    const dataStorages = new Set([...result.entries()].filter(([, owners]) => owners.has("GameDataStorage")).map(([name]) => name));
+    for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*([A-Za-z_$][\w$]*)\.list\s*\(/g)) if (dataStorages.has(match[2])) add(match[1], "QueryList");
     for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*world\.(?:querySelector|createEntity)\s*\(/g)) add(match[1], "GameEntity");
+    const raycastResults = new Set([...result.entries()].filter(([, owners]) => owners.has("GameRaycastResult")).map(([name]) => name));
+    for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*([A-Za-z_$][\w$]*)\.hitEntity\b/g)) if (raycastResults.has(match[2])) add(match[1], "GameEntity");
     const entityCollections = new Set();
     for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*world\.querySelectorAll\s*\(/g)) entityCollections.add(match[1]);
     for (const match of source.matchAll(/\bfor\s*\(\s*(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s+of\s+([A-Za-z_$][\w$]*)\s*\)/g)) if (entityCollections.has(match[2])) add(match[1], "GameEntity");
     inferCollectionCallbacks(source, "world.querySelectorAll", entityCollections, "GameEntity", add);
     inferCollectionFindResults(source, "world.querySelectorAll", entityCollections, "GameEntity", add);
     for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*([A-Za-z_$][\w$]*)\.player\b/g)) add(match[1], "GamePlayerEntity");
-    const eventSources = new Set(["world", ...result.keys()]);
-    inferEventPayloadOwners(source, eventSources, add);
+    let ownerCount;
+    do {
+      ownerCount = [...result.values()].reduce((count, owners) => count + owners.size, 0);
+      inferEventPayloadOwners(source, new Set(["world", ...result.keys()]), add);
+    } while ([...result.values()].reduce((count, owners) => count + owners.size, 0) > ownerCount);
+    inferEventMemberResults(source, result, add);
   } else {
     for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(Ui[A-Za-z_$][\w$]*)\.create\s*\(/g)) add(match[1], match[2]);
     for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:ui|screen|[A-Za-z_$][\w$]*)\.findChildByName\s*\(/g)) add(match[1], "UiNode");
@@ -234,7 +538,7 @@ function inferVariableOwners(side, source) {
     inferCollectionCallbacks(source, "UiScreen.getAllScreen", screenCollections, "UiScreen", add);
     inferCollectionFindResults(source, "UiScreen.getAllScreen", screenCollections, "UiScreen", add);
   }
-  const aliases = [...source.matchAll(/\b(?:(?:const|let|var)\s+)?([A-Za-z_$][\w$]*)\s*=(?!=)\s*([A-Za-z_$][\w$]*)\b/g)]
+  const aliases = [...source.matchAll(/\b(?:(?:const|let|var)\s+)?([A-Za-z_$][\w$]*)\s*=(?!=)\s*([A-Za-z_$][\w$]*)\b(?!\s*(?:[.\[]|\())/g)]
     .map(match => ({ target: match[1], source: match[2] }));
   for (let pass = 0; pass < aliases.length; pass += 1) {
     let changed = false;
@@ -250,6 +554,26 @@ function inferVariableOwners(side, source) {
     if (!changed) break;
   }
   return result;
+}
+
+function inferEventMemberResults(source, ownersByName, add) {
+  for (const match of source.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*([A-Za-z_$][\w$]*)\.(entity|targetEntity|attacker|clicker|raycast)\b/g)) {
+    const sourceOwners = ownersByName.get(match[2]);
+    if (sourceOwners?.has("GameClickEvent")) {
+      add(match[1], match[3] === "entity" ? "GameEntity" : match[3] === "clicker" ? "GamePlayerEntity" : "GameRaycastResult");
+      continue;
+    }
+    if (sourceOwners?.has("GameInputEvent") && match[3] !== "clicker") add(match[1], match[3] === "entity" ? "GamePlayerEntity" : "GameRaycastResult");
+    if (sourceOwners?.has("GameEntityEvent") && match[3] === "entity") add(match[1], "GameEntity");
+    if (sourceOwners?.has("GameDamageEvent") && (match[3] === "entity" || match[3] === "attacker")) add(match[1], "GameEntity");
+    if (sourceOwners?.has("GameDieEvent") && (match[3] === "entity" || match[3] === "attacker")) add(match[1], "GameEntity");
+    if (sourceOwners?.has("GameRespawnEvent") && match[3] === "entity") add(match[1], "GamePlayerEntity");
+    if (sourceOwners?.has("GameChatEvent") && match[3] === "entity") add(match[1], "GameEntity");
+    if (sourceOwners?.has("GameInteractEvent")) {
+      if (match[3] === "entity") add(match[1], "GamePlayerEntity");
+      if (match[3] === "targetEntity") add(match[1], "GameEntity");
+    }
+  }
 }
 
 function inferCollectionCallbacks(source, directCall, collections, owner, add) {
@@ -272,18 +596,30 @@ function inferCollectionFindResults(source, directCall, collections, owner, add)
 }
 
 function inferEventPayloadOwners(source, eventSources, add) {
-  const handlerNames = new Set();
+  const handlerOwners = new Map();
   for (const eventSource of eventSources) {
     const direct = new RegExp(`\\b${escapeRegex(eventSource)}\\s*\\.\\s*(?:on|next)[A-Z][A-Za-z_$0-9]*\\s*\\(\\s*(?:async\\s*)?\\(?\\s*\\{([^}]+)\\}\\s*\\)?\\s*=>`, "g");
     for (const match of source.matchAll(direct)) addEventPayloadFields(match[1], add);
-    const named = new RegExp(`\\b${escapeRegex(eventSource)}\\s*\\.\\s*(?:on|next)[A-Z][A-Za-z_$0-9]*\\s*\\(\\s*([A-Za-z_$][\\w$]*)\\s*\\)`, "g");
-    for (const match of source.matchAll(named)) handlerNames.add(match[1]);
+    for (const [method, owner] of Object.entries(EVENT_PAYLOAD_OWNERS)) {
+      const inline = new RegExp(`\\b${escapeRegex(eventSource)}\\s*\\.\\s*${method}\\s*\\(\\s*(?:async\\s*)?\\(?\\s*([A-Za-z_$][\\w$]*)\\s*\\)?\\s*=>`, "g");
+      for (const match of source.matchAll(inline)) add(match[1], owner);
+      const named = new RegExp(`\\b${escapeRegex(eventSource)}\\s*\\.\\s*${method}\\s*\\(\\s*([A-Za-z_$][\\w$]*)\\s*\\)`, "g");
+      for (const match of source.matchAll(named)) {
+        const owners = handlerOwners.get(match[1]) ?? new Set();
+        owners.add(owner);
+        handlerOwners.set(match[1], owners);
+      }
+    }
   }
-  for (const handlerName of handlerNames) {
+  for (const [handlerName, owners] of handlerOwners) {
     const declaration = new RegExp(`\\bfunction\\s+${escapeRegex(handlerName)}\\s*\\(\\s*\\{([^}]+)\\}`, "g");
     for (const match of source.matchAll(declaration)) addEventPayloadFields(match[1], add);
     const assigned = new RegExp(`\\b(?:const|let|var)\\s+${escapeRegex(handlerName)}\\s*=\\s*(?:async\\s*)?\\(?\\s*\\{([^}]+)\\}\\s*\\)?\\s*=>`, "g");
     for (const match of source.matchAll(assigned)) addEventPayloadFields(match[1], add);
+    const namedDeclaration = new RegExp(`\\bfunction\\s+${escapeRegex(handlerName)}\\s*\\(\\s*([A-Za-z_$][\\w$]*)`, "g");
+    for (const match of source.matchAll(namedDeclaration)) for (const owner of owners) add(match[1], owner);
+    const namedAssigned = new RegExp(`\\b(?:const|let|var)\\s+${escapeRegex(handlerName)}\\s*=\\s*(?:async\\s*)?\\(?\\s*([A-Za-z_$][\\w$]*)\\s*\\)?\\s*=>`, "g");
+    for (const match of source.matchAll(namedAssigned)) for (const owner of owners) add(match[1], owner);
   }
 }
 
@@ -392,9 +728,9 @@ function scanCommonJsImports(source) {
   return result;
 }
 
-function analyzeStaticUncertainty(side, module, inferredOwners = new Map()) {
+function analyzeStaticUncertainty(side, module, inferredOwners = new Map(), options = {}) {
   const diagnostics = [];
-  const add = (code, message) => diagnostics.push(Object.freeze({ side, module: module.name, code, state: "blocked", message }));
+  const add = (code, message, state = "blocked") => diagnostics.push(Object.freeze({ side, module: module.name, code, state, message }));
   if (/\beval\s*\(/.test(module.source)) add("dynamic-eval", "eval() prevents static capability proof.");
   if (/\b(?:new\s+)?Function\s*\(/.test(module.source)) add("dynamic-function", "Function construction prevents static capability proof.");
   if (side === "server" && /\b(?:import\s+(?!\()|export\s+)/.test(module.source)) add("unsupported-server-module-syntax", "The local server Runtime executes synchronized modules as CommonJS and cannot execute ESM import/export syntax.");
@@ -403,6 +739,22 @@ function analyzeStaticUncertainty(side, module, inferredOwners = new Map()) {
   for (const name of names) {
     const pattern = new RegExp(`\\b${escapeRegex(name)}\\s*\\[\\s*([^\]"'][^\]]*)\\]`, "g");
     if (pattern.test(module.source)) add("dynamic-member", `Computed member access cannot be resolved statically: ${name}[...].`);
+  }
+  if (side === "server") {
+    if (!options.groupStorageEnabled && /\bstorage\.getGroupStorage\s*\(/.test(module.source)) add("group-storage-scope-unavailable", "getGroupStorage() requires an authoritative group identity and storage provider; the default local project Runtime has neither.");
+    if (/\bworld\.(?:onChat|nextChat)\s*\(/.test(module.source)) add("chat-ingress-unavailable", "The historical GameChatEvent shape is recovered, but no Player/browser-to-backend chat ingress reaches the local Server Script Runtime.");
+    if (/\bworld\.(?:onPlayerPurchaseSuccess|nextPlayerPurchaseSuccess)\s*\(/.test(module.source)) add("purchase-success-ingress-unavailable", "The recovered market protocols expose marketplace open/acknowledgement messages but no browser or backend purchase-success ingress into the local Server Script Runtime.");
+    for (const match of module.source.matchAll(/\bworld\.(?:querySelector|querySelectorAll|testSelector)\s*\(\s*(["'])(.*?)\1/g)) {
+      for (const part of match[2].split(",")) {
+        const token = part.trim();
+        if (token.length === 0 || token === "*" || token === "entity" || token === "player") continue;
+        if ((token.startsWith(".") || token.startsWith("#")) && /\s/.test(token)) {
+          add("selector-whitespace-not-intersection", `Selector literal ${JSON.stringify(match[2])} uses whitespace inside one recovered id/tag token; DAO3 ParsedSelector does not implement CSS-style intersection.`, "partial");
+        } else if (!token.startsWith(".") && !token.startsWith("#") && !token.startsWith("*")) {
+          add("selector-component-unverified", `Selector component ${JSON.stringify(token)} depends on the unrecovered historical testComponent helper.`, "partial");
+        }
+      }
+    }
   }
   return dedupeDiagnostics(diagnostics);
 }

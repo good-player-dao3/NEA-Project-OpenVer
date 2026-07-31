@@ -25,7 +25,7 @@ function manifest(overrides = {}) {
 test("capability manifest resolves canonical server and client ABI requirements", () => {
   const result = manifest();
   assert.equal(result.format, "nea-project-capability-manifest");
-  assert.equal(result.version, 5);
+  assert.equal(result.version, 10);
   assert.deepEqual(result.requirements.map(item => item.usage), ["UiText.create", "world.say"]);
   assert.ok(result.requirements.every(item => item.canonicalId));
   assert.equal(result.summary.blocked, 0);
@@ -63,6 +63,27 @@ test("capability manifest distinguishes no client script from an explicit empty 
   const delivery = explicit.dependencies.find(item => item.id === "transport:client-module-delivery");
   assert.equal(delivery.state, "ready");
   assert.deepEqual(delivery.requiredBy, ["module:clientIndex.js"]);
+});
+
+test("capability manifest resolves RuntimeEntity physical writes and projection dependency", () => {
+  const result = manifest({
+    serverSource: `const body = world.createEntity({ id: "body", mesh: "body.mesh" }); body.collides = false; body.fixed = true; body.gravity = false; body.mass = 2; body.friction = 0.25; body.restitution = 0.5;`,
+    clientSource: "",
+    serverCapabilities: ["server.world.entities"],
+    clientCapabilities: [],
+    assets: [{ name: "body.mesh", runtimeBinding: "validated-mesh" }],
+  });
+  for (const member of ["collides", "fixed", "gravity", "mass", "friction", "restitution"]) {
+    const requirement = result.requirements.find(item => item.usage === `body.${member}`);
+    assert.equal(requirement.owner, "GameEntity");
+    assert.equal(requirement.operation, "write");
+    assert.equal(requirement.canonicalId, `server.GameEntity.${member}`);
+    assert.equal(requirement.state, "partial");
+  }
+  const projection = result.dependencies.find(item => item.id === "authoritative:runtime-entity-projection");
+  assert.equal(projection.state, "ready");
+  assert.deepEqual(projection.requiredBy, ["server.js:world.createEntity#1"]);
+  assert.equal(result.status, "partial");
 });
 
 test("capability manifest does not require authoritative state flow for player reads", () => {
@@ -168,6 +189,229 @@ test("capability manifest blocks GUI use when the transport flow evidence is abs
   });
   assert.equal(result.dependencies.find(item => item.id === "transport:gui").state, "blocked");
   assert.equal(result.status, "blocked");
+});
+
+test("capability manifest requires outbound chat delivery without claiming chat ingress", () => {
+  const result = manifest({
+    serverSource: `
+      world.say("ready");
+      world.onChat(event => event.player.sendMessage(event.message));
+    `,
+    serverCapabilities: ["server.world.chat"],
+  });
+  const dependency = result.dependencies.find(item => item.id === "transport:chat-delivery");
+  assert.equal(dependency.state, "ready");
+  assert.equal(dependency.protocol, "player.game-chat.log");
+  assert.deepEqual(dependency.requiredBy, ["server.js:player.sendMessage", "server.js:world.say"]);
+
+  const ingressOnly = manifest({
+    serverSource: `world.onChat(event => console.log(event.message));`,
+    serverCapabilities: ["server.world.chat", "server.core"],
+  });
+  assert.equal(ingressOnly.dependencies.some(item => item.id === "transport:chat-delivery"), false);
+});
+
+test("capability manifest blocks outbound chat when delivery flow evidence is absent", () => {
+  const result = manifest({
+    serverSource: `world.say("ready");`,
+    serverCapabilities: ["server.world.chat"],
+    runtimeContracts: { ...runtimeContracts, flows: runtimeContracts.flows.filter(flow => flow.id !== "chat-delivery") },
+  });
+  assert.equal(result.dependencies.find(item => item.id === "transport:chat-delivery").state, "blocked");
+  assert.equal(result.status, "blocked");
+});
+
+test("capability manifest requires Player input ingress for click press and release subscriptions", () => {
+  const result = manifest({
+    serverSource: `
+      world.onClick(event => event.clicker.directMessage(event.button));
+      world.onPress(event => event.entity.lastPressed = event.button);
+      world.onRelease(event => event.entity.lastReleased = event.button);
+    `,
+    serverCapabilities: ["server.world.events", "server.world.chat"],
+  });
+  const dependency = result.dependencies.find(item => item.id === "transport:input-event-ingress");
+  assert.equal(dependency.state, "ready");
+  assert.equal(dependency.protocol, "player.game-net.input");
+  assert.deepEqual(dependency.requiredBy, ["server.js:world.onClick", "server.js:world.onPress", "server.js:world.onRelease"]);
+});
+
+test("capability manifest requires entity-interact ingress for world and entity subscriptions", () => {
+  const result = manifest({
+    serverSource: `
+      world.onInteract(event => event.targetEntity.lastPlayer = event.entity.id);
+      world.querySelector(".merchant").onInteract(event => event.entity.directMessage("ready"));
+    `,
+    serverCapabilities: ["server.world.events", "server.world.entities"],
+  });
+  const dependency = result.dependencies.find(item => item.id === "transport:entity-interact-ingress");
+  assert.equal(dependency.state, "ready");
+  assert.equal(dependency.protocolFamily, "player.entity-interact");
+  assert.deepEqual(dependency.requiredBy, ["server.js:world.onInteract"]);
+});
+
+test("capability manifest blocks interact subscriptions when ingress evidence is absent", () => {
+  const result = manifest({
+    serverSource: `world.onInteract(() => {});`,
+    serverCapabilities: ["server.world.events"],
+    runtimeContracts: { ...runtimeContracts, flows: runtimeContracts.flows.filter(flow => flow.id !== "entity-interact-ingress") },
+  });
+  assert.equal(result.dependencies.find(item => item.id === "transport:entity-interact-ingress").state, "blocked");
+  assert.equal(result.status, "blocked");
+});
+
+test("capability manifest blocks input event subscriptions when ingress flow evidence is absent", () => {
+  const result = manifest({
+    serverSource: `world.onClick(() => {});`,
+    serverCapabilities: ["server.world.events"],
+    runtimeContracts: { ...runtimeContracts, flows: runtimeContracts.flows.filter(flow => flow.id !== "input-event-ingress") },
+  });
+  assert.equal(result.dependencies.find(item => item.id === "transport:input-event-ingress").state, "blocked");
+  assert.equal(result.status, "blocked");
+});
+
+test("capability manifest does not confuse chat or unrelated world events with Player input ingress", () => {
+  const result = manifest({
+    serverSource: `world.onChat(() => {}); world.onVoxelContact(() => {});`,
+    serverCapabilities: ["server.world.chat", "server.world.events"],
+  });
+  assert.equal(result.dependencies.some(item => item.id === "transport:input-event-ingress"), false);
+});
+
+test("capability manifest requires authoritative damage projection for mutations and lifecycle calls", () => {
+  const result = manifest({
+    serverSource: `
+      const target = world.querySelector(".target");
+      target.hp = 20;
+      target.maxHp = 40;
+      target.showHealthBar = false;
+      target.hurt(5, { damageType: "melee" });
+      target.player.forceRespawn();
+    `,
+    serverCapabilities: ["server.world.query", "server.world.entities", "server.world.events", "server.player.write"],
+  });
+  const dependency = result.dependencies.find(item => item.id === "transport:damage-state-projection");
+  assert.equal(dependency.state, "ready");
+  assert.equal(dependency.protocol, "player.game-net.PUBLIC.damage");
+  assert.deepEqual(dependency.requiredBy, [
+    "server.js:player.forceRespawn",
+    "server.js:target.hp",
+    "server.js:target.hurt",
+    "server.js:target.maxHp",
+    "server.js:target.showHealthBar",
+  ]);
+});
+
+test("capability manifest blocks damage mutations when projection evidence is absent", () => {
+  const result = manifest({
+    serverSource: `const target = world.querySelector(".target"); target.hurt(1);`,
+    serverCapabilities: ["server.world.query", "server.world.events"],
+    runtimeContracts: { ...runtimeContracts, flows: runtimeContracts.flows.filter(flow => flow.id !== "damage-state-projection") },
+  });
+  assert.equal(result.dependencies.find(item => item.id === "transport:damage-state-projection").state, "blocked");
+  assert.equal(result.status, "blocked");
+});
+
+test("capability manifest does not require damage projection for reads or lifecycle subscriptions", () => {
+  const result = manifest({
+    serverSource: `
+      const target = world.querySelector(".target");
+      console.log(target.hp, target.maxHp, target.showHealthBar);
+      world.onTakeDamage(() => {});
+      world.onDie(() => {});
+      world.onRespawn(() => {});
+    `,
+    serverCapabilities: ["server.core", "server.world.query", "server.world.entities", "server.world.events"],
+  });
+  assert.equal(result.dependencies.some(item => item.id === "transport:damage-state-projection"), false);
+});
+
+test("capability manifest requires authoritative projection only for validated script mesh entities", () => {
+  const result = manifest({
+    serverSource: `
+      world.createEntity({ id: "projected", mesh: "captured-mesh" });
+      world.createEntity({ id: "local", mesh: "unknown-mesh" });
+    `,
+    serverCapabilities: ["server.world.entities"],
+    assets: [{ name: "captured-mesh", kind: "mesh", runtimeBinding: "validated-mesh" }],
+  });
+  const dependency = result.dependencies.find(item => item.id === "authoritative:runtime-entity-projection");
+  assert.equal(dependency.state, "ready");
+  assert.equal(dependency.protocol, "nea-control.runtime-entity");
+  assert.deepEqual(dependency.requiredBy, ["server.js:world.createEntity#1"]);
+  assert.equal(result.entities.find(entity => entity.id === "local").state, "partial");
+});
+
+test("capability manifest blocks validated mesh projection when authoritative flow is absent", () => {
+  const result = manifest({
+    serverSource: `world.createEntity({ mesh: "captured-mesh" });`,
+    serverCapabilities: ["server.world.entities"],
+    assets: [{ name: "captured-mesh", kind: "mesh", runtimeBinding: "validated-mesh" }],
+    runtimeContracts: { ...runtimeContracts, flows: runtimeContracts.flows.filter(flow => flow.id !== "runtime-entity-projection") },
+  });
+  assert.equal(result.dependencies.find(item => item.id === "authoritative:runtime-entity-projection").state, "blocked");
+  assert.equal(result.status, "blocked");
+});
+
+test("capability manifest keeps unknown mesh creation script-local without projection dependency", () => {
+  const result = manifest({
+    serverSource: `world.createEntity({ mesh: "unknown-mesh" });`,
+    serverCapabilities: ["server.world.entities"],
+    assets: [],
+  });
+  assert.equal(result.dependencies.some(item => item.id === "authoritative:runtime-entity-projection"), false);
+  assert.equal(result.entities[0].state, "partial");
+  assert.match(result.entities[0].reason, /remains script-local/);
+});
+
+test("capability manifest requires recovered Player dialog RPC for open and cancel calls", () => {
+  const result = manifest({
+    serverSource: `world.onPlayerJoin(({ player }) => { player.dialog({ type: "text", content: "Ready" }); player.cancelDialogs(); });`,
+    serverCapabilities: ["server.world.events", "server.player"],
+  });
+  const dependency = result.dependencies.find(item => item.id === "transport:dialog-rpc");
+  assert.equal(dependency.state, "ready");
+  assert.equal(dependency.protocol, "player.dialog");
+  assert.deepEqual(dependency.requiredBy, ["server.js:player.cancelDialogs", "server.js:player.dialog"]);
+});
+
+test("capability manifest blocks dialog calls when RPC flow evidence is absent", () => {
+  const result = manifest({
+    serverSource: `world.onPlayerJoin(({ player }) => player.dialog({ type: "text", content: "Ready" }));`,
+    serverCapabilities: ["server.world.events", "server.player"],
+    runtimeContracts: { ...runtimeContracts, flows: runtimeContracts.flows.filter(flow => flow.id !== "dialog-rpc") },
+  });
+  assert.equal(result.dependencies.find(item => item.id === "transport:dialog-rpc").state, "blocked");
+  assert.equal(result.status, "blocked");
+});
+
+test("capability manifest requires stable Player session lifecycle ingress for join and leave handlers", () => {
+  const result = manifest({
+    serverSource: `world.onPlayerJoin(({ player }) => player.name); world.onPlayerLeave(({ player }) => player.name);`,
+    serverCapabilities: ["server.world.events", "server.player"],
+  });
+  const dependency = result.dependencies.find(item => item.id === "transport:player-session-lifecycle");
+  assert.equal(dependency.state, "ready");
+  assert.equal(dependency.protocol, "player.game-net.session");
+  assert.deepEqual(dependency.requiredBy, ["server.js:world.onPlayerJoin", "server.js:world.onPlayerLeave"]);
+});
+
+test("capability manifest blocks Player lifecycle handlers when session flow evidence is absent", () => {
+  const result = manifest({
+    serverSource: `world.onPlayerJoin(() => {});`,
+    serverCapabilities: ["server.world.events"],
+    runtimeContracts: { ...runtimeContracts, flows: runtimeContracts.flows.filter(flow => flow.id !== "player-session-lifecycle") },
+  });
+  assert.equal(result.dependencies.find(item => item.id === "transport:player-session-lifecycle").state, "blocked");
+  assert.equal(result.status, "blocked");
+});
+
+test("capability manifest does not confuse entity destroy handlers with Player session lifecycle", () => {
+  const result = manifest({
+    serverSource: `world.onEntityDestroy(() => {});`,
+    serverCapabilities: ["server.world.events"],
+  });
+  assert.equal(result.dependencies.some(item => item.id === "transport:player-session-lifecycle"), false);
 });
 
 test("capability manifest gates persistent storage independently", () => {
@@ -508,4 +752,89 @@ test("capability manifest blocks eval, Function construction, and dynamic import
   });
   assert.equal(result.status, "blocked");
   assert.deepEqual(result.diagnostics.map(item => item.code).sort(), ["dynamic-eval", "dynamic-function", "dynamic-import"]);
+});
+
+test("capability manifest reports recovered selector grammar risks as partial", () => {
+  const result = manifest({
+    serverSource: `
+      world.querySelectorAll(".box .red");
+      world.querySelector("custom-component");
+      world.testSelector(".safe,#known,player", world.querySelector("#known"));
+    `,
+    serverCapabilities: ["server.world.entities"],
+  });
+  assert.equal(result.status, "partial");
+  assert.equal(result.summary.partialDiagnostics, 2);
+  assert.deepEqual(result.diagnostics.map(item => item.code).sort(), ["selector-component-unverified", "selector-whitespace-not-intersection"]);
+  assert.equal(result.summary.blockingDiagnostics, 0);
+});
+
+test("capability manifest propagates GameDataStorage and QueryList owners", () => {
+  const result = manifest({
+    serverSource: `
+      const players = storage.getDataStorage("players");
+      players.set("guest", { score: 1 });
+      players.get("guest");
+      const pages = players.list({ cursor: 0 });
+      pages.getCurrentPage();
+      pages.nextPage();
+      pages.isLastPage;
+    `,
+    serverCapabilities: ["server.storage"],
+  });
+  for (const usage of ["players.set", "players.get", "players.list"]) assert.deepEqual(result.requirements.filter(item => item.usage === usage).map(item => item.owner), ["GameDataStorage"]);
+  for (const usage of ["pages.getCurrentPage", "pages.nextPage", "pages.isLastPage"]) {
+    const requirements = result.requirements.filter(item => item.usage === usage);
+    assert.deepEqual(requirements.map(item => item.owner), ["QueryList"]);
+    assert.equal(requirements[0].localExtensionId, `server.RuntimeQueryList.${usage.split(".")[1]}`);
+    assert.equal(requirements[0].state, "partial");
+  }
+  assert.equal(result.status, "partial");
+  assert.equal(result.summary.blocked, 0);
+});
+
+test("capability manifest blocks group storage without authoritative group scope", () => {
+  const blocked = manifest({ serverSource: `storage.getGroupStorage("shared");`, serverCapabilities: ["server.storage"] });
+  assert.equal(blocked.status, "blocked");
+  assert.ok(blocked.diagnostics.some(item => item.code === "group-storage-scope-unavailable"));
+
+  const configured = manifest({ serverSource: `storage.getGroupStorage("shared");`, serverCapabilities: ["server.storage"], groupStorageEnabled: true });
+  assert.equal(configured.summary.blockingDiagnostics, 0);
+});
+
+test("capability manifest propagates GameZone return owners", () => {
+  const result = manifest({
+    serverSource: `
+      const area = world.addZone({ selector: "player" });
+      area.onEnter(({ entity }) => entity.say("entered"));
+      area.onLeave(() => {});
+      area.entities();
+      area.remove();
+      world.zones();
+    `,
+    serverCapabilities: ["server.world.events", "server.world.chat"],
+  });
+  for (const usage of ["area.onEnter", "area.onLeave", "area.entities", "area.remove"]) {
+    const requirements = result.requirements.filter(item => item.usage === usage);
+    assert.deepEqual(requirements.map(item => item.owner), ["GameZone"]);
+    assert.equal(requirements[0].localExtensionId, `server.RuntimeGameZone.${usage.split(".")[1]}`);
+    assert.equal(requirements[0].state, "partial");
+  }
+  assert.equal(result.summary.blocked, 0);
+});
+
+test("capability manifest blocks purchase success subscriptions without an ingress producer", () => {
+  const result = manifest({
+    serverSource: `world.onPlayerPurchaseSuccess(({ userId, productId, orderId }) => { world.say(userId + productId + orderId); });`,
+    serverCapabilities: ["server.world.events", "server.world.chat"],
+  });
+  assert.equal(result.status, "blocked");
+  assert.ok(result.requirements.some(item => item.canonicalId === "server.GameWorld.onPlayerPurchaseSuccess" && item.state === "partial"));
+  assert.ok(result.diagnostics.some(item => item.code === "purchase-success-ingress-unavailable" && item.state === "blocked"));
+});
+
+test("capability manifest blocks chat subscriptions without browser ingress", () => {
+  const result = manifest({ serverSource: `world.onChat(({ message }) => world.say(message));`, serverCapabilities: ["server.world.chat"] });
+  assert.equal(result.status, "blocked");
+  assert.ok(result.diagnostics.some(item => item.code === "chat-ingress-unavailable" && item.state === "blocked"));
 });

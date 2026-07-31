@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-compatibility-phase-audit",
   "version": 1,
-  "generatedAt": "2026-07-30T16:52:51.980Z",
+  "generatedAt": "2026-07-31T04:04:33.524Z",
   "phase": 5,
   "overallStatus": "complete",
   "requirements": [
@@ -49,7 +49,7 @@
               },
               "catalogs": {
                 "client": 133,
-                "server": 921,
+                "server": 1109,
                 "shared": 131
               },
               "compatibilityMatrix": {
@@ -75,10 +75,10 @@
             "byStatus": {
               "native": 125,
               "compatible": 50,
-              "partial": 57,
-              "recovered-only": 145,
+              "partial": 88,
+              "recovered-only": 121,
               "unavailable": 1,
-              "declared-only": 221
+              "declared-only": 214
             }
           }
         },
@@ -388,6 +388,103 @@
       ]
     },
     {
+      "id": "project-capability-launch-gate",
+      "status": "complete",
+      "conclusion": "Capability Manifest v10 binds analyzed scripts, grants, UI, resources, entities and semantic Runtime ABI artifacts to the actual package before publication or execution.",
+      "evidence": [
+        {
+          "path": "runtime-compat/abi/runtime-contracts.json",
+          "finding": {
+            "format": "nea-project-capability-manifest",
+            "version": 10,
+            "producer": "demo-map/src/capability-manifest.mjs",
+            "launchGate": "demo-map/src/capability-launch-gate.mjs",
+            "states": [
+              "ready",
+              "partial",
+              "blocked",
+              "script-owned"
+            ],
+            "evidenceCollections": [
+              "requirements",
+              "modules",
+              "resources",
+              "ui",
+              "entities",
+              "dependencies",
+              "diagnostics"
+            ],
+            "inputBindings": [
+              "api-version",
+              "client-contract",
+              "server-contract",
+              "server-modules",
+              "client-modules",
+              "server-capability-grants",
+              "client-capability-grants",
+              "client-ui-state",
+              "asset-file-evidence",
+              "entity-projection-evidence",
+              "runtime-abi-artifacts"
+            ],
+            "integrityChecks": [
+              "closed-state-vocabulary",
+              "derived-summary-counts",
+              "derived-launch-status",
+              "declared-derived-status-match",
+              "exact-module-set",
+              "exact-grant-set",
+              "canonical-json-digests",
+              "asset-file-bytes-sha256",
+              "runtime-abi-semantic-digest"
+            ],
+            "launchBefore": [
+              "client-script-publication",
+              "client-ui-publication",
+              "block-catalog-load",
+              "server-script-runtime-construction",
+              "backend-spawn",
+              "player-navigation"
+            ],
+            "evidence": [
+              "demo-map/src/capability-manifest.mjs",
+              "demo-map/src/capability-launch-gate.mjs",
+              "demo-map/src/capability-input-digest.mjs",
+              "demo-map/src/capability-input-normalize.mjs",
+              "demo-map/src/server.mjs"
+            ]
+          }
+        },
+        {
+          "path": "demo-map/src/capability-launch-gate.mjs",
+          "finding": {
+            "version": 10,
+            "inputs": [
+              "api-version",
+              "client-contract",
+              "server-contract",
+              "server-modules",
+              "client-modules",
+              "server-capability-grants",
+              "client-capability-grants",
+              "client-ui-state",
+              "asset-file-evidence",
+              "entity-projection-evidence",
+              "runtime-abi-artifacts"
+            ],
+            "launchBefore": [
+              "client-script-publication",
+              "client-ui-publication",
+              "block-catalog-load",
+              "server-script-runtime-construction",
+              "backend-spawn",
+              "player-navigation"
+            ]
+          }
+        }
+      ]
+    },
+    {
       "id": "demo-contract-bindings",
       "status": "complete",
       "conclusion": "Demo client.js and server.js bind separate declared runtime contracts and capabilities.",
@@ -417,14 +514,14 @@
         {
           "path": "runtime-compat/generated/gap-report.json",
           "finding": {
-            "executable": 232,
+            "executable": 263,
             "compatibilityStatus": {
               "native": 125,
               "compatible": 50,
-              "partial": 57,
-              "recovered-only": 145,
+              "partial": 88,
+              "recovered-only": 121,
               "unavailable": 1,
-              "declared-only": 221
+              "declared-only": 214
             }
           }
         }

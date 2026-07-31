@@ -2,6 +2,21 @@
 
 const EPSILON = 1e-7;
 
+export class RuntimeRaycastResult {
+  constructor({ hit, hitEntity, hitVoxel, origin, direction, distance, hitPosition, normal, voxelIndex }) {
+    this.hit = hit;
+    this.hitEntity = hitEntity;
+    this.hitVoxel = hitVoxel;
+    this.voxel = hitVoxel;
+    this.origin = origin;
+    this.direction = direction;
+    this.distance = distance;
+    this.hitPosition = hitPosition;
+    this.normal = normal;
+    this.voxelIndex = voxelIndex;
+  }
+}
+
 export function raycastWorld({ origin, direction, options = {}, voxels, entities = [], matchesSelector = () => false }) {
   const rayOrigin = Vector3.from(origin);
   const rawDirection = Vector3.from(direction);
@@ -17,18 +32,17 @@ export function raycastWorld({ origin, direction, options = {}, voxels, entities
   const distance = nearest?.distance ?? maxDistance;
   const hitPosition = nearest?.position ?? new Vector3(0, 0, 0);
   const hitVoxel = nearest?.kind === "voxel" ? nearest.voxel : 0;
-  return {
+  return new RuntimeRaycastResult({
     hit: nearest !== null,
     hitEntity: nearest?.kind === "entity" ? nearest.entity : null,
     hitVoxel,
-    voxel: hitVoxel,
     origin: rayOrigin,
     direction: rayDirection,
     distance,
     hitPosition,
     normal: nearest?.normal ?? new Vector3(0, 0, 0),
     voxelIndex: nearest?.kind === "voxel" ? nearest.index : new Vector3(0, 0, 0),
-  };
+  });
 }
 
 function raycastVoxels(origin, direction, maxDistance, voxels, ignoreFluid) {

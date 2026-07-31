@@ -13,11 +13,13 @@ const runtimeSource = await readFile(resolve(repositoryRoot, runtimeSourcePath),
 for (const marker of [
   "_id: String(input.id)",
   "get id() { return this._id; }",
-  "return Object.freeze({ tick, entity, player: entity });",
+  "return Object.freeze(new RuntimeEntityEvent(tick, entity));",
   "onTakeDamage(handler) { return this._signals.takeDamage.on(handler); }",
   "destroy() { return runtime._destroyEntity(this); }",
-  "return Object.freeze({ tick, entity, attacker, damage, damageType: damageType || \"\" });",
-  "return Object.freeze({ tick, entity, attacker, damageType: damageType || \"\" });",
+  "return Object.freeze(new RuntimeDamageEvent(tick, entity, damage, attacker, damageType));",
+  "return Object.freeze(new RuntimeDieEvent(tick, entity, attacker, damageType));",
+  "return Object.freeze(new RuntimeRespawnEvent(tick, entity));",
+  "return Object.freeze(new RuntimeKeyBoardEvent(tick, keyCode));",
   "hurt(amount, options) { runtime._hurtEntity(this, amount, options); }",
   "const permissionMask = inputPermissionMask(player);",
   "enableAction0: true,",
@@ -54,6 +56,51 @@ const memberSpecs = [
     access: [],
     signature: [],
     effect: ["The flag is readonly and player.destroy follows the recovered non-player guard; disconnect-driven wrapper destruction is not exposed on retained script references."],
+  }),
+  partial("server.RuntimePlayer.fluidContacts", ["server.GameEntity.fluidContacts"], {
+    access: [],
+    signature: [],
+    effect: ["Active fluid voxel ids and a local body-AABB overlap fraction are exposed; the native producer's exact volume-fraction formula remains unrecovered."],
+  }),
+  partial("server.RuntimePlayer.onFluidEnter", ["server.GameEntity.onFluidEnter"], {
+    access: [],
+    signature: [],
+    effect: ["BlockInfo fluid overlap transitions emit the recovered event to world before entity; native fluid solver timing, buoyancy, and drag remain unrecovered."],
+  }),
+  originPartial("server.RuntimePlayer.nextFluidEnter", ["server.GameEntity.nextFluidEnter"], {
+    access: [],
+    signature: [],
+    effect: ["The optional filter resolves locally produced fluid-enter events; native producer timing remains unrecovered."],
+  }),
+  partial("server.RuntimePlayer.onFluidLeave", ["server.GameEntity.onFluidLeave"], {
+    access: [],
+    signature: [],
+    effect: ["BlockInfo fluid overlap transitions emit the recovered event to world before entity; native fluid solver timing remains unrecovered."],
+  }),
+  originPartial("server.RuntimePlayer.nextFluidLeave", ["server.GameEntity.nextFluidLeave"], {
+    access: [],
+    signature: [],
+    effect: ["The optional filter resolves locally produced fluid-leave events; native producer timing remains unrecovered."],
+  }),
+  partial("server.RuntimePlayer.onVoxelContact", ["server.GameEntity.onVoxelContact"], {
+    access: [],
+    signature: [],
+    effect: ["The local fixed-step Player body produces the typed event after world dispatch; native rigid-body collision equivalence remains unverified."],
+  }),
+  originPartial("server.RuntimePlayer.nextVoxelContact", ["server.GameEntity.nextVoxelContact"], {
+    access: [],
+    signature: [],
+    effect: ["The filtered future resolves locally produced Player voxel contacts; native rigid-body collision equivalence remains unverified."],
+  }),
+  partial("server.RuntimePlayer.onVoxelSeparate", ["server.GameEntity.onVoxelSeparate"], {
+    access: [],
+    signature: [],
+    effect: ["The local fixed-step Player body produces the typed event after world dispatch; native rigid-body separation equivalence remains unverified."],
+  }),
+  originPartial("server.RuntimePlayer.nextVoxelSeparate", ["server.GameEntity.nextVoxelSeparate"], {
+    access: [],
+    signature: [],
+    effect: ["The filtered future resolves locally produced Player voxel separations; native rigid-body separation equivalence remains unverified."],
   }),
   partial("server.RuntimePlayer.destroy", ["server.GameEntity.destroy"], {
     access: [],
@@ -150,6 +197,16 @@ const memberSpecs = [
     signature: ["The historical optional filter remains unimplemented."],
     effect: ["The recovered PlayerFlags mask is applied; the historical optional filter remains the only known gap."],
   }),
+  partial("server.RuntimePlayer.onKeyDown", ["server.GamePlayerEntity.onKeyDown"], {
+    access: [],
+    signature: [],
+    effect: ["The event channel exists, but current Player input packets have no recovered keyboard-state field and therefore no local producer."],
+  }, []),
+  partial("server.RuntimePlayer.onKeyUp", ["server.GamePlayerEntity.onKeyUp"], {
+    access: [],
+    signature: [],
+    effect: ["The event channel exists, but current Player input packets have no recovered previous keyboard-state field and therefore no local producer."],
+  }, []),
   partial("server.RuntimePlayer.onTakeDamage", ["server.GameEntity.onTakeDamage"], {
     access: [],
     signature: [],
@@ -193,6 +250,16 @@ const memberSpecs = [
     signature: ["Canonical directMessage accepts a string; local sendMessage accepts an unknown value and formats it for logging."],
     effect: ["Targeted delivery now uses the recovered Player game-chat.log packet with private=true through the bound MuDB session.", "The historical MAX_CHATS_PER_TICK buffering/flush policy and Player display acknowledgement remain unimplemented."],
   }, ["server.GamePlayer.directMessage"]),
+  partial("server.RuntimePlayer.dialog", ["server.GamePlayerEntity.dialog"], {
+    access: [],
+    signature: ["The local promise resolves to the recovered protocol result union; complete GameDialogCall optional fields remain only partially normalized."],
+    effect: ["The call opens a native Player dialog through the recovered dialog.open RPC and resolves when dialog.close returns the matching rpcId."],
+  }, []),
+  partial("server.RuntimePlayer.cancelDialogs", ["server.GamePlayerEntity.cancelDialogs"], {
+    access: [],
+    signature: ["The canonical method returns void; the local backend reports a cancellation count internally but the script facade does not expose it."],
+    effect: ["Every pending dialog for the bound Player session is rejected and the recovered dialog.cancelDialogs packet is delivered."],
+  }, []),
   extension("server.RuntimePlayer.snapshot", "snapshot is a local diagnostics and synchronization helper with no documented canonical member."),
 ];
 
@@ -229,6 +296,22 @@ const output = {
     localAliases: [{ name: "player", target: "entity" }],
     gaps: ["The entity value is a RuntimePlayer composite subset, not a complete GameEntity/GamePlayerEntity object."],
     evidence: [{ type: "local-source", path: runtimeSourcePath, symbol: "createGameEntityEvent", confidence: "direct" }],
+  }, {
+    localFactory: "createGameRespawnEvent",
+    canonicalObject: "server.GameRespawnEvent",
+    status: "partial",
+    canonicalFields: ["tick", "entity"],
+    localAliases: [],
+    gaps: ["Local forceRespawn and projected respawn state produce the recovered payload; automatic native respawn production remains unimplemented."],
+    evidence: [{ type: "local-source", path: runtimeSourcePath, symbol: "createGameRespawnEvent", confidence: "direct" }],
+  }, {
+    localFactory: "createGameKeyBoardEvent",
+    canonicalObject: "server.GameKeyBoardEvent",
+    status: "partial",
+    canonicalFields: ["tick", "keyCode"],
+    localAliases: [],
+    gaps: ["Current Player input packets contain button transitions but no keyboard-state arrays, so the typed object has no runtime producer."],
+    evidence: [{ type: "local-source", path: runtimeSourcePath, symbol: "createGameKeyBoardEvent", confidence: "direct" }],
   }, {
     localFactory: "createGameDamageEvent",
     canonicalObject: "server.GameDamageEvent",

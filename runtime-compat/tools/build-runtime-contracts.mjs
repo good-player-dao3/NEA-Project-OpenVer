@@ -19,11 +19,32 @@ const projectPath = "demo-map/project/nea.map.json";
 const clientScriptPath = "demo-map/project/scripts/client.js";
 const serverScriptPath = "demo-map/project/scripts/server.js";
 const backendPath = "local-player/backend/box3-server.cjs";
+const backendEventsPath = "demo-map/src/backend-events.mjs";
+const demoServerPath = "demo-map/src/server.mjs";
+const capabilityManifestPath = "demo-map/src/capability-manifest.mjs";
+const capabilityLaunchGatePath = "demo-map/src/capability-launch-gate.mjs";
+const capabilityInputDigestPath = "demo-map/src/capability-input-digest.mjs";
+const capabilityInputNormalizePath = "demo-map/src/capability-input-normalize.mjs";
+const controlClientPath = "demo-map/src/control-client.mjs";
+const historicalScriptShellPath = "origin/origin/origin/shell/ScriptShell.js";
 const projectSource = await readFile(resolve(repositoryRoot, projectPath), "utf8");
 const clientSource = await readFile(resolve(repositoryRoot, clientScriptPath), "utf8");
 const serverSource = await readFile(resolve(repositoryRoot, serverScriptPath), "utf8");
 const backendSource = await readFile(resolve(repositoryRoot, backendPath), "utf8");
+const backendEventsSource = await readFile(resolve(repositoryRoot, backendEventsPath), "utf8");
+const demoServerSource = await readFile(resolve(repositoryRoot, demoServerPath), "utf8");
+const capabilityManifestSource = await readFile(resolve(repositoryRoot, capabilityManifestPath), "utf8");
+const capabilityLaunchGateSource = await readFile(resolve(repositoryRoot, capabilityLaunchGatePath), "utf8");
+const controlClientSource = await readFile(resolve(repositoryRoot, controlClientPath), "utf8");
+const historicalScriptShellSource = await readFile(resolve(repositoryRoot, historicalScriptShellPath), "utf8");
 const project = JSON.parse(projectSource);
+
+for (const marker of ["version: 10", "inputs: Object.freeze", "normalizeCapabilityAssets", "normalizeCapabilityEntities", "normalizeCapabilityRuntimeAbi"]) {
+  if (!capabilityManifestSource.includes(marker)) throw new Error(`Capability Manifest v10 producer marker is missing: ${marker}`);
+}
+for (const marker of ["CAPABILITY_MANIFEST_VERSION = 10", "verifyProjectCapabilityModuleInputs", "verifyProjectCapabilityGrants", "verifyProjectCapabilityUiInput", "verifyProjectCapabilityAssetFiles", "verifyProjectCapabilityAssetInput", "verifyProjectCapabilityEntityInput", "verifyProjectCapabilityRuntimeAbiInput", "summary mismatch for"]) {
+  if (!capabilityLaunchGateSource.includes(marker)) throw new Error(`Capability Manifest v10 launch-gate marker is missing: ${marker}`);
+}
 
 const entriesBySide = groupBy(current.entries.filter(entry => ["client", "server"].includes(entry.side)), entry => entry.side);
 const contracts = [
@@ -47,7 +68,10 @@ for (const binding of demoBindings) {
 const remoteProtocol = protocols.protocols.find(protocol => protocol.id === "player.remote-channel");
 const gameNetProtocol = protocols.protocols.find(protocol => protocol.id === "player.game-net");
 const guiProtocol = protocols.protocols.find(protocol => protocol.id === "player.gui");
-if (!remoteProtocol || !gameNetProtocol || !guiProtocol) throw new Error("Required Player MuDB protocols were not found");
+const gameChatProtocol = protocols.protocols.find(protocol => protocol.id === "player.game-chat");
+const dialogProtocol = protocols.protocols.find(protocol => protocol.id === "player.dialog");
+const entityInteractProtocol = protocols.protocols.find(protocol => protocol.id === "player.entity-interact");
+if (!remoteProtocol || !gameNetProtocol || !guiProtocol || !gameChatProtocol || !dialogProtocol || !entityInteractProtocol) throw new Error("Required Player MuDB protocols were not found");
 for (const marker of ["function sendGuiCommandPacket", "function createGuiHandlers", "this.guiSessions = new GuiSessions()", "sendGuiCommand(sessionId, command)"]) {
   if (!backendSource.includes(marker)) throw new Error(`Local backend no longer proves GUI transport: ${marker}`);
 }
@@ -55,6 +79,124 @@ const guiFlowEvidence = [
   { type: "protocol-schema", path: "runtime-compat/abi/protocols.json", symbol: "player.gui", confidence: "direct" },
   { type: "local-source", path: backendPath, symbol: "GuiSessions / sendGuiCommandPacket / createGuiHandlers", confidence: "direct" },
   { type: "test", path: "runtime-compat/test/backend-gui-transport.test.mjs", symbol: "Player GUI transport conformance", confidence: "direct" },
+];
+for (const marker of ["var GameChatSessions = class", "this.gameChatSessions = new GameChatSessions()", "sendChatMessage(sessionId, message)", "this.gameChatSessions.broadcastLog(message)", "this.gameChatSessions.sendLog(sessionId, message)"]) {
+  if (!backendSource.includes(marker)) throw new Error(`Local backend no longer proves outbound chat transport: ${marker}`);
+}
+const chatFlowEvidence = [
+  { type: "protocol-schema", path: "runtime-compat/abi/protocols.json", symbol: "player.game-chat.clientReceives.log", confidence: "direct" },
+  { type: "local-source", path: backendPath, symbol: "GameChatSessions / sendChatMessage", confidence: "direct" },
+  { type: "test", path: "runtime-compat/test/backend-chat-transport.test.mjs", symbol: "game-chat outbound packet conformance", confidence: "direct" },
+];
+for (const marker of ["input(client, data)", "context.gameNetPublicSessions.acceptInput(client.sessionId, data)", "[game-net:input]"]) {
+  if (!backendSource.includes(marker)) throw new Error(`Local backend no longer proves Player input ingress: ${marker}`);
+}
+for (const marker of ["const input = line.match", 'type: "input-events"']) {
+  if (!backendEventsSource.includes(marker)) throw new Error(`Launcher parser no longer proves Player input ingress: ${marker}`);
+}
+for (const marker of ['backendEvent?.type === "input-events"', "runtime.dispatchInputEvents(playerId, backendEvent.packet)"]) {
+  if (!demoServerSource.includes(marker)) throw new Error(`Demo orchestration no longer proves Player input ingress: ${marker}`);
+}
+for (const marker of ["ev.buttonState ^ ev.prevButtonState", "new GameClickEvent", "new GameInputEvent"]) {
+  if (!historicalScriptShellSource.includes(marker)) throw new Error(`Historical ScriptShell no longer proves input event reconstruction: ${marker}`);
+}
+const inputEventFlowEvidence = [
+  { type: "protocol-schema", path: "runtime-compat/abi/protocols.json", symbol: "player.game-net.serverReceives.input", confidence: "direct" },
+  { type: "origin-source", path: historicalScriptShellPath, symbol: "ScriptShell game-net input reconstruction", confidence: "direct" },
+  { type: "local-source", path: backendPath, symbol: "createGameNetHandlers.input / game-net:input", confidence: "direct" },
+  { type: "local-source", path: backendEventsPath, symbol: "parseBackendEvent game-net:input", confidence: "direct" },
+  { type: "local-source", path: demoServerPath, symbol: "input-events orchestration", confidence: "direct" },
+  { type: "test", path: "demo-map/test/backend-events.test.mjs", symbol: "game-net input log parser", confidence: "direct" },
+  { type: "test", path: "demo-map/test/runtime.test.mjs", symbol: "GameInputEvent and GameClickEvent reconstruction", confidence: "direct" },
+];
+for (const marker of ['name: "entity-interact"', "interact: new import_schema5.MuStruct", "[entity-interact]", "acknowledgeInteract"]) {
+  if (!backendSource.includes(marker)) throw new Error(`Local backend no longer proves entity interaction ingress: ${marker}`);
+}
+for (const marker of ["const interact = line.match", 'type: "entity-interact"']) {
+  if (!backendEventsSource.includes(marker)) throw new Error(`Launcher parser no longer proves entity interaction ingress: ${marker}`);
+}
+for (const marker of ['backendEvent?.type === "entity-interact"', "runtime.dispatchInteract(playerId, backendEvent.entityId, backendEvent.tick)"]) {
+  if (!demoServerSource.includes(marker)) throw new Error(`Demo orchestration no longer proves entity interaction ingress: ${marker}`);
+}
+for (const marker of ["event.interactEvents.forEach", "new GameInteractEvent", "this._dispatch(targetEntity.onInteract", "this._dispatch(this.world.onInteract"]) {
+  if (!historicalScriptShellSource.includes(marker)) throw new Error(`Historical ScriptShell no longer proves interaction event construction: ${marker}`);
+}
+const interactEventFlowEvidence = [
+  { type: "protocol-schema", path: "runtime-compat/abi/protocols.json", symbol: "player.entity-interact.serverReceives.interact / clientReceives.acknowledgeInteract", confidence: "direct" },
+  { type: "player-bundle", path: "local-player/archive/project/bedwars/client-runtime/assets/_next/static/chunks/734.8dcb480d99773395.js", symbol: "InteractProtocol target selection and {id,tick} send", confidence: "direct" },
+  { type: "origin-source", path: historicalScriptShellPath, symbol: "ScriptShell interactEvents target-before-world dispatch", confidence: "direct" },
+  { type: "local-source", path: backendPath, symbol: "createEntityInteractHandlers / entity-interact structured ingress", confidence: "direct" },
+  { type: "local-source", path: backendEventsPath, symbol: "parseBackendEvent entity-interact", confidence: "direct" },
+  { type: "local-source", path: demoServerPath, symbol: "entity-interact orchestration", confidence: "direct" },
+  { type: "test", path: "demo-map/test/backend-events.test.mjs", symbol: "entity-interact log parser", confidence: "direct" },
+  { type: "test", path: "demo-map/test/runtime.test.mjs", symbol: "GameInteractEvent mapped-target dispatch", confidence: "direct" },
+];
+for (const marker of ["queueDamageStateToBackend", "/__nea/control/damage-state", "events: options.events"]) {
+  if (!controlClientSource.includes(marker)) throw new Error(`Control client no longer proves damage projection: ${marker}`);
+}
+for (const marker of ["writeDamageState: async", "queueDamageStateToBackend", "target.entityId"]) {
+  if (!demoServerSource.includes(marker)) throw new Error(`Demo orchestration no longer proves damage projection: ${marker}`);
+}
+for (const marker of ["/__nea/control/damage-state", "queueDamageRuntimeState", "updateDamage(entityId, state, events", "client?.message.scriptEvents"]) {
+  if (!backendSource.includes(marker)) throw new Error(`Local backend no longer proves damage projection: ${marker}`);
+}
+const damageProjectionEvidence = [
+  { type: "protocol-schema", path: "runtime-compat/abi/protocols.json", symbol: "player.game-net.PUBLIC.damage / scriptEvents.damage", confidence: "direct" },
+  { type: "local-source", path: controlClientPath, symbol: "queueDamageStateToBackend", confidence: "direct" },
+  { type: "local-source", path: demoServerPath, symbol: "ScriptRuntime writeDamageState binding", confidence: "direct" },
+  { type: "local-source", path: backendPath, symbol: "damage-state control route / GameNetPublicSessions.updateDamage", confidence: "direct" },
+  { type: "test", path: "runtime-compat/test/backend-damage-transport.test.mjs", symbol: "damage state and script event aggregation", confidence: "direct" },
+  { type: "test", path: "demo-map/test/runtime.test.mjs", symbol: "hurt death healing and respawn projection", confidence: "direct" },
+];
+for (const marker of ["createEntityOnBackend", "queueEntityStateToBackend", "destroyEntityOnBackend", "validatedMeshNames: capabilityManifest.resources"]) {
+  if (!demoServerSource.includes(marker)) throw new Error(`Demo orchestration no longer proves runtime entity projection: ${marker}`);
+}
+for (const marker of ["/__nea/control/entity-create", "/__nea/control/entity-state", "/__nea/control/entity-destroy"]) {
+  if (!controlClientSource.includes(marker)) throw new Error(`Control client no longer proves runtime entity projection: ${marker}`);
+}
+for (const marker of ["createRuntimeEntity(entity)", "resolveRuntimeMesh(entity.mesh)", "queueRuntimeEntityState(entityId, state)", "destroyRuntimeEntity(entityId)"]) {
+  if (!backendSource.includes(marker)) throw new Error(`Local backend no longer proves runtime entity projection: ${marker}`);
+}
+const runtimeEntityProjectionEvidence = [
+  { type: "local-source", path: demoServerPath, symbol: "validated mesh whitelist / ScriptRuntime entity projection bindings", confidence: "direct" },
+  { type: "local-source", path: controlClientPath, symbol: "entity create/state/destroy control calls", confidence: "direct" },
+  { type: "local-source", path: backendPath, symbol: "resolveRuntimeMesh / createRuntimeEntity / queueRuntimeEntityState / destroyRuntimeEntity", confidence: "direct" },
+  { type: "test", path: "demo-map/test/runtime.test.mjs", symbol: "validated and unknown mesh runtime entity projection", confidence: "direct" },
+  { type: "test", path: "runtime-compat/test/backend-rebuild-persistence.test.mjs", symbol: "runtime entity projection persistence markers", confidence: "direct" },
+];
+for (const marker of ["openDialogOnBackend", "cancelDialogsOnBackend", "/__nea/control/dialog", "/__nea/control/dialog-cancel-all"]) {
+  if (!controlClientSource.includes(marker)) throw new Error(`Control client no longer proves dialog transport: ${marker}`);
+}
+for (const marker of ["showDialog: async", "cancelDialogs: playerId", "openDialogWithRetry", "cancelDialogsOnBackend"]) {
+  if (!demoServerSource.includes(marker)) throw new Error(`Demo orchestration no longer proves dialog transport: ${marker}`);
+}
+for (const marker of ["var DialogSessions = class", "this.dialogSessions = new DialogSessions()", "openDialog(sessionId, config)", "cancelDialogs(sessionId)", "/__nea/control/dialog-cancel-all"]) {
+  if (!backendSource.includes(marker)) throw new Error(`Local backend no longer proves dialog transport: ${marker}`);
+}
+const dialogFlowEvidence = [
+  { type: "protocol-schema", path: "runtime-compat/abi/protocols.json", symbol: "player.dialog", confidence: "direct" },
+  { type: "local-source", path: controlClientPath, symbol: "openDialogOnBackend / cancelDialogsOnBackend", confidence: "direct" },
+  { type: "local-source", path: demoServerPath, symbol: "ScriptRuntime dialog bindings", confidence: "direct" },
+  { type: "local-source", path: backendPath, symbol: "DialogSessions / dialog control routes", confidence: "direct" },
+  { type: "test", path: "runtime-compat/test/backend-dialog-transport.test.mjs", symbol: "Player dialog RPC conformance", confidence: "direct" },
+  { type: "test", path: "demo-map/test/control-client.test.mjs", symbol: "dialog control bridge conformance", confidence: "direct" },
+];
+for (const marker of ["function sessionBridgeLabel", "function matchesSessionLabel", "[session] join ${sessionBridgeLabel", "[session] disconnected ${sessionBridgeLabel"]) {
+  if (!backendSource.includes(marker)) throw new Error(`Local backend no longer proves Player session lifecycle identity: ${marker}`);
+}
+for (const marker of ["requireSessionBridgeLabel", 'type: "player-join"', 'type: "player-leave"']) {
+  if (!backendEventsSource.includes(marker)) throw new Error(`Launcher parser no longer proves Player session lifecycle: ${marker}`);
+}
+for (const marker of ['backendEvent?.type === "player-join"', "runtime.addPlayer", 'backendEvent?.type === "player-leave"', "runtime.removePlayer"]) {
+  if (!demoServerSource.includes(marker)) throw new Error(`Demo orchestration no longer proves Player session lifecycle: ${marker}`);
+}
+const playerSessionLifecycleEvidence = [
+  { type: "protocol-schema", path: "runtime-compat/abi/protocols.json", symbol: "player.game-net.serverReceives.join", confidence: "direct" },
+  { type: "local-source", path: backendPath, symbol: "game-net join / MuDB disconnect / SHA-256 session bridge label", confidence: "direct" },
+  { type: "local-source", path: backendEventsPath, symbol: "stable Player join/leave parser", confidence: "direct" },
+  { type: "local-source", path: demoServerPath, symbol: "RuntimePlayer add/remove orchestration", confidence: "direct" },
+  { type: "test", path: "demo-map/test/backend-events.test.mjs", symbol: "stable Player lifecycle event parser", confidence: "direct" },
+  { type: "test", path: "demo-map/test/runtime.test.mjs", symbol: "RuntimePlayer join/leave event dispatch", confidence: "direct" },
 ];
 
 const architecture = {
@@ -114,10 +256,22 @@ const architecture = {
     authoritativeStateStatus: contactEventModel.authoritativeState.status,
     conformance: contactEventModel.authoritativeState.conformance,
   },
+  projectCapabilityManifest: {
+    format: "nea-project-capability-manifest",
+    version: 10,
+    producer: capabilityManifestPath,
+    launchGate: capabilityLaunchGatePath,
+    states: ["ready", "partial", "blocked", "script-owned"],
+    evidenceCollections: ["requirements", "modules", "resources", "ui", "entities", "dependencies", "diagnostics"],
+    inputBindings: ["api-version", "client-contract", "server-contract", "server-modules", "client-modules", "server-capability-grants", "client-capability-grants", "client-ui-state", "asset-file-evidence", "entity-projection-evidence", "runtime-abi-artifacts"],
+    integrityChecks: ["closed-state-vocabulary", "derived-summary-counts", "derived-launch-status", "declared-derived-status-match", "exact-module-set", "exact-grant-set", "canonical-json-digests", "asset-file-bytes-sha256", "runtime-abi-semantic-digest"],
+    launchBefore: ["client-script-publication", "client-ui-publication", "block-catalog-load", "server-script-runtime-construction", "backend-spawn", "player-navigation"],
+    evidence: [capabilityManifestPath, capabilityLaunchGatePath, capabilityInputDigestPath, capabilityInputNormalizePath, demoServerPath],
+  },
   transport: {
     id: "mudb-transport/v1",
     protocolAbi: "nea-protocol-abi/v1",
-    requiredProtocols: [gameNetProtocol.id, remoteProtocol.id, guiProtocol.id],
+    requiredProtocols: [gameNetProtocol.id, remoteProtocol.id, guiProtocol.id, gameChatProtocol.id, dialogProtocol.id, entityInteractProtocol.id],
     remoteChannelEnvelope: { fields: ["tick", "args"], argsEncoding: "JSON-text" },
   },
   authoritativeRuntime: {
@@ -138,6 +292,13 @@ const architecture = {
     flow("client-event", "client-script-runtime", "server-script-runtime", "player.remote-channel.sendServerEvent", "MuDB {tick,args}; args is JSON text"),
     flow("server-event", "server-script-runtime", "client-script-runtime", "player.remote-channel.sendClientEvent", "MuDB {tick,args}; malformed JSON is dropped by Player"),
     flow("gui-command", "server-script-runtime", "client-script-runtime", "player.gui", "Handle-based GUI init/show/remove/get/set commands with return, throw and sendMessage responses", guiFlowEvidence),
+    flow("chat-delivery", "server-script-runtime", "client-script-runtime", "player.game-chat.log", "Recovered outbound text packet for world broadcast, mapped entity speech and player-targeted private delivery; browser-to-server chat ingress is excluded", chatFlowEvidence),
+    flow("input-event-ingress", "player-browser-client", "server-script-runtime", "player.game-net.input", "Accepted Player input packets reconstruct click, press and release events with the recovered PlayerFlags mask; non-player click targets require authoritative entity bindings", inputEventFlowEvidence),
+    flow("entity-interact-ingress", "player-browser-client", "server-script-runtime", "player.entity-interact", "Real Player interaction messages preserve the recovered {tick, entity, targetEntity} event and target-before-world dispatch when the target has an authoritative local binding; replica.interactive projection remains unavailable", interactEventFlowEvidence),
+    flow("damage-state-projection", "server-script-runtime", "authoritative-game-runtime", "player.game-net.PUBLIC.damage", "Authenticated local control updates authoritative hp/maxHp/showHealthBar state and aggregates recovered hurt, die and respawn scriptEvents for Player sessions", damageProjectionEvidence),
+    flow("runtime-entity-projection", "server-script-runtime", "authoritative-game-runtime", "nea-control.runtime-entity", "Validated captured mesh entities use authenticated create/state/destroy control operations before authoritative PUBLIC projection; unknown mesh names remain script-local", runtimeEntityProjectionEvidence),
+    flow("dialog-rpc", "server-script-runtime", "player-browser-client", "player.dialog", "Recovered open RPC with typed close/text/input/select result plus per-session cancel-all delivery through the authenticated local control bridge", dialogFlowEvidence),
+    flow("player-session-lifecycle", "player-browser-client", "server-script-runtime", "player.game-net.session", "Accepted game-net join and MuDB disconnect events use a stable non-reversible SHA-256 bridge label to create and remove RuntimePlayer wrappers", playerSessionLifecycleEvidence),
     flow("authoritative-state", "server-script-runtime", "authoritative-game-runtime", "nea-control.player-state", "Versioned position and velocity command"),
     flow("public-state", "authoritative-game-runtime", "client-script-runtime", "player.game-net.PUBLIC", "Player and RigidBody snapshots with explicit half extents"),
   ],

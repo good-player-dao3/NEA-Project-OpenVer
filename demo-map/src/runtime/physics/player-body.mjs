@@ -15,6 +15,7 @@ export class PlayerPhysicsBody {
     this.shapeSource = "player-body-profile";
     this.grounded = false;
     this.contacts = new Map();
+    this.fluids = new Map();
     this.triggers = new Map();
   }
 

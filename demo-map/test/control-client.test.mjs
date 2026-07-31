@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import test from "node:test";
-import { getPlayerStateFromBackend, queuePlayerStateToBackend, sendChatMessageToBackend, sendClientEventToBackend, sendGuiCommandToBackend } from "../src/control-client.mjs";
+import { cancelDialogsOnBackend, getPlayerStateFromBackend, openDialogOnBackend, queuePlayerStateToBackend, sendChatMessageToBackend, sendClientEventToBackend, sendGuiCommandToBackend } from "../src/control-client.mjs";
 
 test("control client rejects an invalid token and accepts an authenticated delivery", async () => {
   const received = [];
@@ -45,6 +45,30 @@ test("control client sends GUI commands and propagates native results", async ()
   await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
   assert.deepEqual(result, { text: "3" });
   assert.deepEqual(received, [{ url: "/__nea/control/gui-command", body: { session: "local...0003", command: { operation: "getAttribute", selector: "#score", name: "text" } } }]);
+});
+
+test("control client opens and cancels recovered Player dialogs", async () => {
+  const received = [];
+  const server = createServer(async (request, response) => {
+    const chunks = [];
+    for await (const chunk of request) chunks.push(chunk);
+    received.push({ url: request.url, body: JSON.parse(Buffer.concat(chunks).toString("utf8")) });
+    response.setHeader("content-type", "application/json");
+    response.end(request.url.endsWith("cancel-all")
+      ? JSON.stringify({ ok: true, cancelled: 2 })
+      : JSON.stringify({ ok: true, result: { type: "text", data: "done" } }));
+  });
+  await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
+  const port = server.address().port;
+  const result = await openDialogOnBackend({ port, token: "expected", session: "local...0005", config: { type: "text", content: "Ready" } });
+  const cancelled = await cancelDialogsOnBackend({ port, token: "expected", session: "local...0005" });
+  await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
+  assert.deepEqual(result, { type: "text", data: "done" });
+  assert.equal(cancelled, 2);
+  assert.deepEqual(received, [
+    { url: "/__nea/control/dialog", body: { session: "local...0005", config: { type: "text", content: "Ready" } } },
+    { url: "/__nea/control/dialog-cancel-all", body: { session: "local...0005" } },
+  ]);
 });
 
 test("control client sends broadcast and private chat messages", async () => {

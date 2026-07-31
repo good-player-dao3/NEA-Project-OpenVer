@@ -8,6 +8,7 @@ export class VoxelCollisionWorld {
   #chunks = new Map();
   #voxelIds = new Map();
   #materials = new Map();
+  #fluidIds = new Set();
   #colliders = [];
   #triggers = [];
   #diagnostics = { sweeps: 0, chunkQueries: 0, candidates: 0, triggerQueries: 0 };
@@ -17,6 +18,7 @@ export class VoxelCollisionWorld {
     for (const [id, material] of Object.entries(config.materials ?? {})) {
       this.#materials.set(String(id), normalizeMaterial(material));
     }
+    for (const id of config.fluidIds ?? []) this.#fluidIds.add(Number(id));
     for (const voxel of config.voxels ?? []) {
       const [x, y, z] = voxel.position;
       const fullId = (voxel.blockId & 0x3fff) | (((voxel.rotation ?? 0) & 3) << 14);
@@ -110,6 +112,27 @@ export class VoxelCollisionWorld {
     this.#diagnostics.triggerQueries += 1;
     const box = playerAabb(body.position, body.shapeHalfExtents ?? body.halfExtents);
     return Object.freeze(this.#triggers.filter(trigger => intersects(box, trigger)));
+  }
+
+  queryFluidContacts(body) {
+    const box = playerAabb(body.position, body.shapeHalfExtents ?? body.halfExtents);
+    const bodyVolume = Math.max(EPSILON, (box.maxX - box.minX) * (box.maxY - box.minY) * (box.maxZ - box.minZ));
+    const contacts = [];
+    for (let x = Math.floor(box.minX); x <= Math.floor(box.maxX - EPSILON); x += 1) {
+      for (let y = Math.floor(box.minY); y <= Math.floor(box.maxY - EPSILON); y += 1) {
+        for (let z = Math.floor(box.minZ); z <= Math.floor(box.maxZ - EPSILON); z += 1) {
+          const voxel = this.getVoxelId(x, y, z);
+          if (!this.#fluidIds.has(voxel & 0x3fff)) continue;
+          const overlapX = Math.max(0, Math.min(box.maxX, x + 1) - Math.max(box.minX, x));
+          const overlapY = Math.max(0, Math.min(box.maxY, y + 1) - Math.max(box.minY, y));
+          const overlapZ = Math.max(0, Math.min(box.maxZ, z + 1) - Math.max(box.minZ, z));
+          const volume = overlapX * overlapY * overlapZ / bodyVolume;
+          if (volume <= 0) continue;
+          contacts.push(Object.freeze({ id: `${x},${y},${z}`, voxel, volume }));
+        }
+      }
+    }
+    return Object.freeze(contacts);
   }
 
   diagnostics() {

@@ -3,19 +3,20 @@ import test from "node:test";
 import { parseBackendEvent } from "../src/backend-events.mjs";
 
 test("parses Player joins and unwraps remote-channel args", () => {
-  assert.deepEqual(parseBackendEvent("[session] join local-...1234"), {
+  const sessionLabel = `session-sha256-${"a".repeat(64)}`;
+  assert.deepEqual(parseBackendEvent(`[session] join ${sessionLabel}`), {
     type: "player-join",
-    sessionLabel: "local-...1234",
+    sessionLabel,
   });
-  assert.deepEqual(parseBackendEvent('[remote-channel:event] local-...1234 {"tick":7,"args":"{\\"type\\":\\"nea-demo:ready\\"}"}'), {
+  assert.deepEqual(parseBackendEvent(`[remote-channel:event] ${sessionLabel} {"tick":7,"args":"{\\"type\\":\\"nea-demo:ready\\"}"}`), {
     type: "client-event",
-    sessionLabel: "local-...1234",
+    sessionLabel,
     tick: 7,
     event: { type: "nea-demo:ready" },
   });
-  assert.deepEqual(parseBackendEvent(`[gui:message] local-...1234 ${JSON.stringify({ name: "buy", payload: JSON.stringify({ id: 2 }) })}`), {
+  assert.deepEqual(parseBackendEvent(`[gui:message] ${sessionLabel} ${JSON.stringify({ name: "buy", payload: JSON.stringify({ id: 2 }) })}`), {
     type: "gui-message",
-    sessionLabel: "local-...1234",
+    sessionLabel,
     name: "buy",
     payload: { id: 2 },
   });
@@ -23,14 +24,21 @@ test("parses Player joins and unwraps remote-channel args", () => {
     type: "entity-map",
     entities: [{ entityIndex: 2, entityId: 1000002 }],
   });
-  assert.deepEqual(parseBackendEvent('[game-net:input] local-...1234 {"tick":12,"events":[{"tick":11,"buttonState":1,"prevButtonState":0}]}'), {
+  assert.deepEqual(parseBackendEvent(`[game-net:input] ${sessionLabel} {"tick":12,"events":[{"tick":11,"buttonState":1,"prevButtonState":0}]}`), {
     type: "input-events",
-    sessionLabel: "local-...1234",
+    sessionLabel,
     packet: { tick: 12, events: [{ tick: 11, buttonState: 1, prevButtonState: 0 }] },
   });
-  assert.deepEqual(parseBackendEvent("[session] disconnected local-...1234"), {
+  assert.deepEqual(parseBackendEvent(`[entity-interact] ${sessionLabel} {"id":1000042,"tick":12.5}`), {
+    type: "entity-interact",
+    sessionLabel,
+    entityId: 1000042,
+    tick: 12.5,
+  });
+  assert.deepEqual(parseBackendEvent(`[session] disconnected ${sessionLabel}`), {
     type: "player-leave",
-    sessionLabel: "local-...1234",
+    sessionLabel,
   });
   assert.equal(parseBackendEvent("[game-terrain] ready"), null);
+  assert.throws(() => parseBackendEvent("[session] join local-...1234"), /stable session bridge label/);
 });
