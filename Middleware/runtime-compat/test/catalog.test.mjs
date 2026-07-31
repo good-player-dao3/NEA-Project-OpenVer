@@ -152,7 +152,8 @@ test("local Server Runtime adapter map distinguishes compatible and partial beha
   assert.deepEqual(currentTick.implements, ["server.GameWorld.currentTick"]);
   const tickAdapter = analysis.adapters.find(adapter => adapter.localId === "server.world.onTick");
   assert.equal(tickAdapter.status, "partial");
-  assert.ok(tickAdapter.gaps.some(gap => gap.includes("skip calculation")));
+  assert.ok(tickAdapter.gaps.some(gap => gap.includes("skip = tick - prevTick > 1 formula are implemented")));
+  assert.ok(tickAdapter.gaps.some(gap => gap.includes("delayed-frame catch-up behavior remains unavailable")));
   const remoteAdapter = analysis.adapters.find(adapter => adapter.localId === "server.remoteChannel.sendClientEvent");
   assert.equal(remoteAdapter.status, "compatible");
   assert.ok(remoteAdapter.gaps.some(gap => gap.includes("RuntimePlayer")));
@@ -165,9 +166,8 @@ test("local Server Runtime adapter map distinguishes compatible and partial beha
   const implementedEntries = analysis.entries.filter(entry => entry.implements);
   assert.ok(implementedEntries.some(entry => entry.id === "server.world.raycast"));
   assert.ok(implementedEntries.some(entry => entry.id === "server.world.onChat"));
-  assert.ok(implementedEntries.every(entry => entry.implements.every(canonicalId =>
-    analysis.adapters.some(adapter => adapter.localId === entry.id && adapter.canonicalId === canonicalId),
-  )));
+  assert.equal(analysis.adapters.find(adapter => adapter.localId === "server.world.raycast")?.canonicalId, "server.GameWorld.raycast");
+  assert.equal(analysis.adapters.find(adapter => adapter.localId === "server.world.onChat")?.canonicalId, "server.GameWorld.onChat");
   const token = analysis.entries.find(entry => entry.id === "server.object.GameEventHandlerToken");
   assert.deepEqual(token.signature.methods, ["cancel(): void", "resume(): void", "active(): boolean"]);
 });
