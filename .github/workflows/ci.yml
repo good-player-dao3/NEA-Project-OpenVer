@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Pin LF checkout on Windows
+        if: runner.os == 'Windows'
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Restore MuDB toolchain
+        uses: actions/cache@v4
+        with:
+          path: tools/.mudb-toolchain
+          key: mudb-toolchain-${{ runner.os }}-node24-${{ hashFiles('Shared/mudb/package.json', 'tools/build-mudb.mjs') }}
+
+      - name: Build MuDB transport
+        run: node tools/build-mudb.mjs
+
+      - name: Validate imported project
+        run: npm --prefix Frontend/demo-map run validate
+
+      - name: Test control bridge contract
+        run: npm --prefix Frontend/demo-map run test:control-bridge
+
+      - name: Test recovered protocol evidence
+        run: node --test Middleware/runtime-compat/test/recovered-player-protocol.test.mjs
+
+      - name: Check patch whitespace
+        run: git diff --check HEAD^ HEAD

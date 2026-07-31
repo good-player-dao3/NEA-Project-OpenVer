@@ -1,0 +1,56 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    name: Package release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Build MuDB transport
+        run: node tools/build-mudb.mjs
+
+      - name: Validate imported project
+        run: npm --prefix Frontend/demo-map run validate
+
+      - name: Create source package
+        run: |
+          archive="nea-project-openver-${GITHUB_REF_NAME}.tar.gz"
+          tar \
+            --exclude-vcs \
+            --exclude='.workspace' \
+            --exclude='Evidence/dump/private' \
+            --exclude='Evidence/works/private' \
+            --exclude='Backend/local-player/runtime/http-cache' \
+            -czf "$archive" .
+          echo "archive=$archive" >> "$GITHUB_ENV"
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nea-project-openver-${{ github.ref_name }}
+          path: ${{ env.archive }}
+          if-no-files-found: error
+
+      - name: Publish GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARCHIVE: ${{ env.archive }}
+        run: gh release create "${GITHUB_REF_NAME}" "${ARCHIVE}" --generate-notes
