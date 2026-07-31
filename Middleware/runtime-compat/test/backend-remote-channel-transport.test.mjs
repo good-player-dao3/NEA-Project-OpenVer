@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import vm from "node:vm";
 import { readFile } from "node:fs/promises";
+import { HistoricalClientRemoteChannelFixture } from "../conformance/client-remote-channel.mjs";
 
 const backendUrl = new URL("../../../Backend/local-player/backend/box3-server.cjs", import.meta.url);
 const backend = await readFile(backendUrl, "utf8");
@@ -110,4 +111,41 @@ test("generic remote-channel transport accepts valid client packets and rejects 
   transport.disconnect(client);
   assert.equal(transport.handleServerEvent(client, { tick: 9, args: "null" }), false);
   assert.equal(transport.sendExternalEvent("session-a", null), false);
+});
+
+test("generic remote-channel transport accepts packets emitted by the historical client fixture", () => {
+  const RemoteChannelSessions = loadRemoteChannelSessions();
+  const transport = new RemoteChannelSessions();
+  const client = createClient("fixture-client", []);
+  const accepted = [];
+  const fixture = new HistoricalClientRemoteChannelFixture({
+    getTick: () => 23,
+    sendPacket: packet => accepted.push(transport.handleServerEvent(client, packet)),
+  });
+  transport.connect(client);
+
+  fixture.sendServerEvent({ type: "ready", value: [1, true, null] });
+
+  assert.deepEqual(accepted, [true]);
+});
+
+test("generic remote-channel transport delivers packets to the historical client fixture", () => {
+  const RemoteChannelSessions = loadRemoteChannelSessions();
+  const transport = new RemoteChannelSessions();
+  const received = [];
+  const fixture = new HistoricalClientRemoteChannelFixture();
+  const client = {
+    sessionId: "fixture-server",
+    message: {
+      sendClientEvent(packet) {
+        fixture.receivePacket(packet);
+      },
+    },
+  };
+  fixture.events.on("client", event => received.push(event));
+  fixture.start();
+  transport.connect(client);
+
+  assert.equal(transport.sendExternalEvent("fixture-server", { type: "ack", value: 3 }), true);
+  assert.deepEqual(received, [{ type: "ack", value: 3 }]);
 });
