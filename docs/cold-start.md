@@ -119,6 +119,16 @@ npm --prefix demo-map start
 
 On the first run, allow npm to download the pinned TypeScript toolchain. Do not commit `tools/.mudb-toolchain/` or the generated MuDB JavaScript output.
 
+### `Project bootstrap data does not match its manifest`
+
+Older Windows working trees may retain CRLF line endings in the tracked bootstrap JSON even after `.gitattributes` begins enforcing LF. Update to a revision containing the bootstrap newline-integrity fix. The Player backend first verifies the raw file and then permits only a CRLF-to-LF normalized byte sequence whose length and SHA-256 exactly match the tracked manifest. Any semantic or non-newline content change remains rejected.
+
+After updating, rerun the standard launcher; do not edit the manifest hash manually:
+
+```powershell
+npm --prefix demo-map start
+```
+
 ### Capability Manifest blocks inherited UI members
 
 Update to a revision containing the UI owner-inheritance fix. `UiText`, `UiInput`, `UiBox`, `UiImage`, and `UiScrollBox` inherit their declared `UiRenderable` and `UiNode` members; fields such as `anchor`, `position`, and `size` must not be reported as unknown script APIs.

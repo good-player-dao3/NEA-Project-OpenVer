@@ -1093,15 +1093,69 @@ function analyzeEntities(serverModules, projectEntities, assets) {
   };
   const result = projectEntities.map(projectEntity);
   for (const module of serverModules) {
-    let index = 0;
-    for (const match of module.source.matchAll(/\bworld\.createEntity\s*\(\s*\{([\s\S]*?)\}\s*\)/g)) {
-      const id = /\bid\s*:\s*(["'])(.*?)\1/.exec(match[1])?.[2] ?? null;
-      const mesh = /\bmesh\s*:\s*(["'])(.*?)\1/.exec(match[1])?.[2] ?? null;
+    for (const call of scanCreateEntityCalls(module.source)) {
+      const id = call.objectSource ? /\bid\s*:\s*(["'])(.*?)\1/.exec(call.objectSource)?.[2] ?? null : null;
+      const mesh = call.objectSource ? /\bmesh\s*:\s*(["'])(.*?)\1/.exec(call.objectSource)?.[2] ?? null : null;
+      const hasMeshProperty = call.objectMasked ? /\bmesh\s*:/.test(call.objectMasked) : false;
       const binding = mesh ? resolveAssetBinding(bindings, mesh) : null;
-      result.push(Object.freeze({ source: "script", module: module.name, occurrence: ++index, id, kind: "entity", mesh, projection: mesh && binding?.runtimeBinding === "validated-mesh" ? "validated-mesh-binding" : mesh ? "script-local-unless-bound" : "script-local-unless-bound", state: mesh && binding?.runtimeBinding === "validated-mesh" ? "ready" : "partial", reason: mesh && binding?.runtimeBinding !== "validated-mesh" ? `Script-created mesh entity remains script-local until a validated binding exists: ${mesh}.` : null }));
+      const validated = mesh && binding?.runtimeBinding === "validated-mesh";
+      const projection = validated
+        ? "validated-mesh-binding"
+        : call.shape !== "object-literal"
+          ? "dynamic-spec-script-local-unless-validated-at-runtime"
+          : hasMeshProperty && mesh === null
+            ? "dynamic-mesh-script-local-unless-validated-at-runtime"
+            : "script-local-unless-bound";
+      const reason = validated
+        ? null
+        : call.shape !== "object-literal"
+          ? "Dynamic world.createEntity specification cannot be proven before launch; the Runtime keeps the entity script-local unless its resolved mesh has a captured and validated binding."
+          : hasMeshProperty && mesh === null
+            ? "Dynamic world.createEntity mesh cannot be proven before launch; the Runtime keeps the entity script-local unless the resolved mesh has a captured and validated binding."
+            : mesh
+              ? `Script-created mesh entity remains script-local until a validated binding exists: ${mesh}.`
+              : "Script-created entity has no statically proven mesh and remains script-local unless a captured and validated binding is resolved at runtime.";
+      result.push(Object.freeze({ source: "script", module: module.name, occurrence: call.occurrence, callShape: call.shape, id, kind: "entity", mesh, projection, state: validated ? "ready" : "partial", reason }));
     }
   }
-  return result.sort((left, right) => left.source.localeCompare(right.source) || String(left.id ?? left.module).localeCompare(String(right.id ?? right.module)));
+  return result.sort((left, right) => left.source.localeCompare(right.source) || String(left.id ?? left.module).localeCompare(String(right.id ?? right.module)) || (left.occurrence ?? 0) - (right.occurrence ?? 0));
+}
+
+function scanCreateEntityCalls(source) {
+  const masked = maskJavaScriptNonCode(source);
+  const result = [];
+  let occurrence = 0;
+  for (const match of masked.matchAll(/\bworld\.createEntity\s*\(/g)) {
+    let argumentStart = match.index + match[0].length;
+    while (/\s/.test(masked[argumentStart] ?? "")) argumentStart += 1;
+    if (masked[argumentStart] !== "{") {
+      result.push(Object.freeze({ occurrence: ++occurrence, shape: "dynamic-expression", objectSource: null, objectMasked: null }));
+      continue;
+    }
+    let depth = 0;
+    let objectEnd = -1;
+    for (let index = argumentStart; index < masked.length; index += 1) {
+      if (masked[index] === "{") depth += 1;
+      if (masked[index] === "}") {
+        depth -= 1;
+        if (depth === 0) {
+          objectEnd = index;
+          break;
+        }
+      }
+    }
+    if (objectEnd < 0) {
+      result.push(Object.freeze({ occurrence: ++occurrence, shape: "dynamic-expression", objectSource: null, objectMasked: null }));
+      continue;
+    }
+    result.push(Object.freeze({
+      occurrence: ++occurrence,
+      shape: "object-literal",
+      objectSource: source.slice(argumentStart + 1, objectEnd),
+      objectMasked: masked.slice(argumentStart + 1, objectEnd),
+    }));
+  }
+  return result;
 }
 
 function resolveAssetBinding(bindings, reference) {
