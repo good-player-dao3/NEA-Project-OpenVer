@@ -4,11 +4,12 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { loadPreservedBlockCatalog } from "../../../local-player/src/block-info.mjs";
+import { loadPreservedBlockCatalog } from "../../../Backend/local-player/src/block-info.mjs";
+import { decodeHistoricalClientEvent, encodeHistoricalServerEvent, HistoricalClientRemoteChannelFixture } from "../../../Middleware/runtime-compat/conformance/client-remote-channel.mjs";
 import { importMapProject } from "../src/import-project.mjs";
 import { createContactEvent, createGameDamageEvent, createGameEntityEvent, createGameTickEvent, createRuntimeEntity, createTickTiming, ScriptRuntime } from "../src/runtime/script-runtime.mjs";
 
-const archiveRoot = resolve(fileURLToPath(new URL("../../../local-player/archive", import.meta.url)));
+const archiveRoot = resolve(fileURLToPath(new URL("../../../Backend/local-player/archive", import.meta.url)));
 const blockCatalog = await loadPreservedBlockCatalog(archiveRoot, "world-bedwars.json");
 
 test("runs server script lifecycle and capability-gated APIs", async () => {
@@ -59,6 +60,43 @@ test("runs server script lifecycle and capability-gated APIs", async () => {
   assert.ok(snapshot.physics.chunks > 0);
   assert.ok(snapshot.entities.find(entity => entity.id === "central-beacon")?.tags.includes("active"));
   assert.ok(logs.some(line => line.includes("server script loaded")));
+});
+
+test("connects the demo ready acknowledgement through the historical client RemoteChannel fixture", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-remote-ready-")), "project");
+  await importMapProject(source, output);
+
+  let runtime;
+  let player;
+  const received = [];
+  const clientRemoteChannel = new HistoricalClientRemoteChannelFixture({
+    getTick: () => runtime.currentTick,
+    sendPacket: packet => {
+      const decoded = decodeHistoricalClientEvent(packet);
+      assert.ok(decoded);
+      assert.equal(runtime.dispatchClientEvent(player.id, decoded.event), true);
+    },
+  });
+  runtime = await ScriptRuntime.load(output, {
+    blockCatalog,
+    logger: { info() {}, warn() {}, error() {} },
+    sendClientEvent: (_playerId, event) => {
+      clientRemoteChannel.receivePacket(encodeHistoricalServerEvent(runtime.currentTick, event));
+    },
+  });
+  await runtime.start();
+  player = runtime.addPlayer({ id: "remote-ready-player", name: "Guest", position: [32, 9, 38] });
+  clientRemoteChannel.events.on("client", event => received.push(event));
+  clientRemoteChannel.start();
+  clientRemoteChannel.sendServerEvent({ type: "nea-demo:ready", runtimeApiVersion: "0.1.0" });
+  runtime.stop();
+
+  assert.ok(received.some(event => event.type === "nea-demo:welcome"));
+  assert.deepEqual(received.find(event => event.type === "nea-demo:ack"), {
+    type: "nea-demo:ack",
+    message: "server runtime received client ready",
+  });
 });
 
 test("provides the recovered GameConsole method surface", async () => {
