@@ -5,10 +5,13 @@
   "type": "module",
   "scripts": {
     "build": "node tools/import.mjs",
+    "build:mudb": "node ../tools/build-mudb.mjs",
+    "prestart": "node ../tools/build-mudb.mjs",
     "start": "node src/server.mjs",
     "validate": "node tools/import.mjs --check",
     "inspect:ui": "node tools/inspect-player-ui-schema.cjs",
     "probe:remote": "node tools/probe-remote-channel.cjs",
+    "pretest": "node ../tools/build-mudb.mjs",
     "test": "node --test"
   }
 }
