@@ -1112,6 +1112,45 @@ test("server remoteChannel supports historical events, arrays, and broadcast", a
   ]);
 });
 
+test("delivers directed and broadcast server events to independent historical client fixtures", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-remote-delivery-")), "project");
+  await importMapProject(source, output);
+  await writeFile(join(output, "scripts", "server.js"), `
+    remoteChannel.onServerEvent(({ entity }) => {
+      remoteChannel.sendClientEvent(entity, { type: "directed", recipient: entity.id });
+      remoteChannel.broadcastClientEvent({ type: "broadcast" });
+    });
+  `, "utf8");
+
+  const received = new Map(["remote-fixture-1", "remote-fixture-2"].map(playerId => [playerId, []]));
+  const fixtures = new Map([...received.keys()].map(playerId => {
+    const fixture = new HistoricalClientRemoteChannelFixture();
+    fixture.events.on("client", event => received.get(playerId).push(event));
+    fixture.start();
+    return [playerId, fixture];
+  }));
+  const runtime = await ScriptRuntime.load(output, {
+    blockCatalog,
+    logger: { info() {}, warn() {}, error() {} },
+    sendClientEvent: (playerId, event) => {
+      fixtures.get(playerId).receivePacket(encodeHistoricalServerEvent(runtime.currentTick, event));
+    },
+  });
+  await runtime.start();
+  runtime.addPlayer({ id: "remote-fixture-1" });
+  runtime.addPlayer({ id: "remote-fixture-2" });
+
+  assert.equal(runtime.dispatchClientEvent("remote-fixture-1", { type: "trigger" }), true);
+  runtime.stop();
+
+  assert.deepEqual(received.get("remote-fixture-1"), [
+    { type: "directed", recipient: "remote-fixture-1" },
+    { type: "broadcast" },
+  ]);
+  assert.deepEqual(received.get("remote-fixture-2"), [{ type: "broadcast" }]);
+});
+
 test("backend-authoritative players observe state without local gravity and queue script writes", async () => {
   const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
   const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-state-")), "project");
