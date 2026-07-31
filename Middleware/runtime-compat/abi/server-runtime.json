@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-abi",
   "version": 1,
-  "generatedAt": "2026-07-31T11:20:50.774Z",
+  "generatedAt": "2026-07-31T17:10:36.472Z",
   "side": "server",
   "entries": [
     {
@@ -7688,7 +7688,7 @@
         "returns": "Promise<any>"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "compatible",
       "capability": "server.gui",
       "since": "0.1.0",
       "notes": [
@@ -7763,7 +7763,7 @@
         "returns": "Promise<void>"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "compatible",
       "capability": "server.gui",
       "since": "0.1.0",
       "notes": [
@@ -7834,7 +7834,7 @@
         "returns": "listener-token"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "compatible",
       "capability": "server.gui",
       "since": "0.1.0",
       "notes": [
@@ -7909,7 +7909,7 @@
         "returns": "Promise<void>"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "compatible",
       "capability": "server.gui",
       "since": "0.1.0",
       "notes": [
@@ -7992,7 +7992,7 @@
         "returns": "Promise<void>"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "compatible",
       "capability": "server.gui",
       "since": "0.1.0",
       "notes": [
@@ -8072,7 +8072,7 @@
         "returns": "Promise<void>"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "compatible",
       "capability": "server.gui",
       "since": "0.1.0",
       "notes": [
@@ -8138,7 +8138,7 @@
         "readonly": true
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "compatible",
       "capability": "server.gui",
       "since": "0.1.0",
       "notes": [
@@ -21439,7 +21439,7 @@
         "returns": "GameDataStorage"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": "server.storage",
       "since": "0.1.0",
       "notes": [
@@ -21532,7 +21532,7 @@
         "returns": "GameDataStorage"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": "server.storage",
       "since": "0.1.0",
       "notes": [
@@ -31407,7 +31407,7 @@
         "type": "GameGUI"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": "server.gui",
       "since": "0.1.0",
       "notes": [
@@ -31747,7 +31747,7 @@
         "type": "GameStorage"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": "server.storage",
       "since": "0.1.0",
       "notes": [
@@ -44572,7 +44572,7 @@
         "returns": "void"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": "server.world.entities",
       "since": "0.1.0",
       "notes": [
@@ -44614,7 +44614,7 @@
         "returns": "void"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": "server.world.entities",
       "since": "0.1.0",
       "notes": [
@@ -44655,7 +44655,7 @@
         "returns": "void"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": "server.world.entities",
       "since": "0.1.0",
       "notes": [
@@ -44691,7 +44691,7 @@
         "returns": "void"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": "server.world.entities",
       "since": "0.1.0",
       "notes": [

@@ -171,3 +171,19 @@ test("local Server Runtime adapter map distinguishes compatible and partial beha
   const token = analysis.entries.find(entry => entry.id === "server.object.GameEventHandlerToken");
   assert.deepEqual(token.signature.methods, ["cancel(): void", "resume(): void", "active(): boolean"]);
 });
+
+test("catalog composition preserves direct local GameGUI compatibility", async () => {
+  const serverCatalog = JSON.parse(await readFile(resolve(root, "abi", "server-runtime.json"), "utf8"));
+  const serverEntries = new Map(serverCatalog.entries.map(entry => [entry.id, entry]));
+  for (const id of [
+    "server.GameGUI.getAttribute",
+    "server.GameGUI.init",
+    "server.GameGUI.onMessage",
+    "server.GameGUI.remove",
+    "server.GameGUI.setAttribute",
+    "server.GameGUI.show",
+    "server.GameGUI.ui",
+  ]) {
+    assert.equal(serverEntries.get(id)?.compatibility, "compatible", `${id} should preserve local runtime compatibility`);
+  }
+});

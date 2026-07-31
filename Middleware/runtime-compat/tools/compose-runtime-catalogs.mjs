@@ -60,7 +60,7 @@ function strongestAvailability(left, right) {
 }
 
 function strongestCompatibility(left, right) {
-  const rank = { missing: 0, emulated: 1, bridged: 2, native: 3 };
+  const rank = { missing: 0, partial: 1, emulated: 2, bridged: 3, compatible: 4, native: 5 };
   return rank[right] > rank[left] ? right : left;
 }
 
