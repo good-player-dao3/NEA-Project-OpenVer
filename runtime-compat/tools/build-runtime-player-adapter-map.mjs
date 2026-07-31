@@ -57,6 +57,12 @@ const memberSpecs = [
     signature: [],
     effect: ["The flag is readonly and player.destroy follows the recovered non-player guard; disconnect-driven wrapper destruction is not exposed on retained script references."],
   }),
+  compatible("server.RuntimePlayer.isPlayer", ["server.GameEntity.isPlayer"]),
+  partial("server.RuntimePlayer.bounds", ["server.GameEntity.bounds"], {
+    access: ["The current authoritative Player boundsHalfExtents are exposed through a readonly copy."],
+    signature: ["Canonical and local bounds are readonly; local RuntimePlayer uses the compatible Vector3 implementation."],
+    effect: ["Complete native posture producer coverage remains evidence-deferred."],
+  }),
   partial("server.RuntimePlayer.fluidContacts", ["server.GameEntity.fluidContacts"], {
     access: [],
     signature: [],
@@ -107,15 +113,20 @@ const memberSpecs = [
     signature: [],
     effect: ["The call is a no-op for players, matching the recovered ScriptEntitySync non-player destroy guard."],
   }),
+  partial("server.RuntimePlayer.sound", ["server.GameEntity.sound"], {
+    access: [],
+    signature: [],
+    effect: ["Authoritative players emit the recovered player-targeted sound packet with dictionary-backed sample id and historical defaults.", "Players without an authoritative backend id are rejected instead of receiving a fabricated target.", "Browser media decode, playback completion, and mediaError acknowledgement remain unavailable."],
+  }),
   partial("server.RuntimePlayer.onDestroy", ["server.GameEntity.onDestroy"], {
     access: [],
     signature: [],
-    effect: ["Player destroy is guarded as a no-op; disconnect-driven destroy notification remains unimplemented."],
+    effect: ["Player.destroy() remains a recovered no-op, while MuDB disconnect removes the wrapper and emits world.onPlayerLeave, player.onDestroy, then world.onEntityDestroy with one shared GameEntityEvent. Other independent engine destruction sources remain unverified."],
   }),
   originPartial("server.RuntimePlayer.nextDestroy", ["server.GameEntity.nextDestroy"], {
     access: [],
     signature: [],
-    effect: ["The optional filter surface exists; disconnect-driven player destroy notification remains unimplemented."],
+    effect: ["The optional filter resolves the disconnect-driven player destroy event; other independent engine destruction sources remain unverified."],
   }),
   partial("server.RuntimePlayer.enableDamage", ["server.GameEntity.enableDamage"], {
     access: [],
@@ -243,12 +254,15 @@ const memberSpecs = [
     signature: ["The canonical options object is supported; a historical BedWars string damageType form is additionally accepted."],
     effect: ["Recovered hp, healing, attacker, damageType, damage, and death semantics are implemented together with native replica.damage state and game-net hurt/die effects."],
   }),
+  compatible("server.RuntimePlayer.addTag", ["server.GameEntity.addTag"]),
+  compatible("server.RuntimePlayer.removeTag", ["server.GameEntity.removeTag"]),
+  compatible("server.RuntimePlayer.hasTag", ["server.GameEntity.hasTag"]),
   extension("server.RuntimePlayer.applyImpulse", "No direct documented GameEntity or GamePlayerEntity applyImpulse member exists; this is a compatibility physics helper."),
   extension("server.RuntimePlayer.damage", "The local helper is retained as a non-native compatibility alias that delegates to the recovered hurt pipeline while temporarily bypassing enableDamage."),
   partial("server.RuntimePlayer.sendMessage", ["server.GamePlayerEntity.directMessage"], {
     access: [],
     signature: ["Canonical directMessage accepts a string; local sendMessage accepts an unknown value and formats it for logging."],
-    effect: ["Targeted delivery now uses the recovered Player game-chat.log packet with private=true through the bound MuDB session; removed/destroyed receivers are silently dropped.", "Player removal marks the RuntimePlayer destroyed and dispatches world.onPlayerLeave, player.onDestroy, then world.onEntityDestroy in recovered order.", "The FIFO algorithm is recovered, but the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."],
+    effect: ["Targeted delivery now uses the recovered Player game-chat.log packet with private=true through the bound MuDB session; removed/destroyed receivers are silently dropped.", "Player removal marks the RuntimePlayer destroyed and dispatches world.onPlayerLeave, player.onDestroy, then world.onEntityDestroy in recovered order.", "The recovered FIFO prefix/overflow/tick-drain algorithm and ordered Runtime-to-backend overflow batch are implemented with an evidence-deferred nullable limit; the numeric MAX_CHATS_PER_TICK value and Player display acknowledgement remain unavailable."],
   }, ["server.GamePlayer.directMessage"]),
   partial("server.RuntimePlayer.dialog", ["server.GamePlayerEntity.dialog"], {
     access: [],

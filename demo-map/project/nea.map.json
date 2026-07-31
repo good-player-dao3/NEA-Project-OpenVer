@@ -15,6 +15,7 @@
   "world": {
     "shape": [64, 32, 64],
     "spawn": [32, 9, 38],
+    "entityLimit": 3400,
     "terrain": "world/terrain.json",
     "entities": "world/entities.json",
     "physics": "world/physics.json"

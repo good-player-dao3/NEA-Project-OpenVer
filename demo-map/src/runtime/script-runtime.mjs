@@ -1,13 +1,14 @@
 import vm from "node:vm";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { EventSignal } from "./event-signal.mjs";
+import { EventSignal, GameEventHandlerToken } from "./event-signal.mjs";
 import { FixedStepPlayerPhysics } from "./physics/fixed-step-physics.mjs";
 import { PlayerPhysicsBody } from "./physics/player-body.mjs";
 import { VoxelCollisionWorld } from "./physics/voxel-collision-world.mjs";
 import { GameVoxelsRuntime } from "./game-voxels.mjs";
 import { CommonJsModuleLoader } from "./commonjs-module-loader.mjs";
 import { LocalGameStorage } from "./game-storage.mjs";
+import { HistoricalChatFifo } from "./chat-fifo.mjs";
 import { GameGuiRuntime } from "./game-gui.mjs";
 import { Vector3 } from "./vector3.mjs";
 import { GameQuaternion } from "./quaternion.mjs";
@@ -15,13 +16,16 @@ import { GameRGBColor, GameRGBAColor } from "./colors.mjs";
 import { GameBounds3, GameZoneSystem } from "./game-zones.mjs";
 import { GameWorld } from "./game-world.mjs";
 import { GameSoundEffect } from "./game-sound-effect.mjs";
+import { normalizeEntitySound, normalizePlayerSound, normalizeWorldSound, Sound } from "./game-sound.mjs";
 import { GameBodyPart } from "./game-body-part.mjs";
 import { raycastWorld, RuntimeRaycastResult } from "./game-raycast.mjs";
+import { searchRuntimeEntities } from "./entity-bounds.mjs";
+import { entityLookAtQuaternion, rotateEntityLocal, scaleEntityLocal } from "./entity-look-at.mjs";
 import { matchesGameSelector } from "./game-selector.mjs";
 
 const EMPTY_PLAYER_TAGS = Object.freeze(new Set());
 const GUI_CAPABILITY_MEMBERS = new Set(["init", "show", "remove", "getAttribute", "setAttribute", "onMessage", "ui"]);
-const WORLD_CONFIG_CAPABILITY_MEMBERS = new Set(["gravity", "airFriction", "fogColor"]);
+const WORLD_CONFIG_CAPABILITY_MEMBERS = new Set(["gravity", "airFriction", "fogColor", "projectName"]);
 
 export const GameButtonType = Object.freeze({
   WALK: "walk",
@@ -77,6 +81,7 @@ export class ScriptRuntime {
   #playerIds = new WeakMap();
   #entities = new Map();
   #messages = [];
+  #chatFifo;
   #outboundEvents = [];
   #collisionFilters = new Map();
   #validatedMeshNames = new Set();
@@ -120,7 +125,7 @@ export class ScriptRuntime {
     this.logger = options.logger ?? console;
     this.entry = options.entry;
     this.moduleSources = options.modules;
-    this.storage = options.storage ?? new LocalGameStorage({ file: resolve(this.projectRoot, ".runtime-storage.json"), logger: this.logger });
+    this.storage = options.storage ?? new LocalGameStorage({ file: resolve(this.projectRoot, ".runtime-storage.json"), logger: this.logger, groupId: options.storageScope?.groupId });
     this.gui = options.gui ?? new GameGuiRuntime({
       transport: options.sendGuiCommand,
       resolvePlayerId: entity => this.#playerIds.get(entity) ?? entity?.id,
@@ -129,12 +134,18 @@ export class ScriptRuntime {
     this.runtimeApiVersion = options.runtimeApiVersion;
     this.serverContract = options.serverContract;
     this.compatibilityLevel = options.compatibilityLevel;
+    if (typeof options.projectName !== "string" || options.projectName.length === 0) throw new Error("Runtime requires a project name");
+    this.projectName = options.projectName;
+    this.entityLimit = requireEntityLimit(options.entityLimit ?? 3400);
     this.#now = options.now ?? Date.now;
     this.#prevTickMS = this.#now();
     this.playerBodyProfile = options.physics?.playerBody;
     if (!this.playerBodyProfile) throw new Error("Runtime requires an explicit player body profile");
     this.sendClientEvent = options.sendClientEvent ?? (() => {});
     this.sendChatMessage = options.sendChatMessage ?? (() => {});
+    this.sendChatMessages = options.sendChatMessages ?? (deliveries => Promise.all(deliveries.map(delivery => this.sendChatMessage(delivery.sessionId, delivery.message))));
+    this.sendSoundCommand = options.sendSoundCommand ?? (() => Promise.reject(new Error("Sound transport is not configured")));
+    this.#chatFifo = new HistoricalChatFifo(options.chatMessagesPerTick ?? null);
     this.writePlayerState = options.writePlayerState ?? (() => {});
     this.writeDamageState = options.writeDamageState ?? (() => {});
     this.createEntity = options.createEntity ?? (() => null);
@@ -203,6 +214,8 @@ export class ScriptRuntime {
       runtimeApiVersion: project.engine.runtimeApiVersion,
       serverContract: project.engine.serverContract,
       compatibilityLevel: project.engine.compatibilityLevel,
+      projectName: project.display?.name,
+      entityLimit: world.entityLimit ?? 3400,
       entities,
       shape: world.shape,
       blockCatalog: options.blockCatalog,
@@ -210,6 +223,8 @@ export class ScriptRuntime {
       logger: options.logger,
       sendClientEvent: options.sendClientEvent,
       sendChatMessage: options.sendChatMessage,
+      sendChatMessages: options.sendChatMessages,
+      chatMessagesPerTick: options.chatMessagesPerTick,
       writePlayerState: options.writePlayerState,
       writeDamageState: options.writeDamageState,
       createEntity: options.createEntity,
@@ -220,6 +235,7 @@ export class ScriptRuntime {
       showDialog: options.showDialog,
       cancelDialogs: options.cancelDialogs,
       physics: { ...physicsSnapshot, ...options.physics },
+      storageScope: options.storageScope,
     });
   }
 
@@ -256,6 +272,7 @@ export class ScriptRuntime {
   }
 
   tick() {
+    this.#deliverChatBatch(this.#chatFifo.drainTickBoundary());
     const prevTick = this.currentTick;
     this.currentTick += 1;
     const now = this.#now();
@@ -511,10 +528,14 @@ export class ScriptRuntime {
         const text = String(message);
         this.#messages.push({ tick: this.currentTick, text });
         this.logger.info(`[script:world] ${text}`);
-        Promise.resolve(this.sendChatMessage(undefined, { text, senderId: 0, private: false, duration: 0, hideFloat: false })).catch(error => this.#reportError("chat-send", error));
+        this.#queueChat(undefined, { text, senderId: 0, private: false, duration: 0, hideFloat: false });
       },
       createEntity: spec => {
         this.#require("server.world.entities");
+        if (this.#entities.size >= this.entityLimit) {
+          this.logger.error("[script:world] entity limit exceeded");
+          return null;
+        }
         const id = spec?.id ?? `runtime-entity-${this.#entities.size + 1}`;
         if (this.#entities.has(id)) throw new Error(`Entity already exists: ${id}`);
         const entity = createRuntimeEntity({
@@ -553,6 +574,7 @@ export class ScriptRuntime {
         return entity;
       },
       querySelector: selector => this.#query(selector)[0] ?? null,
+      entityQuota: () => Math.max(0, this.entityLimit - this.#entities.size),
       querySelectorAll: selector => this.#query(selector),
       testSelector: (selector, entity) => this.#matchesSelector(entity, selector),
       raycast: (origin, direction, options) => raycastWorld({
@@ -563,6 +585,7 @@ export class ScriptRuntime {
         entities: this.#allQueryableEntities(),
         matchesSelector: (entity, selector) => this.#matchesSelector(entity, selector),
       }),
+      searchBox: bounds => searchRuntimeEntities(bounds, this.#allQueryableEntities()),
       zones: () => Object.freeze(runtime.zones.list()),
       addZone: config => runtime.zones.add(config),
       removeZone: zone => runtime.zones.remove(zone),
@@ -575,8 +598,10 @@ export class ScriptRuntime {
       },
       clearCollisionFilters: () => this.#collisionFilters.clear(),
       collisionFilters: () => [...this.#collisionFilters.values()].map(pair => [...pair]),
+      sound: spec => this._playSound(normalizeWorldSound(spec)),
     };
     const world = Object.defineProperties(new GameWorld(), Object.getOwnPropertyDescriptors(worldProperties));
+    Object.defineProperty(world, "projectName", { value: this.projectName, enumerable: true, writable: false, configurable: false });
     this.#world = world;
     this.#worldPhysicsSnapshot = Object.freeze({ gravity: world.gravity, airFriction: world.airFriction });
     const guardedWorld = createCapabilityFacade(world, () => this.#require("server.world.config"), WORLD_CONFIG_CAPABILITY_MEMBERS);
@@ -618,6 +643,7 @@ export class ScriptRuntime {
       Vector3,
       GameVector3: Vector3,
       GameQuaternion,
+      GameEventHandlerToken,
       GameRGBColor,
       GameRGBAColor,
       GameBounds3,
@@ -773,7 +799,7 @@ export class ScriptRuntime {
     const text = String(message);
     this.#messages.push({ tick: this.currentTick, playerId: player.id, text });
     this.logger.info(`[script:player:${player.name}] ${text}`);
-    Promise.resolve(this.sendChatMessage(this.#playerIds.get(player), { text, senderId: 0, private: true, duration: 0, hideFloat: false })).catch(error => this.#reportError("chat-send", error));
+    this.#queueChat(this.#playerIds.get(player), { text, senderId: 0, private: true, duration: 0, hideFloat: false });
   }
 
   _messageEntity(entity, message, options) {
@@ -785,13 +811,47 @@ export class ScriptRuntime {
     this.#messages.push({ tick: this.currentTick, entityId: entity.id, text, duration, hideFloat });
     this.logger.info(`[script:entity:${entity.id}] ${text}`);
     if (!Number.isSafeInteger(entity._backendEntityId) || entity._backendEntityId < 1) return;
-    Promise.resolve(this.sendChatMessage(undefined, {
+    this.#queueChat(undefined, {
       text,
       senderId: entity._backendEntityId,
       private: false,
       duration,
       hideFloat,
-    })).catch(error => this.#reportError("chat-send", error));
+    });
+  }
+
+  _soundEntity(entity, spec) {
+    return this._playSound(entity.isPlayer
+      ? normalizePlayerSound(spec, entity._backendPlayerId)
+      : normalizeEntitySound(spec, entity._backendEntityId));
+  }
+
+  _playSound(spec) {
+    this.#require("server.world.entities");
+    const soundId = this._nextSoundId = (this._nextSoundId ?? 0) + 1;
+    const command = { action: "play", soundId, ...spec };
+    const send = next => Promise.resolve(this.sendSoundCommand(structuredClone(next))).catch(error => this.#reportError("sound-send", error));
+    send(command);
+    return new Sound(
+      currentTime => send(typeof currentTime === "number" ? { action: "setCurrentTimeAndResume", soundId, currentTime } : { action: "resume", soundId }),
+      currentTime => send({ action: "setCurrentTime", soundId, currentTime: Number(currentTime) }),
+      () => send({ action: "pause", soundId }),
+      () => send({ action: "stop", soundId }),
+    );
+  }
+
+  #queueChat(sessionId, message) {
+    for (const delivery of this.#chatFifo.enqueue(Object.freeze({ sessionId, message: structuredClone(message) }))) this.#deliverChat(delivery);
+  }
+
+  #deliverChat(delivery) {
+    Promise.resolve(this.sendChatMessage(delivery.sessionId, structuredClone(delivery.message))).catch(error => this.#reportError("chat-send", error));
+  }
+
+  #deliverChatBatch(deliveries) {
+    if (deliveries.length === 0) return;
+    const batch = deliveries.map(delivery => Object.freeze({ sessionId: delivery.sessionId, message: structuredClone(delivery.message) }));
+    Promise.resolve(this.sendChatMessages(Object.freeze(batch))).catch(error => this.#reportError("chat-send", error));
   }
 
   _applyImpulse(player, value) {
@@ -944,6 +1004,8 @@ export class ScriptRuntime {
       mass: Number(entity.mass),
       friction: Number(entity.friction),
       restitution: Number(entity.restitution),
+      nameplate: runtimeEntityNameplatePayload(entity),
+      model: runtimeEntityModelPayload(entity),
     };
     Promise.resolve(this.writeEntityState(entity._backendEntityId, state)).catch(error => this.#reportError("entity-state-write", error));
   }
@@ -974,6 +1036,8 @@ function runtimeEntityProjectionPayload(entity) {
     name: entity.name,
     tags: [...entity.tags],
     mesh: entity.mesh,
+    bounds: entity.bounds.toArray(),
+    nameplate: runtimeEntityNameplatePayload(entity),
     collides: entity.collides,
     fixed: entity.fixed,
     gravity: entity.gravity,
@@ -1016,23 +1080,26 @@ export function createRuntimeEntity(input, runtime = null) {
     _runtime: runtime,
     _lastAttacker: null,
     _lastDamageType: "",
-    bounds: Vector3.from(input.bounds ?? input.source?.bounds ?? [1, 1, 1]),
+    _bounds: requirePositiveVector3(input.bounds ?? input.source?.bounds ?? [1, 1, 1], "entity bounds"),
     mesh: input.mesh ?? input.source?.mesh ?? "",
-    meshInvisible: Boolean(input.meshInvisible ?? false),
-    meshScale: Vector3.from(input.meshScale ?? [1 / 64, 1 / 64, 1 / 64]),
-    meshOrientation: quaternionFrom(input.meshOrientation ?? [0, 0, 0, 1]),
-    meshOffset: Vector3.from(input.meshOffset ?? [0, 0, 0]),
-    meshColor: new GameRGBAColor(1, 1, 1, 1),
-    meshMetalness: Number(input.meshMetalness ?? 0),
-    meshEmissive: Number(input.meshEmissive ?? 0),
-    meshShininess: Number(input.meshShininess ?? 0),
-    anchorOffset: new Vector3(0, 0, 0),
+    _meshInvisible: Boolean(input.meshInvisible ?? false),
+    _meshScale: requireBoundedVector3(input.meshScale ?? [1 / 64, 1 / 64, 1 / 64], "entity meshScale"),
+    _meshOrientation: quaternionFrom(input.meshOrientation ?? [0, 0, 0, 1]),
+    _meshOffset: requireBoundedVector3(input.meshOffset ?? [0, 0, 0], "entity meshOffset"),
+    _meshColor: requireRgbaColor(input.meshColor ?? [1, 1, 1, 1], "entity meshColor"),
+    _meshMetalness: requireFiniteRange(input.meshMetalness ?? 0, "entity meshMetalness", 0, 1),
+    _meshEmissive: requireFiniteRange(input.meshEmissive ?? 0, "entity meshEmissive", 0, 1),
+    _meshShininess: requireFiniteRange(input.meshShininess ?? 0, "entity meshShininess", 0, 1),
     _collides: Boolean(input.collides ?? true),
     _fixed: Boolean(input.fixed ?? false),
     _gravity: Boolean(input.gravity ?? true),
     _mass: Number(input.mass ?? 1),
     _friction: Number(input.friction ?? 0),
     _restitution: Number(input.restitution ?? 0),
+    _showEntityName: Boolean(input.showEntityName ?? false),
+    _customName: String(input.customName ?? ""),
+    _nameRadius: requireFiniteRange(input.nameRadius ?? 16, "entity nameRadius", 0, 4096),
+    _nameColor: requireRgbColor(input.nameColor ?? [1, 1, 1], "entity nameColor"),
     enableInteract: Boolean(input.enableInteract ?? false),
     _tags: tags,
     _signals: { click: new EventSignal(), interact: new EventSignal(), destroy: new EventSignal(), voxelContact: new EventSignal(), voxelSeparate: new EventSignal(), fluidEnter: new EventSignal(), fluidLeave: new EventSignal(), takeDamage: new EventSignal(), die: new EventSignal() },
@@ -1046,6 +1113,7 @@ export function createRuntimeEntity(input, runtime = null) {
     get name() { return this._name; },
     get source() { return this._source; },
     get isPlayer() { return false; },
+    get player() { return undefined; },
     get destroyed() { return this._destroyed; },
     get enableDamage() { return this._enableDamage; },
     set enableDamage(value) { this._enableDamage = Boolean(value); },
@@ -1059,6 +1127,7 @@ export function createRuntimeEntity(input, runtime = null) {
     set position(value) { this._position.copy(Vector3.from(value)); this._runtime?._entityTransformChanged(this); },
     get velocity() { return this._velocity; },
     set velocity(value) { this._velocity.copy(Vector3.from(value)); this._runtime?._entityTransformChanged(this); },
+    get bounds() { return this._bounds.clone(); },
     get collides() { return this._collides; },
     set collides(value) { this._collides = Boolean(value); this._runtime?._entityPhysicsChanged(this); },
     get fixed() { return this._fixed; },
@@ -1071,6 +1140,41 @@ export function createRuntimeEntity(input, runtime = null) {
     set friction(value) { this._friction = Number(value); this._runtime?._entityPhysicsChanged(this); },
     get restitution() { return this._restitution; },
     set restitution(value) { this._restitution = Number(value); this._runtime?._entityPhysicsChanged(this); },
+    get meshInvisible() { return this._meshInvisible; },
+    set meshInvisible(value) { this._meshInvisible = Boolean(value); this._runtime?._entityPhysicsChanged(this); },
+    get meshScale() { return this._meshScale; },
+    set meshScale(value) { this._meshScale.copy(requireBoundedVector3(value, "entity meshScale")); this._runtime?._entityPhysicsChanged(this); },
+    get meshOrientation() { return this._meshOrientation; },
+    set meshOrientation(value) { this._meshOrientation.copy(quaternionFrom(value)); this._runtime?._entityPhysicsChanged(this); },
+    lookAt(targetPosition, meshFacing = "Z", up = new Vector3(0, 1, 0)) { this.meshOrientation = entityLookAtQuaternion(this.position, targetPosition, meshFacing, up, message => (this._runtime?.logger ?? console).warn(message)); },
+    rotateLocal(localPosition, axis, radians) {
+      const rotated = rotateEntityLocal(this.position, this.meshScale, this.meshOrientation, localPosition, axis, radians);
+      this.meshOrientation = rotated.orientation;
+      this.position = rotated.position;
+    },
+    scaleLocal(localPosition, scale) {
+      const scaled = scaleEntityLocal(this.position, this.meshScale, this.meshOrientation, localPosition, scale);
+      this.meshScale = scaled.scale;
+      this.position = scaled.position;
+    },
+    get meshOffset() { return this._meshOffset; },
+    set meshOffset(value) { this._meshOffset.copy(requireBoundedVector3(value, "entity meshOffset")); this._runtime?._entityPhysicsChanged(this); },
+    get meshColor() { return this._meshColor; },
+    set meshColor(value) { this._meshColor.copy(requireRgbaColor(value, "entity meshColor")); this._runtime?._entityPhysicsChanged(this); },
+    get meshMetalness() { return this._meshMetalness; },
+    set meshMetalness(value) { this._meshMetalness = requireFiniteRange(value, "entity meshMetalness", 0, 1); this._runtime?._entityPhysicsChanged(this); },
+    get meshEmissive() { return this._meshEmissive; },
+    set meshEmissive(value) { this._meshEmissive = requireFiniteRange(value, "entity meshEmissive", 0, 1); this._runtime?._entityPhysicsChanged(this); },
+    get meshShininess() { return this._meshShininess; },
+    set meshShininess(value) { this._meshShininess = requireFiniteRange(value, "entity meshShininess", 0, 1); this._runtime?._entityPhysicsChanged(this); },
+    get showEntityName() { return this._showEntityName; },
+    set showEntityName(value) { this._showEntityName = Boolean(value); this._runtime?._entityPhysicsChanged(this); },
+    get customName() { return this._customName; },
+    set customName(value) { this._customName = String(value); this._runtime?._entityPhysicsChanged(this); },
+    get nameRadius() { return this._nameRadius; },
+    set nameRadius(value) { this._nameRadius = requireFiniteRange(value, "entity nameRadius", 0, 4096); this._runtime?._entityPhysicsChanged(this); },
+    get nameColor() { return this._nameColor; },
+    set nameColor(value) { this._nameColor.copy(requireRgbColor(value, "entity nameColor")); this._runtime?._entityPhysicsChanged(this); },
     get tags() { return this._tags; },
     get fluidContacts() { return Object.freeze([...this._body.fluids.values()].map(contact => Object.freeze({ voxel: contact.voxel, volume: contact.volume }))); },
     addTag(tag) { this._tags.add(String(tag)); },
@@ -1079,6 +1183,10 @@ export function createRuntimeEntity(input, runtime = null) {
     say(message, options) {
       if (!this._runtime) throw new Error("Entity is not attached to a Script Runtime");
       this._runtime._messageEntity(this, message, options);
+    },
+    sound(spec) {
+      if (!this._runtime) throw new Error("Entity is not attached to a Script Runtime");
+      return this._runtime._soundEntity(this, spec);
     },
     onClick(handler) { return this._signals.click.on(handler); },
     nextClick(filter) { return this._signals.click.next(filter); },
@@ -1156,6 +1264,7 @@ function createRuntimePlayer(runtime, input) {
     get id() { return runtime._runtimePlayerId(this); },
     get isPlayer() { return true; },
     get player() { return this; },
+    get player() { return this; },
     get destroyed() { return this._destroyed; },
     get enableDamage() { return this._enableDamage; },
     set enableDamage(value) { this._enableDamage = Boolean(value); },
@@ -1207,6 +1316,7 @@ function createRuntimePlayer(runtime, input) {
     set position(value) { runtime._writePlayer(this, "position", value); },
     get velocity() { return this._body.velocity; },
     set velocity(value) { runtime._writePlayer(this, "velocity", value); },
+    get bounds() { return this._body.boundsHalfExtents.clone(); },
     get grounded() { return this._body.grounded; },
     get health() { return this.hp; },
     applyImpulse(value) { runtime._applyImpulse(this, value); },
@@ -1237,6 +1347,60 @@ function createRuntimePlayer(runtime, input) {
     },
   };
   return player;
+}
+
+function requirePositiveVector3(value, name) {
+  const vector = Vector3.from(value);
+  if (![vector.x, vector.y, vector.z].every(component => Number.isFinite(component) && component > 0)) {
+    throw new RangeError(`${name} must contain three positive finite numbers`);
+  }
+  return vector;
+}
+
+function requireEntityLimit(value) {
+  if (!Number.isSafeInteger(value) || value < 0 || value > 1000000) throw new RangeError("entityLimit must be an integer from 0 to 1000000");
+  return value;
+}
+
+function requireBoundedVector3(value, name) {
+  const vector = Vector3.from(value);
+  if (![vector.x, vector.y, vector.z].every(component => Number.isFinite(component) && Math.abs(component) <= 4096)) throw new RangeError(`${name} must contain three finite coordinates within 4096`);
+  return vector;
+}
+
+function requireFiniteRange(value, name, minimum, maximum) {
+  const number = Number(value);
+  if (!Number.isFinite(number) || number < minimum || number > maximum) throw new RangeError(`${name} must be between ${minimum} and ${maximum}`);
+  return number;
+}
+
+function requireRgbColor(value, name) {
+  const components = Array.isArray(value) ? value : [value?.r, value?.g, value?.b];
+  if (components.length !== 3 || !components.every(component => Number.isFinite(component) && component >= 0 && component <= 1)) throw new RangeError(`${name} must contain three finite components between 0 and 1`);
+  return new GameRGBColor(...components);
+}
+
+function requireRgbaColor(value, name) {
+  const components = Array.isArray(value) ? value : [value?.r, value?.g, value?.b, value?.a];
+  if (components.length !== 4 || !components.every(component => Number.isFinite(component) && component >= 0 && component <= 1)) throw new RangeError(`${name} must contain four finite components between 0 and 1`);
+  return new GameRGBAColor(...components);
+}
+
+function runtimeEntityNameplatePayload(entity) {
+  if (!entity.showEntityName) return null;
+  return { text: entity.customName, radius: entity.nameRadius, color: [entity.nameColor.r, entity.nameColor.g, entity.nameColor.b] };
+}
+
+function runtimeEntityModelPayload(entity) {
+  return {
+    invisible: entity.meshInvisible,
+    color: [entity.meshColor.r, entity.meshColor.g, entity.meshColor.b, entity.meshColor.a].map(component => Math.round(component * 255)),
+    scale: entity.meshScale.toArray(),
+    offset: entity.meshOffset.toArray(),
+    emissive: entity.meshEmissive,
+    shininess: entity.meshShininess,
+    metalness: entity.meshMetalness,
+  };
 }
 
 export class RuntimeVoxelContactEvent {

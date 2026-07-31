@@ -44,7 +44,7 @@
 +  bindProjectIdentity() {
 +    return this;
 +  }
-@@ -8625,9 +8645,14 @@ async function loadProjectBootstrap(assetRoot, manifestName = "project/bedwars/bootstrap/manifest.json") {
+@@ -8625,9 +8645,18 @@ async function loadProjectBootstrap(assetRoot, manifestName = "project/bedwars/bootstrap/manifest.json") {
 -  const bootstrapInfo = await (0, import_promises3.stat)(bootstrapPath);
 -  if (!bootstrapInfo.isFile() || bootstrapInfo.size !== fileBytes || bootstrapInfo.size > MAX_BOOTSTRAP_BYTES) {
 -    throw new Error("Project bootstrap data does not match its manifest");
@@ -58,11 +58,15 @@
 +    throw new Error("Project bootstrap data does not match its manifest");
 +  }
 +  let bytes = await (0, import_promises3.readFile)(bootstrapPath);
++  const describeManifestMismatch = (candidate) => {
++    const actualHash = (0, import_node_crypto3.createHash)("sha256").update(candidate).digest("hex");
++    return `Project bootstrap data does not match its manifest: expected bytes=${fileBytes} sha256=${fileHash}, received bytes=${candidate.byteLength} sha256=${actualHash}`;
++  };
 +  const matchesManifest = (candidate) => candidate.byteLength === fileBytes && (0, import_node_crypto3.createHash)("sha256").update(candidate).digest("hex") === fileHash;
 +  if (!matchesManifest(bytes)) {
 +    const normalized = Buffer.from(bytes.toString("utf8").replace(/\r\n/g, "\n"), "utf8");
 +    if (!matchesManifest(normalized)) {
-+      throw new Error("Project bootstrap data does not match its manifest");
++      throw new Error(describeManifestMismatch(bytes));
 +    }
 +    bytes = normalized;
 +  }
@@ -151,22 +155,39 @@
 +      ...transform.friction === void 0 ? {} : { friction: transform.friction },
 +      ...transform.restitution === void 0 ? {} : { restitution: transform.restitution }
 +    };
-+    if (Object.keys(body).length > 0) {
++    if (Object.keys(body).length > 0 || transform.model !== void 0 || transform.nameplate !== void 0) {
        if (!entity.replica) throw new Error("Runtime entity has no render replica");
        entity.replica = snapshotRuntimeEntityReplica({
 -        body: { ...entity.replica.body, orientation: transform.orientation },
 +        body: { ...entity.replica.body, ...body },
-         model: entity.replica.model,
-         ...entity.replica.nameplate === void 0 ? {} : { nameplate: entity.replica.nameplate }
+         model: transform.model === void 0 ? entity.replica.model : { ...entity.replica.model, ...transform.model },
+         ...transform.nameplate === null ? {} : transform.nameplate !== void 0 ? { nameplate: transform.nameplate } : entity.replica.nameplate === void 0 ? {} : { nameplate: entity.replica.nameplate }
        });
      }
-@@ -10695,0 +10773,6 @@ function validateTransform(transform) {
+@@ -10695,0 +10773,23 @@ function validateTransform(transform) {
 +  requireOptionalBoolean(transform.collides, "runtime entity body collides");
 +  requireOptionalBoolean(transform.fixed, "runtime entity body fixed");
 +  requireOptionalBoolean(transform.gravity, "runtime entity body gravity");
 +  requireOptionalFinite(transform.mass, "runtime entity body mass", 0, 1e6);
 +  requireOptionalFinite(transform.friction, "runtime entity body friction", 0, 1e6);
 +  requireOptionalFinite(transform.restitution, "runtime entity body restitution", 0, 1e6);
++  if (transform.model !== void 0) {
++    if (!transform.model || typeof transform.model !== "object" || Array.isArray(transform.model)) throw new RangeError("runtime entity model update is invalid");
++    if (transform.model.meshId !== void 0) throw new RangeError("runtime entity model meshId cannot be changed");
++    requireOptionalBoolean(transform.model.invisible, "runtime entity model invisible");
++    if (transform.model.color !== void 0) requireRgba2(transform.model.color, "runtime entity model color");
++    if (transform.model.scale !== void 0) requireVector2(transform.model.scale, "runtime entity model scale");
++    if (transform.model.offset !== void 0) requireVector2(transform.model.offset, "runtime entity model offset");
++    requireOptionalFinite(transform.model.emissive, "runtime entity model emissive", 0, 1);
++    requireOptionalFinite(transform.model.shininess, "runtime entity model shininess", 0, 1);
++    requireOptionalFinite(transform.model.metalness, "runtime entity model metalness", 0, 1);
++  }
++  if (transform.nameplate !== void 0 && transform.nameplate !== null) {
++    if (!transform.nameplate || typeof transform.nameplate !== "object" || Array.isArray(transform.nameplate)) throw new RangeError("runtime entity nameplate is invalid");
++    requireText2(transform.nameplate.text, "runtime entity nameplate text");
++    requireOptionalFinite(transform.nameplate.radius, "runtime entity nameplate radius", 0, 4096);
++    if (transform.nameplate.color !== void 0) requireRgb2(transform.nameplate.color, "runtime entity nameplate color");
++  }
 @@ -10716 +10784 @@ function validateReplica(replica) {
 -  if (model.scale !== void 0) requirePositiveVector2(model.scale, "runtime entity model scale");
 +  if (model.scale !== void 0) requireVector2(model.scale, "runtime entity model scale");
@@ -691,7 +712,7 @@
 @@ -14314 +14762 @@ var LegacyHistoricalProjectInstance = class {
 -    const player = frame.players.find((candidate) => candidate.sessionId === sessionLabel || candidate.sessionId.length > 12 && candidate.sessionId.slice(0, 6) + "..." + candidate.sessionId.slice(-4) === sessionLabel);
 +    const player = frame.players.find((candidate) => matchesSessionLabel(candidate.sessionId, sessionLabel));
-@@ -14321,0 +14770,56 @@ var LegacyHistoricalProjectInstance = class {
+@@ -14321,0 +14770,57 @@ var LegacyHistoricalProjectInstance = class {
 +  queueDamageRuntimeState(target, state, events) {
 +    const frame = this.gameRuntime.snapshot();
 +    let entityId = target.entityId;
@@ -722,7 +743,7 @@
 +      ...entity.enableInteract === void 0 ? {} : { interactable: entity.enableInteract },
 +      replica: {
 +        body: {
-+          bounds: mesh.bounds,
++          bounds: entity.bounds ?? mesh.bounds,
 +          ...entity.meshOrientation === void 0 ? {} : { orientation: entity.meshOrientation },
 +          ...entity.collides === void 0 ? {} : { collides: entity.collides },
 +          ...entity.fixed === void 0 ? {} : { fixed: entity.fixed },
@@ -740,7 +761,8 @@
 +          ...entity.meshEmissive === void 0 ? {} : { emissive: entity.meshEmissive },
 +          ...entity.meshShininess === void 0 ? {} : { shininess: entity.meshShininess },
 +          ...entity.meshMetalness === void 0 ? {} : { metalness: entity.meshMetalness }
-+        }
++        },
++        ...entity.nameplate === null || entity.nameplate === void 0 ? {} : { nameplate: entity.nameplate }
 +      }
 +    });
 +  }
@@ -750,9 +772,20 @@
 +  }
 @@ -14333,0 +14838 @@ var LegacyHistoricalProjectInstance = class {
 +    this.guiSessions.delete(sessionId);
-@@ -14340,0 +14846,3 @@ var LegacyHistoricalProjectInstance = class {
+@@ -14340,0 +14846,14 @@ var LegacyHistoricalProjectInstance = class {
 +  sendChatMessage(sessionId, message) {
 +    return sessionId === void 0 ? this.gameChatSessions.broadcastLog(message) : this.gameChatSessions.sendLog(sessionId, message);
++  }
++  sendChatMessages(deliveries) {
++    if (!Array.isArray(deliveries)) throw new TypeError("chat deliveries must be an array");
++    let delivered = 0;
++    for (const delivery of deliveries) {
++      if (!delivery || typeof delivery !== "object" || Array.isArray(delivery)) throw new TypeError("chat delivery must be an object");
++      if (delivery.session !== void 0 && typeof delivery.session !== "string") throw new TypeError("chat session must be a string");
++      const count = this.sendChatMessage(delivery.session, delivery.message);
++      delivered += delivery.session === void 0 ? count : count === false ? 0 : 1;
++    }
++    return delivered;
 +  }
 @@ -14360,0 +14869 @@ var LegacyHistoricalProjectInstance = class {
 +    this.guiSessions.dispose();
@@ -1213,7 +1246,7 @@
 @@ -16596 +17204 @@ async function startNeaControlBridge(server, logger) {
 -        if (typeof body.session !== "string" || !body.event || typeof body.event !== "object" || Array.isArray(body.event)) {
 +        if (typeof body.session !== "string" || !Object.prototype.hasOwnProperty.call(body, "event")) {
-@@ -16603,0 +17212,54 @@ async function startNeaControlBridge(server, logger) {
+@@ -16603,0 +17212,60 @@ async function startNeaControlBridge(server, logger) {
 +      if (request.method === "POST" && url.pathname === "/__nea/control/gui-command") {
 +        if (typeof body.session !== "string" || !body.command || typeof body.command !== "object" || Array.isArray(body.command)) {
 +          throw new Error("session and GUI command are required");
@@ -1257,6 +1290,12 @@
 +        return;
 +      }
 +      if (request.method === "POST" && url.pathname === "/__nea/control/chat-message") {
++        if (body.deliveries !== void 0) {
++          const delivered = server.sendChatMessages(body.deliveries);
++          response.statusCode = 200;
++          response.end(JSON.stringify({ ok: true, delivered }));
++          return;
++        }
 +        if (body.session !== void 0 && typeof body.session !== "string") throw new Error("chat session must be a string");
 +        const delivered = server.sendChatMessage(body.session, body.message);
 +        if (body.session !== void 0 && delivered === false) {

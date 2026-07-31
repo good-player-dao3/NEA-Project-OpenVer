@@ -29,6 +29,30 @@ export function normalizeCapabilityEntities(entities) {
   }).sort((left, right) => left.id.localeCompare(right.id) || left.kind.localeCompare(right.kind));
 }
 
+export function normalizeCapabilityStorageScope(storageScope) {
+  if (storageScope === undefined || storageScope === null) return { groupId: null };
+  if (!storageScope || typeof storageScope !== "object" || Array.isArray(storageScope)) throw new Error("Capability storage scope input is invalid");
+  const groupId = storageScope.groupId;
+  if (groupId === undefined || groupId === null || groupId === "") return { groupId: null };
+  if (typeof groupId !== "string" || groupId.trim() !== groupId || groupId.length > 256 || /[\u0000-\u001f\u007f]/.test(groupId)) throw new Error("Capability storage groupId is invalid");
+  return { groupId };
+}
+
+export function normalizeCapabilityProjectIdentity(projectIdentity) {
+  if (!projectIdentity || typeof projectIdentity !== "object" || Array.isArray(projectIdentity)) throw new Error("Capability project identity input is invalid");
+  const projectName = projectIdentity.projectName;
+  if (typeof projectName !== "string" || projectName.length === 0 || projectName.trim() !== projectName || projectName.length > 256 || /[\u0000-\u001f\u007f]/.test(projectName)) throw new Error("Capability projectName is invalid");
+  return { projectName };
+}
+
+export function normalizeCapabilityWorldConfig(worldConfig) {
+  if (worldConfig === undefined || worldConfig === null) return { entityLimit: 3400 };
+  if (!worldConfig || typeof worldConfig !== "object" || Array.isArray(worldConfig)) throw new Error("Capability world config input is invalid");
+  const entityLimit = worldConfig.entityLimit;
+  if (!Number.isSafeInteger(entityLimit) || entityLimit < 0 || entityLimit > 1000000) throw new Error("Capability world entityLimit is invalid");
+  return { entityLimit };
+}
+
 export function normalizeCapabilityRuntimeAbi(runtimeCompatibility) {
   if (!runtimeCompatibility || typeof runtimeCompatibility !== "object" || Array.isArray(runtimeCompatibility)) throw new Error("Capability Runtime ABI input is missing or invalid");
   return {

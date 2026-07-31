@@ -21,6 +21,7 @@ test("imports the Demo into dao3-project/v1", async () => {
   assert.equal(manifest.engine.clientContract, "dao3-client-runtime/v1");
   assert.equal(manifest.engine.serverContract, "nea-server-runtime/v1");
   assert.equal(manifest.engine.tickRate, 20);
+  assert.deepEqual(manifest.storage, { groupId: null });
   const scripts = JSON.parse(await readFile(join(output, "scripts", "manifest.json"), "utf8"));
   assert.deepEqual(scripts.capabilities, [
     "server.world.events",
@@ -38,6 +39,10 @@ test("imports the Demo into dao3-project/v1", async () => {
   const capabilities = JSON.parse(await readFile(join(output, "capabilities", "manifest.json"), "utf8"));
   assert.equal(capabilities.format, "nea-project-capability-manifest");
   assert.equal(capabilities.status, result.capabilityManifest.status);
+  assert.equal(capabilities.version, 14);
+  assert.equal(typeof capabilities.inputs.projectIdentity, "string");
+  assert.equal(typeof capabilities.inputs.storageScope, "string");
+  assert.equal(typeof capabilities.inputs.worldConfig, "string");
   assert.ok(capabilities.requirements.some(item => item.usage === "world.say"));
   assert.ok(capabilities.requirements.some(item => item.usage === "UiText.create"));
   assert.ok(capabilities.requirements.some(item => item.usage === "runtimeStatus.textContent" && item.owner === "UiText"));
@@ -71,6 +76,7 @@ test("imports and publishes complete server and client module sets", async () =>
   await cp(fixture, source, { recursive: true });
   const manifestPath = join(source, "nea.map.json");
   const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+  manifest.runtime.groupId = "group-7";
   manifest.scripts.serverModules = ["scripts/server.js", "scripts/lib/entity.js"];
   manifest.scripts.clientModules = ["scripts/client.js", "scripts/lib/ui.js"];
   manifest.assets = [{ name: "icon.bin", path: "assets/icon.bin", kind: "image" }];
@@ -101,6 +107,9 @@ test("imports and publishes complete server and client module sets", async () =>
   }, null, 2)}\n`);
 
   const result = await importMapProject(source, output);
+  const packageManifest = JSON.parse(await readFile(join(output, "dao3.project.json"), "utf8"));
+  assert.deepEqual(packageManifest.storage, { groupId: "group-7" });
+  assert.equal(result.manifest.runtime.groupId, "group-7");
   const scripts = JSON.parse(await readFile(join(output, "scripts", "manifest.json"), "utf8"));
   assert.deepEqual(scripts.modules, ["scripts/server.js", "scripts/lib/entity.js"]);
   assert.match(await readFile(join(output, "scripts", "lib", "entity.js"), "utf8"), /querySelector/);

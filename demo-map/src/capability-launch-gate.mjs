@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { digestCapabilityJson } from "./capability-input-digest.mjs";
-import { normalizeCapabilityAssets, normalizeCapabilityEntities, normalizeCapabilityRuntimeAbi } from "./capability-input-normalize.mjs";
+import { normalizeCapabilityAssets, normalizeCapabilityEntities, normalizeCapabilityProjectIdentity, normalizeCapabilityRuntimeAbi, normalizeCapabilityStorageScope, normalizeCapabilityWorldConfig } from "./capability-input-normalize.mjs";
 
 const COLLECTIONS = Object.freeze([
   Object.freeze({ name: "requirements", label: item => `${item.side}:${item.module}:${item.usage}` }),
@@ -13,7 +13,7 @@ const COLLECTIONS = Object.freeze([
 ]);
 const MANIFEST_STATUSES = new Set(["ready", "partial", "blocked"]);
 const ENTRY_STATES = new Set(["ready", "partial", "blocked"]);
-const CAPABILITY_MANIFEST_VERSION = 10;
+const CAPABILITY_MANIFEST_VERSION = 14;
 const SHA256 = /^[0-9a-f]{64}$/;
 
 export const capabilityLaunchGateCollections = Object.freeze(COLLECTIONS.map(collection => collection.name));
@@ -87,6 +87,18 @@ export function verifyProjectCapabilityEntityInput(manifest, entities) {
   return verifyJsonInput("entity", validateJsonInput(manifest, "entities"), normalizeCapabilityEntities(entities));
 }
 
+export function verifyProjectCapabilityStorageScopeInput(manifest, storageScope) {
+  return verifyJsonInput("storage scope", validateJsonInput(manifest, "storageScope"), normalizeCapabilityStorageScope(storageScope));
+}
+
+export function verifyProjectCapabilityProjectIdentityInput(manifest, projectIdentity) {
+  return verifyJsonInput("project identity", validateJsonInput(manifest, "projectIdentity"), normalizeCapabilityProjectIdentity(projectIdentity));
+}
+
+export function verifyProjectCapabilityWorldConfigInput(manifest, worldConfig) {
+  return verifyJsonInput("world config", validateJsonInput(manifest, "worldConfig"), normalizeCapabilityWorldConfig(worldConfig));
+}
+
 export function verifyProjectCapabilityRuntimeAbiInput(manifest, runtimeCompatibility) {
   return verifyJsonInput("Runtime ABI", validateJsonInput(manifest, "runtimeAbi"), normalizeCapabilityRuntimeAbi(runtimeCompatibility));
 }
@@ -132,6 +144,8 @@ export function evaluateProjectCapabilityManifest(manifest, expectations = {}) {
   validateUiInput(manifest);
   validateJsonInput(manifest, "assets");
   validateJsonInput(manifest, "entities");
+  validateJsonInput(manifest, "projectIdentity");
+  validateJsonInput(manifest, "worldConfig");
   validateJsonInput(manifest, "runtimeAbi");
   if (Object.hasOwn(expectations, "apiVersion") && (typeof expectations.apiVersion !== "string" || expectations.apiVersion.length === 0)) {
     throw new Error("Expected project runtime apiVersion is missing or invalid");

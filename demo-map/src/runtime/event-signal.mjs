@@ -1,24 +1,34 @@
+export class GameEventHandlerToken {
+  constructor(cancel, resume, active) {
+    this.cancel = cancel;
+    this.resume = resume;
+    this.active = active;
+  }
+}
+
 export class EventSignal {
-  #records = new Set();
+  #records = [];
   #futures = new Set();
   #destroyed = false;
 
   on(handler) {
     if (typeof handler !== "function") throw new TypeError("Event handler must be a function");
-    const record = { handler, active: !this.#destroyed };
-    if (record.active) this.#records.add(record);
-    return Object.freeze({
-      cancel: () => {
-        record.active = false;
-        this.#records.delete(record);
+    const record = { handler, finished: this.#destroyed, inQueue: !this.#destroyed };
+    if (record.inQueue) this.#records.push(record);
+    return new GameEventHandlerToken(
+      () => {
+        record.finished = true;
       },
-      resume: () => {
-        if (this.#destroyed || record.active) return;
-        record.active = true;
-        this.#records.add(record);
+      () => {
+        if (this.#destroyed) return;
+        record.finished = false;
+        if (!record.inQueue) {
+          record.inQueue = true;
+          this.#records.push(record);
+        }
       },
-      active: () => record.active,
-    });
+      () => !record.finished,
+    );
   }
 
   once(handler) {
@@ -41,14 +51,25 @@ export class EventSignal {
   }
 
   emit(event, onError = error => { throw error; }) {
-    for (const record of [...this.#records]) {
-      if (!record.active) continue;
+    for (let index = 0; index < this.#records.length; index += 1) {
+      if (this.#destroyed) break;
+      const record = this.#records[index];
+      if (record.finished) continue;
       try {
         Promise.resolve(record.handler(event)).catch(onError);
       } catch (error) {
         onError(error);
       }
     }
+    let writeIndex = 0;
+    for (const record of this.#records) {
+      if (record.finished) {
+        record.inQueue = false;
+      } else {
+        this.#records[writeIndex++] = record;
+      }
+    }
+    this.#records.length = writeIndex;
     for (const future of [...this.#futures]) {
       if (!this.#futures.has(future)) continue;
       if (future.filter) {
@@ -65,8 +86,11 @@ export class EventSignal {
 
   clear(reason = "dispatcher destroyed") {
     this.#destroyed = true;
-    for (const record of this.#records) record.active = false;
-    this.#records.clear();
+    for (const record of this.#records) {
+      record.finished = true;
+      record.inQueue = false;
+    }
+    this.#records.length = 0;
     const error = new Error(String(reason));
     for (const future of this.#futures) future.reject(error);
     this.#futures.clear();

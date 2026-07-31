@@ -39,6 +39,9 @@ export async function importMapProject(sourceRoot, outputRoot, options = {}) {
     assets,
     entities: source.entities,
     uiState: source.ui,
+    storageScope: { groupId: source.manifest.runtime.groupId },
+    projectIdentity: { projectName: source.manifest.display.name },
+    worldConfig: { entityLimit: source.manifest.world.entityLimit },
   });
 
   await writeJson(files.manifest, {
@@ -56,10 +59,12 @@ export async function importMapProject(sourceRoot, outputRoot, options = {}) {
     assets: "assets/index.json",
     scripts: "scripts/manifest.json",
     capabilities: "capabilities/manifest.json",
+    storage: { groupId: source.manifest.runtime.groupId },
   });
   await writeJson(files.world, {
     shape: source.manifest.world.shape,
     spawn: source.manifest.world.spawn,
+    entityLimit: source.manifest.world.entityLimit,
     entities: "world/entities.json",
     terrain: "world/terrain.json",
     physics: "world/physics.json",
