@@ -2,6 +2,12 @@
   "format": "nea-redacted-script-corpus-usage",
   "version": 2,
   "generatedAt": "2026-07-29T14:40:38.045Z",
+  "provenance": {
+    "sourceClass": "approved-local-private-inspection",
+    "redactionStatus": "anonymous-aggregate",
+    "publicStatus": "public-sanitized",
+    "reproducibilityLimit": "Requires an approved local private source; this aggregate cannot recreate source code, source paths, work identities, member-assignment paths, or event type names."
+  },
   "privacy": {
     "sourceCodeIncluded": false,
     "sourcePathsIncluded": false,

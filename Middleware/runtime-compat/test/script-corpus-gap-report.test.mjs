@@ -14,6 +14,10 @@ test("script corpus evidence is anonymous and excludes private identities", asyn
   assert.equal(evidence.privacy.sourceCodeIncluded, false);
   assert.equal(evidence.privacy.sourcePathsIncluded, false);
   assert.equal(evidence.privacy.memberAssignmentPathsIncluded, false);
+  assert.equal(evidence.provenance.sourceClass, "approved-local-private-inspection");
+  assert.equal(evidence.provenance.redactionStatus, "anonymous-aggregate");
+  assert.equal(evidence.provenance.publicStatus, "public-sanitized");
+  assert.match(evidence.provenance.reproducibilityLimit, /cannot recreate source code/i);
   assert.ok(evidence.samples.some(sample => sample.sides.server.memberAssignments.length > 0));
   assert.doesNotMatch(text, /dump\/private|works\/private|manual-cdp|evidencePath/);
   assert.doesNotMatch(text, /bedwars|parkour|\u8d77\u5e8a\u6218\u4e89|\u8dd1\u9177/i);
@@ -23,6 +27,11 @@ test("script corpus report separates native ABI gaps from assignment-proven exte
   const report = JSON.parse(await readFile(resolve(root, "generated", "script-corpus-gap-report.json"), "utf8"));
   const byName = new Map(report.requirements.map(item => [`${item.side}:${item.name}`, item]));
   assert.equal(report.version, 2);
+  assert.equal(report.evidence.input, "Middleware/runtime-compat/evidence/script-corpus-usage.json");
+  assert.equal(report.evidence.sourceClass, "approved-local-private-inspection");
+  assert.equal(report.evidence.redactionStatus, "anonymous-aggregate");
+  assert.equal(report.evidence.publicStatus, "public-sanitized");
+  assert.match(report.evidence.reproducibilityLimit, /cannot recreate source code/i);
   assert.equal(byName.get("client:remoteChannel.events")?.state, "executable");
   assert.equal(byName.get("client:ui.findChildByName")?.canonicalId, "client.UiNode.findChildByName");
   assert.equal(byName.get("server:remoteChannel.broadcastClientEvent")?.state, "executable");

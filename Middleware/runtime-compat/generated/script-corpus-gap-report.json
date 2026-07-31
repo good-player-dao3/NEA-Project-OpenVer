@@ -1,8 +1,14 @@
 {
   "format": "nea-script-corpus-compatibility-gap-report",
   "version": 2,
-  "generatedAt": "2026-07-31T09:27:02.976Z",
-  "evidence": "runtime-compat/evidence/script-corpus-usage.json",
+  "generatedAt": "2026-07-31T16:20:17.097Z",
+  "evidence": {
+    "input": "Middleware/runtime-compat/evidence/script-corpus-usage.json",
+    "sourceClass": "approved-local-private-inspection",
+    "redactionStatus": "anonymous-aggregate",
+    "publicStatus": "public-sanitized",
+    "reproducibilityLimit": "Requires an approved local private source; this aggregate cannot recreate source code, source paths, work identities, member-assignment paths, or event type names."
+  },
   "summary": {
     "samples": 2,
     "requirements": 74,
