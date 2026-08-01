@@ -172,7 +172,7 @@ test("local Server Runtime adapter map distinguishes compatible and partial beha
   assert.deepEqual(token.signature.methods, ["cancel(): void", "resume(): void", "active(): boolean"]);
 });
 
-test("catalog composition preserves direct local GameGUI compatibility", async () => {
+test("catalog composition propagates direct local compatibility", async () => {
   const serverCatalog = JSON.parse(await readFile(resolve(root, "abi", "server-runtime.json"), "utf8"));
   const serverEntries = new Map(serverCatalog.entries.map(entry => [entry.id, entry]));
   for (const id of [
@@ -185,5 +185,15 @@ test("catalog composition preserves direct local GameGUI compatibility", async (
     "server.GameGUI.ui",
   ]) {
     assert.equal(serverEntries.get(id)?.compatibility, "compatible", `${id} should preserve local runtime compatibility`);
+  }
+  for (const [id, compatibility] of [
+    ["server.GameDataStorage.get", "partial"],
+    ["server.GameEntity.addTag", "compatible"],
+    ["server.GameWorld.onTick", "partial"],
+    ["server.GameWorld.raycast", "partial"],
+  ]) {
+    const entry = serverEntries.get(id);
+    assert.equal(entry?.compatibility, compatibility, `${id} should inherit local runtime compatibility`);
+    assert.ok(entry?.evidence.some(item => item.type === "local-source"), `${id} should retain local implementation evidence`);
   }
 });
