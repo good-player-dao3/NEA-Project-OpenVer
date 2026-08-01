@@ -6,6 +6,14 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { importMapProject, publishClientScript, publishClientUiState } from "../src/import-project.mjs";
 
+function assertPresentCapabilityDigest(value) {
+  assert.ok(value && typeof value === "object");
+  assert.equal(value.present, true);
+  assert.ok(Number.isSafeInteger(value.bytes));
+  assert.ok(value.bytes >= 0);
+  assert.match(value.sha256, /^[a-f0-9]{64}$/);
+}
+
 test("imports the Demo into dao3-project/v1", async () => {
   const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
   const output = join(await mkdtemp(join(tmpdir(), "nea-map-import-")), "project");
@@ -40,9 +48,9 @@ test("imports the Demo into dao3-project/v1", async () => {
   assert.equal(capabilities.format, "nea-project-capability-manifest");
   assert.equal(capabilities.status, result.capabilityManifest.status);
   assert.equal(capabilities.version, 14);
-  assert.equal(typeof capabilities.inputs.projectIdentity, "string");
-  assert.equal(typeof capabilities.inputs.storageScope, "string");
-  assert.equal(typeof capabilities.inputs.worldConfig, "string");
+  assertPresentCapabilityDigest(capabilities.inputs.projectIdentity);
+  assertPresentCapabilityDigest(capabilities.inputs.storageScope);
+  assertPresentCapabilityDigest(capabilities.inputs.worldConfig);
   assert.ok(capabilities.requirements.some(item => item.usage === "world.say"));
   assert.ok(capabilities.requirements.some(item => item.usage === "UiText.create"));
   assert.ok(capabilities.requirements.some(item => item.usage === "runtimeStatus.textContent" && item.owner === "UiText"));
