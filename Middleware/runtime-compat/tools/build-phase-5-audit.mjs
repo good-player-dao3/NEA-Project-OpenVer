@@ -18,7 +18,7 @@ const apiAbiStatus = apiAbiCompleteness.status === "complete" ? "complete" : "pa
 const apiAbiRemaining = apiAbiCompleteness.gaps.slice(0, 20).map(item => `${item.domain}:${item.id}:${item.field} - ${item.rule}`);
 const capabilityManifest = architecture.projectCapabilityManifest;
 const capabilityManifestComplete = capabilityManifest?.format === "nea-project-capability-manifest"
-  && capabilityManifest.version === 10
+  && capabilityManifest.version >= 10
   && ["requirements", "modules", "resources", "ui", "entities", "dependencies", "diagnostics"].every(name => capabilityManifest.evidenceCollections.includes(name))
   && ["server-modules", "client-modules", "server-capability-grants", "client-capability-grants", "client-ui-state", "asset-file-evidence", "entity-projection-evidence", "runtime-abi-artifacts"].every(name => capabilityManifest.inputBindings.includes(name))
   && capabilityManifest.integrityChecks.includes("asset-file-bytes-sha256")
