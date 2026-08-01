@@ -3,7 +3,7 @@ import test from "node:test";
 import vm from "node:vm";
 import { readFile } from "node:fs/promises";
 
-const backend = await readFile(new URL("../../local-player/backend/box3-server.cjs", import.meta.url), "utf8");
+const backend = await readFile(new URL("../../../Backend/local-player/backend/box3-server.cjs", import.meta.url), "utf8");
 
 test("backend exposes authenticated dialog open and cancel-all control operations", () => {
   assert.match(backend, /\/__nea\/control\/dialog"/);
