@@ -616,8 +616,9 @@ test("destroyed chat endpoints are silent and player removal emits recovered des
   });
   await runtime.start();
   const player = runtime.addPlayer({ id: "chat-receiver" });
-  const entity = runtime.createEntity({ id: "chat-sender" });
-  runtime.bindAuthoritativeEntity(entity.id, 41);
+  assert.equal(runtime.bindBackendEntities([{ sourceId: "central-beacon", entityId: 41 }]), 1);
+  const entity = runtime._entityByBackendId(41);
+  assert.ok(entity);
   player.directMessage("before leave");
   entity.say("before destroy");
   assert.equal(runtime.removePlayer(player.id), true);
@@ -632,7 +633,7 @@ test("destroyed chat endpoints are silent and player removal emits recovered des
     { playerId: "chat-receiver", message: { text: "before leave", senderId: 0, private: true, duration: 0, hideFloat: false } },
     { playerId: undefined, message: { text: "before destroy", senderId: 41, private: false, duration: 0, hideFloat: false } },
   ]);
-  assert.deepEqual(player.chatLifecycle, [
+  assert.deepEqual(JSON.parse(JSON.stringify(player.chatLifecycle)), [
     ["playerLeave", true],
     ["player.onDestroy", true],
     ["entityDestroy", true],
