@@ -273,8 +273,8 @@ test("capability manifest gates server sound samples, Sound controls, and playba
   });
   assert.deepEqual(blocked.resources.map(item => item.reference), ["audio/entity.mp3", "audio/world.mp3"]);
   assert.ok(blocked.resources.every(item => item.state === "blocked"));
-  assert.equal(blocked.requirements.find(item => item.usage === "worldSound.pause").canonicalId, "server.Sound.pause");
-  assert.equal(blocked.requirements.find(item => item.usage === "entitySound.resume").canonicalId, "server.Sound.resume");
+  assert.equal(blocked.requirements.find(item => item.usage === "worldSound.pause").canonicalId, "shared.Sound.pause");
+  assert.equal(blocked.requirements.find(item => item.usage === "entitySound.resume").canonicalId, "shared.Sound.resume");
   const dependency = blocked.dependencies.find(item => item.id === "transport:sound-playback");
   assert.equal(dependency.state, "ready");
   assert.equal(dependency.protocol, "player.sound");
