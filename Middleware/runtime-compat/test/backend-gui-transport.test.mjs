@@ -3,7 +3,7 @@ import test from "node:test";
 import vm from "node:vm";
 import { readFile } from "node:fs/promises";
 
-const backend = await readFile(new URL("../../local-player/backend/box3-server.cjs", import.meta.url), "utf8");
+const backend = await readFile(new URL("../../../Backend/local-player/backend/box3-server.cjs", import.meta.url), "utf8");
 
 function loadGuiSessions() {
   const start = backend.indexOf("var maximumGuiHandle = 4294967295;");
@@ -11,7 +11,12 @@ function loadGuiSessions() {
   assert.notEqual(start, -1, "GUI session transport is missing");
   assert.notEqual(end, -1, "GUI session transport boundary is missing");
   const source = backend.slice(start, end).replace("var GuiSessions = class {", "GuiSessions = class {");
-  const context = { GuiSessions: undefined };
+  const context = {
+    GuiSessions: undefined,
+    matchesSessionLabel(sessionId, label) {
+      return sessionId === label || `${sessionId.slice(0, 6)}...${sessionId.slice(-4)}` === label;
+    },
+  };
   vm.runInNewContext(source, context);
   return context.GuiSessions;
 }
