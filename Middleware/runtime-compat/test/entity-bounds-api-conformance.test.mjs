@@ -5,7 +5,7 @@ import { createRuntimeEntity } from "../../../Frontend/demo-map/src/runtime/scri
 import { entityBoundsApiConformance } from "../conformance/entity-bounds-api.mjs";
 
 const runtimeSource = await readFile(new URL("../../../Frontend/demo-map/src/runtime/script-runtime.mjs", import.meta.url), "utf8");
-const backendSource = await readFile(new URL("../../local-player/backend/box3-server.cjs", import.meta.url), "utf8");
+const backendSource = await readFile(new URL("../../../Backend/local-player/backend/box3-server.cjs", import.meta.url), "utf8");
 
 test("RuntimeEntity bounds preserves positive readonly half-extents", () => {
   const entity = createRuntimeEntity({ id: "bounds-api", bounds: [1, 2, 3] });
