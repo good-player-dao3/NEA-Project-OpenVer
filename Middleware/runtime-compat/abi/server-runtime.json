@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-abi",
   "version": 1,
-  "generatedAt": "2026-07-31T17:33:12.802Z",
+  "generatedAt": "2026-08-01T01:06:46.436Z",
   "side": "server",
   "entries": [
     {
@@ -5238,7 +5238,7 @@
         "representation": "function-valued property"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": null,
       "since": null,
       "notes": [
@@ -5249,6 +5249,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.nextTakeDamage",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -5904,7 +5910,7 @@
         "representation": "function-valued property"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": null,
       "since": null,
       "notes": [
@@ -5922,6 +5928,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.onTakeDamage",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ],
@@ -7322,7 +7334,7 @@
         "representation": "function-valued property"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": null,
       "since": null,
       "notes": [
@@ -7340,6 +7352,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameEntity.js",
           "symbol": "GameEntity.say",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ],
@@ -23519,7 +23537,7 @@
         "returns": "number"
       },
       "availability": "confirmed",
-      "compatibility": "emulated",
+      "compatibility": "compatible",
       "capability": "server.world.voxels",
       "since": "0.1.0",
       "notes": [
@@ -23651,7 +23669,7 @@
         "returns": "number"
       },
       "availability": "confirmed",
-      "compatibility": "emulated",
+      "compatibility": "compatible",
       "capability": "server.world.voxels",
       "since": "0.1.0",
       "notes": [
@@ -23783,7 +23801,7 @@
         "returns": "number"
       },
       "availability": "confirmed",
-      "compatibility": "emulated",
+      "compatibility": "compatible",
       "capability": "server.world.voxels",
       "since": "0.1.0",
       "notes": [
@@ -23907,7 +23925,7 @@
         "returns": "number"
       },
       "availability": "confirmed",
-      "compatibility": "emulated",
+      "compatibility": "compatible",
       "capability": "server.world.voxels",
       "since": "0.1.0",
       "notes": [
@@ -24009,7 +24027,7 @@
         "returns": "string"
       },
       "availability": "confirmed",
-      "compatibility": "emulated",
+      "compatibility": "compatible",
       "capability": "server.world.voxels",
       "since": "0.1.0",
       "notes": [
@@ -24128,7 +24146,7 @@
         "returns": "number"
       },
       "availability": "confirmed",
-      "compatibility": "emulated",
+      "compatibility": "compatible",
       "capability": "server.world.voxels",
       "since": "0.1.0",
       "notes": [
@@ -24286,7 +24304,7 @@
         "returns": "number"
       },
       "availability": "confirmed",
-      "compatibility": "emulated",
+      "compatibility": "compatible",
       "capability": "server.world.voxels",
       "since": "0.1.0",
       "notes": [
@@ -24416,7 +24434,7 @@
         "readonly": true
       },
       "availability": "confirmed",
-      "compatibility": "emulated",
+      "compatibility": "compatible",
       "capability": "server.world.voxels",
       "since": "0.1.0",
       "notes": [
@@ -24501,7 +24519,7 @@
         "readonly": true
       },
       "availability": "confirmed",
-      "compatibility": "emulated",
+      "compatibility": "compatible",
       "capability": "server.world.voxels",
       "since": "0.1.0",
       "notes": [
@@ -25482,7 +25500,7 @@
         "representation": "function-valued property"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": null,
       "since": null,
       "notes": [
@@ -25500,6 +25518,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.createEntity",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ],
@@ -25615,7 +25639,7 @@
         "readonly": false
       },
       "availability": "confirmed",
-      "compatibility": "emulated",
+      "compatibility": "compatible",
       "capability": null,
       "since": null,
       "notes": [
@@ -26650,7 +26674,7 @@
         "representation": "function-valued property"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": null,
       "since": null,
       "notes": [
@@ -26661,6 +26685,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.nextDie",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -27112,7 +27142,7 @@
         "representation": "function-valued property"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": null,
       "since": null,
       "notes": [
@@ -27123,6 +27153,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.nextTakeDamage",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -27173,7 +27209,7 @@
         "representation": "function-valued property"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": null,
       "since": null,
       "notes": [
@@ -27184,6 +27220,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.nextVoxelContact",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -27200,7 +27242,7 @@
         "representation": "function-valued property"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": null,
       "since": null,
       "notes": [
@@ -27211,6 +27253,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.nextVoxelSeparate",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ]
@@ -27375,7 +27423,7 @@
         "representation": "function-valued property"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": null,
       "since": null,
       "notes": [
@@ -27393,6 +27441,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.onDie",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ],
@@ -27953,7 +28007,7 @@
         "representation": "function-valued property"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": null,
       "since": null,
       "notes": [
@@ -27971,6 +28025,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.onPlayerJoin",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ],
@@ -28020,7 +28080,7 @@
         "representation": "function-valued property"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": null,
       "since": null,
       "notes": [
@@ -28038,6 +28098,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.onPlayerLeave",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ],
@@ -28383,7 +28449,7 @@
         "representation": "function-valued property"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": null,
       "since": null,
       "notes": [
@@ -28401,6 +28467,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.onTakeDamage",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ],
@@ -28524,7 +28596,7 @@
         "representation": "function-valued property"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": null,
       "since": null,
       "notes": [
@@ -28542,6 +28614,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.onVoxelContact",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ],
@@ -28591,7 +28669,7 @@
         "representation": "function-valued property"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": null,
       "since": null,
       "notes": [
@@ -28609,6 +28687,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.onVoxelSeparate",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ],
@@ -28881,7 +28965,7 @@
         "representation": "function-valued property"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": null,
       "since": null,
       "notes": [
@@ -28899,6 +28983,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.querySelector",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ],
@@ -28948,7 +29038,7 @@
         "representation": "function-valued property"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": null,
       "since": null,
       "notes": [
@@ -28966,6 +29056,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.querySelectorAll",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ],
@@ -29750,7 +29846,7 @@
         "representation": "function-valued property"
       },
       "availability": "confirmed",
-      "compatibility": "missing",
+      "compatibility": "partial",
       "capability": null,
       "since": null,
       "notes": [
@@ -29768,6 +29864,12 @@
           "type": "origin-source",
           "path": "origin/origin/origin/api/GameWorld.js",
           "symbol": "GameWorld.say",
+          "confidence": "direct"
+        },
+        {
+          "type": "local-source",
+          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
       ],
@@ -34123,7 +34225,7 @@
         "type": "GameVoxels"
       },
       "availability": "confirmed",
-      "compatibility": "emulated",
+      "compatibility": "compatible",
       "capability": "server.world.voxels",
       "since": "0.1.0",
       "notes": [
@@ -36010,7 +36112,7 @@
         "returns": "void"
       },
       "availability": "confirmed",
-      "compatibility": "bridged",
+      "compatibility": "compatible",
       "capability": "server.remote-channel",
       "since": "0.1.0",
       "notes": [
@@ -36138,7 +36240,7 @@
         "returns": "listener-token"
       },
       "availability": "confirmed",
-      "compatibility": "bridged",
+      "compatibility": "compatible",
       "capability": "server.remote-channel",
       "since": "0.1.0",
       "notes": [
@@ -36213,7 +36315,7 @@
         "returns": "void"
       },
       "availability": "confirmed",
-      "compatibility": "bridged",
+      "compatibility": "compatible",
       "capability": "server.remote-channel",
       "since": "0.1.0",
       "notes": [
