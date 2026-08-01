@@ -570,7 +570,9 @@ test("GameEntity.say projects recovered sender, duration, and hideFloat fields o
   const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
   const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-entity-chat-")), "project");
   await importMapProject(source, output);
-  await writeFile(join(output, "scripts", "server.js"), "", "utf8");
+  await writeFile(join(output, "scripts", "server.js"), `
+    world.querySelector(".welcome-marker").say("local only", { duration: 2000 });
+  `, "utf8");
   const deliveries = [];
   const runtime = await ScriptRuntime.load(output, {
     blockCatalog,
@@ -578,11 +580,10 @@ test("GameEntity.say projects recovered sender, duration, and hideFloat fields o
     sendChatMessage: (playerId, message) => deliveries.push({ playerId, message }),
   });
   await runtime.start();
-  const mapped = runtime.querySelector("#terminal");
-  const local = runtime.createEntity({ id: "local-speaker" });
-  runtime.bindAuthoritativeEntity(mapped.id, 27);
+  assert.equal(runtime.bindBackendEntities([{ sourceId: "central-beacon", entityId: 27 }]), 1);
+  const mapped = runtime._entityByBackendId(27);
+  assert.ok(mapped);
   mapped.say("mapped", { duration: Infinity, hideFloat: true });
-  local.say("local only", { duration: 2000 });
   await new Promise(resolve => setImmediate(resolve));
   const snapshot = runtime.snapshot();
   runtime.stop();
@@ -590,7 +591,7 @@ test("GameEntity.say projects recovered sender, duration, and hideFloat fields o
     playerId: undefined,
     message: { text: "mapped", senderId: 27, private: false, duration: -1, hideFloat: true },
   }]);
-  assert.ok(snapshot.messages.some(message => message.entityId === "local-speaker" && message.text === "local only"));
+  assert.ok(snapshot.messages.some(message => message.entityId === "welcome-marker" && message.text === "local only"));
 });
 
 test("destroyed chat endpoints are silent and player removal emits recovered destroy ordering", async () => {
