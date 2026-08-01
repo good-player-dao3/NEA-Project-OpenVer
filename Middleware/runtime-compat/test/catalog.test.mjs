@@ -196,4 +196,14 @@ test("catalog composition propagates direct local compatibility", async () => {
     assert.equal(entry?.compatibility, compatibility, `${id} should inherit local runtime compatibility`);
     assert.ok(entry?.evidence.some(item => item.type === "local-source"), `${id} should retain local implementation evidence`);
   }
+  for (const [id, compatibility] of [
+    ["server.GameWorld.onTakeDamage", "partial"],
+    ["server.GameWorld.onPlayerJoin", "partial"],
+    ["server.GameEntity.onTakeDamage", "partial"],
+    ["server.remoteChannel.onServerEvent", "compatible"],
+  ]) {
+    const entry = serverEntries.get(id);
+    assert.equal(entry?.compatibility, compatibility, `${id} should inherit adapter compatibility`);
+    assert.ok(entry?.evidence.some(item => item.type === "local-source"), `${id} should retain adapter source evidence`);
+  }
 });

@@ -11,10 +11,10 @@ const localShared = JSON.parse(await readFile(resolve(root, "generated", "local-
 const current = JSON.parse(await readFile(resolve(root, "abi", "current-runtime.json"), "utf8"));
 
 await writeCatalog("client", docs.entries.filter(entry => entry.side === "client"), playerClient.entries, current.entries.filter(entry => entry.side === "client"), playerClient.unavailable ?? []);
-await writeCatalog("server", docs.entries.filter(entry => entry.side === "server"), [...origin.entries, ...localServer.entries], current.entries.filter(entry => entry.side === "server"), [], true);
+await writeCatalog("server", docs.entries.filter(entry => entry.side === "server"), [...origin.entries, ...localServer.entries], current.entries.filter(entry => entry.side === "server"), [], true, localServer.adapters);
 await writeCatalog("shared", docs.entries.filter(entry => entry.side === "shared"), localShared.entries, current.entries.filter(entry => entry.side === "shared"));
 
-async function writeCatalog(side, declared, recovered, implemented, unavailable = [], propagateImplements = false) {
+async function writeCatalog(side, declared, recovered, implemented, unavailable = [], propagateImplements = false, adapters = []) {
   const merged = new Map();
   for (const entry of [...declared, ...recovered, ...implemented]) {
     const previous = merged.get(entry.id);
@@ -34,6 +34,7 @@ async function writeCatalog(side, declared, recovered, implemented, unavailable 
   if (propagateImplements) {
     propagateImplementedCompatibility(merged, recovered, side);
   }
+  propagateAdapterCompatibility(merged, recovered, adapters, side);
   for (const item of unavailable) {
     const previous = merged.get(item.id);
     if (!previous) throw new Error(`Unavailable ${side} ABI entry is not declared: ${item.id}`);
@@ -72,6 +73,20 @@ function propagateImplementedCompatibility(merged, entries, side) {
         evidence: deduplicateEvidence([...(canonical.evidence ?? []), ...(entry.evidence ?? [])]),
       });
     }
+  }
+}
+
+function propagateAdapterCompatibility(merged, entries, adapters, side) {
+  const evidenceByLocalId = new Map(entries.map(entry => [entry.id, entry.evidence ?? []]));
+  for (const adapter of adapters) {
+    const canonical = merged.get(adapter.canonicalId);
+    if (!canonical) continue;
+    const localEvidence = evidenceByLocalId.get(adapter.localId) ?? [];
+    merged.set(adapter.canonicalId, {
+      ...canonical,
+      compatibility: strongestCompatibility(canonical.compatibility, adapter.status),
+      evidence: deduplicateEvidence([...(canonical.evidence ?? []), ...localEvidence]),
+    });
   }
 }
 
