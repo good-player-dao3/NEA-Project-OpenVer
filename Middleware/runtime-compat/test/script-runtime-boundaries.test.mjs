@@ -20,6 +20,6 @@ test("client and server scripts remain separate execution realms", () => {
 test("runtime crossings are explicit serialized bridges", () => {
   assert.deepEqual(boundaries.bridges.map(bridge => bridge.id), ["remote-channel", "authoritative-state"]);
   assert.equal(boundaries.sharedValues.transportForm, "serialized values only");
-  assert.equal(architecture.scriptRuntimes.boundaries, "Middleware/runtime-compat/abi/script-runtime-boundaries.json");
+  assert.equal(architecture.scriptRuntimes.boundaries, "runtime-compat/abi/script-runtime-boundaries.json");
   assert.equal(architecture.contactEvents.forceStatus, "confirmed-historical-production-local-compatible");
 });
