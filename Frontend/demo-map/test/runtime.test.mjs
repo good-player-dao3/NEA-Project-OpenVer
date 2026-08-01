@@ -199,6 +199,45 @@ test("storage globals require the dedicated runtime capability", async () => {
   runtime.stop();
 });
 
+test("server storage persists across Runtime launches", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-storage-persistence-")), "project");
+  await importMapProject(source, output);
+  await writeFile(join(output, "scripts", "server.js"), `
+    world.onPlayerJoin(({ entity: player }) => {
+      const scores = storage.getDataStorage("scores");
+      scores.set("guest", { score: 7 }).then(() => scores.get("guest")).then(value => {
+        player.storageResult = value.value;
+      });
+    });
+  `, "utf8");
+  const logger = { info() {}, warn() {}, error() {} };
+  const first = await ScriptRuntime.load(output, { blockCatalog, logger });
+  await first.start();
+  const firstPlayer = first.addPlayer({ id: "storage-writer" });
+  for (let attempt = 0; attempt < 100 && firstPlayer.storageResult === undefined; attempt += 1) {
+    await new Promise(resolveEvent => setTimeout(resolveEvent, 1));
+  }
+  assert.deepEqual(firstPlayer.storageResult, { score: 7 });
+  first.stop();
+
+  await writeFile(join(output, "scripts", "server.js"), `
+    world.onPlayerJoin(({ entity: player }) => {
+      storage.getDataStorage("scores").get("guest").then(value => {
+        player.storageResult = value.value;
+      });
+    });
+  `, "utf8");
+  const second = await ScriptRuntime.load(output, { blockCatalog, logger });
+  await second.start();
+  const secondPlayer = second.addPlayer({ id: "storage-reader" });
+  for (let attempt = 0; attempt < 100 && secondPlayer.storageResult === undefined; attempt += 1) {
+    await new Promise(resolveEvent => setTimeout(resolveEvent, 1));
+  }
+  assert.deepEqual(secondPlayer.storageResult, { score: 7 });
+  second.stop();
+});
+
 test("world configuration properties require the dedicated runtime capability", async () => {
   const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
   const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-world-config-capability-")), "project");

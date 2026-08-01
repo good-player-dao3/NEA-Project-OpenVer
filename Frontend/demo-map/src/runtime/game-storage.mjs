@@ -206,7 +206,8 @@ function isJsonValue(value, ancestors) {
     valid = Object.keys(value).length === value.length && value.every(item => isJsonValue(item, ancestors));
   } else {
     const prototype = Object.getPrototypeOf(value);
-    valid = (prototype === Object.prototype || prototype === null)
+    const isPlainObject = prototype === null || (Object.prototype.hasOwnProperty.call(prototype, "constructor") && prototype.constructor?.name === "Object");
+    valid = isPlainObject
       && Object.getOwnPropertySymbols(value).length === 0
       && Object.values(value).every(item => isJsonValue(item, ancestors));
   }
