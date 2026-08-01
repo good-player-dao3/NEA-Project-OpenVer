@@ -12,9 +12,9 @@ test("local shared runtime represents every documented GameVector3 member", asyn
   const documentedIds = docs.entries.filter(entry => entry.owner === "GameVector3").map(entry => entry.id).sort();
   const implementedIds = analysis.entries.filter(entry => entry.id.startsWith("shared.GameVector3.")).map(entry => entry.id).sort();
   assert.deepEqual(implementedIds, documentedIds);
-  assert.equal(analysis.summary.canonicalEntries, 31);
-  assert.equal(analysis.summary.confirmedCanonical, 30);
-  assert.equal(analysis.summary.partialCanonical, 1);
+  assert.equal(analysis.summary.gameVector3.entries, 31);
+  assert.equal(analysis.summary.gameVector3.confirmed, 30);
+  assert.equal(analysis.summary.gameVector3.partial, 1);
 });
 
 test("GameVector3 equals remains explicitly partial", async () => {
