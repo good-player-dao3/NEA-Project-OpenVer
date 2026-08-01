@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const { validateClientUiState } = require("../../local-player/backend/client-ui-state.cjs");
+const { validateClientUiState } = require("../../../Backend/local-player/backend/client-ui-state.cjs");
 
 const capturedFixture = () => ({
   format: "nea-recovered-client-ui",

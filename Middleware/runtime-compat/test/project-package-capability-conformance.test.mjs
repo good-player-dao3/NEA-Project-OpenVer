@@ -4,7 +4,7 @@ import test from "node:test";
 
 import { buildRepositoryProjectCapabilityManifest } from "../../../Frontend/demo-map/src/project-capability.mjs";
 
-const capturedPackageBuilder = await readFile(new URL("../../preservation-dump/build-editor-runtime-package.mjs", import.meta.url), "utf8");
+const capturedPackageBuilder = await readFile(new URL("../../../Evidence/preservation-dump/build-editor-runtime-package.mjs", import.meta.url), "utf8");
 
 test("all tracked project package builders publish the shared capability manifest", () => {
   for (const marker of [

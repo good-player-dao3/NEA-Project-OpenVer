@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { loadPreservedBlockCatalog } from "../../local-player/src/block-info.mjs";
+import { loadPreservedBlockCatalog } from "../../../Backend/local-player/src/block-info.mjs";
 import { ScriptRuntime, createRuntimeEntity } from "../../../Frontend/demo-map/src/runtime/script-runtime.mjs";
 import { gameEntityPlayerApiConformance } from "../conformance/game-entity-player-api.mjs";
 
@@ -13,7 +13,7 @@ test("GameEntity.player distinguishes ordinary entities from RuntimePlayer", asy
   assert.equal(entity.player, undefined);
 
   const physics = JSON.parse(await readFile(new URL("../../../Frontend/demo-map/project/world/physics.json", import.meta.url), "utf8"));
-  const archiveRoot = resolve(fileURLToPath(new URL("../../local-player/archive", import.meta.url)));
+  const archiveRoot = resolve(fileURLToPath(new URL("../../../Backend/local-player/archive", import.meta.url)));
   const blockCatalog = await loadPreservedBlockCatalog(archiveRoot, "world-bedwars.json");
   const runtime = new ScriptRuntime({
     projectRoot: process.cwd(),
