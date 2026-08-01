@@ -38,12 +38,13 @@ test("RuntimePlayer remains a composite instead of claiming GamePlayerEntity", a
 
 test("GameEntityEvent records canonical fields and isolates the player alias", async () => {
   const map = await readJson("abi/runtime-player-adapter-map.json");
-  assert.deepEqual(map.events[0].canonicalFields, ["tick", "entity"]);
-  assert.deepEqual(map.events[0].localAliases, [{ name: "player", target: "entity" }]);
-  assert.equal(map.events[0].status, "partial");
-  assert.deepEqual(map.events[1].canonicalFields, ["tick", "entity", "attacker", "damage", "damageType"]);
-  assert.equal(map.events[1].canonicalObject, "server.GameDamageEvent");
-  assert.equal(map.events[1].status, "partial");
+  const entityEvent = map.events.find(event => event.canonicalObject === "server.GameEntityEvent");
+  const damageEvent = map.events.find(event => event.canonicalObject === "server.GameDamageEvent");
+  assert.deepEqual(entityEvent.canonicalFields, ["tick", "entity"]);
+  assert.deepEqual(entityEvent.localAliases, [{ name: "player", target: "entity" }]);
+  assert.equal(entityEvent.status, "partial");
+  assert.deepEqual(damageEvent.canonicalFields, ["tick", "entity", "attacker", "damage", "damageType"]);
+  assert.equal(damageEvent.status, "partial");
 });
 
 function member(map, id) {
