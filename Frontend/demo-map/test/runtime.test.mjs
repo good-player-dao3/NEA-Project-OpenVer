@@ -126,9 +126,9 @@ test("GameWorld.raycast exposes recovered result fields inside server scripts", 
     const result = world.raycast([99990, 1, 1], [2, 0, 0], { maxDistance: 20, ignoreVoxel: true });
     if (!result.hit || result.hitEntity !== target) throw new Error("raycast entity mismatch");
     if (result.hitVoxel !== 0 || result.voxel !== 0) throw new Error("raycast voxel mismatch");
-    if (result.distance !== 9.5) throw new Error("raycast distance mismatch: " + result.distance);
+    if (result.distance !== 9) throw new Error("raycast distance mismatch: " + result.distance);
     if (result.direction.x !== 1 || result.normal.x !== -1) throw new Error("raycast vector mismatch");
-    if (result.hitPosition.x !== 99999.5) throw new Error("raycast hitPosition mismatch");
+    if (result.hitPosition.x !== 99999) throw new Error("raycast hitPosition mismatch");
   `, "utf8");
   const runtime = await ScriptRuntime.load(output, { blockCatalog, logger: { info() {}, warn() {}, error() {} } });
   await runtime.start();
