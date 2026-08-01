@@ -36,6 +36,33 @@ jobs:
             git diff-tree --no-commit-id --check -r "$HEAD_SHA"
           fi
 
+      - name: Check forbidden tracked paths
+        shell: bash
+        run: |
+          forbidden=$(git ls-files | grep -E '(^|/)(Evidence/dump/private|Evidence/works/private|\.workspace|NEA-Project\.7z)(/|$)' || true)
+          if [ -n "$forbidden" ]; then
+            printf 'Forbidden tracked paths detected:\n%s\n' "$forbidden"
+            exit 1
+          fi
+
+      - name: Check changed content for secrets
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          if [ -n "$BASE_SHA" ] && [ "$BASE_SHA" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$BASE_SHA^{commit}"; then
+            diff=$(git diff --unified=0 "$BASE_SHA" "$HEAD_SHA")
+          else
+            diff=$(git diff-tree --no-commit-id --unified=0 -r "$HEAD_SHA")
+          fi
+          secret_pattern='(^\+[^+].*('
+          secret_pattern+='B'earer'[[:space:]]+[A-Za-z0-9._~-]{16,}|to'ken'=[A-Za-z0-9._~%+-]{16,}|authori'zation':[[:space:]]*[^[:space:]]+))'
+          if printf '%s\n' "$diff" | grep -Eiq "$secret_pattern"; then
+            echo 'Potential token-bearing content found in changed lines.'
+            exit 1
+          fi
+
   validate:
     name: Validate (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -77,3 +104,24 @@ jobs:
 
       - name: Test recovered protocol evidence
         run: node --test Middleware/runtime-compat/test/recovered-player-protocol.test.mjs
+
+      - name: Test ABI completeness contract
+        run: node --test --test-name-pattern "API ABI completeness" Middleware/runtime-compat/test/api-abi-completeness.test.mjs
+
+      - name: Verify API ABI report regeneration
+        shell: bash
+        run: |
+          node Middleware/runtime-compat/tools/build-api-abi-completeness.mjs
+          node --input-type=module -e '
+            import { execFileSync } from "node:child_process";
+            import { readFileSync } from "node:fs";
+            const path = "Middleware/runtime-compat/generated/api-abi-completeness.json";
+            const expected = JSON.parse(execFileSync("git", ["show", `HEAD:${path}`], { encoding: "utf8" }));
+            const actual = JSON.parse(readFileSync(path, "utf8"));
+            delete expected.generatedAt;
+            delete actual.generatedAt;
+            if (JSON.stringify(expected) !== JSON.stringify(actual)) {
+              console.error("Generated API ABI report differs from generator output.");
+              process.exit(1);
+            }
+          '

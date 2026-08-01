@@ -1,0 +1,8 @@
+# Default ownership keeps every public change reviewable by the repository maintainer.
+* @ForgottenArch
+
+/Frontend/demo-map/ @ForgottenArch
+/Middleware/runtime-compat/ @ForgottenArch
+/Backend/local-player/ @ForgottenArch
+/Evidence/ @ForgottenArch
+/Docs/ @ForgottenArch
