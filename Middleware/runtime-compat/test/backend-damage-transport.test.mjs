@@ -3,7 +3,7 @@ import test from "node:test";
 import vm from "node:vm";
 import { readFile } from "node:fs/promises";
 
-const backendUrl = new URL("../../local-player/backend/box3-server.cjs", import.meta.url);
+const backendUrl = new URL("../../../Backend/local-player/backend/box3-server.cjs", import.meta.url);
 const backend = await readFile(backendUrl, "utf8");
 
 function loadGameNetPublicSessions() {
