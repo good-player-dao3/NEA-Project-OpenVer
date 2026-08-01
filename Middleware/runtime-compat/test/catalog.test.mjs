@@ -71,8 +71,10 @@ test("historical player motor does not locally rewrite body half extents", async
   assert.equal(analysis.rigidBody.shapeRepresentation, "local-shape-half-extents-hsx-hsy-hsz");
   assert.deepEqual(analysis.rigidBody.defaultPlayerProfile.boundsHalfExtents, [0.45, 1.1, 0.45]);
   assert.deepEqual(analysis.rigidBody.defaultPlayerProfile.dimensions, [0.9, 2.2, 0.9]);
-  assert.deepEqual(analysis.corroboration.externalReference.boundsFields, ["rx", "ry", "rz"]);
-  assert.deepEqual(analysis.corroboration.externalReference.shapeHalfExtentFields, ["hsx", "hsy", "hsz"]);
+  const corroboration = Object.values(analysis.corroboration);
+  assert.equal(corroboration.length, 1);
+  assert.deepEqual(corroboration[0].boundsFields, ["rx", "ry", "rz"]);
+  assert.deepEqual(corroboration[0].shapeHalfExtentFields, ["hsx", "hsy", "hsz"]);
   assert.equal(analysis.rigidBody.positionRepresentation, "body-center-px-py-pz");
   assert.equal(analysis.posture.clientMotorShapeWriteCount, 0);
   assert.equal(analysis.movement.defaultStepHeight, 1.25);
