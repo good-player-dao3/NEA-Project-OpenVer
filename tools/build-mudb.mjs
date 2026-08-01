@@ -20,6 +20,17 @@ function fail(message) {
   process.exit(1);
 }
 
+function describeProcessFailure(label, result) {
+  const details = [
+    `platform=${process.platform}`,
+    `node=${process.version}`,
+    `status=${result.status ?? "unavailable"}`,
+  ];
+  if (result.signal) details.push(`signal=${result.signal}`);
+  if (result.error) details.push(`error=${result.error.message}`);
+  return `${label} failed (${details.join(", ")})`;
+}
+
 function collect(dir, extension, files = []) {
   if (!existsSync(dir)) return files;
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -76,7 +87,9 @@ function installToolchain() {
     cwd: toolchainRoot,
     stdio: "inherit",
     });
-  if (install.status !== 0) fail("could not install the TypeScript toolchain; the first build needs network access");
+  if (install.status !== 0) {
+    fail(`${describeProcessFailure("TypeScript toolchain installation", install)}; the first build needs network access`);
+  }
 }
 
 function writeProjectConfig(typeRoot) {
@@ -107,7 +120,7 @@ function build() {
 
   const configPath = writeProjectConfig(join(compiler.root, "node_modules", "@types"));
   const compile = spawnSync(process.execPath, [compiler.entry, "-p", configPath], { cwd: mudbRoot, stdio: "inherit" });
-  if (compile.status !== 0) fail("tsc could not build the mudb schema/stream layer");
+  if (compile.status !== 0) fail(describeProcessFailure("tsc build for the mudb schema/stream layer", compile));
 
   const state = outputState();
   if (!state.built) fail(`tsc reported success but ${state.reason}`);

@@ -14,6 +14,28 @@ permissions:
   contents: read
 
 jobs:
+  hygiene:
+    name: Check patch whitespace
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check changed whitespace
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          if [ -n "$BASE_SHA" ] && [ "$BASE_SHA" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$BASE_SHA^{commit}"; then
+            git diff --check "$BASE_SHA" "$HEAD_SHA"
+          else
+            git diff-tree --no-commit-id --check -r "$HEAD_SHA"
+          fi
+
   validate:
     name: Validate (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -55,6 +77,3 @@ jobs:
 
       - name: Test recovered protocol evidence
         run: node --test Middleware/runtime-compat/test/recovered-player-protocol.test.mjs
-
-      - name: Check patch whitespace
-        run: git diff --check HEAD^ HEAD
