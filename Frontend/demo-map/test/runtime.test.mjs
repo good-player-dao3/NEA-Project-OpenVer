@@ -1262,7 +1262,7 @@ test("RuntimeEntity properties and snapshots cannot diverge", () => {
 
 test("server lifecycle event objects retain historical fields", () => {
   const entity = Object.freeze({ id: "event-player" });
-  assert.deepEqual(createGameTickEvent(8, 7, 50, false), {
+  assert.deepEqual({ ...createGameTickEvent(8, 7, 50, false) }, {
     tick: 8,
     prevTick: 7,
     elapsedTimeMS: 50,
@@ -1271,12 +1271,12 @@ test("server lifecycle event objects retain historical fields", () => {
   });
   assert.deepEqual(createTickTiming(8, 7, 1_250, 1_100), { elapsedTimeMS: 150, skip: false });
   assert.deepEqual(createTickTiming(11, 8, 1_500, 1_250), { elapsedTimeMS: 250, skip: true });
-  assert.deepEqual(createGameEntityEvent(8, entity), {
+  assert.deepEqual({ ...createGameEntityEvent(8, entity) }, {
     tick: 8,
     entity,
     player: entity,
   });
-  assert.deepEqual(createGameDamageEvent(9, entity, 25), {
+  assert.deepEqual({ ...createGameDamageEvent(9, entity, 25) }, {
     tick: 9,
     entity,
     attacker: null,
