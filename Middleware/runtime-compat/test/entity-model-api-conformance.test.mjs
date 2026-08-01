@@ -5,7 +5,7 @@ import { createRuntimeEntity } from "../../../Frontend/demo-map/src/runtime/scri
 import { entityModelApiConformance } from "../conformance/entity-model-api.mjs";
 
 const runtimeSource = await readFile(new URL("../../../Frontend/demo-map/src/runtime/script-runtime.mjs", import.meta.url), "utf8");
-const backendSource = await readFile(new URL("../../local-player/backend/box3-server.cjs", import.meta.url), "utf8");
+const backendSource = await readFile(new URL("../../../Backend/local-player/backend/box3-server.cjs", import.meta.url), "utf8");
 
 test("RuntimeEntity model properties preserve recovered defaults and ranges", () => {
   const entity = createRuntimeEntity({ id: "model-api" });
