@@ -339,7 +339,7 @@ test("preserves captured source tags outside the project-package carrier grammar
     source: { name: "captured-tag-entity", tags: [".native", "MixedCase", "safe-tag"] },
   }] }), "utf8");
   await writeFile(join(output, "scripts", "server.js"), `
-    const entity = world.querySelector("#captured-tag-entity");
+    const entity = world.querySelector("entity");
     if (!entity.hasTag(".native") || !entity.hasTag("MixedCase")) throw new Error("captured source tags missing");
     if (!entity.hasTag("safe-tag") || !entity.hasTag("id-source-tags")) throw new Error("carrier tags missing");
   `, "utf8");
