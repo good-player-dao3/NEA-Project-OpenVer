@@ -11,10 +11,10 @@ const localShared = JSON.parse(await readFile(resolve(root, "generated", "local-
 const current = JSON.parse(await readFile(resolve(root, "abi", "current-runtime.json"), "utf8"));
 
 await writeCatalog("client", docs.entries.filter(entry => entry.side === "client"), playerClient.entries, current.entries.filter(entry => entry.side === "client"), playerClient.unavailable ?? []);
-await writeCatalog("server", docs.entries.filter(entry => entry.side === "server"), [...origin.entries, ...localServer.entries], current.entries.filter(entry => entry.side === "server"));
+await writeCatalog("server", docs.entries.filter(entry => entry.side === "server"), [...origin.entries, ...localServer.entries], current.entries.filter(entry => entry.side === "server"), [], true);
 await writeCatalog("shared", docs.entries.filter(entry => entry.side === "shared"), localShared.entries, current.entries.filter(entry => entry.side === "shared"));
 
-async function writeCatalog(side, declared, recovered, implemented, unavailable = []) {
+async function writeCatalog(side, declared, recovered, implemented, unavailable = [], propagateImplements = false) {
   const merged = new Map();
   for (const entry of [...declared, ...recovered, ...implemented]) {
     const previous = merged.get(entry.id);
@@ -30,6 +30,9 @@ async function writeCatalog(side, declared, recovered, implemented, unavailable 
       notes: [...new Set([...(previous.notes ?? []), ...(entry.notes ?? [])])],
       evidence: deduplicateEvidence([...(previous.evidence ?? []), ...(entry.evidence ?? [])]),
     });
+  }
+  if (propagateImplements) {
+    propagateImplementedCompatibility(merged, recovered, side);
   }
   for (const item of unavailable) {
     const previous = merged.get(item.id);
@@ -52,6 +55,24 @@ async function writeCatalog(side, declared, recovered, implemented, unavailable 
     entries,
   }, null, 2)}\n`);
   console.log(`Composed ${side} runtime catalog with ${entries.length} entries.`);
+}
+
+function propagateImplementedCompatibility(merged, entries, side) {
+  for (const entry of entries) {
+    for (const canonicalId of entry.implements ?? []) {
+      const canonical = merged.get(canonicalId);
+      if (!canonical) {
+        continue;
+      }
+      merged.set(canonicalId, {
+        ...canonical,
+        availability: strongestAvailability(canonical.availability, entry.availability),
+        compatibility: strongestCompatibility(canonical.compatibility, entry.compatibility),
+        notes: [...new Set([...(canonical.notes ?? []), ...(entry.notes ?? [])])],
+        evidence: deduplicateEvidence([...(canonical.evidence ?? []), ...(entry.evidence ?? [])]),
+      });
+    }
+  }
 }
 
 function strongestAvailability(left, right) {
