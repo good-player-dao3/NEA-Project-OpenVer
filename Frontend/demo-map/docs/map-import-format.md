@@ -2,6 +2,8 @@
 
 `nea-map/v1` is the editable creator-facing source format. The importer validates it and emits a deterministic `dao3-project/v1` directory consumed by the recovered Player backend.
 
+Imports are transactional at the package-directory boundary: the importer reads source modules, assets, and capability inputs before creating a staging package, then replaces the requested output only after that package is complete. A failed import preserves an existing output package and does not create a new partial package.
+
 ## Root manifest
 
 The source root contains `nea.map.json`:

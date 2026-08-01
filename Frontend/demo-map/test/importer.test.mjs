@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { cp, mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { cp, mkdir, mkdtemp, readFile, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import test from "node:test";
@@ -142,4 +142,25 @@ test("imports and publishes complete server and client module sets", async () =>
   const uiManifest = JSON.parse(await readFile(join(assets, publishedUi), "utf8"));
   assert.equal(uiManifest.sourceMessage, "gameUI.reset");
   assert.equal(uiManifest.uiTree.STATUS.name, "status");
+});
+
+test("failed imports preserve existing packages and do not create new packages", async () => {
+  const fixture = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const temporaryRoot = await mkdtemp(join(tmpdir(), "nea-map-transactional-import-"));
+  const source = join(temporaryRoot, "source");
+  const existingOutput = join(temporaryRoot, "existing-project");
+  const newOutput = join(temporaryRoot, "new-project");
+  await cp(fixture, source, { recursive: true });
+  await importMapProject(source, existingOutput);
+  const originalManifest = await readFile(join(existingOutput, "dao3.project.json"), "utf8");
+
+  const manifestPath = join(source, "nea.map.json");
+  const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+  manifest.scripts.serverModules = ["scripts/server.js", "scripts/missing.js"];
+  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+
+  await assert.rejects(importMapProject(source, existingOutput));
+  await assert.rejects(importMapProject(source, newOutput));
+  assert.equal(await readFile(join(existingOutput, "dao3.project.json"), "utf8"), originalManifest);
+  await assert.rejects(stat(newOutput));
 });

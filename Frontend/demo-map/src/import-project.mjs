@@ -1,5 +1,5 @@
-import { mkdir, open, readFile } from "node:fs/promises";
-import { dirname, extname, join, relative, resolve } from "node:path";
+import { mkdir, mkdtemp, open, readFile, rename, rm } from "node:fs/promises";
+import { basename, dirname, extname, join, relative, resolve } from "node:path";
 import { createHash } from "node:crypto";
 import { expandTerrain, loadMapSource, RUNTIME_API_VERSION } from "./format.mjs";
 import { buildRepositoryProjectCapabilityManifest } from "./project-capability.mjs";
@@ -7,20 +7,20 @@ import { buildRepositoryProjectCapabilityManifest } from "./project-capability.m
 export async function importMapProject(sourceRoot, outputRoot, options = {}) {
   const source = await loadMapSource(sourceRoot);
   const destination = resolve(outputRoot);
-  const terrain = expandTerrain(source.terrain);
-  const files = {
-    manifest: join(destination, "dao3.project.json"),
-    world: join(destination, "world", "world.json"),
-    terrain: join(destination, "world", "terrain.json"),
-    entities: join(destination, "world", "entities.json"),
-    physics: join(destination, "world", "physics.json"),
-    assets: join(destination, "assets", "index.json"),
-    scripts: join(destination, "scripts", "manifest.json"),
-    serverScript: join(destination, "scripts", "server.js"),
-    capabilityManifest: join(destination, "capabilities", "manifest.json"),
-  };
-  await Promise.all([mkdir(join(destination, "world"), { recursive: true }), mkdir(join(destination, "assets"), { recursive: true }), mkdir(join(destination, "scripts"), { recursive: true }), mkdir(join(destination, "capabilities"), { recursive: true })]);
+  const prepared = await prepareImport(source, options);
+  const staging = await createStagingDirectory(destination);
+  try {
+    await writeProjectPackage(staging, prepared);
+    await replaceProjectPackage(staging, destination);
+    return createImportResult(source, destination, prepared);
+  } catch (error) {
+    await rm(staging, { recursive: true, force: true });
+    throw error;
+  }
+}
 
+async function prepareImport(source, options) {
+  const terrain = expandTerrain(source.terrain);
   const serverModules = await readSourceModules(source.root, source.manifest.scripts.serverModules, modulePath => modulePath);
   const clientModules = await readSourceModules(source.root, source.manifest.scripts.clientModules, modulePath => clientModuleName(source.manifest.scripts.client, modulePath));
   const assets = await readSourceAssets(source.root, source.assets);
@@ -43,6 +43,23 @@ export async function importMapProject(sourceRoot, outputRoot, options = {}) {
     projectIdentity: { projectName: source.manifest.display.name },
     worldConfig: { entityLimit: source.manifest.world.entityLimit },
   });
+  return { source, terrain, serverModules, clientModules, assets, clientScript, capabilityManifest };
+}
+
+async function writeProjectPackage(destination, prepared) {
+  const { source, terrain, serverModules, assets, capabilityManifest } = prepared;
+  const files = {
+    manifest: join(destination, "dao3.project.json"),
+    world: join(destination, "world", "world.json"),
+    terrain: join(destination, "world", "terrain.json"),
+    entities: join(destination, "world", "entities.json"),
+    physics: join(destination, "world", "physics.json"),
+    assets: join(destination, "assets", "index.json"),
+    scripts: join(destination, "scripts", "manifest.json"),
+    serverScript: join(destination, "scripts", "server.js"),
+    capabilityManifest: join(destination, "capabilities", "manifest.json"),
+  };
+  await Promise.all([mkdir(join(destination, "world"), { recursive: true }), mkdir(join(destination, "assets"), { recursive: true }), mkdir(join(destination, "scripts"), { recursive: true }), mkdir(join(destination, "capabilities"), { recursive: true })]);
 
   await writeJson(files.manifest, {
     formatVersion: "dao3-project/v1",
@@ -99,7 +116,10 @@ export async function importMapProject(sourceRoot, outputRoot, options = {}) {
   });
   await Promise.all(serverModules.map(module => writeFileInPlace(resolve(destination, module.name), module.source)));
   await Promise.all(assets.map(asset => writeFileInPlace(resolve(destination, asset.packagePath), asset.bytes)));
+}
 
+function createImportResult(source, destination, prepared) {
+  const { terrain, serverModules, clientModules, assets, clientScript, capabilityManifest } = prepared;
   return Object.freeze({
     sourceRoot: source.root,
     outputRoot: destination,
@@ -116,6 +136,31 @@ export async function importMapProject(sourceRoot, outputRoot, options = {}) {
     clientUiState: source.ui,
     capabilityManifest,
   });
+}
+
+async function createStagingDirectory(destination) {
+  const parent = dirname(destination);
+  const prefix = `.${basename(destination)}.staging-`;
+  await mkdir(parent, { recursive: true });
+  return mkdtemp(join(parent, prefix));
+}
+
+async function replaceProjectPackage(staging, destination) {
+  const backup = join(dirname(destination), `.${basename(destination)}.backup-${Date.now()}-${process.pid}`);
+  let movedPrevious = false;
+  try {
+    await rename(destination, backup);
+    movedPrevious = true;
+  } catch (error) {
+    if (error?.code !== "ENOENT") throw error;
+  }
+  try {
+    await rename(staging, destination);
+  } catch (error) {
+    if (movedPrevious) await rename(backup, destination);
+    throw error;
+  }
+  if (movedPrevious) await rm(backup, { recursive: true, force: true });
 }
 
 async function readSourceAssets(root, assets) {
