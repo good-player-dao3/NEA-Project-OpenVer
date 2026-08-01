@@ -11,12 +11,12 @@ test("unified Runtime and conformance code contain no private work branches", as
   const paths = [
     "Frontend/demo-map/src/runtime/script-runtime.mjs",
     "Frontend/demo-map/src/runtime/game-voxels.mjs",
-    "local-player/src/block-info.mjs",
+    "Backend/local-player/src/block-info.mjs",
     "Middleware/runtime-compat/conformance/client-remote-channel.mjs",
     "Middleware/runtime-compat/conformance/client-ui-tree.mjs",
     "Middleware/runtime-compat/tools/build-script-corpus-gap-report.mjs",
     "Middleware/runtime-compat/tools/build-capability-gate-audit.mjs",
-    "preservation-dump/build-editor-runtime-package.mjs",
+    "Evidence/preservation-dump/build-editor-runtime-package.mjs",
   ];
   for (const path of paths) {
     const source = await readFile(resolve(repositoryRoot, path), "utf8");
@@ -26,7 +26,7 @@ test("unified Runtime and conformance code contain no private work branches", as
 
 test("Demo disables legacy gameplay adapters while retaining the generic bridge", async () => {
   const demoServer = await readFile(resolve(repositoryRoot, "Frontend/demo-map/src/server.mjs"), "utf8");
-  const backend = await readFile(resolve(repositoryRoot, "local-player/backend/box3-server.cjs"), "utf8");
+  const backend = await readFile(resolve(repositoryRoot, "Backend/local-player/backend/box3-server.cjs"), "utf8");
   assert.match(demoServer, /BOX3_DISABLE_LEGACY_GAMEPLAY: "1"/);
   assert.match(demoServer, /const blockCatalog = await loadPreservedBlockCatalog\(assetRoot, worldManifestName\)/);
   assert.match(demoServer, /ScriptRuntime\.load\(buildRoot, \{[\s\S]*blockCatalog,/);
