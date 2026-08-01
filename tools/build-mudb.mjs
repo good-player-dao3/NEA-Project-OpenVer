@@ -86,6 +86,8 @@ function installToolchain() {
     : spawnSync(process.platform === "win32" ? "npm.cmd" : "npm", npmArguments, {
     cwd: toolchainRoot,
     stdio: "inherit",
+    // Windows batch launchers require a shell when Node invokes them directly.
+    shell: process.platform === "win32",
     });
   if (install.status !== 0) {
     fail(`${describeProcessFailure("TypeScript toolchain installation", install)}; the first build needs network access`);
