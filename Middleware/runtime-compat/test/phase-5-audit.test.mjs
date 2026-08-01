@@ -12,13 +12,15 @@ test("phase 5 audit covers every objective requirement", () => {
     "player-posture-shapes",
     "terrain-contact-rules",
     "version-capability-conformance",
+    "project-capability-launch-gate",
     "demo-contract-bindings",
     "gap-report",
   ]);
-  assert.equal(audit.requirements.filter(requirement => requirement.status === "complete").length, 8);
+  assert.equal(audit.requirements.filter(requirement => requirement.status === "complete").length, 9);
   const apiAbi = audit.requirements.find(requirement => requirement.id === "machine-readable-api-abi");
   assert.equal(apiAbi.status, "complete");
   assert.ok(apiAbi.evidence.some(item => item.path === "Middleware/runtime-compat/generated/api-abi-completeness.json" && item.finding.status === "complete"));
+  assert.equal(audit.requirements.find(requirement => requirement.id === "project-capability-launch-gate")?.status, "complete");
 });
 
 test("audit completes the explicit null posture contract without claiming historical dimensions", () => {

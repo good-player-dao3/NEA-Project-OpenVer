@@ -1,9 +1,9 @@
 {
   "format": "nea-runtime-compatibility-phase-audit",
   "version": 1,
-  "generatedAt": "2026-07-31T09:27:03.222Z",
+  "generatedAt": "2026-08-01T01:46:10.808Z",
   "phase": 5,
-  "overallStatus": "partial",
+  "overallStatus": "complete",
   "requirements": [
     {
       "id": "layered-architecture",
@@ -11,7 +11,7 @@
       "conclusion": "Client Script Runtime, Server Script Runtime, MuDB transport and authoritative state are separate layers.",
       "evidence": [
         {
-          "path": "runtime-compat/abi/runtime-contracts.json",
+          "path": "Middleware/runtime-compat/abi/runtime-contracts.json",
           "finding": [
             "project-package",
             "client-script-runtime",
@@ -21,7 +21,7 @@
           ]
         },
         {
-          "path": "runtime-compat/abi/script-runtime-boundaries.json",
+          "path": "Middleware/runtime-compat/abi/script-runtime-boundaries.json",
           "finding": "Client Script Runtime and Server Script Runtime are separate execution realms connected only through declared transport and authoritative state flows."
         }
       ]
@@ -32,7 +32,7 @@
       "conclusion": "Every locally documented canonical declaration, kind-qualified member signature and recovered MuDB message has an explicit machine-readable record with availability, compatibility and evidence.",
       "evidence": [
         {
-          "path": "runtime-compat/generated/api-abi-completeness.json",
+          "path": "Middleware/runtime-compat/generated/api-abi-completeness.json",
           "finding": {
             "status": "complete",
             "summary": {
@@ -49,7 +49,7 @@
               },
               "catalogs": {
                 "client": 133,
-                "server": 1144,
+                "server": 1158,
                 "shared": 131
               },
               "compatibilityMatrix": {
@@ -69,21 +69,21 @@
           }
         },
         {
-          "path": "runtime-compat/abi/compatibility-matrix.json",
+          "path": "Middleware/runtime-compat/abi/compatibility-matrix.json",
           "finding": {
             "declarations": 599,
             "byStatus": {
               "native": 125,
               "compatible": 131,
-              "partial": 122,
+              "partial": 136,
               "recovered-only": 93,
               "unavailable": 1,
-              "declared-only": 127
+              "declared-only": 113
             }
           }
         },
         {
-          "path": "runtime-compat/abi/protocols.json",
+          "path": "Middleware/runtime-compat/abi/protocols.json",
           "finding": {
             "protocols": 32,
             "messages": 180,
@@ -101,7 +101,7 @@
       "conclusion": "Historical standing Player body dimensions and body-center coordinates replace the unsupported 0.6x1.8x0.6 assumption.",
       "evidence": [
         {
-          "path": "runtime-compat/abi/physics-player-body.json",
+          "path": "Middleware/runtime-compat/abi/physics-player-body.json",
           "finding": {
             "origin": "body-center",
             "halfExtents": [
@@ -125,7 +125,7 @@
       "conclusion": "Crouch/fly state encoding and client motor behavior are recovered; unavailable historical shapes are explicit null fields and the local runtime preserves the current collider instead of synthesizing dimensions.",
       "evidence": [
         {
-          "path": "runtime-compat/abi/physics-player-posture.json",
+          "path": "Middleware/runtime-compat/abi/physics-player-posture.json",
           "finding": {
             "crouching": {
               "stateStatus": "confirmed",
@@ -182,7 +182,7 @@
           }
         },
         {
-          "path": "runtime-compat/generated/legacy-worktree-posture-inventory.json",
+          "path": "Middleware/runtime-compat/generated/legacy-worktree-posture-inventory.json",
           "finding": {
             "clientShapeWrites": [],
             "legacyProducer": "local-reproduction-not-historical-evidence",
@@ -190,7 +190,7 @@
           }
         },
         {
-          "path": "runtime-compat/generated/posture-delta-corpus-inventory.json",
+          "path": "Middleware/runtime-compat/generated/posture-delta-corpus-inventory.json",
           "finding": {
             "captures": 9,
             "clientToServerBinaryFrames": 1864,
@@ -201,7 +201,7 @@
           }
         },
         {
-          "path": "runtime-compat/generated/authoritative-runtime-evidence-coverage.json",
+          "path": "Middleware/runtime-compat/generated/authoritative-runtime-evidence-coverage.json",
           "finding": {
             "indexedSourceSets": [
               "origin-server-runtime",
@@ -224,7 +224,7 @@
       "conclusion": "Terrain contact axes, grounded support selection, force fields and active ContactRecord schemas are recovered.",
       "evidence": [
         {
-          "path": "runtime-compat/abi/physics-player-body.json",
+          "path": "Middleware/runtime-compat/abi/physics-player-body.json",
           "finding": {
             "wireQuantization": 0.00390625,
             "contactCutoff": 0.0009765625,
@@ -235,7 +235,7 @@
           }
         },
         {
-          "path": "runtime-compat/abi/contact-event-model.json",
+          "path": "Middleware/runtime-compat/abi/contact-event-model.json",
           "finding": {
             "axis": {
               "entityWire": "nx/ny/nz are reconstructed directly as GameVector3",
@@ -365,7 +365,7 @@
       "conclusion": "API version, runtime contracts, side-qualified capabilities, compatibility levels and conformance fixtures are enforced.",
       "evidence": [
         {
-          "path": "runtime-compat/abi/runtime-contracts.json",
+          "path": "Middleware/runtime-compat/abi/runtime-contracts.json",
           "finding": {
             "apiVersion": "0.1.0",
             "contracts": [
@@ -375,7 +375,7 @@
           }
         },
         {
-          "path": "runtime-compat/abi/compatibility-matrix.json",
+          "path": "Middleware/runtime-compat/abi/compatibility-matrix.json",
           "finding": {
             "native": "Executable in the historical runtime provider with direct evidence.",
             "compatible": "Executable locally with conformance evidence sufficient for the documented contract.",
@@ -386,7 +386,7 @@
           }
         },
         {
-          "path": "runtime-compat/conformance/entity-tag-api.mjs",
+          "path": "Middleware/runtime-compat/conformance/entity-tag-api.mjs",
           "finding": {
             "compatible": [
               "GameEntity.addTag",
@@ -399,7 +399,7 @@
           }
         },
         {
-          "path": "runtime-compat/conformance/world-collision-filter-api.mjs",
+          "path": "Middleware/runtime-compat/conformance/world-collision-filter-api.mjs",
           "finding": {
             "partial": [
               "GameWorld.addCollisionFilter",
@@ -413,11 +413,11 @@
     },
     {
       "id": "project-capability-launch-gate",
-      "status": "partial",
+      "status": "complete",
       "conclusion": "Capability Manifest v14 binds analyzed scripts, grants, UI, resources, entities, storage group scope, project identity, world entity-limit configuration, static server sound samples and semantic Runtime ABI artifacts to the actual package before publication or execution; sound calls additionally require the evidenced player.sound transport, while exact player lifecycle payloads may be project-ready even though the global player ABI remains partial because accessed members are independently gated.",
       "evidence": [
         {
-          "path": "runtime-compat/abi/runtime-contracts.json",
+          "path": "Middleware/runtime-compat/abi/runtime-contracts.json",
           "finding": {
             "format": "nea-project-capability-manifest",
             "version": 14,
@@ -502,7 +502,7 @@
           }
         },
         {
-          "path": "demo-map/src/capability-launch-gate.mjs",
+          "path": "Frontend/demo-map/src/capability-launch-gate.mjs",
           "finding": {
             "version": 14,
             "inputs": [
@@ -532,7 +532,7 @@
           }
         },
         {
-          "path": "runtime-compat/conformance/player-lifecycle-project-refinement.mjs",
+          "path": "Middleware/runtime-compat/conformance/player-lifecycle-project-refinement.mjs",
           "finding": [
             {
               "id": "player-lifecycle-event-payload",
@@ -549,7 +549,7 @@
           ]
         },
         {
-          "path": "runtime-compat/conformance/world-project-identity.mjs",
+          "path": "Middleware/runtime-compat/conformance/world-project-identity.mjs",
           "finding": {
             "compatible": "GameWorld.projectName",
             "excluded": [
@@ -558,9 +558,6 @@
             ]
           }
         }
-      ],
-      "remaining": [
-        "Capability Manifest v14 architecture contract or startup ordering is incomplete."
       ]
     },
     {
@@ -569,7 +566,7 @@
       "conclusion": "Demo client.js and server.js bind separate declared runtime contracts and capabilities.",
       "evidence": [
         {
-          "path": "runtime-compat/abi/runtime-contracts.json",
+          "path": "Middleware/runtime-compat/abi/runtime-contracts.json",
           "finding": [
             {
               "side": "client",
@@ -591,25 +588,23 @@
       "conclusion": "The generated gap report uses the same canonical compatibility matrix classification.",
       "evidence": [
         {
-          "path": "runtime-compat/generated/gap-report.json",
+          "path": "Middleware/runtime-compat/generated/gap-report.json",
           "finding": {
-            "executable": 378,
+            "executable": 392,
             "compatibilityStatus": {
               "native": 125,
               "compatible": 131,
-              "partial": 122,
+              "partial": 136,
               "recovered-only": 93,
               "unavailable": 1,
-              "declared-only": 127
+              "declared-only": 113
             }
           }
         }
       ]
     }
   ],
-  "remainingEvidenceGaps": [
-    "Capability Manifest v14 architecture contract or startup ordering is incomplete."
-  ],
+  "remainingEvidenceGaps": [],
   "deferredEvidence": [
     {
       "id": "player-posture-authoritative-shapes",
