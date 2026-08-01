@@ -99,6 +99,43 @@ test("connects the demo ready acknowledgement through the historical client Remo
   });
 });
 
+test("completes the directed pointer-lock acknowledgement loop", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-ui-loop-")), "project");
+  await importMapProject(source, output);
+
+  let runtime;
+  let player;
+  const received = [];
+  const clientRemoteChannel = new HistoricalClientRemoteChannelFixture({
+    getTick: () => runtime.currentTick,
+    sendPacket: packet => {
+      const decoded = decodeHistoricalClientEvent(packet);
+      assert.ok(decoded);
+      assert.equal(runtime.dispatchClientEvent(player.id, decoded.event), true);
+    },
+  });
+  runtime = await ScriptRuntime.load(output, {
+    blockCatalog,
+    logger: { info() {}, warn() {}, error() {} },
+    sendClientEvent: (_playerId, event) => {
+      clientRemoteChannel.receivePacket(encodeHistoricalServerEvent(runtime.currentTick, event));
+    },
+  });
+  await runtime.start();
+  player = runtime.addPlayer({ id: "ui-loop-player", name: "Guest" });
+  clientRemoteChannel.events.on("client", event => received.push(event));
+  clientRemoteChannel.start();
+
+  clientRemoteChannel.sendServerEvent({ type: "nea-demo:ready", runtimeApiVersion: "0.1.0" });
+  clientRemoteChannel.sendServerEvent({ type: "nea-demo:pointer-lock", isLocked: true });
+  runtime.stop();
+
+  assert.deepEqual(received.filter(event => event.type === "nea-demo:pointer-lock-ack"), [
+    { type: "nea-demo:pointer-lock-ack", isLocked: true },
+  ]);
+});
+
 test("provides the recovered GameConsole method surface", async () => {
   const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
   const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-console-")), "project");

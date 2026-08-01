@@ -109,6 +109,12 @@ remoteChannel.onServerEvent(({ entity: player, args: event }) => {
       message: "server runtime received client ready",
     });
   }
+  if (event?.type === "nea-demo:pointer-lock") {
+    remoteChannel.sendClientEvent(player, {
+      type: "nea-demo:pointer-lock-ack",
+      isLocked: Boolean(event.isLocked),
+    });
+  }
   if (event?.type === "nea-demo:probe-interactions") {
     player.position = [25, 5, 38];
     player.velocity = [0, 0, 0];

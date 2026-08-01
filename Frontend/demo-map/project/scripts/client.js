@@ -146,6 +146,20 @@ remoteChannel.events.on("client", event => {
   }
   if (event?.type === "nea-demo:ack") {
     console.log(`[NEA Demo] ${event.message}`);
+    lastServerStatus = "server: client ready acknowledged";
+    updateRuntimeStatus([
+      "client: dao3-client-runtime/v1",
+      lastServerStatus,
+      "input: waiting",
+    ]);
+  }
+  if (event?.type === "nea-demo:pointer-lock-ack") {
+    const pointerStatus = event.isLocked ? "input: pointer locked" : "input: pointer unlocked";
+    updateRuntimeStatus([
+      "client: dao3-client-runtime/v1",
+      lastServerStatus,
+      pointerStatus,
+    ]);
   }
   if (event?.type === "nea-demo:bounce") {
     console.log(`[NEA Demo] server physics bounce at ${event.position.join(",")}`);
