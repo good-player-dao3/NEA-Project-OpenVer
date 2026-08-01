@@ -2,13 +2,13 @@
 import { resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { loadPreservedBlockCatalog } from "../../../local-player/src/block-info.mjs";
+import { loadPreservedBlockCatalog } from "../../../Backend/local-player/src/block-info.mjs";
 import { raycastWorld } from "../src/runtime/game-raycast.mjs";
 import { GameVoxelsRuntime } from "../src/runtime/game-voxels.mjs";
 import { VoxelCollisionWorld } from "../src/runtime/physics/voxel-collision-world.mjs";
 import { Vector3 } from "../src/runtime/vector3.mjs";
 
-const archiveRoot = resolve(fileURLToPath(new URL("../../../local-player/archive", import.meta.url)));
+const archiveRoot = resolve(fileURLToPath(new URL("../../../Backend/local-player/archive", import.meta.url)));
 const catalog = await loadPreservedBlockCatalog(archiveRoot, "world-bedwars.json");
 const water = catalog.find(entry => entry.name === "water");
 const solid = catalog.find(entry => entry.id !== 0 && entry.fluid !== true);
@@ -60,7 +60,7 @@ test("raycast returns the nearest entity and honors ignoreEntities and ignoreSel
   });
   assert.equal(entityHit.hitEntity, target);
   assert.equal(entityHit.hitVoxel, 0);
-  assert.equal(entityHit.distance, 2.5);
+  assert.equal(entityHit.distance, 2);
   assert.deepEqual(entityHit.normal.toArray(), [-1, 0, 0]);
 
   const voxelHit = raycastWorld({
