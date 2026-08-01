@@ -14,7 +14,7 @@ const catalogs = {
 
 const gaps = [];
 const availabilityValues = new Set(["confirmed", "partial", "declared", "unknown", "unsupported"]);
-const compatibilityValues = new Set(["native", "bridged", "emulated", "missing"]);
+const compatibilityValues = new Set(["native", "compatible", "bridged", "emulated", "partial", "missing"]);
 const documentationSides = new Set(["client", "server", "shared"]);
 
 check(docs.version >= 2, "documentation", "catalog", "version", "member variants require documentation ABI version 2 or later");
