@@ -5,7 +5,7 @@ import { createRuntimeEntity } from "../../../Frontend/demo-map/src/runtime/scri
 import { entityNameplateApiConformance } from "../conformance/entity-nameplate-api.mjs";
 
 const runtimeSource = await readFile(new URL("../../../Frontend/demo-map/src/runtime/script-runtime.mjs", import.meta.url), "utf8");
-const backendSource = await readFile(new URL("../../local-player/backend/box3-server.cjs", import.meta.url), "utf8");
+const backendSource = await readFile(new URL("../../../Backend/local-player/backend/box3-server.cjs", import.meta.url), "utf8");
 
 test("RuntimeEntity nameplate properties preserve recovered defaults and validation", () => {
   const entity = createRuntimeEntity({ id: "nameplate-api" });
