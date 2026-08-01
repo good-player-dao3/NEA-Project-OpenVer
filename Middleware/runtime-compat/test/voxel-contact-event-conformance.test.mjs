@@ -35,7 +35,7 @@ test("Capability Manifest propagates inline and named voxel-contact event parame
       entity.onVoxelContact(contact => { contact.tick; });
     ` }],
     clientModules: [],
-    serverCapabilities: ["server.world.events"],
+    serverCapabilities: ["server.world.events", "server.world.entities"],
     clientCapabilities: [], assets: [], entities: [], uiState: null,
   });
 
