@@ -105,10 +105,16 @@ test("legacy compatibility player body identity is excluded as size evidence", a
 
 test("gap report counts recovered Player and origin contracts", async () => {
   const report = JSON.parse(await readFile(resolve(root, "generated", "gap-report.json"), "utf8"));
+  const serverCatalog = JSON.parse(await readFile(resolve(root, "abi", "server-runtime.json"), "utf8"));
+  const serverStatus = {};
+  for (const entry of serverCatalog.entries) {
+    const key = `${entry.availability}/${entry.compatibility}`;
+    serverStatus[key] = (serverStatus[key] ?? 0) + 1;
+  }
   assert.ok(report.summary.currentContractEntries >= 70);
   assert.ok(report.summary.recoveredContractEntries >= 70);
   assert.ok(report.summary.exactIdMatches >= 20);
-  assert.ok(report.summary.catalogStatus.server["confirmed/missing"] >= 600);
+  assert.deepEqual(report.summary.catalogStatus.server, serverStatus);
   assert.ok(report.covered.includes("client.global.remoteChannel"));
   assert.ok(report.covered.includes("client.ClientMedia.startRecording"));
   assert.equal(report.evidenceGaps.playerPostureShapes.status, "not-found-in-indexed-local-evidence");
