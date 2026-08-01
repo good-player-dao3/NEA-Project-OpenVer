@@ -1060,14 +1060,13 @@ test("entity-interact messages dispatch the recovered event to target before wor
   await importMapProject(source, output);
   await writeFile(join(output, "scripts", "server.js"), `
     const target = world.querySelector(".interactable");
-    globalThis.interactOrder = [];
     target.onInteract(event => {
-      interactOrder.push("target");
+      event.entity.interactOrder = ["target"];
       event.entity.interactEvent = event;
       event.entity.targetInteract = { tick: event.tick, entity: event.entity.id, targetEntity: event.targetEntity.id };
     });
     world.onInteract(event => {
-      interactOrder.push("world");
+      event.entity.interactOrder.push("world");
       event.entity.worldInteract = event === event.entity.interactEvent;
     });
   `, "utf8");
@@ -1079,7 +1078,7 @@ test("entity-interact messages dispatch the recovered event to target before wor
   assert.equal(runtime.dispatchInteract(player.id, 9999999, 16), false);
   assert.deepEqual(JSON.parse(JSON.stringify(player.targetInteract)), { tick: 15.25, entity: "interact-player", targetEntity: "central-beacon" });
   assert.equal(player.worldInteract, true);
-  assert.deepEqual(runtime.context.interactOrder, ["target", "world"]);
+  assert.deepEqual(Array.from(player.interactOrder), ["target", "world"]);
   runtime.stop();
 });
 
