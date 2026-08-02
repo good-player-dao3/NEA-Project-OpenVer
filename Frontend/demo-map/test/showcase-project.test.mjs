@@ -32,4 +32,6 @@ test("showcase imports through the same transactional package path", async t => 
   const serverScript = await readFile(join(outputRoot, "scripts", "server.js"), "utf8");
   assert.match(serverScript, /showcase:set-physics/);
   assert.match(serverScript, /evidence-deferred/);
+  assert.match(serverScript, /world\.onClick/);
+  assert.match(serverScript, /lab\.onClick/);
 });
