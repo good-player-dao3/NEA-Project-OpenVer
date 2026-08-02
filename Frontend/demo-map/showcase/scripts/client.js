@@ -60,6 +60,7 @@ remoteChannel.events.on("client", event => {
   if (event?.type === "showcase:broadcast") lines.push("broadcast: received");
   if (event?.type === "showcase:deferred") lines.push(`deferred: ${event.items.map(item => item.id).join(", ")}`);
   if (event?.type === "showcase:contact") lines.push(`contact: ${event.kind} (${event.forceStatus})`);
+  if (event?.type === "showcase:click") lines.push(`click: ${event.scope} target=${event.targetId} button=${event.button}`);
   render();
 });
 

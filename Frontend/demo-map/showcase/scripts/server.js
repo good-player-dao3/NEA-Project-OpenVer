@@ -80,6 +80,24 @@ world.onTriggerLeave(({ player, trigger }) => {
   send(player, { type: "showcase:trigger", phase: "leave", triggerId: trigger.id, status: "verified" });
 });
 
+world.onClick(({ clicker, entity, button, distance, raycast }) => {
+  send(clicker, {
+    type: "showcase:click",
+    scope: "world",
+    targetId: entity.id,
+    button,
+    distance,
+    hitVoxel: raycast.hitVoxel,
+    status: "verified",
+  });
+});
+
+for (const lab of world.querySelectorAll(".api-lab")) {
+  lab.onClick(({ clicker, entity, button }) => {
+    send(clicker, { type: "showcase:click", scope: "entity", targetId: entity.id, button, status: "verified" });
+  });
+}
+
 world.onTick(({ tick }) => {
   if (tick % 100 === 0) {
     for (const player of world.querySelectorAll("player")) send(player, { type: "showcase:tick", currentTick: tick, physics: { gravity: world.gravity, airFriction: world.airFriction } });
