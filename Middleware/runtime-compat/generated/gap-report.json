@@ -1,14 +1,14 @@
 {
   "format": "nea-runtime-gap-report",
   "version": 1,
-  "generatedAt": "2026-08-01T01:41:36.295Z",
+  "generatedAt": "2026-08-02T05:17:49.949Z",
   "summary": {
     "documentedDeclarations": 599,
-    "currentContractEntries": 639,
-    "recoveredContractEntries": 728,
+    "currentContractEntries": 648,
+    "recoveredContractEntries": 737,
     "exactIdMatches": 392,
     "documentedMissing": 207,
-    "localExtensions": 265,
+    "localExtensions": 273,
     "bySide": {
       "client": {
         "declared": 126,
@@ -33,9 +33,9 @@
       },
       "server": {
         "confirmed/emulated": 48,
-        "confirmed/missing": 451,
+        "confirmed/missing": 442,
         "declared/missing": 111,
-        "confirmed/partial": 485,
+        "confirmed/partial": 494,
         "confirmed/compatible": 61,
         "confirmed/bridged": 2
       }
@@ -735,6 +735,14 @@
     "server.GameGUI.setAttribute",
     "server.GameGUI.show",
     "server.GameGUI.ui",
+    "server.GameHttpFetchResponse.arrayBuffer",
+    "server.GameHttpFetchResponse.close",
+    "server.GameHttpFetchResponse.headers",
+    "server.GameHttpFetchResponse.json",
+    "server.GameHttpFetchResponse.ok",
+    "server.GameHttpFetchResponse.status",
+    "server.GameHttpFetchResponse.statusText",
+    "server.GameHttpFetchResponse.text",
     "server.global.GameButtonType",
     "server.global.gui",
     "server.object.GameEventHandlerToken",

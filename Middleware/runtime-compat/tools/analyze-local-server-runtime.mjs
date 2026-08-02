@@ -21,6 +21,8 @@ const relativeGameSelectorPath = "Frontend/demo-map/src/runtime/game-selector.mj
 const gameSelectorSource = await readFile(resolve(repositoryRoot, relativeGameSelectorPath), "utf8");
 const relativeGameGuiPath = "Frontend/demo-map/src/runtime/game-gui.mjs";
 const gameGuiSource = await readFile(resolve(repositoryRoot, relativeGameGuiPath), "utf8");
+const relativeGameHttpPath = "Frontend/demo-map/src/runtime/game-http.mjs";
+const gameHttpSource = await readFile(resolve(repositoryRoot, relativeGameHttpPath), "utf8");
 const relativeGameStoragePath = "Frontend/demo-map/src/runtime/game-storage.mjs";
 const gameStorageSource = await readFile(resolve(repositoryRoot, relativeGameStoragePath), "utf8");
 const relativeGameWorldPath = "Frontend/demo-map/src/runtime/game-world.mjs";
@@ -114,7 +116,6 @@ const requiredMarkers = [
   "onEntityCreate: handler => this.#listen(\"server.world.events\", this.#signals.entityCreate, handler)",
   "onEntityDestroy: handler => this.#listen(\"server.world.events\", this.#signals.entityDestroy, handler)",
   "#projectEntity(entity)",
-  "function runtimeEntityProjectionPayload(entity)",
   "set position(value) { this._position.copy(Vector3.from(value)); this._runtime?._entityTransformChanged(this); }",
   "set velocity(value) { this._velocity.copy(Vector3.from(value)); this._runtime?._entityTransformChanged(this); }",
   "get tags() { return this._tags; }",
@@ -135,13 +136,16 @@ for (const marker of requiredMarkers) {
 for (const marker of ["export class GameWorld", "this.fogColor = new GameRGBColor(1, 1, 1)", "this.gravity = -0.1", "this.airFriction = 0.001"]) {
   if (!gameWorldSource.includes(marker)) throw new Error(`Local GameWorld value shell no longer contains ${marker}`);
 }
+for (const marker of ["export class GameHttpFetchResponse", "export function createRuntimeHttpClient", "allowedOrigins", "AbortSignal.timeout"]) {
+  if (!gameHttpSource.includes(marker)) throw new Error(`Local GameHttp Runtime no longer contains ${marker}`);
+}
 for (const marker of ["export class RuntimeGameZone", "export class GameZoneSystem", "add(config = {})", "poll(tick, entities)"]) {
   if (!gameZonesSource.includes(marker)) throw new Error(`Local GameZone Runtime no longer contains ${marker}`);
 }
 for (const marker of ["export class GameGuiRuntime", 'this.init = (entity, config) =>', 'this.remove = (entity, selector) =>', 'this.getAttribute = (entity, selector, name) =>', 'this.setAttribute = (entity, selector, name, value) =>', "this.onMessage = listener =>", "this.ui = new Proxy"]) {
   if (!gameGuiSource.includes(marker)) throw new Error(`Local GameGUI Runtime no longer contains ${marker}`);
 }
-for (const marker of ["export class LocalGameStorage", "export class RuntimeDataStorage", "export class RuntimeQueryList", "#mutationQueue = Promise.resolve()", "#mutate(operation)", "isJsonValue(value, ancestors)", "Number.isFinite(value)", "Object.getOwnPropertySymbols(value)", "this.getDataStorage = key =>", "group:${groupId}:${key}", "set: (itemKey, value) =>", "update: (itemKey, handler) =>", "increment: (itemKey, value = 1) =>", "list: (options = {}) =>", "parseConstraintTarget", "resolveConstraintTarget", "compareStorageTargets", "Math.min(100", "remove: itemKey =>", "destroy: () =>", "const start = page * pageSize", "if (next.items.length > 0) this.#items = next.items"]) {
+for (const marker of ["export class LocalGameStorage", "export class RuntimeDataStorage", "export class RuntimeQueryList", "#mutationQueue = Promise.resolve()", "#mutate(apply)", "isJsonValue(value, ancestors)", "Number.isFinite(value)", "Object.getOwnPropertySymbols(value)", "this.getDataStorage = key =>", "group:${groupId}:${key}", "set: (itemKey, value) =>", "update: (itemKey, handler) =>", "increment: (itemKey, value = 1) =>", "list: (options = {}) =>", "parseConstraintTarget", "resolveConstraintTarget", "compareStorageTargets", "Math.min(100", "remove: itemKey =>", "destroy: () =>", "const start = page * pageSize", "if (next.items.length > 0) this.#items = next.items"]) {
   if (!gameStorageSource.includes(marker)) throw new Error(`Local GameStorage Runtime no longer contains ${marker}`);
 }
 for (const marker of ["export class RuntimeRaycastResult", "export function raycastWorld", "return new RuntimeRaycastResult", "options?.ignoreVoxel === true", "options?.ignoreFluid === true", "options?.ignoreEntities === true", "options?.ignoreSelector", "return Infinity", "nearest?.position ?? new Vector3(0, 0, 0)", "voxelIndex:", "hitEntity:"]) {
@@ -460,6 +464,15 @@ const entries = [
   guiEntry("server.GameGUI.setAttribute", "method", "setAttribute", { parameters: [{ name: "entity", type: "GamePlayerEntity" }, { name: "selector", type: "string" }, { name: "name", type: "string" }, { name: "value", type: "any" }], returns: "Promise<void>" }),
   guiEntry("server.GameGUI.onMessage", "event", "onMessage", handler("GameGUIEvent")),
   guiEntry("server.GameGUI.ui", "property", "ui", { type: "GameGUIElementFactory", readonly: true }),
+  httpEntry("server.GameHttpAPI.fetch", "method", "GameHttpAPI", "fetch", { parameters: [{ name: "url", type: "URL|string" }, { name: "options", type: "Partial<GameHttpRequestOptions>", optional: true }], returns: "Promise<GameHttpFetchResponse>" }),
+  httpEntry("server.GameHttpFetchResponse.ok", "property", "GameHttpFetchResponse", "ok", { type: "boolean", readonly: true }),
+  httpEntry("server.GameHttpFetchResponse.status", "property", "GameHttpFetchResponse", "status", { type: "number", readonly: true }),
+  httpEntry("server.GameHttpFetchResponse.statusText", "property", "GameHttpFetchResponse", "statusText", { type: "string", readonly: true }),
+  httpEntry("server.GameHttpFetchResponse.headers", "property", "GameHttpFetchResponse", "headers", { type: "Record<string,string|string[]>" }),
+  httpEntry("server.GameHttpFetchResponse.json", "method", "GameHttpFetchResponse", "json", { parameters: [], returns: "Promise<unknown>" }),
+  httpEntry("server.GameHttpFetchResponse.text", "method", "GameHttpFetchResponse", "text", { parameters: [], returns: "Promise<string>" }),
+  httpEntry("server.GameHttpFetchResponse.arrayBuffer", "method", "GameHttpFetchResponse", "arrayBuffer", { parameters: [], returns: "Promise<ArrayBuffer>" }),
+  httpEntry("server.GameHttpFetchResponse.close", "method", "GameHttpFetchResponse", "close", { parameters: [], returns: "Promise<void>" }),
   entry("server.global.storage", "object", null, "storage", { type: "GameStorage" }, "server.storage", "partial"),
   entry("server.object.RuntimeGameStorage", "object", null, "RuntimeGameStorage", { methods: ["getDataStorage", "getGroupStorage"] }, "server.storage", "partial", ["server.object.GameStorage"]),
   storageEntry("server.GameStorage.getDataStorage", "getDataStorage"),
@@ -629,6 +642,7 @@ const adapters = [
   adapter("server.GameGUI.setAttribute", "server.GameGUI.setAttribute", "compatible", []),
   adapter("server.GameGUI.onMessage", "server.GameGUI.onMessage", "compatible", []),
   adapter("server.GameGUI.ui", "server.GameGUI.ui", "compatible", []),
+  adapter("server.GameHttpAPI.fetch", "server.GameHttpAPI.fetch", "partial", ["Origin allowlisting, timeout handling, redirect rejection, and response size limits are implemented locally; historical network policy and response error semantics remain unrecovered."]),
   adapter("server.GameStorage.getDataStorage", "server.GameStorage.getDataStorage", "partial", ["Local JSON persistence implements the recovered data-space operations; native cloud scope, quotas, consistency, and version semantics remain unverified."]),
   adapter("server.GameStorage.getGroupStorage", "server.GameStorage.getGroupStorage", "partial", ["The default project Runtime disables group storage when the historical groupId input is empty.", "Capability Manifest v14 can bind a non-empty project package storage.groupId and the local provider isolates spaces by that id; DAO3 cloud scope, quotas, distributed consistency, and external group authority remain unrecovered."]),
   adapter("server.object.RuntimeGameStorage", "server.object.GameStorage", "partial", ["The local root exposes recovered getDataStorage/getGroupStorage methods behind the server.storage capability.", "Configured group storage is isolated by a launch-verified groupId, while DAO3 cloud provider semantics remain unrecovered."]),
@@ -665,6 +679,7 @@ const analysis = {
     sha256: createHash("sha256").update(gameRaycastSource).digest("hex"),
   },
   guiSource: { path: relativeGameGuiPath, bytes: Buffer.byteLength(gameGuiSource), sha256: createHash("sha256").update(gameGuiSource).digest("hex") },
+  httpSource: { path: relativeGameHttpPath, bytes: Buffer.byteLength(gameHttpSource), sha256: createHash("sha256").update(gameHttpSource).digest("hex") },
   storageSource: { path: relativeGameStoragePath, bytes: Buffer.byteLength(gameStorageSource), sha256: createHash("sha256").update(gameStorageSource).digest("hex") },
   worldSource: { path: relativeGameWorldPath, bytes: Buffer.byteLength(gameWorldSource), sha256: createHash("sha256").update(gameWorldSource).digest("hex") },
   zonesSource: { path: relativeGameZonesPath, bytes: Buffer.byteLength(gameZonesSource), sha256: createHash("sha256").update(gameZonesSource).digest("hex") },
@@ -1149,6 +1164,16 @@ function storageEntry(id, name) {
     { type: "origin-source", path: "origin/origin/origin/api/GameStorage.js", symbol: `GameStorage.${name}`, confidence: "direct" },
     { type: "declaration", path: "origin/third-party/ArenaPro-CLI/server/types/GameAPI.d.ts", symbol: `GameStorage.${name}`, confidence: "direct" },
     { type: "test", path: "Frontend/demo-map/test/game-storage.test.mjs", symbol: "GameDataStorage persistence surface", confidence: "direct" },
+  ];
+  return value;
+}
+
+function httpEntry(id, kind, owner, name, signature) {
+  const value = entry(id, kind, owner, name, signature, "server.http", "partial", [id]);
+  value.evidence = [
+    { type: "local-source", path: relativeGameHttpPath, symbol: `${owner}.${name}`, confidence: "direct" },
+    { type: "docs", path: "dao3-docs-mirror/markdown/api/GameHttpAPI/request.md", symbol: `${owner}.${name}`, confidence: "direct" },
+    { type: "test", path: "Frontend/demo-map/test/game-http.test.mjs", symbol: "GameHttpAPI runtime boundary", confidence: "direct" },
   ];
   return value;
 }

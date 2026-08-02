@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-abi",
   "version": 1,
-  "generatedAt": "2026-07-31T11:20:50.750Z",
+  "generatedAt": "2026-08-02T05:17:49.364Z",
   "side": "client",
   "entries": [
     {
@@ -4209,7 +4209,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/import-project.mjs",
+          "path": "Frontend/demo-map/src/import-project.mjs",
           "symbol": "publishClientScript.contract",
           "confidence": "direct"
         }

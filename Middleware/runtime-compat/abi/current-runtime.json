@@ -1,7 +1,7 @@
 {
   "format": "nea-runtime-abi",
   "version": 1,
-  "generatedAt": "2026-07-31T11:20:50.526Z",
+  "generatedAt": "2026-08-02T05:17:48.879Z",
   "entries": [
     {
       "id": "client.Audio.Audio",
@@ -4208,7 +4208,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/import-project.mjs",
+          "path": "Frontend/demo-map/src/import-project.mjs",
           "symbol": "publishClientScript.contract",
           "confidence": "direct"
         }
@@ -8291,7 +8291,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/physics/player-body.mjs",
+          "path": "Frontend/demo-map/src/runtime/physics/player-body.mjs",
           "symbol": "requirePlayerBodyProfile",
           "confidence": "direct"
         }
@@ -8348,7 +8348,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "GameButtonType",
           "confidence": "direct"
         },
@@ -8366,7 +8366,7 @@
         },
         {
           "type": "test",
-          "path": "demo-map/test/runtime.test.mjs",
+          "path": "Frontend/demo-map/test/runtime.test.mjs",
           "symbol": "game-net input events reconstruct GameInputEvent press and release payloads",
           "confidence": "direct"
         }
@@ -8392,7 +8392,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "GameButtonType",
           "confidence": "direct"
         },
@@ -8410,7 +8410,7 @@
         },
         {
           "type": "test",
-          "path": "demo-map/test/runtime.test.mjs",
+          "path": "Frontend/demo-map/test/runtime.test.mjs",
           "symbol": "game-net input events reconstruct GameInputEvent press and release payloads",
           "confidence": "direct"
         }
@@ -8436,7 +8436,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "GameButtonType",
           "confidence": "direct"
         },
@@ -8454,7 +8454,7 @@
         },
         {
           "type": "test",
-          "path": "demo-map/test/runtime.test.mjs",
+          "path": "Frontend/demo-map/test/runtime.test.mjs",
           "symbol": "game-net input events reconstruct GameInputEvent press and release payloads",
           "confidence": "direct"
         }
@@ -8480,7 +8480,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "GameButtonType",
           "confidence": "direct"
         },
@@ -8498,7 +8498,7 @@
         },
         {
           "type": "test",
-          "path": "demo-map/test/runtime.test.mjs",
+          "path": "Frontend/demo-map/test/runtime.test.mjs",
           "symbol": "game-net input events reconstruct GameInputEvent press and release payloads",
           "confidence": "direct"
         }
@@ -8524,7 +8524,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "GameButtonType",
           "confidence": "direct"
         },
@@ -8542,7 +8542,7 @@
         },
         {
           "type": "test",
-          "path": "demo-map/test/runtime.test.mjs",
+          "path": "Frontend/demo-map/test/runtime.test.mjs",
           "symbol": "game-net input events reconstruct GameInputEvent press and release payloads",
           "confidence": "direct"
         }
@@ -8568,7 +8568,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "GameButtonType",
           "confidence": "direct"
         },
@@ -8586,7 +8586,7 @@
         },
         {
           "type": "test",
-          "path": "demo-map/test/runtime.test.mjs",
+          "path": "Frontend/demo-map/test/runtime.test.mjs",
           "symbol": "game-net input events reconstruct GameInputEvent press and release payloads",
           "confidence": "direct"
         }
@@ -8612,7 +8612,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "GameButtonType",
           "confidence": "direct"
         },
@@ -8630,7 +8630,7 @@
         },
         {
           "type": "test",
-          "path": "demo-map/test/runtime.test.mjs",
+          "path": "Frontend/demo-map/test/runtime.test.mjs",
           "symbol": "game-net input events reconstruct GameInputEvent press and release payloads",
           "confidence": "direct"
         }
@@ -8656,7 +8656,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "GameButtonType",
           "confidence": "direct"
         },
@@ -8674,7 +8674,7 @@
         },
         {
           "type": "test",
-          "path": "demo-map/test/runtime.test.mjs",
+          "path": "Frontend/demo-map/test/runtime.test.mjs",
           "symbol": "game-net input events reconstruct GameInputEvent press and release payloads",
           "confidence": "direct"
         }
@@ -8716,7 +8716,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-gui.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-gui.mjs",
           "symbol": "GameGuiRuntime.getAttribute",
           "confidence": "direct"
         },
@@ -8740,19 +8740,19 @@
         },
         {
           "type": "protocol-schema",
-          "path": "Lokibox/box-go/protocol.ts",
+          "path": "Middleware/runtime-compat/evidence/protocol.ts",
           "symbol": "gui",
           "confidence": "direct"
         },
         {
           "type": "test",
-          "path": "demo-map/test/game-gui.test.mjs",
+          "path": "Frontend/demo-map/test/game-gui.test.mjs",
           "symbol": "GameGUI command surface",
           "confidence": "direct"
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/backend-gui-transport.test.mjs",
+          "path": "Middleware/runtime-compat/test/backend-gui-transport.test.mjs",
           "symbol": "Player GUI transport conformance",
           "confidence": "direct"
         }
@@ -8790,7 +8790,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-gui.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-gui.mjs",
           "symbol": "GameGuiRuntime.init",
           "confidence": "direct"
         },
@@ -8814,19 +8814,19 @@
         },
         {
           "type": "protocol-schema",
-          "path": "Lokibox/box-go/protocol.ts",
+          "path": "Middleware/runtime-compat/evidence/protocol.ts",
           "symbol": "gui",
           "confidence": "direct"
         },
         {
           "type": "test",
-          "path": "demo-map/test/game-gui.test.mjs",
+          "path": "Frontend/demo-map/test/game-gui.test.mjs",
           "symbol": "GameGUI command surface",
           "confidence": "direct"
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/backend-gui-transport.test.mjs",
+          "path": "Middleware/runtime-compat/test/backend-gui-transport.test.mjs",
           "symbol": "Player GUI transport conformance",
           "confidence": "direct"
         }
@@ -8860,7 +8860,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-gui.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-gui.mjs",
           "symbol": "GameGuiRuntime.onMessage",
           "confidence": "direct"
         },
@@ -8884,19 +8884,19 @@
         },
         {
           "type": "protocol-schema",
-          "path": "Lokibox/box-go/protocol.ts",
+          "path": "Middleware/runtime-compat/evidence/protocol.ts",
           "symbol": "gui",
           "confidence": "direct"
         },
         {
           "type": "test",
-          "path": "demo-map/test/game-gui.test.mjs",
+          "path": "Frontend/demo-map/test/game-gui.test.mjs",
           "symbol": "GameGUI command surface",
           "confidence": "direct"
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/backend-gui-transport.test.mjs",
+          "path": "Middleware/runtime-compat/test/backend-gui-transport.test.mjs",
           "symbol": "Player GUI transport conformance",
           "confidence": "direct"
         }
@@ -8934,7 +8934,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-gui.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-gui.mjs",
           "symbol": "GameGuiRuntime.remove",
           "confidence": "direct"
         },
@@ -8958,19 +8958,19 @@
         },
         {
           "type": "protocol-schema",
-          "path": "Lokibox/box-go/protocol.ts",
+          "path": "Middleware/runtime-compat/evidence/protocol.ts",
           "symbol": "gui",
           "confidence": "direct"
         },
         {
           "type": "test",
-          "path": "demo-map/test/game-gui.test.mjs",
+          "path": "Frontend/demo-map/test/game-gui.test.mjs",
           "symbol": "GameGUI command surface",
           "confidence": "direct"
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/backend-gui-transport.test.mjs",
+          "path": "Middleware/runtime-compat/test/backend-gui-transport.test.mjs",
           "symbol": "Player GUI transport conformance",
           "confidence": "direct"
         }
@@ -9016,7 +9016,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-gui.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-gui.mjs",
           "symbol": "GameGuiRuntime.setAttribute",
           "confidence": "direct"
         },
@@ -9040,19 +9040,19 @@
         },
         {
           "type": "protocol-schema",
-          "path": "Lokibox/box-go/protocol.ts",
+          "path": "Middleware/runtime-compat/evidence/protocol.ts",
           "symbol": "gui",
           "confidence": "direct"
         },
         {
           "type": "test",
-          "path": "demo-map/test/game-gui.test.mjs",
+          "path": "Frontend/demo-map/test/game-gui.test.mjs",
           "symbol": "GameGUI command surface",
           "confidence": "direct"
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/backend-gui-transport.test.mjs",
+          "path": "Middleware/runtime-compat/test/backend-gui-transport.test.mjs",
           "symbol": "Player GUI transport conformance",
           "confidence": "direct"
         }
@@ -9095,7 +9095,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-gui.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-gui.mjs",
           "symbol": "GameGuiRuntime.show",
           "confidence": "direct"
         },
@@ -9119,19 +9119,19 @@
         },
         {
           "type": "protocol-schema",
-          "path": "Lokibox/box-go/protocol.ts",
+          "path": "Middleware/runtime-compat/evidence/protocol.ts",
           "symbol": "gui",
           "confidence": "direct"
         },
         {
           "type": "test",
-          "path": "demo-map/test/game-gui.test.mjs",
+          "path": "Frontend/demo-map/test/game-gui.test.mjs",
           "symbol": "GameGUI command surface",
           "confidence": "direct"
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/backend-gui-transport.test.mjs",
+          "path": "Middleware/runtime-compat/test/backend-gui-transport.test.mjs",
           "symbol": "Player GUI transport conformance",
           "confidence": "direct"
         }
@@ -9160,7 +9160,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-gui.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-gui.mjs",
           "symbol": "GameGuiRuntime.ui",
           "confidence": "direct"
         },
@@ -9184,20 +9184,398 @@
         },
         {
           "type": "protocol-schema",
-          "path": "Lokibox/box-go/protocol.ts",
+          "path": "Middleware/runtime-compat/evidence/protocol.ts",
           "symbol": "gui",
           "confidence": "direct"
         },
         {
           "type": "test",
-          "path": "demo-map/test/game-gui.test.mjs",
+          "path": "Frontend/demo-map/test/game-gui.test.mjs",
           "symbol": "GameGUI command surface",
           "confidence": "direct"
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/backend-gui-transport.test.mjs",
+          "path": "Middleware/runtime-compat/test/backend-gui-transport.test.mjs",
           "symbol": "Player GUI transport conformance",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.GameHttpAPI.fetch",
+      "side": "server",
+      "kind": "method",
+      "owner": "GameHttpAPI",
+      "name": "fetch",
+      "signature": {
+        "parameters": [
+          {
+            "name": "url",
+            "type": "URL|string"
+          },
+          {
+            "name": "options",
+            "type": "Partial<GameHttpRequestOptions>",
+            "optional": true
+          }
+        ],
+        "returns": "Promise<GameHttpFetchResponse>"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.http",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameHttpAPI.fetch"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "Frontend/demo-map/src/runtime/game-http.mjs",
+          "symbol": "GameHttpAPI.fetch",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameHttpAPI/request.md",
+          "symbol": "GameHttpAPI.fetch",
+          "confidence": "direct"
+        },
+        {
+          "type": "test",
+          "path": "Frontend/demo-map/test/game-http.test.mjs",
+          "symbol": "GameHttpAPI runtime boundary",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.GameHttpFetchResponse.arrayBuffer",
+      "side": "server",
+      "kind": "method",
+      "owner": "GameHttpFetchResponse",
+      "name": "arrayBuffer",
+      "signature": {
+        "parameters": [],
+        "returns": "Promise<ArrayBuffer>"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.http",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameHttpFetchResponse.arrayBuffer"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "Frontend/demo-map/src/runtime/game-http.mjs",
+          "symbol": "GameHttpFetchResponse.arrayBuffer",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameHttpAPI/request.md",
+          "symbol": "GameHttpFetchResponse.arrayBuffer",
+          "confidence": "direct"
+        },
+        {
+          "type": "test",
+          "path": "Frontend/demo-map/test/game-http.test.mjs",
+          "symbol": "GameHttpAPI runtime boundary",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.GameHttpFetchResponse.close",
+      "side": "server",
+      "kind": "method",
+      "owner": "GameHttpFetchResponse",
+      "name": "close",
+      "signature": {
+        "parameters": [],
+        "returns": "Promise<void>"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.http",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameHttpFetchResponse.close"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "Frontend/demo-map/src/runtime/game-http.mjs",
+          "symbol": "GameHttpFetchResponse.close",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameHttpAPI/request.md",
+          "symbol": "GameHttpFetchResponse.close",
+          "confidence": "direct"
+        },
+        {
+          "type": "test",
+          "path": "Frontend/demo-map/test/game-http.test.mjs",
+          "symbol": "GameHttpAPI runtime boundary",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.GameHttpFetchResponse.headers",
+      "side": "server",
+      "kind": "property",
+      "owner": "GameHttpFetchResponse",
+      "name": "headers",
+      "signature": {
+        "type": "Record<string,string|string[]>"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.http",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameHttpFetchResponse.headers"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "Frontend/demo-map/src/runtime/game-http.mjs",
+          "symbol": "GameHttpFetchResponse.headers",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameHttpAPI/request.md",
+          "symbol": "GameHttpFetchResponse.headers",
+          "confidence": "direct"
+        },
+        {
+          "type": "test",
+          "path": "Frontend/demo-map/test/game-http.test.mjs",
+          "symbol": "GameHttpAPI runtime boundary",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.GameHttpFetchResponse.json",
+      "side": "server",
+      "kind": "method",
+      "owner": "GameHttpFetchResponse",
+      "name": "json",
+      "signature": {
+        "parameters": [],
+        "returns": "Promise<unknown>"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.http",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameHttpFetchResponse.json"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "Frontend/demo-map/src/runtime/game-http.mjs",
+          "symbol": "GameHttpFetchResponse.json",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameHttpAPI/request.md",
+          "symbol": "GameHttpFetchResponse.json",
+          "confidence": "direct"
+        },
+        {
+          "type": "test",
+          "path": "Frontend/demo-map/test/game-http.test.mjs",
+          "symbol": "GameHttpAPI runtime boundary",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.GameHttpFetchResponse.ok",
+      "side": "server",
+      "kind": "property",
+      "owner": "GameHttpFetchResponse",
+      "name": "ok",
+      "signature": {
+        "type": "boolean",
+        "readonly": true
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.http",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameHttpFetchResponse.ok"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "Frontend/demo-map/src/runtime/game-http.mjs",
+          "symbol": "GameHttpFetchResponse.ok",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameHttpAPI/request.md",
+          "symbol": "GameHttpFetchResponse.ok",
+          "confidence": "direct"
+        },
+        {
+          "type": "test",
+          "path": "Frontend/demo-map/test/game-http.test.mjs",
+          "symbol": "GameHttpAPI runtime boundary",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.GameHttpFetchResponse.status",
+      "side": "server",
+      "kind": "property",
+      "owner": "GameHttpFetchResponse",
+      "name": "status",
+      "signature": {
+        "type": "number",
+        "readonly": true
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.http",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameHttpFetchResponse.status"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "Frontend/demo-map/src/runtime/game-http.mjs",
+          "symbol": "GameHttpFetchResponse.status",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameHttpAPI/request.md",
+          "symbol": "GameHttpFetchResponse.status",
+          "confidence": "direct"
+        },
+        {
+          "type": "test",
+          "path": "Frontend/demo-map/test/game-http.test.mjs",
+          "symbol": "GameHttpAPI runtime boundary",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.GameHttpFetchResponse.statusText",
+      "side": "server",
+      "kind": "property",
+      "owner": "GameHttpFetchResponse",
+      "name": "statusText",
+      "signature": {
+        "type": "string",
+        "readonly": true
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.http",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameHttpFetchResponse.statusText"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "Frontend/demo-map/src/runtime/game-http.mjs",
+          "symbol": "GameHttpFetchResponse.statusText",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameHttpAPI/request.md",
+          "symbol": "GameHttpFetchResponse.statusText",
+          "confidence": "direct"
+        },
+        {
+          "type": "test",
+          "path": "Frontend/demo-map/test/game-http.test.mjs",
+          "symbol": "GameHttpAPI runtime boundary",
+          "confidence": "direct"
+        }
+      ]
+    },
+    {
+      "id": "server.GameHttpFetchResponse.text",
+      "side": "server",
+      "kind": "method",
+      "owner": "GameHttpFetchResponse",
+      "name": "text",
+      "signature": {
+        "parameters": [],
+        "returns": "Promise<string>"
+      },
+      "availability": "confirmed",
+      "compatibility": "partial",
+      "capability": "server.http",
+      "since": "0.1.0",
+      "implements": [
+        "server.GameHttpFetchResponse.text"
+      ],
+      "notes": [
+        "Implemented by the local experimental Server Runtime; historical compatibility is tracked separately in server-adapter-map.json."
+      ],
+      "evidence": [
+        {
+          "type": "local-source",
+          "path": "Frontend/demo-map/src/runtime/game-http.mjs",
+          "symbol": "GameHttpFetchResponse.text",
+          "confidence": "direct"
+        },
+        {
+          "type": "docs",
+          "path": "dao3-docs-mirror/markdown/api/GameHttpAPI/request.md",
+          "symbol": "GameHttpFetchResponse.text",
+          "confidence": "direct"
+        },
+        {
+          "type": "test",
+          "path": "Frontend/demo-map/test/game-http.test.mjs",
+          "symbol": "GameHttpAPI runtime boundary",
           "confidence": "direct"
         }
       ]
@@ -9230,7 +9608,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-storage.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-storage.mjs",
           "symbol": "LocalGameStorage.getDataStorage",
           "confidence": "direct"
         },
@@ -9248,7 +9626,7 @@
         },
         {
           "type": "test",
-          "path": "demo-map/test/game-storage.test.mjs",
+          "path": "Frontend/demo-map/test/game-storage.test.mjs",
           "symbol": "GameDataStorage persistence surface",
           "confidence": "direct"
         }
@@ -9282,7 +9660,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-storage.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-storage.mjs",
           "symbol": "LocalGameStorage.getGroupStorage",
           "confidence": "direct"
         },
@@ -9300,7 +9678,7 @@
         },
         {
           "type": "test",
-          "path": "demo-map/test/game-storage.test.mjs",
+          "path": "Frontend/demo-map/test/game-storage.test.mjs",
           "symbol": "GameDataStorage persistence surface",
           "confidence": "direct"
         }
@@ -9339,7 +9717,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-voxels.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-voxels.mjs",
           "symbol": "GameVoxelsRuntime.getVoxel",
           "confidence": "direct"
         },
@@ -9363,7 +9741,7 @@
         },
         {
           "type": "evidence-map",
-          "path": "runtime-compat/evidence/server-voxels-phase-2.json",
+          "path": "Middleware/runtime-compat/evidence/server-voxels-phase-2.json",
           "symbol": "server.GameVoxels.getVoxel",
           "confidence": "direct"
         }
@@ -9402,7 +9780,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-voxels.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-voxels.mjs",
           "symbol": "GameVoxelsRuntime.getVoxelId",
           "confidence": "direct"
         },
@@ -9426,7 +9804,7 @@
         },
         {
           "type": "evidence-map",
-          "path": "runtime-compat/evidence/server-voxels-phase-1.json",
+          "path": "Middleware/runtime-compat/evidence/server-voxels-phase-1.json",
           "symbol": "server.GameVoxels.getVoxelId",
           "confidence": "direct"
         }
@@ -9465,7 +9843,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-voxels.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-voxels.mjs",
           "symbol": "GameVoxelsRuntime.getVoxelRotation",
           "confidence": "direct"
         },
@@ -9489,7 +9867,7 @@
         },
         {
           "type": "evidence-map",
-          "path": "runtime-compat/evidence/server-voxels-phase-2.json",
+          "path": "Middleware/runtime-compat/evidence/server-voxels-phase-2.json",
           "symbol": "server.GameVoxels.getVoxelRotation",
           "confidence": "direct"
         }
@@ -9520,7 +9898,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-voxels.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-voxels.mjs",
           "symbol": "GameVoxelsRuntime.id",
           "confidence": "direct"
         },
@@ -9544,7 +9922,7 @@
         },
         {
           "type": "evidence-map",
-          "path": "runtime-compat/evidence/server-voxels-phase-1.json",
+          "path": "Middleware/runtime-compat/evidence/server-voxels-phase-1.json",
           "symbol": "server.GameVoxels.id",
           "confidence": "direct"
         }
@@ -9575,7 +9953,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-voxels.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-voxels.mjs",
           "symbol": "GameVoxelsRuntime.name",
           "confidence": "direct"
         },
@@ -9599,7 +9977,7 @@
         },
         {
           "type": "evidence-map",
-          "path": "runtime-compat/evidence/server-voxels-phase-2.json",
+          "path": "Middleware/runtime-compat/evidence/server-voxels-phase-2.json",
           "symbol": "server.GameVoxels.name",
           "confidence": "direct"
         }
@@ -9647,7 +10025,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-voxels.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-voxels.mjs",
           "symbol": "GameVoxelsRuntime.setVoxel",
           "confidence": "direct"
         },
@@ -9671,7 +10049,7 @@
         },
         {
           "type": "evidence-map",
-          "path": "runtime-compat/evidence/server-voxels-phase-1.json",
+          "path": "Middleware/runtime-compat/evidence/server-voxels-phase-1.json",
           "symbol": "server.GameVoxels.setVoxel",
           "confidence": "direct"
         }
@@ -9714,7 +10092,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-voxels.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-voxels.mjs",
           "symbol": "GameVoxelsRuntime.setVoxelId",
           "confidence": "direct"
         },
@@ -9738,7 +10116,7 @@
         },
         {
           "type": "evidence-map",
-          "path": "runtime-compat/evidence/server-voxels-phase-1.json",
+          "path": "Middleware/runtime-compat/evidence/server-voxels-phase-1.json",
           "symbol": "server.GameVoxels.setVoxelId",
           "confidence": "direct"
         }
@@ -9764,7 +10142,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-voxels.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-voxels.mjs",
           "symbol": "GameVoxelsRuntime.shape",
           "confidence": "direct"
         },
@@ -9788,7 +10166,7 @@
         },
         {
           "type": "evidence-map",
-          "path": "runtime-compat/evidence/server-voxels-phase-2.json",
+          "path": "Middleware/runtime-compat/evidence/server-voxels-phase-2.json",
           "symbol": "server.GameVoxels.shape",
           "confidence": "direct"
         }
@@ -9814,7 +10192,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-voxels.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-voxels.mjs",
           "symbol": "GameVoxelsRuntime.VoxelTypes",
           "confidence": "direct"
         },
@@ -9838,7 +10216,7 @@
         },
         {
           "type": "evidence-map",
-          "path": "runtime-compat/evidence/server-voxels-phase-2.json",
+          "path": "Middleware/runtime-compat/evidence/server-voxels-phase-2.json",
           "symbol": "server.GameVoxels.VoxelTypes",
           "confidence": "direct"
         }
@@ -9863,7 +10241,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "GameButtonType",
           "confidence": "direct"
         },
@@ -9881,7 +10259,7 @@
         },
         {
           "type": "test",
-          "path": "demo-map/test/runtime.test.mjs",
+          "path": "Frontend/demo-map/test/runtime.test.mjs",
           "symbol": "game-net input events reconstruct GameInputEvent press and release payloads",
           "confidence": "direct"
         }
@@ -9906,7 +10284,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -9931,7 +10309,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -9956,7 +10334,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-voxels.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-voxels.mjs",
           "symbol": "GameVoxelsRuntime.voxels",
           "confidence": "direct"
         },
@@ -9980,7 +10358,7 @@
         },
         {
           "type": "evidence-map",
-          "path": "runtime-compat/evidence/server-voxels-phase-1.json",
+          "path": "Middleware/runtime-compat/evidence/server-voxels-phase-1.json",
           "symbol": "server.global.voxels",
           "confidence": "direct"
         }
@@ -10009,7 +10387,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/event-signal.mjs",
+          "path": "Frontend/demo-map/src/runtime/event-signal.mjs",
           "symbol": "EventSignal.on",
           "confidence": "direct"
         }
@@ -10038,7 +10416,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeChatEvent.RuntimeChatEvent",
           "confidence": "direct"
         },
@@ -10056,7 +10434,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/chat-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/chat-event-conformance.test.mjs",
           "symbol": "Chat event conformance",
           "confidence": "direct"
         }
@@ -10089,7 +10467,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeClickEvent.RuntimeClickEvent",
           "confidence": "direct"
         },
@@ -10113,7 +10491,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/click-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/click-event-conformance.test.mjs",
           "symbol": "Click event conformance",
           "confidence": "direct"
         }
@@ -10144,7 +10522,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeDamageEvent.RuntimeDamageEvent",
           "confidence": "direct"
         },
@@ -10168,7 +10546,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/damage-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/damage-event-conformance.test.mjs",
           "symbol": "Damage event conformance",
           "confidence": "direct"
         }
@@ -10204,7 +10582,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -10234,7 +10612,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeDieEvent.RuntimeDieEvent",
           "confidence": "direct"
         },
@@ -10258,7 +10636,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/die-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/die-event-conformance.test.mjs",
           "symbol": "Die event conformance",
           "confidence": "direct"
         }
@@ -10336,7 +10714,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -10365,7 +10743,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeEntityEvent.RuntimeEntityEvent",
           "confidence": "direct"
         },
@@ -10389,7 +10767,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/entity-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/entity-event-conformance.test.mjs",
           "symbol": "Entity event conformance",
           "confidence": "direct"
         }
@@ -10418,7 +10796,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeFluidContactEvent.RuntimeFluidContactEvent",
           "confidence": "direct"
         },
@@ -10442,7 +10820,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/fluid-contact-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/fluid-contact-event-conformance.test.mjs",
           "symbol": "Fluid contact event conformance",
           "confidence": "direct"
         }
@@ -10473,7 +10851,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -10547,7 +10925,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.RuntimeGameZone",
           "confidence": "direct"
         },
@@ -10571,7 +10949,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -10603,7 +10981,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeInputEvent.RuntimeInputEvent",
           "confidence": "direct"
         },
@@ -10627,7 +11005,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/input-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/input-event-conformance.test.mjs",
           "symbol": "Input event conformance",
           "confidence": "direct"
         }
@@ -10656,7 +11034,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeInteractEvent.RuntimeInteractEvent",
           "confidence": "direct"
         },
@@ -10674,13 +11052,13 @@
         },
         {
           "type": "transport",
-          "path": "runtime-compat/evidence/transport-contracts.json",
+          "path": "Middleware/runtime-compat/evidence/transport-contracts.json",
           "symbol": "player.entity-interact",
           "confidence": "direct"
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/interact-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/interact-event-conformance.test.mjs",
           "symbol": "Interact event conformance",
           "confidence": "direct"
         }
@@ -10708,7 +11086,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeKeyBoardEvent.RuntimeKeyBoardEvent",
           "confidence": "direct"
         },
@@ -10726,7 +11104,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/keyboard-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/keyboard-event-conformance.test.mjs",
           "symbol": "Keyboard event conformance",
           "confidence": "direct"
         }
@@ -10791,7 +11169,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -10821,7 +11199,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimePurchaseSuccessEvent.RuntimePurchaseSuccessEvent",
           "confidence": "direct"
         },
@@ -10839,7 +11217,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/purchase-success-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/purchase-success-event-conformance.test.mjs",
           "symbol": "Purchase success event conformance",
           "confidence": "direct"
         }
@@ -10870,7 +11248,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -10906,7 +11284,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-raycast.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-raycast.mjs",
           "symbol": "RuntimeRaycastResult.RuntimeRaycastResult",
           "confidence": "direct"
         },
@@ -10924,7 +11302,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/raycast-result-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/raycast-result-conformance.test.mjs",
           "symbol": "RaycastResult conformance",
           "confidence": "direct"
         }
@@ -10952,7 +11330,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeRespawnEvent.RuntimeRespawnEvent",
           "confidence": "direct"
         },
@@ -10976,7 +11354,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/respawn-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/respawn-event-conformance.test.mjs",
           "symbol": "Respawn event conformance",
           "confidence": "direct"
         }
@@ -11007,7 +11385,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeTickEvent.RuntimeTickEvent",
           "confidence": "direct"
         },
@@ -11025,7 +11403,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/tick-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/tick-event-conformance.test.mjs",
           "symbol": "Tick event conformance",
           "confidence": "direct"
         }
@@ -11063,7 +11441,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeVoxelContactEvent.RuntimeVoxelContactEvent",
           "confidence": "direct"
         },
@@ -11087,7 +11465,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/voxel-contact-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/voxel-contact-event-conformance.test.mjs",
           "symbol": "Voxel contact event conformance",
           "confidence": "direct"
         }
@@ -11118,7 +11496,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -11144,7 +11522,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -11175,7 +11553,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -11206,7 +11584,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -11241,7 +11619,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -11268,7 +11646,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.load",
           "confidence": "direct"
         }
@@ -11297,7 +11675,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeChatEvent.entity",
           "confidence": "direct"
         },
@@ -11315,7 +11693,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/chat-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/chat-event-conformance.test.mjs",
           "symbol": "Chat event conformance",
           "confidence": "direct"
         }
@@ -11344,7 +11722,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeChatEvent.message",
           "confidence": "direct"
         },
@@ -11362,7 +11740,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/chat-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/chat-event-conformance.test.mjs",
           "symbol": "Chat event conformance",
           "confidence": "direct"
         }
@@ -11391,7 +11769,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeChatEvent.tick",
           "confidence": "direct"
         },
@@ -11409,7 +11787,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/chat-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/chat-event-conformance.test.mjs",
           "symbol": "Chat event conformance",
           "confidence": "direct"
         }
@@ -11438,7 +11816,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeClickEvent.button",
           "confidence": "direct"
         },
@@ -11462,7 +11840,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/click-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/click-event-conformance.test.mjs",
           "symbol": "Click event conformance",
           "confidence": "direct"
         }
@@ -11491,7 +11869,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeClickEvent.clicker",
           "confidence": "direct"
         },
@@ -11515,7 +11893,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/click-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/click-event-conformance.test.mjs",
           "symbol": "Click event conformance",
           "confidence": "direct"
         }
@@ -11544,7 +11922,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeClickEvent.clickerPosition",
           "confidence": "direct"
         },
@@ -11568,7 +11946,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/click-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/click-event-conformance.test.mjs",
           "symbol": "Click event conformance",
           "confidence": "direct"
         }
@@ -11597,7 +11975,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeClickEvent.distance",
           "confidence": "direct"
         },
@@ -11621,7 +11999,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/click-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/click-event-conformance.test.mjs",
           "symbol": "Click event conformance",
           "confidence": "direct"
         }
@@ -11650,7 +12028,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeClickEvent.entity",
           "confidence": "direct"
         },
@@ -11674,7 +12052,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/click-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/click-event-conformance.test.mjs",
           "symbol": "Click event conformance",
           "confidence": "direct"
         }
@@ -11703,7 +12081,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeClickEvent.raycast",
           "confidence": "direct"
         },
@@ -11727,7 +12105,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/click-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/click-event-conformance.test.mjs",
           "symbol": "Click event conformance",
           "confidence": "direct"
         }
@@ -11756,7 +12134,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeClickEvent.tick",
           "confidence": "direct"
         },
@@ -11780,7 +12158,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/click-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/click-event-conformance.test.mjs",
           "symbol": "Click event conformance",
           "confidence": "direct"
         }
@@ -11809,7 +12187,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeDamageEvent.attacker",
           "confidence": "direct"
         },
@@ -11833,7 +12211,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/damage-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/damage-event-conformance.test.mjs",
           "symbol": "Damage event conformance",
           "confidence": "direct"
         }
@@ -11862,7 +12240,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeDamageEvent.damage",
           "confidence": "direct"
         },
@@ -11886,7 +12264,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/damage-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/damage-event-conformance.test.mjs",
           "symbol": "Damage event conformance",
           "confidence": "direct"
         }
@@ -11915,7 +12293,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeDamageEvent.damageType",
           "confidence": "direct"
         },
@@ -11939,7 +12317,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/damage-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/damage-event-conformance.test.mjs",
           "symbol": "Damage event conformance",
           "confidence": "direct"
         }
@@ -11968,7 +12346,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeDamageEvent.entity",
           "confidence": "direct"
         },
@@ -11992,7 +12370,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/damage-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/damage-event-conformance.test.mjs",
           "symbol": "Damage event conformance",
           "confidence": "direct"
         }
@@ -12021,7 +12399,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeDamageEvent.tick",
           "confidence": "direct"
         },
@@ -12045,7 +12423,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/damage-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/damage-event-conformance.test.mjs",
           "symbol": "Damage event conformance",
           "confidence": "direct"
         }
@@ -12074,7 +12452,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -12108,7 +12486,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -12147,7 +12525,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -12176,7 +12554,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -12211,7 +12589,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -12245,7 +12623,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -12283,7 +12661,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -12321,7 +12699,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -12350,7 +12728,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeDieEvent.attacker",
           "confidence": "direct"
         },
@@ -12374,7 +12752,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/die-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/die-event-conformance.test.mjs",
           "symbol": "Die event conformance",
           "confidence": "direct"
         }
@@ -12403,7 +12781,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeDieEvent.damageType",
           "confidence": "direct"
         },
@@ -12427,7 +12805,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/die-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/die-event-conformance.test.mjs",
           "symbol": "Die event conformance",
           "confidence": "direct"
         }
@@ -12456,7 +12834,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeDieEvent.entity",
           "confidence": "direct"
         },
@@ -12480,7 +12858,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/die-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/die-event-conformance.test.mjs",
           "symbol": "Die event conformance",
           "confidence": "direct"
         }
@@ -12509,7 +12887,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeDieEvent.tick",
           "confidence": "direct"
         },
@@ -12533,7 +12911,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/die-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/die-event-conformance.test.mjs",
           "symbol": "Die event conformance",
           "confidence": "direct"
         }
@@ -12567,7 +12945,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -12596,7 +12974,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -12625,7 +13003,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -12654,7 +13032,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -12683,7 +13061,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -12709,7 +13087,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -12735,7 +13113,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -12764,7 +13142,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -12793,7 +13171,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -12822,7 +13200,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -12851,7 +13229,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -12885,7 +13263,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -12911,7 +13289,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -12947,7 +13325,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -12973,7 +13351,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13002,7 +13380,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13028,7 +13406,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13072,7 +13450,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13101,7 +13479,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13127,7 +13505,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13156,7 +13534,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13185,7 +13563,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13214,7 +13592,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13243,7 +13621,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13272,7 +13650,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13301,7 +13679,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13330,7 +13708,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13359,7 +13737,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13388,7 +13766,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13417,7 +13795,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13452,7 +13830,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13487,7 +13865,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13519,7 +13897,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13554,7 +13932,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13589,7 +13967,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13624,7 +14002,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13656,7 +14034,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13691,7 +14069,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13726,7 +14104,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13760,7 +14138,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13794,7 +14172,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13825,7 +14203,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13859,7 +14237,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13893,7 +14271,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13927,7 +14305,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13958,7 +14336,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -13992,7 +14370,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -14026,7 +14404,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -14055,7 +14433,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -14081,7 +14459,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -14115,7 +14493,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -14144,7 +14522,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -14186,7 +14564,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -14222,7 +14600,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -14260,7 +14638,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -14289,7 +14667,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -14315,7 +14693,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -14341,7 +14719,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -14375,7 +14753,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -14401,7 +14779,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -14430,7 +14808,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeEntityEvent.entity",
           "confidence": "direct"
         },
@@ -14454,7 +14832,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/entity-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/entity-event-conformance.test.mjs",
           "symbol": "Entity event conformance",
           "confidence": "direct"
         }
@@ -14480,7 +14858,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeEntityEvent.player",
           "confidence": "direct"
         },
@@ -14504,7 +14882,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/entity-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/entity-event-conformance.test.mjs",
           "symbol": "Entity event conformance",
           "confidence": "direct"
         }
@@ -14533,7 +14911,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeEntityEvent.tick",
           "confidence": "direct"
         },
@@ -14557,7 +14935,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/entity-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/entity-event-conformance.test.mjs",
           "symbol": "Entity event conformance",
           "confidence": "direct"
         }
@@ -14586,7 +14964,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeFluidContactEvent.entity",
           "confidence": "direct"
         },
@@ -14610,7 +14988,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/fluid-contact-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/fluid-contact-event-conformance.test.mjs",
           "symbol": "Fluid contact event conformance",
           "confidence": "direct"
         }
@@ -14639,7 +15017,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeFluidContactEvent.tick",
           "confidence": "direct"
         },
@@ -14663,7 +15041,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/fluid-contact-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/fluid-contact-event-conformance.test.mjs",
           "symbol": "Fluid contact event conformance",
           "confidence": "direct"
         }
@@ -14692,7 +15070,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeFluidContactEvent.voxel",
           "confidence": "direct"
         },
@@ -14716,7 +15094,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/fluid-contact-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/fluid-contact-event-conformance.test.mjs",
           "symbol": "Fluid contact event conformance",
           "confidence": "direct"
         }
@@ -14745,7 +15123,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.bounds",
           "confidence": "direct"
         },
@@ -14769,7 +15147,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -14798,7 +15176,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.entities",
           "confidence": "direct"
         },
@@ -14822,7 +15200,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -14851,7 +15229,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.fogColor",
           "confidence": "direct"
         },
@@ -14875,7 +15253,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -14904,7 +15282,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.fogDensity",
           "confidence": "direct"
         },
@@ -14928,7 +15306,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -14957,7 +15335,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.fogEnabled",
           "confidence": "direct"
         },
@@ -14981,7 +15359,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -15010,7 +15388,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.fogHeightFalloff",
           "confidence": "direct"
         },
@@ -15034,7 +15412,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -15063,7 +15441,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.fogHeightOffset",
           "confidence": "direct"
         },
@@ -15087,7 +15465,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -15116,7 +15494,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.fogMax",
           "confidence": "direct"
         },
@@ -15140,7 +15518,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -15169,7 +15547,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.fogStartDistance",
           "confidence": "direct"
         },
@@ -15193,7 +15571,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -15222,7 +15600,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.force",
           "confidence": "direct"
         },
@@ -15246,7 +15624,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -15275,7 +15653,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.massScale",
           "confidence": "direct"
         },
@@ -15299,7 +15677,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -15328,7 +15706,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.nextEnter",
           "confidence": "direct"
         },
@@ -15352,7 +15730,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -15381,7 +15759,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.nextLeave",
           "confidence": "direct"
         },
@@ -15405,7 +15783,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -15439,7 +15817,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.onEnter",
           "confidence": "direct"
         },
@@ -15463,7 +15841,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -15497,7 +15875,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.onLeave",
           "confidence": "direct"
         },
@@ -15521,7 +15899,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -15550,7 +15928,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.rainColor",
           "confidence": "direct"
         },
@@ -15574,7 +15952,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -15603,7 +15981,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.rainDensity",
           "confidence": "direct"
         },
@@ -15627,7 +16005,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -15656,7 +16034,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.rainDirection",
           "confidence": "direct"
         },
@@ -15680,7 +16058,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -15709,7 +16087,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.rainEnabled",
           "confidence": "direct"
         },
@@ -15733,7 +16111,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -15762,7 +16140,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.rainInterference",
           "confidence": "direct"
         },
@@ -15786,7 +16164,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -15815,7 +16193,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.rainSizeHi",
           "confidence": "direct"
         },
@@ -15839,7 +16217,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -15868,7 +16246,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.rainSizeLo",
           "confidence": "direct"
         },
@@ -15892,7 +16270,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -15921,7 +16299,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.rainSpeed",
           "confidence": "direct"
         },
@@ -15945,7 +16323,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -15974,7 +16352,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.remove",
           "confidence": "direct"
         },
@@ -15998,7 +16376,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -16027,7 +16405,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.selector",
           "confidence": "direct"
         },
@@ -16051,7 +16429,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -16080,7 +16458,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.skyBackLight",
           "confidence": "direct"
         },
@@ -16104,7 +16482,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -16133,7 +16511,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.skyBottomLight",
           "confidence": "direct"
         },
@@ -16157,7 +16535,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -16186,7 +16564,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.skyEnabled",
           "confidence": "direct"
         },
@@ -16210,7 +16588,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -16239,7 +16617,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.skyFrontLight",
           "confidence": "direct"
         },
@@ -16263,7 +16641,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -16292,7 +16670,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.skyLeftLight",
           "confidence": "direct"
         },
@@ -16316,7 +16694,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -16345,7 +16723,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.skyLunarPhase",
           "confidence": "direct"
         },
@@ -16369,7 +16747,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -16398,7 +16776,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.skyMode",
           "confidence": "direct"
         },
@@ -16422,7 +16800,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -16451,7 +16829,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.skyRightLight",
           "confidence": "direct"
         },
@@ -16475,7 +16853,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -16504,7 +16882,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.skySunDirection",
           "confidence": "direct"
         },
@@ -16528,7 +16906,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -16557,7 +16935,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.skySunFrequency",
           "confidence": "direct"
         },
@@ -16581,7 +16959,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -16610,7 +16988,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.skySunLight",
           "confidence": "direct"
         },
@@ -16634,7 +17012,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -16663,7 +17041,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.skySunPhase",
           "confidence": "direct"
         },
@@ -16687,7 +17065,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -16716,7 +17094,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.skyTopLight",
           "confidence": "direct"
         },
@@ -16740,7 +17118,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -16769,7 +17147,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.snowColor",
           "confidence": "direct"
         },
@@ -16793,7 +17171,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -16822,7 +17200,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.snowDensity",
           "confidence": "direct"
         },
@@ -16846,7 +17224,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -16875,7 +17253,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.snowEnabled",
           "confidence": "direct"
         },
@@ -16899,7 +17277,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -16928,7 +17306,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.snowFallSpeed",
           "confidence": "direct"
         },
@@ -16952,7 +17330,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -16981,7 +17359,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.snowSizeHi",
           "confidence": "direct"
         },
@@ -17005,7 +17383,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -17034,7 +17412,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.snowSizeLo",
           "confidence": "direct"
         },
@@ -17058,7 +17436,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -17087,7 +17465,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.snowSpinSpeed",
           "confidence": "direct"
         },
@@ -17111,7 +17489,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -17140,7 +17518,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-zones.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-zones.mjs",
           "symbol": "RuntimeGameZone.snowTexture",
           "confidence": "direct"
         },
@@ -17164,7 +17542,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/game-zone-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/game-zone-conformance.test.mjs",
           "symbol": "GameZone conformance",
           "confidence": "direct"
         }
@@ -17193,7 +17571,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeInputEvent.button",
           "confidence": "direct"
         },
@@ -17217,7 +17595,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/input-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/input-event-conformance.test.mjs",
           "symbol": "Input event conformance",
           "confidence": "direct"
         }
@@ -17246,7 +17624,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeInputEvent.entity",
           "confidence": "direct"
         },
@@ -17270,7 +17648,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/input-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/input-event-conformance.test.mjs",
           "symbol": "Input event conformance",
           "confidence": "direct"
         }
@@ -17299,7 +17677,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeInputEvent.position",
           "confidence": "direct"
         },
@@ -17323,7 +17701,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/input-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/input-event-conformance.test.mjs",
           "symbol": "Input event conformance",
           "confidence": "direct"
         }
@@ -17352,7 +17730,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeInputEvent.pressed",
           "confidence": "direct"
         },
@@ -17376,7 +17754,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/input-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/input-event-conformance.test.mjs",
           "symbol": "Input event conformance",
           "confidence": "direct"
         }
@@ -17405,7 +17783,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeInputEvent.raycast",
           "confidence": "direct"
         },
@@ -17429,7 +17807,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/input-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/input-event-conformance.test.mjs",
           "symbol": "Input event conformance",
           "confidence": "direct"
         }
@@ -17458,7 +17836,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeInputEvent.tick",
           "confidence": "direct"
         },
@@ -17482,7 +17860,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/input-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/input-event-conformance.test.mjs",
           "symbol": "Input event conformance",
           "confidence": "direct"
         }
@@ -17511,7 +17889,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeInteractEvent.entity",
           "confidence": "direct"
         },
@@ -17529,13 +17907,13 @@
         },
         {
           "type": "transport",
-          "path": "runtime-compat/evidence/transport-contracts.json",
+          "path": "Middleware/runtime-compat/evidence/transport-contracts.json",
           "symbol": "player.entity-interact",
           "confidence": "direct"
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/interact-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/interact-event-conformance.test.mjs",
           "symbol": "Interact event conformance",
           "confidence": "direct"
         }
@@ -17564,7 +17942,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeInteractEvent.targetEntity",
           "confidence": "direct"
         },
@@ -17582,13 +17960,13 @@
         },
         {
           "type": "transport",
-          "path": "runtime-compat/evidence/transport-contracts.json",
+          "path": "Middleware/runtime-compat/evidence/transport-contracts.json",
           "symbol": "player.entity-interact",
           "confidence": "direct"
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/interact-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/interact-event-conformance.test.mjs",
           "symbol": "Interact event conformance",
           "confidence": "direct"
         }
@@ -17617,7 +17995,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeInteractEvent.tick",
           "confidence": "direct"
         },
@@ -17635,13 +18013,13 @@
         },
         {
           "type": "transport",
-          "path": "runtime-compat/evidence/transport-contracts.json",
+          "path": "Middleware/runtime-compat/evidence/transport-contracts.json",
           "symbol": "player.entity-interact",
           "confidence": "direct"
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/interact-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/interact-event-conformance.test.mjs",
           "symbol": "Interact event conformance",
           "confidence": "direct"
         }
@@ -17670,7 +18048,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeKeyBoardEvent.keyCode",
           "confidence": "direct"
         },
@@ -17688,7 +18066,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/keyboard-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/keyboard-event-conformance.test.mjs",
           "symbol": "Keyboard event conformance",
           "confidence": "direct"
         }
@@ -17717,7 +18095,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeKeyBoardEvent.tick",
           "confidence": "direct"
         },
@@ -17735,7 +18113,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/keyboard-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/keyboard-event-conformance.test.mjs",
           "symbol": "Keyboard event conformance",
           "confidence": "direct"
         }
@@ -17764,7 +18142,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -17793,7 +18171,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -17827,7 +18205,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -17858,7 +18236,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -17887,7 +18265,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -17916,7 +18294,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -17945,7 +18323,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -17974,7 +18352,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18000,7 +18378,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18029,7 +18407,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18060,7 +18438,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18089,7 +18467,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18115,7 +18493,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18149,7 +18527,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18178,7 +18556,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18207,7 +18585,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18236,7 +18614,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18262,7 +18640,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18288,7 +18666,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18317,7 +18695,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18346,7 +18724,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18375,7 +18753,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18404,7 +18782,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18433,7 +18811,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18462,7 +18840,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18488,7 +18866,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18522,7 +18900,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18548,7 +18926,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18574,7 +18952,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18610,7 +18988,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18636,7 +19014,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18665,7 +19043,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18694,7 +19072,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18723,7 +19101,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18752,7 +19130,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18781,7 +19159,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18807,7 +19185,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18833,7 +19211,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18868,7 +19246,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18903,7 +19281,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18935,7 +19313,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -18970,7 +19348,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19005,7 +19383,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19040,7 +19418,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19075,7 +19453,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19110,7 +19488,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19142,7 +19520,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19177,7 +19555,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19212,7 +19590,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19246,7 +19624,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19280,7 +19658,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19311,7 +19689,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19345,7 +19723,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19379,7 +19757,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19413,7 +19791,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19447,7 +19825,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19481,7 +19859,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19515,7 +19893,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19549,7 +19927,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19580,7 +19958,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19614,7 +19992,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19648,7 +20026,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19674,7 +20052,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19708,7 +20086,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19737,7 +20115,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19766,7 +20144,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19797,7 +20175,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19823,7 +20201,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19849,7 +20227,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19883,7 +20261,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19912,7 +20290,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19941,7 +20319,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19970,7 +20348,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -19996,7 +20374,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -20025,7 +20403,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -20054,7 +20432,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -20083,7 +20461,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -20112,7 +20490,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimePurchaseSuccessEvent.orderId",
           "confidence": "direct"
         },
@@ -20130,7 +20508,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/purchase-success-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/purchase-success-event-conformance.test.mjs",
           "symbol": "Purchase success event conformance",
           "confidence": "direct"
         }
@@ -20159,7 +20537,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimePurchaseSuccessEvent.productId",
           "confidence": "direct"
         },
@@ -20177,7 +20555,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/purchase-success-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/purchase-success-event-conformance.test.mjs",
           "symbol": "Purchase success event conformance",
           "confidence": "direct"
         }
@@ -20206,7 +20584,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimePurchaseSuccessEvent.tick",
           "confidence": "direct"
         },
@@ -20224,7 +20602,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/purchase-success-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/purchase-success-event-conformance.test.mjs",
           "symbol": "Purchase success event conformance",
           "confidence": "direct"
         }
@@ -20253,7 +20631,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimePurchaseSuccessEvent.userId",
           "confidence": "direct"
         },
@@ -20271,7 +20649,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/purchase-success-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/purchase-success-event-conformance.test.mjs",
           "symbol": "Purchase success event conformance",
           "confidence": "direct"
         }
@@ -20300,7 +20678,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -20329,7 +20707,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -20358,7 +20736,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -20387,7 +20765,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-raycast.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-raycast.mjs",
           "symbol": "RuntimeRaycastResult.direction",
           "confidence": "direct"
         },
@@ -20405,7 +20783,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/raycast-result-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/raycast-result-conformance.test.mjs",
           "symbol": "RaycastResult conformance",
           "confidence": "direct"
         }
@@ -20434,7 +20812,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-raycast.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-raycast.mjs",
           "symbol": "RuntimeRaycastResult.distance",
           "confidence": "direct"
         },
@@ -20452,7 +20830,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/raycast-result-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/raycast-result-conformance.test.mjs",
           "symbol": "RaycastResult conformance",
           "confidence": "direct"
         }
@@ -20481,7 +20859,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-raycast.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-raycast.mjs",
           "symbol": "RuntimeRaycastResult.hit",
           "confidence": "direct"
         },
@@ -20499,7 +20877,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/raycast-result-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/raycast-result-conformance.test.mjs",
           "symbol": "RaycastResult conformance",
           "confidence": "direct"
         }
@@ -20528,7 +20906,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-raycast.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-raycast.mjs",
           "symbol": "RuntimeRaycastResult.hitEntity",
           "confidence": "direct"
         },
@@ -20546,7 +20924,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/raycast-result-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/raycast-result-conformance.test.mjs",
           "symbol": "RaycastResult conformance",
           "confidence": "direct"
         }
@@ -20575,7 +20953,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-raycast.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-raycast.mjs",
           "symbol": "RuntimeRaycastResult.hitPosition",
           "confidence": "direct"
         },
@@ -20593,7 +20971,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/raycast-result-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/raycast-result-conformance.test.mjs",
           "symbol": "RaycastResult conformance",
           "confidence": "direct"
         }
@@ -20622,7 +21000,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-raycast.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-raycast.mjs",
           "symbol": "RuntimeRaycastResult.hitVoxel",
           "confidence": "direct"
         },
@@ -20640,7 +21018,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/raycast-result-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/raycast-result-conformance.test.mjs",
           "symbol": "RaycastResult conformance",
           "confidence": "direct"
         }
@@ -20669,7 +21047,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-raycast.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-raycast.mjs",
           "symbol": "RuntimeRaycastResult.normal",
           "confidence": "direct"
         },
@@ -20687,7 +21065,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/raycast-result-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/raycast-result-conformance.test.mjs",
           "symbol": "RaycastResult conformance",
           "confidence": "direct"
         }
@@ -20716,7 +21094,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-raycast.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-raycast.mjs",
           "symbol": "RuntimeRaycastResult.origin",
           "confidence": "direct"
         },
@@ -20734,7 +21112,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/raycast-result-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/raycast-result-conformance.test.mjs",
           "symbol": "RaycastResult conformance",
           "confidence": "direct"
         }
@@ -20760,7 +21138,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-raycast.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-raycast.mjs",
           "symbol": "RuntimeRaycastResult.voxel",
           "confidence": "direct"
         },
@@ -20778,7 +21156,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/raycast-result-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/raycast-result-conformance.test.mjs",
           "symbol": "RaycastResult conformance",
           "confidence": "direct"
         }
@@ -20807,7 +21185,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-raycast.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-raycast.mjs",
           "symbol": "RuntimeRaycastResult.voxelIndex",
           "confidence": "direct"
         },
@@ -20825,7 +21203,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/raycast-result-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/raycast-result-conformance.test.mjs",
           "symbol": "RaycastResult conformance",
           "confidence": "direct"
         }
@@ -20854,7 +21232,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeRespawnEvent.entity",
           "confidence": "direct"
         },
@@ -20878,7 +21256,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/respawn-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/respawn-event-conformance.test.mjs",
           "symbol": "Respawn event conformance",
           "confidence": "direct"
         }
@@ -20907,7 +21285,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeRespawnEvent.tick",
           "confidence": "direct"
         },
@@ -20931,7 +21309,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/respawn-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/respawn-event-conformance.test.mjs",
           "symbol": "Respawn event conformance",
           "confidence": "direct"
         }
@@ -20957,7 +21335,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeTickEvent.deltaTime",
           "confidence": "direct"
         },
@@ -20975,7 +21353,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/tick-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/tick-event-conformance.test.mjs",
           "symbol": "Tick event conformance",
           "confidence": "direct"
         }
@@ -21004,7 +21382,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeTickEvent.elapsedTimeMS",
           "confidence": "direct"
         },
@@ -21022,7 +21400,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/tick-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/tick-event-conformance.test.mjs",
           "symbol": "Tick event conformance",
           "confidence": "direct"
         }
@@ -21051,7 +21429,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeTickEvent.prevTick",
           "confidence": "direct"
         },
@@ -21069,7 +21447,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/tick-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/tick-event-conformance.test.mjs",
           "symbol": "Tick event conformance",
           "confidence": "direct"
         }
@@ -21098,7 +21476,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeTickEvent.skip",
           "confidence": "direct"
         },
@@ -21116,7 +21494,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/tick-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/tick-event-conformance.test.mjs",
           "symbol": "Tick event conformance",
           "confidence": "direct"
         }
@@ -21145,7 +21523,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeTickEvent.tick",
           "confidence": "direct"
         },
@@ -21163,7 +21541,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/tick-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/tick-event-conformance.test.mjs",
           "symbol": "Tick event conformance",
           "confidence": "direct"
         }
@@ -21192,7 +21570,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeVoxelContactEvent.axis",
           "confidence": "direct"
         },
@@ -21216,7 +21594,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/voxel-contact-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/voxel-contact-event-conformance.test.mjs",
           "symbol": "Voxel contact event conformance",
           "confidence": "direct"
         }
@@ -21242,7 +21620,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeVoxelContactEvent.collider",
           "confidence": "direct"
         },
@@ -21266,7 +21644,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/voxel-contact-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/voxel-contact-event-conformance.test.mjs",
           "symbol": "Voxel contact event conformance",
           "confidence": "direct"
         }
@@ -21292,7 +21670,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeVoxelContactEvent.compatibility",
           "confidence": "direct"
         },
@@ -21316,7 +21694,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/voxel-contact-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/voxel-contact-event-conformance.test.mjs",
           "symbol": "Voxel contact event conformance",
           "confidence": "direct"
         }
@@ -21345,7 +21723,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeVoxelContactEvent.entity",
           "confidence": "direct"
         },
@@ -21369,7 +21747,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/voxel-contact-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/voxel-contact-event-conformance.test.mjs",
           "symbol": "Voxel contact event conformance",
           "confidence": "direct"
         }
@@ -21398,7 +21776,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeVoxelContactEvent.force",
           "confidence": "direct"
         },
@@ -21422,7 +21800,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/voxel-contact-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/voxel-contact-event-conformance.test.mjs",
           "symbol": "Voxel contact event conformance",
           "confidence": "direct"
         }
@@ -21448,7 +21826,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeVoxelContactEvent.normal",
           "confidence": "direct"
         },
@@ -21472,7 +21850,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/voxel-contact-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/voxel-contact-event-conformance.test.mjs",
           "symbol": "Voxel contact event conformance",
           "confidence": "direct"
         }
@@ -21498,7 +21876,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeVoxelContactEvent.player",
           "confidence": "direct"
         },
@@ -21522,7 +21900,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/voxel-contact-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/voxel-contact-event-conformance.test.mjs",
           "symbol": "Voxel contact event conformance",
           "confidence": "direct"
         }
@@ -21551,7 +21929,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeVoxelContactEvent.tick",
           "confidence": "direct"
         },
@@ -21575,7 +21953,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/voxel-contact-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/voxel-contact-event-conformance.test.mjs",
           "symbol": "Voxel contact event conformance",
           "confidence": "direct"
         }
@@ -21604,7 +21982,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeVoxelContactEvent.voxel",
           "confidence": "direct"
         },
@@ -21628,7 +22006,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/voxel-contact-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/voxel-contact-event-conformance.test.mjs",
           "symbol": "Voxel contact event conformance",
           "confidence": "direct"
         }
@@ -21657,7 +22035,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeVoxelContactEvent.x",
           "confidence": "direct"
         },
@@ -21681,7 +22059,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/voxel-contact-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/voxel-contact-event-conformance.test.mjs",
           "symbol": "Voxel contact event conformance",
           "confidence": "direct"
         }
@@ -21710,7 +22088,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeVoxelContactEvent.y",
           "confidence": "direct"
         },
@@ -21734,7 +22112,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/voxel-contact-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/voxel-contact-event-conformance.test.mjs",
           "symbol": "Voxel contact event conformance",
           "confidence": "direct"
         }
@@ -21763,7 +22141,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "RuntimeVoxelContactEvent.z",
           "confidence": "direct"
         },
@@ -21787,7 +22165,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/voxel-contact-event-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/voxel-contact-event-conformance.test.mjs",
           "symbol": "Voxel contact event conformance",
           "confidence": "direct"
         }
@@ -21816,7 +22194,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -21851,7 +22229,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -21885,7 +22263,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -21914,7 +22292,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -21952,7 +22330,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -21986,7 +22364,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22015,7 +22393,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-world.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-world.mjs",
           "symbol": "GameWorld.airFriction",
           "confidence": "direct"
         },
@@ -22050,7 +22428,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22079,7 +22457,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22110,7 +22488,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22139,7 +22517,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22168,7 +22546,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "world.entityQuota",
           "confidence": "direct"
         },
@@ -22192,7 +22570,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/world-entity-quota-api-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/world-entity-quota-api-conformance.test.mjs",
           "symbol": "GameWorld.entityQuota conformance",
           "confidence": "direct"
         }
@@ -22221,7 +22599,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-world.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-world.mjs",
           "symbol": "GameWorld.fogColor",
           "confidence": "direct"
         },
@@ -22256,7 +22634,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-world.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-world.mjs",
           "symbol": "GameWorld.gravity",
           "confidence": "direct"
         },
@@ -22297,7 +22675,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22329,7 +22707,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22364,7 +22742,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22399,7 +22777,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22434,7 +22812,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22469,7 +22847,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22504,7 +22882,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22539,7 +22917,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22574,7 +22952,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22609,7 +22987,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22644,7 +23022,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22679,7 +23057,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22714,7 +23092,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22749,7 +23127,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22781,7 +23159,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22816,7 +23194,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22848,7 +23226,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22880,7 +23258,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22914,7 +23292,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22948,7 +23326,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -22979,7 +23357,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23010,7 +23388,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23041,7 +23419,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23075,7 +23453,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23109,7 +23487,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23143,7 +23521,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23177,7 +23555,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23211,7 +23589,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23245,7 +23623,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23276,7 +23654,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23307,7 +23685,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23341,7 +23719,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23375,7 +23753,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23409,7 +23787,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23443,7 +23821,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23474,7 +23852,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23508,7 +23886,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23539,7 +23917,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23570,7 +23948,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23601,7 +23979,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23632,7 +24010,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23661,7 +24039,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23692,7 +24070,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23723,7 +24101,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23766,7 +24144,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-raycast.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-raycast.mjs",
           "symbol": "raycastWorld",
           "confidence": "direct"
         },
@@ -23790,7 +24168,7 @@
         },
         {
           "type": "test",
-          "path": "demo-map/test/game-raycast.test.mjs",
+          "path": "Frontend/demo-map/test/game-raycast.test.mjs",
           "symbol": "GameWorld.raycast conformance",
           "confidence": "direct"
         }
@@ -23828,7 +24206,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23862,7 +24240,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23893,7 +24271,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -23927,7 +24305,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/entity-bounds.mjs",
+          "path": "Frontend/demo-map/src/runtime/entity-bounds.mjs",
           "symbol": "searchRuntimeEntities",
           "confidence": "direct"
         },
@@ -23951,7 +24329,7 @@
         },
         {
           "type": "test",
-          "path": "runtime-compat/test/world-search-box-api-conformance.test.mjs",
+          "path": "Middleware/runtime-compat/test/world-search-box-api-conformance.test.mjs",
           "symbol": "GameWorld.searchBox conformance",
           "confidence": "direct"
         }
@@ -23977,25 +24355,25 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "world.size",
           "confidence": "direct"
         },
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/game-voxels.mjs",
+          "path": "Frontend/demo-map/src/runtime/game-voxels.mjs",
           "symbol": "GameVoxelsRuntime.shape",
           "confidence": "direct"
         },
         {
           "type": "script-corpus",
-          "path": "runtime-compat/evidence/script-corpus-usage.json",
+          "path": "Middleware/runtime-compat/evidence/script-corpus-usage.json",
           "symbol": "world.size",
           "confidence": "direct"
         },
         {
           "type": "test",
-          "path": "demo-map/test/runtime.test.mjs",
+          "path": "Frontend/demo-map/test/runtime.test.mjs",
           "symbol": "GameWorld.size exposes recovered maximum voxel indices",
           "confidence": "direct"
         }
@@ -24029,7 +24407,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -24067,7 +24445,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -24096,7 +24474,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "demo-map/src/runtime/script-runtime.mjs",
+          "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
           "symbol": "ScriptRuntime.#createGlobals",
           "confidence": "direct"
         }
@@ -33706,7 +34084,7 @@
       "evidence": [
         {
           "type": "local-source",
-          "path": "runtime-compat/abi/protocols.json",
+          "path": "Middleware/runtime-compat/abi/protocols.json",
           "symbol": "protocols",
           "confidence": "direct"
         }

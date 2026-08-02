@@ -1,7 +1,7 @@
 {
   "format": "nea-server-adapter-map",
   "version": 1,
-  "generatedAt": "2026-07-31T11:20:50.115Z",
+  "generatedAt": "2026-08-02T05:17:32.375Z",
   "contract": "nea-server-runtime/v1",
   "adapters": [
     {
@@ -1089,6 +1089,14 @@
       "canonicalId": "server.GameGUI.ui",
       "status": "compatible",
       "gaps": []
+    },
+    {
+      "localId": "server.GameHttpAPI.fetch",
+      "canonicalId": "server.GameHttpAPI.fetch",
+      "status": "partial",
+      "gaps": [
+        "Origin allowlisting, timeout handling, redirect rejection, and response size limits are implemented locally; historical network policy and response error semantics remain unrecovered."
+      ]
     },
     {
       "localId": "server.GameStorage.getDataStorage",
