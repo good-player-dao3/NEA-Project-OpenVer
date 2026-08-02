@@ -5,12 +5,13 @@ import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 import { loadPreservedBlockCatalogMetadata } from "../../../Backend/local-player/src/block-info.mjs";
 import { convertRecoveredVoxelChunks } from "../../../Middleware/runtime-compat/src/recovered-terrain-converter.mjs";
 
-const repositoryRoot = join(process.cwd());
+const repositoryRoot = fileURLToPath(new URL("../../..", import.meta.url));
 const sourceArchive = join(repositoryRoot, "Backend", "local-player", "archive");
 const backendPath = join(repositoryRoot, "Backend", "local-player", "backend", "box3-server.cjs");
 

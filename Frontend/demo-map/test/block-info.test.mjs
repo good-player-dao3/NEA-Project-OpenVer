@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { loadPreservedBlockCatalog, loadPreservedBlockCatalogMetadata } from "../../../Backend/local-player/src/block-info.mjs";
+
+const repositoryRoot = resolve(fileURLToPath(new URL("../../..", import.meta.url)));
 
 test("block catalog loader rejects manifest path traversal", async () => {
   await assert.rejects(
@@ -33,7 +36,7 @@ test("block catalog metadata loader preserves the same path boundary", async () 
 });
 
 test("block catalog metadata preserves explicit world terrain options", async () => {
-  const metadata = await loadPreservedBlockCatalogMetadata(resolve(process.cwd(), "Backend", "local-player", "archive"), "world-bedwars.json");
+  const metadata = await loadPreservedBlockCatalogMetadata(resolve(repositoryRoot, "Backend", "local-player", "archive"), "world-bedwars.json");
   assert.equal(metadata.resetCounter, 0);
   assert.equal(metadata.innerAO, true);
 });
