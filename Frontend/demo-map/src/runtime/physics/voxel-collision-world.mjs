@@ -12,7 +12,9 @@ export class VoxelCollisionWorld {
   #fluidIds = new Set();
   #colliders = [];
   #triggers = [];
-  #diagnostics = { sweeps: 0, chunkQueries: 0, candidates: 0, triggerQueries: 0 };
+  #colliderChunks = new Map();
+  #triggerChunks = new Map();
+  #diagnostics = { sweeps: 0, chunkQueries: 0, candidates: 0, triggerQueries: 0, triggerCandidates: 0 };
 
   constructor(options = []) {
     const config = Array.isArray(options) ? { voxels: options } : options;
@@ -27,6 +29,11 @@ export class VoxelCollisionWorld {
     }
     this.#colliders = (config.colliders ?? []).map(item => volumeCollider(item, this.materialFor(item.material)));
     this.#triggers = (config.triggers ?? []).map(item => volumeTrigger(item));
+    // Colliders and triggers are static for the life of a world (there is no add/remove API),
+    // so the chunk index is built once here instead of scanning the full flat list on every
+    // sweep/queryTriggers call.
+    this.#colliderChunks = buildVolumeChunkIndex(this.#colliders);
+    this.#triggerChunks = buildVolumeChunkIndex(this.#triggers);
   }
 
   materialFor(id) {
@@ -93,7 +100,10 @@ export class VoxelCollisionWorld {
     if (!Number.isFinite(amount) || amount === 0) return Object.freeze({ amount: 0, collisions: Object.freeze([]) });
     const boundsBox = playerAabb(body.position, body.boundsHalfExtents ?? body.halfExtents);
     const shapeBox = playerAabb(body.position, body.shapeHalfExtents ?? body.halfExtents);
-    const candidates = [...this.#sweptVoxelCandidates(boundsBox, axis, amount), ...this.#colliders];
+    const candidates = [
+      ...this.#sweptVoxelCandidates(boundsBox, axis, amount),
+      ...queryVolumeChunks(this.#colliderChunks, sweptBox(boundsBox, axis, amount)),
+    ];
     this.#diagnostics.candidates += candidates.length;
     let allowed = amount;
     const hits = [];
@@ -124,7 +134,9 @@ export class VoxelCollisionWorld {
   queryTriggers(body) {
     this.#diagnostics.triggerQueries += 1;
     const box = playerAabb(body.position, body.shapeHalfExtents ?? body.halfExtents);
-    return Object.freeze(this.#triggers.filter(trigger => intersects(box, trigger)));
+    const candidates = queryVolumeChunks(this.#triggerChunks, box);
+    this.#diagnostics.triggerCandidates += candidates.length;
+    return Object.freeze(candidates.filter(trigger => intersects(box, trigger)));
   }
 
   queryFluidContacts(body) {
@@ -158,16 +170,13 @@ export class VoxelCollisionWorld {
   }
 
   #sweptVoxelCandidates(box, axis, amount) {
-    const moved = { ...box };
-    const upper = axis.toUpperCase();
-    moved[`min${upper}`] += amount;
-    moved[`max${upper}`] += amount;
-    const minX = Math.floor(Math.min(box.minX, moved.minX) - EPSILON);
-    const maxX = Math.floor(Math.max(box.maxX, moved.maxX) + EPSILON);
-    const minY = Math.floor(Math.min(box.minY, moved.minY) - EPSILON);
-    const maxY = Math.floor(Math.max(box.maxY, moved.maxY) + EPSILON);
-    const minZ = Math.floor(Math.min(box.minZ, moved.minZ) - EPSILON);
-    const maxZ = Math.floor(Math.max(box.maxZ, moved.maxZ) + EPSILON);
+    const swept = sweptBox(box, axis, amount);
+    const minX = Math.floor(swept.minX - EPSILON);
+    const maxX = Math.floor(swept.maxX + EPSILON);
+    const minY = Math.floor(swept.minY - EPSILON);
+    const maxY = Math.floor(swept.maxY + EPSILON);
+    const minZ = Math.floor(swept.minZ - EPSILON);
+    const maxZ = Math.floor(swept.maxZ + EPSILON);
     const result = [];
     for (let chunkX = Math.floor(minX / CHUNK_SIZE); chunkX <= Math.floor(maxX / CHUNK_SIZE); chunkX += 1) {
       for (let chunkY = Math.floor(minY / CHUNK_SIZE); chunkY <= Math.floor(maxY / CHUNK_SIZE); chunkY += 1) {
@@ -237,6 +246,72 @@ function movementLimit(min, max, collider, axis, amount) {
   }
   if (min < colliderMax - EPSILON || min + amount > colliderMax + EPSILON) return undefined;
   return colliderMax - min;
+}
+
+// The raw (unfloored) world-space AABB swept by moving `box` by `amount` along `axis`. Shared
+// by voxel candidate gathering (which floors it to whole voxel cells) and the collider chunk
+// query (which floors it to chunk coordinates), so a fast-moving body still finds colliders
+// and voxels anywhere along its path this tick, not just at its current position.
+function sweptBox(box, axis, amount) {
+  const moved = { ...box };
+  const upper = axis.toUpperCase();
+  moved[`min${upper}`] += amount;
+  moved[`max${upper}`] += amount;
+  return {
+    minX: Math.min(box.minX, moved.minX), maxX: Math.max(box.maxX, moved.maxX),
+    minY: Math.min(box.minY, moved.minY), maxY: Math.max(box.maxY, moved.maxY),
+    minZ: Math.min(box.minZ, moved.minZ), maxZ: Math.max(box.maxZ, moved.maxZ),
+  };
+}
+
+function chunkRange(minX, maxX, minY, maxY, minZ, maxZ) {
+  return {
+    minX: Math.floor(minX / CHUNK_SIZE), maxX: Math.floor((maxX - EPSILON) / CHUNK_SIZE),
+    minY: Math.floor(minY / CHUNK_SIZE), maxY: Math.floor((maxY - EPSILON) / CHUNK_SIZE),
+    minZ: Math.floor(minZ / CHUNK_SIZE), maxZ: Math.floor((maxZ - EPSILON) / CHUNK_SIZE),
+  };
+}
+
+// Colliders and triggers are static AABB volumes that may span multiple chunks, so each one is
+// referenced from every chunk cell it overlaps (unlike a voxel, which belongs to exactly one).
+function buildVolumeChunkIndex(volumes) {
+  const index = new Map();
+  for (const volume of volumes) {
+    const range = chunkRange(volume.min.x, volume.max.x, volume.min.y, volume.max.y, volume.min.z, volume.max.z);
+    for (let chunkX = range.minX; chunkX <= range.maxX; chunkX += 1) {
+      for (let chunkY = range.minY; chunkY <= range.maxY; chunkY += 1) {
+        for (let chunkZ = range.minZ; chunkZ <= range.maxZ; chunkZ += 1) {
+          let chunk = getNested(index, chunkX, chunkY, chunkZ);
+          if (!chunk) {
+            chunk = [];
+            setNested(index, chunkX, chunkY, chunkZ, chunk);
+          }
+          chunk.push(volume);
+        }
+      }
+    }
+  }
+  return index;
+}
+
+// Collects the volumes overlapping `box`'s chunk range, deduplicated (a volume spanning
+// multiple chunks would otherwise be returned once per chunk it is referenced from).
+function queryVolumeChunks(index, box) {
+  const range = chunkRange(box.minX, box.maxX, box.minY, box.maxY, box.minZ, box.maxZ);
+  const seen = new Set();
+  const result = [];
+  for (let chunkX = range.minX; chunkX <= range.maxX; chunkX += 1) {
+    for (let chunkY = range.minY; chunkY <= range.maxY; chunkY += 1) {
+      for (let chunkZ = range.minZ; chunkZ <= range.maxZ; chunkZ += 1) {
+        for (const volume of getNested(index, chunkX, chunkY, chunkZ) ?? []) {
+          if (seen.has(volume)) continue;
+          seen.add(volume);
+          result.push(volume);
+        }
+      }
+    }
+  }
+  return result;
 }
 
 function intersects(box, volume) {

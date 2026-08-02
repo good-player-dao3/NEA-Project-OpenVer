@@ -199,6 +199,32 @@ test("the recovered default step height is 1.25 voxels", () => {
   assert.equal(body.grounded, true);
 });
 
+test("collider and trigger chunk index skips volumes far from the swept region", () => {
+  const farColliders = Array.from({ length: 500 }, (_, index) => ({
+    id: `far-collider-${index}`,
+    min: [2000 + index, 2000, 0],
+    max: [2001 + index, 2001, 1],
+  }));
+  const farTriggers = Array.from({ length: 500 }, (_, index) => ({
+    id: `far-trigger-${index}`,
+    min: [2000 + index, 2000, 0],
+    max: [2001 + index, 2001, 1],
+  }));
+  const world = new VoxelCollisionWorld({
+    voxels: [],
+    colliders: [{ id: "near", min: [1, 1, 0], max: [2, 2, 1] }, ...farColliders],
+    triggers: [{ id: "near-trigger", min: [0, 0, 0], max: [1, 2, 1] }, ...farTriggers],
+  });
+  const physics = new FixedStepPlayerPhysics(world, { gravity: 0 });
+  const body = playerBody({ position: [0.5, 1.9, 0.5], velocity: [10, 0, 0] });
+  const stepResult = physics.step(body, 0.1);
+  assert.equal(body.position.x, 0.7, "still stops at the near collider");
+  assert.deepEqual(stepResult.triggerEntered.map(trigger => trigger.id), ["near-trigger"]);
+  const diagnostics = world.diagnostics();
+  assert.ok(diagnostics.candidates < 50, `expected the swept region to skip the 500 far colliders, scanned ${diagnostics.candidates} candidates`);
+  assert.ok(diagnostics.triggerCandidates < 50, `expected the query region to skip the 500 far triggers, scanned ${diagnostics.triggerCandidates} trigger candidates`);
+});
+
 test("trigger volumes emit enter and leave once", () => {
   const physics = physicsWith([], {
     gravity: 0,
