@@ -16,10 +16,26 @@ test("client script creates status UI and handles pointer-lock input through Rem
   assert.match(fixture.status.textContent, /deferred: historical physics, chat ingress, group storage/);
   assert.deepEqual(fixture.sent, [{ type: "nea-demo:ready", runtimeApiVersion: "0.1.0" }]);
 
+  fixture.remoteEvents.emit("client", {
+    type: "nea-demo:welcome",
+    tick: 4,
+    clientContract: "dao3-client-runtime/v1",
+    serverContract: "nea-server-runtime/v1",
+    collision: { boundsHalfExtents: [1, 2, 3], shapeHalfExtents: [0.5, 1, 0.5] },
+    postureStatus: "standing confirmed",
+  });
+  assert.match(fixture.status.textContent, /server: nea-server-runtime\/v1 @ tick 4/);
+
   fixture.pointerLockEvents.emit("pointerlockchange", { isLocked: true });
 
   assert.match(fixture.status.textContent, /pointer: locked/);
   assert.deepEqual(fixture.sent.at(-1), { type: "nea-demo:pointer-lock", isLocked: true });
+
+  fixture.remoteEvents.emit("client", {
+    type: "nea-demo:pointer-lock-ack",
+    isLocked: true,
+  });
+  assert.match(fixture.status.textContent, /input: pointer locked/);
 });
 
 function createClientRuntimeFixture() {
@@ -41,7 +57,7 @@ function createClientRuntimeFixture() {
     ui,
   };
   context.globalThis = context;
-  return { context, pointerLockEvents, sent, status, ui };
+  return { context, pointerLockEvents, remoteEvents, sent, status, ui };
 }
 
 function createStatusNode() {

@@ -108,3 +108,18 @@ test("enforces the declared JSONValue union without silent JSON rewriting", asyn
   await assert.rejects(() => space.update("valid", () => ({ value: NaN })), /Invalid data value/);
   assert.equal(await space.get("invalid"), undefined);
 });
+
+test("coalesces same-tick mutations into fewer disk writes than calls", async () => {
+  const root = await mkdtemp(join(tmpdir(), "nea-storage-batch-"));
+  const file = join(root, "storage.json");
+  const storage = new LocalGameStorage({ file });
+  const space = storage.getDataStorage("batch");
+  await space.set("counter", 0);
+  const writesBefore = storage.diagnostics().writes;
+  await Promise.all(Array.from({ length: 25 }, () => space.increment("counter")));
+  assert.equal((await space.get("counter")).value, 25);
+  const writesForBurst = storage.diagnostics().writes - writesBefore;
+  assert.ok(writesForBurst >= 1, "the burst must still reach disk");
+  assert.ok(writesForBurst < 25, `expected fewer than 25 writes for 25 concurrent increments, got ${writesForBurst}`);
+  assert.equal(JSON.parse(await readFile(file, "utf8")).spaces.batch.counter.value, 25);
+});

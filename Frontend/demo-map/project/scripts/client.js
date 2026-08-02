@@ -23,6 +23,7 @@ const verifiedCapabilities = Object.freeze([
   "P0: RemoteChannel directed + broadcast delivery",
   "P0: client-owned UI + pointer-lock ingress",
   "P1: persistent local GameStorage",
+  "P1: guarded server GameHttpAPI.fetch",
 ]);
 
 const evidenceBoundary = "deferred: historical physics, chat ingress, group storage";
@@ -50,6 +51,7 @@ runtimeStatus.parent = ui;
 
 let lastServerStatus = "server: connecting";
 let lastMovementStatus = "movement: waiting for server values";
+let lastHttpStatus = "http: idle";
 
 function updateRuntimeStatus(lines) {
   runtimeStatus.textContent = [
@@ -58,6 +60,7 @@ function updateRuntimeStatus(lines) {
     ...verifiedCapabilities,
     evidenceBoundary,
     lastMovementStatus,
+    lastHttpStatus,
   ].join("\n");
 }
 
@@ -155,6 +158,20 @@ remoteChannel.events.on("client", event => {
   }
   if (event?.type === "nea-demo:ack") {
     console.log(`[NEA Demo] ${event.message}`);
+    lastServerStatus = "server: client ready acknowledged";
+    updateRuntimeStatus([
+      "client: dao3-client-runtime/v1",
+      lastServerStatus,
+      "input: waiting",
+    ]);
+  }
+  if (event?.type === "nea-demo:pointer-lock-ack") {
+    const pointerStatus = event.isLocked ? "input: pointer locked" : "input: pointer unlocked";
+    updateRuntimeStatus([
+      "client: dao3-client-runtime/v1",
+      lastServerStatus,
+      pointerStatus,
+    ]);
   }
   if (event?.type === "nea-demo:bounce") {
     console.log(`[NEA Demo] server physics bounce at ${event.position.join(",")}`);
@@ -167,6 +184,24 @@ remoteChannel.events.on("client", event => {
   }
   if (event?.type === "nea-demo:hazard-clear") {
     console.log(`[NEA Demo] left hazard ${event.hazardId}`);
+  }
+  if (event?.type === "nea-demo:http-result") {
+    lastHttpStatus = `http: ${event.status} ${event.statusText} (${event.bodyLength} bytes)`;
+    console.log(`[NEA Demo] server HTTP fetch: ${lastHttpStatus} content-type=${event.contentType}`);
+    updateRuntimeStatus([
+      "client: dao3-client-runtime/v1",
+      lastServerStatus,
+      lastHttpStatus,
+    ]);
+  }
+  if (event?.type === "nea-demo:http-error") {
+    lastHttpStatus = `http: failed - ${event.message}`;
+    console.log(`[NEA Demo] server HTTP fetch failed: ${event.message}`);
+    updateRuntimeStatus([
+      "client: dao3-client-runtime/v1",
+      lastServerStatus,
+      lastHttpStatus,
+    ]);
   }
 });
 

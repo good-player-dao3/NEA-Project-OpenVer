@@ -10,6 +10,7 @@ import { CommonJsModuleLoader } from "./commonjs-module-loader.mjs";
 import { LocalGameStorage } from "./game-storage.mjs";
 import { HistoricalChatFifo } from "./chat-fifo.mjs";
 import { GameGuiRuntime } from "./game-gui.mjs";
+import { createRuntimeHttpClient } from "./game-http.mjs";
 import { Vector3 } from "./vector3.mjs";
 import { GameQuaternion } from "./quaternion.mjs";
 import { GameRGBColor, GameRGBAColor } from "./colors.mjs";
@@ -86,6 +87,7 @@ const KNOWN_CAPABILITIES = new Set([
   "server.player",
   "server.player.write",
   "server.remote-channel",
+  "server.http",
 ]);
 
 export class ScriptRuntime {
@@ -150,6 +152,7 @@ export class ScriptRuntime {
       resolvePlayerId: entity => this.#playerIds.get(entity) ?? entity?.id,
     });
     this.zones = new GameZoneSystem();
+    this.http = options.http ?? createRuntimeHttpClient({ ...options.httpOptions, logger: this.logger });
     this.runtimeApiVersion = options.runtimeApiVersion;
     this.serverContract = options.serverContract;
     this.compatibilityLevel = options.compatibilityLevel;
@@ -259,6 +262,7 @@ export class ScriptRuntime {
       cancelDialogs: options.cancelDialogs,
       physics: { ...physicsSnapshot, ...options.physics },
       storageScope: options.storageScope,
+      httpOptions: options.httpOptions,
     });
   }
 
@@ -671,12 +675,14 @@ export class ScriptRuntime {
     const voxels = createCapabilityFacade(this.voxels, () => this.#require("server.world.voxels"));
     const gui = createCapabilityFacade(this.gui, () => this.#require("server.gui"), GUI_CAPABILITY_MEMBERS);
     const storage = createCapabilityFacade(this.storage, () => this.#require("server.storage"));
+    const http = createCapabilityFacade(this.http, () => this.#require("server.http"));
     return {
       world: guardedWorld,
       remoteChannel,
       storage,
       gui,
       voxels,
+      http,
       Vector3,
       GameVector3: Vector3,
       GameQuaternion,

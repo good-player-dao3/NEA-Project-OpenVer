@@ -9,6 +9,8 @@ export class LocalGameStorage {
   #state = { spaces: {} };
   #writeQueue = Promise.resolve();
   #mutationQueue = Promise.resolve();
+  #pendingPersist = null;
+  #writeCount = 0;
 
   constructor(options = {}) {
     this.#file = resolve(options.file ?? ".runtime-storage.json");
@@ -47,7 +49,6 @@ export class LocalGameStorage {
     return this.#mutate(async () => {
       await this.#load();
       this.#assign(spaceKey, itemKey, value);
-      await this.#persist();
     });
   }
 
@@ -60,7 +61,6 @@ export class LocalGameStorage {
       const value = await handler(previous);
       validateValue(value);
       this.#assign(spaceKey, itemKey, value);
-      await this.#persist();
     });
   }
 
@@ -73,7 +73,6 @@ export class LocalGameStorage {
       if (typeof current !== "number" || !Number.isFinite(current)) throw new Error("Invalid increment value.");
       const next = current + value;
       this.#assign(spaceKey, itemKey, next);
-      await this.#persist();
       return next;
     });
   }
@@ -84,7 +83,6 @@ export class LocalGameStorage {
       await this.#load();
       const previous = cloneReturn(this.#state.spaces[spaceKey]?.[itemKey]);
       if (this.#state.spaces[spaceKey]) delete this.#state.spaces[spaceKey][itemKey];
-      await this.#persist();
       return previous;
     });
   }
@@ -93,7 +91,6 @@ export class LocalGameStorage {
     return this.#mutate(async () => {
       await this.#load();
       delete this.#state.spaces[spaceKey];
-      await this.#persist();
     });
   }
 
@@ -125,14 +122,35 @@ export class LocalGameStorage {
     return new RuntimeQueryList(first.items, first.isLastPage, async () => readPage(++cursor));
   }
 
-  #persist() {
-    this.#writeQueue = this.#writeQueue.then(async () => {
-      await mkdir(dirname(this.#file), { recursive: true });
-      const temporary = `${this.#file}.tmp`;
-      await writeFile(temporary, `${JSON.stringify(this.#state, null, 2)}\n`);
-      await rename(temporary, this.#file);
-    });
-    return this.#writeQueue;
+  // A pending flush follows the mutation-ordering queue's tail until it stops moving, so every
+  // mutation still queued while the flush hasn't started writing joins the same disk write
+  // instead of costing one write per call. Each caller still awaits the flush that covers its
+  // own mutation, so the durability contract (state is on disk once the call resolves) is
+  // unchanged; only same-tick bursts (e.g. several increments fired without awaiting between
+  // them) end up sharing a write.
+  #requestPersist() {
+    if (!this.#pendingPersist) this.#pendingPersist = this.#settleThenFlush();
+    return this.#pendingPersist;
+  }
+
+  async #settleThenFlush() {
+    let tail = this.#mutationQueue;
+    for (;;) {
+      await tail;
+      if (tail === this.#mutationQueue) break;
+      tail = this.#mutationQueue;
+    }
+    this.#pendingPersist = null;
+    this.#writeQueue = this.#writeQueue.then(() => this.#writeToDisk());
+    await this.#writeQueue;
+  }
+
+  async #writeToDisk() {
+    await mkdir(dirname(this.#file), { recursive: true });
+    const temporary = `${this.#file}.tmp`;
+    await writeFile(temporary, `${JSON.stringify(this.#state, null, 2)}\n`);
+    await rename(temporary, this.#file);
+    this.#writeCount += 1;
   }
 
   #assign(spaceKey, itemKey, value) {
@@ -142,10 +160,17 @@ export class LocalGameStorage {
     this.#state.spaces[spaceKey][itemKey] = { key: itemKey, value: structuredClone(value), version: randomUUID(), createTime: previous?.createTime ?? now, updateTime: now };
   }
 
-  #mutate(operation) {
-    const result = this.#mutationQueue.then(operation, operation);
-    this.#mutationQueue = result.then(() => undefined, () => undefined);
-    return result;
+  // `apply` only mutates in-memory #state, so the ordering chain never waits on disk I/O and
+  // the next queued mutation can apply immediately. The flush itself is requested afterward,
+  // separately from the ordering chain, which is what lets concurrent mutations share it.
+  #mutate(apply) {
+    const ordered = this.#mutationQueue.then(apply, apply);
+    this.#mutationQueue = ordered.then(() => undefined, () => undefined);
+    return ordered.then(value => this.#requestPersist().then(() => value));
+  }
+
+  diagnostics() {
+    return Object.freeze({ writes: this.#writeCount });
   }
 }
 
