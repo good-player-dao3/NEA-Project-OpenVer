@@ -98,6 +98,13 @@ for (const lab of world.querySelectorAll(".api-lab")) {
   });
 }
 
+const coreZone = world.addZone({
+  selector: "player",
+  bounds: { lo: [116, 7, 116], hi: [140, 15, 140] },
+});
+coreZone.onEnter(({ entity }) => send(entity, { type: "showcase:zone", phase: "enter", zone: "showcase-core", status: "verified" }));
+coreZone.onLeave(({ entity }) => send(entity, { type: "showcase:zone", phase: "leave", zone: "showcase-core", status: "verified" }));
+
 world.onTick(({ tick }) => {
   if (tick % 100 === 0) {
     for (const player of world.querySelectorAll("player")) send(player, { type: "showcase:tick", currentTick: tick, physics: { gravity: world.gravity, airFriction: world.airFriction } });
