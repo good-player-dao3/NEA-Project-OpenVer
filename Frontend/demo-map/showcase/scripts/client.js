@@ -26,7 +26,7 @@ function render() {
     `PHYSICS gravity=${lastPhysics.gravity} airFriction=${lastPhysics.airFriction}`,
     "",
     "VERIFIED",
-    "  events  |  raycast  |  storage  |  world config",
+    "  events  |  player lifecycle  |  raycast  |  storage  |  world config",
     "  directed/broadcast RemoteChannel  |  client UI",
     "PARTIAL",
     "  player movement writes  |  allowlisted HTTP probe",
