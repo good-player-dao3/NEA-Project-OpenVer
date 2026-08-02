@@ -107,6 +107,8 @@ coreZone.onLeave(({ entity }) => send(entity, { type: "showcase:zone", phase: "l
 
 world.onPress(({ entity, button, pressed }) => send(entity, { type: "showcase:input", phase: "press", button, pressed, status: "verified" }));
 world.onRelease(({ entity, button, pressed }) => send(entity, { type: "showcase:input", phase: "release", button, pressed, status: "verified" }));
+world.onFluidEnter(({ entity, voxel }) => send(entity, { type: "showcase:fluid", phase: "enter", voxel, status: "partial", buoyancy: "evidence-deferred" }));
+world.onFluidLeave(({ entity, voxel }) => send(entity, { type: "showcase:fluid", phase: "leave", voxel, status: "partial", buoyancy: "evidence-deferred" }));
 
 world.onTick(({ tick }) => {
   if (tick % 100 === 0) {
