@@ -142,6 +142,7 @@ if (runtimePackagePath) {
   playerBodyProfile = physics.playerBody;
 } else {
   imported = await importMapProject(sourceRoot, buildRoot, { runtimeCompatibility });
+  playerRoute = `/play/${imported.manifest.id}?contentId=100110008`;
   capabilityManifest = imported.capabilityManifest;
   assertProjectCapabilities(capabilityManifest, {
     apiVersion: imported.manifest.runtime.apiVersion,
