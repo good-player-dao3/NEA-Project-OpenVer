@@ -6,6 +6,7 @@ const MOVEMENT_PROFILE = Object.freeze({ walkSpeed: 0.7, runSpeed: 5, jumpPower:
 
 const capabilityMatrix = Object.freeze([
   { id: "server.world.events", status: "verified", note: "tick, join, voxel contact, and trigger events" },
+  { id: "server.world.onPlayerLeave", status: "verified", note: "backend disconnect ingress dispatches before player cleanup" },
   { id: "server.world.raycast", status: "verified", note: "result entity, voxel, position, normal, and distance" },
   { id: "server.storage", status: "verified", note: "data and group storage through the packaged scope" },
   { id: "server.world.config", status: "verified", note: "gravity and airFriction are mutable at runtime" },
@@ -67,6 +68,10 @@ world.onPlayerJoin(({ player }) => {
   world.addCollisionFilter("player", ".api-lab");
   send(player, { type: "showcase:collision-filter", filters: world.collisionFilters(), status: "partial", solver: "evidence-deferred" });
   sendPhysics(player);
+});
+
+world.onPlayerLeave(({ player }) => {
+  console.log(`[NEA Showcase] player lifecycle leave entity=${player.id}`);
 });
 
 world.onVoxelContact(({ player, voxel, axis }) => {
