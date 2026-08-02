@@ -49,6 +49,9 @@ test("showcase imports through the same transactional package path", async t => 
   assert.match(serverScript, /world\.onEntityDestroy/);
   assert.match(serverScript, /world\.onPlayerLeave/);
   assert.match(serverScript, /player lifecycle leave/);
+  assert.match(serverScript, /world\.onTick/);
+  assert.match(serverScript, /elapsedTimeMS/);
+  assert.match(serverScript, /skip/);
   assert.match(serverScript, /world\.onTakeDamage/);
   assert.match(serverScript, /world\.onDie/);
   assert.match(serverScript, /player\.damage\(10\)/);
