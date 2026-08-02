@@ -1,11 +1,11 @@
 {
   "format": "nea-local-server-runtime-analysis",
   "version": 1,
-  "generatedAt": "2026-08-02T05:52:09.198Z",
+  "generatedAt": "2026-08-02T06:01:42.430Z",
   "source": {
     "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
-    "bytes": 82311,
-    "sha256": "846ca401a0864cb8258014560c933b61129e84f1fabbae55ca70a059b6c02c44"
+    "bytes": 82330,
+    "sha256": "8307f76d6ecc9071173b090c14324eeb89380ee2891d765bf800e250943a8af5"
   },
   "eventTokenSource": {
     "path": "Frontend/demo-map/src/runtime/event-signal.mjs",
@@ -16539,6 +16539,78 @@
       ]
     },
     {
+      "localId": "server.RuntimeRaycastResult.hit",
+      "canonicalId": "server.GameRaycastResult.hit",
+      "status": "partial",
+      "gaps": [
+        "The local result preserves hit/no-hit state; the underlying entity intersection remains an AABB approximation."
+      ]
+    },
+    {
+      "localId": "server.RuntimeRaycastResult.hitEntity",
+      "canonicalId": "server.GameRaycastResult.hitEntity",
+      "status": "partial",
+      "gaps": [
+        "The local result exposes RuntimeEntity or RuntimePlayer for mapped entity hits; historical engine entity identity and oriented bounds behavior remain unrecovered."
+      ]
+    },
+    {
+      "localId": "server.RuntimeRaycastResult.hitVoxel",
+      "canonicalId": "server.GameRaycastResult.hitVoxel",
+      "status": "partial",
+      "gaps": [
+        "The local result exposes the resolved voxel id; historical engine traversal edge cases remain unrecovered."
+      ]
+    },
+    {
+      "localId": "server.RuntimeRaycastResult.origin",
+      "canonicalId": "server.GameRaycastResult.origin",
+      "status": "partial",
+      "gaps": [
+        "The local result preserves the requested origin through the local Vector3 compatibility type."
+      ]
+    },
+    {
+      "localId": "server.RuntimeRaycastResult.direction",
+      "canonicalId": "server.GameRaycastResult.direction",
+      "status": "partial",
+      "gaps": [
+        "The local result preserves the requested direction through the local Vector3 compatibility type."
+      ]
+    },
+    {
+      "localId": "server.RuntimeRaycastResult.distance",
+      "canonicalId": "server.GameRaycastResult.distance",
+      "status": "partial",
+      "gaps": [
+        "The local result exposes the nearest local intersection distance; historical oriented-body semantics remain unrecovered."
+      ]
+    },
+    {
+      "localId": "server.RuntimeRaycastResult.hitPosition",
+      "canonicalId": "server.GameRaycastResult.hitPosition",
+      "status": "partial",
+      "gaps": [
+        "The local result exposes the nearest local intersection position; historical oriented-body semantics remain unrecovered."
+      ]
+    },
+    {
+      "localId": "server.RuntimeRaycastResult.normal",
+      "canonicalId": "server.GameRaycastResult.normal",
+      "status": "partial",
+      "gaps": [
+        "The local result exposes the resolved local collision normal; historical engine normal conventions remain unrecovered."
+      ]
+    },
+    {
+      "localId": "server.RuntimeRaycastResult.voxelIndex",
+      "canonicalId": "server.GameRaycastResult.voxelIndex",
+      "status": "partial",
+      "gaps": [
+        "The local result exposes the voxel index for voxel hits and preserves the documented no-hit zero vector."
+      ]
+    },
+    {
       "localId": "server.world.searchBox",
       "canonicalId": "server.GameWorld.searchBox",
       "status": "partial",
@@ -17453,7 +17525,7 @@
   "summary": {
     "localEntries": 395,
     "compatibleAdapters": 43,
-    "partialAdapters": 119,
-    "extensions": 233
+    "partialAdapters": 128,
+    "extensions": 224
   }
 }
