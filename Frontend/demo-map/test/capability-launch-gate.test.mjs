@@ -3,8 +3,9 @@ import test from "node:test";
 
 import { createHash } from "node:crypto";
 import { digestCapabilityJson } from "../src/capability-input-digest.mjs";
-import { normalizeCapabilityAssets, normalizeCapabilityEntities, normalizeCapabilityProjectIdentity, normalizeCapabilityRuntimeAbi, normalizeCapabilityStorageScope, normalizeCapabilityWorldConfig } from "../src/capability-input-normalize.mjs";
-import { assertProjectCapabilities, deriveProjectCapabilitySummary, evaluateProjectCapabilityManifest, verifyProjectCapabilityAssetFiles, verifyProjectCapabilityAssetInput, verifyProjectCapabilityEntityInput, verifyProjectCapabilityGrants, verifyProjectCapabilityModuleInputs, verifyProjectCapabilityProjectIdentityInput, verifyProjectCapabilityRuntimeAbiInput, verifyProjectCapabilityStorageScopeInput, verifyProjectCapabilityUiInput, verifyProjectCapabilityWorldConfigInput } from "../src/capability-launch-gate.mjs";
+import { normalizeCapabilityAssets, normalizeCapabilityEntities, normalizeCapabilityPlayerBody, normalizeCapabilityProjectIdentity, normalizeCapabilityRuntimeAbi, normalizeCapabilityStorageScope, normalizeCapabilityWorldConfig } from "../src/capability-input-normalize.mjs";
+import { assertProjectCapabilities, deriveProjectCapabilitySummary, evaluateProjectCapabilityManifest, verifyProjectCapabilityAssetFiles, verifyProjectCapabilityAssetInput, verifyProjectCapabilityEntityInput, verifyProjectCapabilityGrants, verifyProjectCapabilityModuleInputs, verifyProjectCapabilityPlayerBodyInput, verifyProjectCapabilityProjectIdentityInput, verifyProjectCapabilityRuntimeAbiInput, verifyProjectCapabilityStorageScopeInput, verifyProjectCapabilityUiInput, verifyProjectCapabilityWorldConfigInput, verifyProjectCapabilityWorldSpawnInput } from "../src/capability-launch-gate.mjs";
+import { normalizeWorldSpawn } from "../src/world-spawn.mjs";
 
 function manifest(overrides = {}) {
   const value = {
@@ -12,7 +13,7 @@ function manifest(overrides = {}) {
     version: 14,
     apiVersion: "0.1.0",
     contracts: { client: "dao3-client-runtime/v1", server: "nea-server-runtime/v1" },
-    inputs: { modules: [], capabilities: { server: [], client: [] }, ui: digestCapabilityJson(null), assets: digestCapabilityJson([]), entities: digestCapabilityJson([]), storageScope: digestCapabilityJson({ groupId: null }), projectIdentity: digestCapabilityJson({ projectName: "Capability Test" }), worldConfig: digestCapabilityJson(normalizeCapabilityWorldConfig({ entityLimit: 3400 })), runtimeAbi: digestCapabilityJson(normalizeCapabilityRuntimeAbi(emptyRuntimeCompatibility())) },
+    inputs: { modules: [], capabilities: { server: [], client: [] }, ui: digestCapabilityJson(null), assets: digestCapabilityJson([]), entities: digestCapabilityJson([]), storageScope: digestCapabilityJson({ groupId: null }), projectIdentity: digestCapabilityJson({ projectName: "Capability Test" }), worldConfig: digestCapabilityJson(normalizeCapabilityWorldConfig({ entityLimit: 3400 })), worldSpawn: digestCapabilityJson(normalizeWorldSpawn([1, 2, 3])), playerBody: digestCapabilityJson(normalizeCapabilityPlayerBody({ profileId: "demo", origin: "body-center", originStatus: "confirmed", sizeStatus: "confirmed", boundsHalfExtents: [0.45, 1.1, 0.45], shapeHalfExtents: [0.45, 1.1, 0.45] })), runtimeAbi: digestCapabilityJson(normalizeCapabilityRuntimeAbi(emptyRuntimeCompatibility())) },
     status: "ready",
     requirements: [], modules: [], resources: [], ui: [], entities: [], dependencies: [], diagnostics: [],
     ...overrides,
@@ -120,6 +121,27 @@ test("launch gate binds Capability conclusions to the current Runtime ABI artifa
   const value = manifest({ inputs: { ...manifest().inputs, runtimeAbi: digestCapabilityJson(normalizeCapabilityRuntimeAbi(runtimeCompatibility)) } });
   assert.equal(verifyProjectCapabilityRuntimeAbiInput(value, { ...runtimeCompatibility, currentRuntime: { ...runtimeCompatibility.currentRuntime, generatedAt: "second" } }).present, true);
   assert.throws(() => verifyProjectCapabilityRuntimeAbiInput(value, { ...runtimeCompatibility, currentRuntime: { ...runtimeCompatibility.currentRuntime, entries: [] } }), /Runtime ABI input mismatch/);
+});
+
+test("launch gate binds the normalized world spawn", () => {
+  const value = manifest({ inputs: { ...manifest().inputs, worldSpawn: digestCapabilityJson(normalizeWorldSpawn([1, 2, 3])) } });
+  assert.equal(verifyProjectCapabilityWorldSpawnInput(value, { x: 1, y: 2, z: 3 }).present, true);
+  assert.throws(() => verifyProjectCapabilityWorldSpawnInput(value, [1, 2, 4]), /world spawn input mismatch/);
+});
+
+test("launch gate binds recovered world gravity and airFriction together", () => {
+  const worldConfig = { entityLimit: 3400, gravity: -0.1, airFriction: 0.01 };
+  const value = manifest({ inputs: { ...manifest().inputs, worldConfig: digestCapabilityJson(normalizeCapabilityWorldConfig(worldConfig)) } });
+  assert.equal(verifyProjectCapabilityWorldConfigInput(value, worldConfig).present, true);
+  assert.throws(() => verifyProjectCapabilityWorldConfigInput(value, { ...worldConfig, airFriction: 0.02 }), /world config input mismatch/);
+  assert.throws(() => normalizeCapabilityWorldConfig({ entityLimit: 3400, gravity: -0.1 }), /gravity and airFriction together/);
+});
+
+test("launch gate binds the Player body profile", () => {
+  const profile = { profileId: "demo", origin: "body-center", originStatus: "confirmed", sizeStatus: "confirmed", boundsHalfExtents: [0.45, 1.1, 0.45], shapeHalfExtents: [0.45, 1.1, 0.45] };
+  const value = manifest({ inputs: { ...manifest().inputs, playerBody: digestCapabilityJson(normalizeCapabilityPlayerBody(profile)) } });
+  assert.equal(verifyProjectCapabilityPlayerBodyInput(value, { ...profile, boundsHalfExtents: { x: 0.45, y: 1.1, z: 0.45 }, shapeHalfExtents: { x: 0.45, y: 1.1, z: 0.45 } }).present, true);
+  assert.throws(() => verifyProjectCapabilityPlayerBodyInput(value, { ...profile, shapeHalfExtents: [0.5, 1.1, 0.45] }), /shapeHalfExtents must fit inside boundsHalfExtents/);
 });
 
 function emptyRuntimeCompatibility() {

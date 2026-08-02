@@ -4,6 +4,7 @@ import { isAbsolute, relative, resolve } from "node:path";
 export const MAP_FORMAT = "nea-map/v1";
 export const TERRAIN_FORMAT = "nea-terrain/v1";
 export const PHYSICS_FORMAT = "nea-physics/v1";
+export const ENVIRONMENT_FORMAT = "nea-recovered-environment/v1";
 export const RUNTIME_API_VERSION = "0.1.0";
 export const MAX_EXPANDED_VOXELS = 1_000_000;
 
@@ -17,6 +18,9 @@ export async function loadMapSource(rootDirectory) {
   const manifest = validateMapManifest(await readJson(root, "nea.map.json"));
   const terrain = validateTerrainSource(await readJson(root, manifest.world.terrain), manifest.world.shape);
   const entities = validateEntitySource(await readJson(root, manifest.world.entities), manifest.world.shape);
+  const environment = manifest.world.environment === null
+    ? null
+    : validateEnvironmentSource(await readJson(root, manifest.world.environment));
   const assets = manifest.assets;
   const ui = manifest.ui === null ? null : validateUiSource(await readJson(root, manifest.ui));
   const physics = manifest.world.physics === null
@@ -26,7 +30,7 @@ export async function loadMapSource(rootDirectory) {
   await Promise.all(manifest.scripts.clientModules.map(modulePath => assertRegularFile(root, modulePath)));
   await Promise.all(assets.map(asset => assertRegularFile(root, asset.path)));
 
-  return Object.freeze({ root, manifest, terrain, entities, physics, assets, ui });
+  return Object.freeze({ root, manifest, terrain, entities, environment, physics, assets, ui });
 }
 
 export function validateMapManifest(value) {
@@ -79,6 +83,9 @@ export function validateMapManifest(value) {
       entityLimit: world.entityLimit === undefined ? 3400 : requireInteger(world.entityLimit, "/world/entityLimit", 0, 1000000),
       terrain: requirePackagePath(world.terrain, "/world/terrain"),
       entities: requirePackagePath(world.entities, "/world/entities"),
+      environment: world.environment === undefined || world.environment === null
+        ? null
+        : requirePackagePath(world.environment, "/world/environment"),
       physics: world.physics === undefined || world.physics === null
         ? null
         : requirePackagePath(world.physics, "/world/physics"),
@@ -106,11 +113,22 @@ export function validateUiSource(value) {
   const record = requireRecord(value, "/ui");
   if (record.format !== "nea-recovered-client-ui" || record.version !== 1 || record.sourceMessage !== "gameUI.reset") throw new Error("Unsupported client UI source");
   if (typeof record.running !== "boolean") throw new Error("/ui/running must be boolean");
-  const defaultScreenId = requireText(record.defaultScreenId, "/ui/defaultScreenId", 512);
+  const uiTreeState = validateUiTreeBinding(record.defaultScreenId, record.uiTree);
   const pictureAssets = requireRecord(record.pictureAssets, "/ui/pictureAssets");
-  const sourceTree = requireRecord(record.uiTree, "/ui/uiTree");
+  const validatedPictures = {};
+  for (const [name, value] of Object.entries(pictureAssets)) {
+    const asset = requireRecord(value, `/ui/pictureAssets/${name}`);
+    if (typeof asset.hash !== "string" || typeof asset.metadataHash !== "string" || !Number.isInteger(asset.width) || !Number.isInteger(asset.height)) throw new Error(`Invalid client UI picture asset: ${name}`);
+    validatedPictures[name] = Object.freeze({ hash: asset.hash, metadataHash: asset.metadataHash, width: asset.width, height: asset.height });
+  }
+  return Object.freeze({ format: "nea-recovered-client-ui", version: 1, sourceMessage: "gameUI.reset", running: record.running, defaultScreenId: uiTreeState.defaultScreenId, pictureAssets: Object.freeze(validatedPictures), uiTree: uiTreeState.uiTree });
+}
+
+export function validateUiTreeBinding(defaultScreenIdValue, sourceTree) {
+  const defaultScreenId = requireText(defaultScreenIdValue, "/ui/defaultScreenId", 512);
+  const tree = requireRecord(sourceTree, "/ui/uiTree");
   const uiTree = {};
-  for (const [id, value] of Object.entries(sourceTree)) {
+  for (const [id, value] of Object.entries(tree)) {
     const node = requireRecord(value, `/ui/uiTree/${id}`);
     if (node.id !== id || !Number.isInteger(node.type) || typeof node.name !== "string" || typeof node.parentId !== "string" || !Array.isArray(node.childrenIds) || !node.childrenIds.every(childId => typeof childId === "string")) throw new Error(`Invalid client UI node: ${id}`);
     uiTree[id] = Object.freeze({ ...node, childrenIds: Object.freeze([...node.childrenIds]) });
@@ -123,13 +141,7 @@ export function validateUiSource(value) {
     for (const childId of node.childrenIds) if (!uiTree[childId] || uiTree[childId].parentId !== node.id) throw new Error(`Invalid client UI child link: ${node.id} -> ${childId}`);
     if (node.id !== "ROOT_ID" && (!uiTree[node.parentId] || !uiTree[node.parentId].childrenIds.includes(node.id))) throw new Error(`Invalid client UI parent link: ${node.id}`);
   }
-  const validatedPictures = {};
-  for (const [name, value] of Object.entries(pictureAssets)) {
-    const asset = requireRecord(value, `/ui/pictureAssets/${name}`);
-    if (typeof asset.hash !== "string" || typeof asset.metadataHash !== "string" || !Number.isInteger(asset.width) || !Number.isInteger(asset.height)) throw new Error(`Invalid client UI picture asset: ${name}`);
-    validatedPictures[name] = Object.freeze({ hash: asset.hash, metadataHash: asset.metadataHash, width: asset.width, height: asset.height });
-  }
-  return Object.freeze({ format: "nea-recovered-client-ui", version: 1, sourceMessage: "gameUI.reset", running: record.running, defaultScreenId, pictureAssets: Object.freeze(validatedPictures), uiTree: Object.freeze(uiTree) });
+  return Object.freeze({ defaultScreenId, uiTree: Object.freeze(uiTree) });
 }
 
 function validateAssetSource(value, path) {
@@ -164,6 +176,7 @@ function validateCapabilities(value, path) {
 export function validatePhysicsSource(value, shape) {
   const record = requireRecord(value, "/physics");
   if (record.formatVersion !== PHYSICS_FORMAT) throw new Error("Unsupported physics format");
+  const airFriction = record.airFriction;
   const materialsRecord = requireRecord(record.materials ?? {}, "/physics/materials");
   const materials = Object.fromEntries(Object.entries(materialsRecord).map(([blockId, value]) => {
     const id = requireInteger(Number(blockId), `/physics/materials/${blockId}`, 1, 0x0fff);
@@ -179,12 +192,29 @@ export function validatePhysicsSource(value, shape) {
   return Object.freeze({
     formatVersion: PHYSICS_FORMAT,
     gravity: requireFiniteRange(record.gravity ?? -20, "/physics/gravity", -200, 200),
+    ...(airFriction === undefined ? {} : { airFriction: requireFiniteNumber(airFriction, "/physics/airFriction") }),
     maxFallSpeed: requireFiniteRange(record.maxFallSpeed ?? 50, "/physics/maxFallSpeed", 1, 500),
     stepHeight: requireFiniteRange(record.stepHeight ?? 1.25, "/physics/stepHeight", 0, 1.5),
     playerBody: validatePlayerBodyProfile(record.playerBody, "/physics/playerBody"),
     materials: Object.freeze(materials),
     colliders: Object.freeze(validateVolumes(record.colliders ?? [], shape, "/physics/colliders", true)),
     triggers: Object.freeze(validateVolumes(record.triggers ?? [], shape, "/physics/triggers", false)),
+  });
+}
+
+export function validateEnvironmentSource(value) {
+  const record = requireRecord(value, "/environment");
+  if (record.formatVersion !== ENVIRONMENT_FORMAT) throw new Error("Unsupported environment format");
+  if (record.compatibility !== "partial") throw new Error("Recovered environment compatibility must remain partial");
+  if (record.source !== "recovered-project") throw new Error("Recovered environment source is invalid");
+  const fields = requireRecord(record.fields, "/environment/fields");
+  if (!Array.isArray(record.diagnostics)) throw new Error("/environment/diagnostics must be an array");
+  return Object.freeze({
+    formatVersion: ENVIRONMENT_FORMAT,
+    compatibility: record.compatibility,
+    source: record.source,
+    fields: Object.freeze(fields),
+    diagnostics: Object.freeze(record.diagnostics),
   });
 }
 
@@ -377,6 +407,11 @@ function requireFiniteRange(value, path, minimum, maximum) {
   if (typeof value !== "number" || !Number.isFinite(value) || value < minimum || value > maximum) {
     throw new Error(`${path} must be a finite number from ${minimum} to ${maximum}`);
   }
+  return value;
+}
+
+function requireFiniteNumber(value, path) {
+  if (typeof value !== "number" || !Number.isFinite(value)) throw new Error(`${path} must be a finite number`);
   return value;
 }
 

@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { digestCapabilityJson } from "./capability-input-digest.mjs";
-import { normalizeCapabilityAssets, normalizeCapabilityEntities, normalizeCapabilityProjectIdentity, normalizeCapabilityRuntimeAbi, normalizeCapabilityStorageScope, normalizeCapabilityWorldConfig } from "./capability-input-normalize.mjs";
+import { normalizeCapabilityAssets, normalizeCapabilityEntities, normalizeCapabilityPlayerBody, normalizeCapabilityProjectIdentity, normalizeCapabilityRuntimeAbi, normalizeCapabilityStorageScope, normalizeCapabilityWorldConfig } from "./capability-input-normalize.mjs";
+import { normalizeWorldSpawn } from "./world-spawn.mjs";
 
 const COLLECTIONS = Object.freeze([
   Object.freeze({ name: "requirements", label: item => `${item.side}:${item.module}:${item.usage}` }),
@@ -97,6 +98,14 @@ export function verifyProjectCapabilityProjectIdentityInput(manifest, projectIde
 
 export function verifyProjectCapabilityWorldConfigInput(manifest, worldConfig) {
   return verifyJsonInput("world config", validateJsonInput(manifest, "worldConfig"), normalizeCapabilityWorldConfig(worldConfig));
+}
+
+export function verifyProjectCapabilityWorldSpawnInput(manifest, worldSpawn) {
+  return verifyJsonInput("world spawn", validateJsonInput(manifest, "worldSpawn"), normalizeWorldSpawn(worldSpawn));
+}
+
+export function verifyProjectCapabilityPlayerBodyInput(manifest, playerBody) {
+  return verifyJsonInput("player body", validateJsonInput(manifest, "playerBody"), normalizeCapabilityPlayerBody(playerBody));
 }
 
 export function verifyProjectCapabilityRuntimeAbiInput(manifest, runtimeCompatibility) {

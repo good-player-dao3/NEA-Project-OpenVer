@@ -269,6 +269,28 @@ test("world gravity and airFriction writes reconfigure runtime-owned Player phys
   assert.ok(Math.abs(player.velocity.z - -1) < 1e-12);
 });
 
+test("package physics initializes runtime-owned Player fixed-step physics", async () => {
+  const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-world-physics-initial-")), "project");
+  await importMapProject(source, output);
+  const project = JSON.parse(await readFile(join(output, "dao3.project.json"), "utf8"));
+  const world = JSON.parse(await readFile(join(output, project.world), "utf8"));
+  const physicsPath = join(output, world.physics);
+  const physics = JSON.parse(await readFile(physicsPath, "utf8"));
+  physics.gravity = 0;
+  physics.airFriction = Math.log(2);
+  await writeFile(physicsPath, `${JSON.stringify(physics, null, 2)}\n`, "utf8");
+  const runtime = await ScriptRuntime.load(output, { blockCatalog, logger: { info() {}, warn() {}, error() {} } });
+  await runtime.start();
+  runtime.stop();
+  const player = runtime.addPlayer({ id: "initial-world-physics-player" });
+  player.velocity = [10, 4, -2];
+  runtime.tick();
+  assert.ok(Math.abs(player.velocity.x - 5) < 1e-12);
+  assert.ok(Math.abs(player.velocity.y - 2) < 1e-12);
+  assert.ok(Math.abs(player.velocity.z - -1) < 1e-12);
+});
+
 test("GamePlayerEntity exposes simple documented player fields and movement bounds", async () => {
   const source = resolve(fileURLToPath(new URL("../project", import.meta.url)));
   const output = join(await mkdtemp(join(tmpdir(), "nea-runtime-player-simple-api-")), "project");

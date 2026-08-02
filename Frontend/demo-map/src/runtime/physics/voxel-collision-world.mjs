@@ -148,6 +148,27 @@ export class VoxelCollisionWorld {
     return Object.freeze(contacts);
   }
 
+  querySolidContacts(body) {
+    const box = playerAabb(body.position, body.shapeHalfExtents ?? body.halfExtents);
+    const contacts = [];
+    for (let x = Math.floor(box.minX); x <= Math.floor(box.maxX - EPSILON); x += 1) {
+      for (let y = Math.floor(box.minY); y <= Math.floor(box.maxY - EPSILON); y += 1) {
+        for (let z = Math.floor(box.minZ); z <= Math.floor(box.maxZ - EPSILON); z += 1) {
+          const voxel = this.getVoxelId(x, y, z);
+          const blockId = voxel & 0x3fff;
+          if (blockId === 0 || !this.materialFor(blockId).solid) continue;
+          const overlapX = Math.max(0, Math.min(box.maxX, x + 1) - Math.max(box.minX, x));
+          const overlapY = Math.max(0, Math.min(box.maxY, y + 1) - Math.max(box.minY, y));
+          const overlapZ = Math.max(0, Math.min(box.maxZ, z + 1) - Math.max(box.minZ, z));
+          const volume = overlapX * overlapY * overlapZ;
+          if (volume <= 0) continue;
+          contacts.push(Object.freeze({ id: `${x},${y},${z}`, voxel, volume }));
+        }
+      }
+    }
+    return Object.freeze(contacts);
+  }
+
   diagnostics() {
     return Object.freeze({
       ...this.#diagnostics,

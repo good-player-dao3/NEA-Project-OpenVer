@@ -4,6 +4,8 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { digestCapabilityJson } from "../src/capability-input-digest.mjs";
+import { normalizeCapabilityWorldConfig } from "../src/capability-input-normalize.mjs";
 import { importMapProject, publishClientScript, publishClientUiState } from "../src/import-project.mjs";
 
 function assertPresentCapabilityDigest(value) {
@@ -51,6 +53,8 @@ test("imports the Demo into dao3-project/v1", async () => {
   assertPresentCapabilityDigest(capabilities.inputs.projectIdentity);
   assertPresentCapabilityDigest(capabilities.inputs.storageScope);
   assertPresentCapabilityDigest(capabilities.inputs.worldConfig);
+  assertPresentCapabilityDigest(capabilities.inputs.worldSpawn);
+  assertPresentCapabilityDigest(capabilities.inputs.playerBody);
   assert.ok(capabilities.requirements.some(item => item.usage === "world.say"));
   assert.ok(capabilities.requirements.some(item => item.usage === "UiText.create"));
   assert.ok(capabilities.requirements.some(item => item.usage === "runtimeStatus.textContent" && item.owner === "UiText"));
@@ -73,6 +77,27 @@ test("imports the Demo into dao3-project/v1", async () => {
   assert.equal(physics.materials["631"].restitution, 0.82);
   assert.equal(physics.colliders[0].id, "training-step");
   assert.equal(physics.triggers.length, 2);
+});
+
+test("imports optional airFriction as a capability-bound world physics input", async () => {
+  const fixture = resolve(fileURLToPath(new URL("../project", import.meta.url)));
+  const temporaryRoot = await mkdtemp(join(tmpdir(), "nea-map-air-friction-"));
+  const source = join(temporaryRoot, "source");
+  const output = join(temporaryRoot, "project");
+  await cp(fixture, source, { recursive: true });
+  const physicsPath = join(source, "world", "physics.json");
+  const physics = JSON.parse(await readFile(physicsPath, "utf8"));
+  physics.gravity = -0.1;
+  physics.airFriction = 0.01;
+  await writeFile(physicsPath, `${JSON.stringify(physics, null, 2)}\n`, "utf8");
+
+  const result = await importMapProject(source, output);
+  const packagedPhysics = JSON.parse(await readFile(join(output, "world", "physics.json"), "utf8"));
+  assert.equal(packagedPhysics.airFriction, 0.01);
+  assert.deepEqual(
+    result.capabilityManifest.inputs.worldConfig,
+    digestCapabilityJson(normalizeCapabilityWorldConfig({ entityLimit: result.manifest.world.entityLimit, gravity: -0.1, airFriction: 0.01 })),
+  );
 });
 
 test("imports and publishes complete server and client module sets", async () => {

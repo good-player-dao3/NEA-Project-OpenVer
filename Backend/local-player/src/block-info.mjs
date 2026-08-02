@@ -93,6 +93,10 @@ export function decodeBlockCatalog(bytes) {
 }
 
 export async function loadPreservedBlockCatalog(assetRoot, manifestName) {
+  return (await loadPreservedBlockCatalogMetadata(assetRoot, manifestName)).catalog;
+}
+
+export async function loadPreservedBlockCatalogMetadata(assetRoot, manifestName) {
   if (typeof manifestName !== "string" || !ARCHIVE_JSON_PATH.test(manifestName) || manifestName.includes("\\")) {
     throw new Error("A world manifest must be an archive-relative JSON path");
   }
@@ -100,6 +104,20 @@ export async function loadPreservedBlockCatalog(assetRoot, manifestName) {
   const manifest = JSON.parse(await readFile(resolve(root, manifestName), "utf8"));
   const contentAddress = manifest?.provenance?.blockInfo;
   if (!CID_V0.test(contentAddress ?? "")) throw new Error("World manifest does not contain a valid BlockInfo CIDv0");
+  const resetCounter = optionalResetCounter(manifest?.resetCounter);
+  const innerAO = optionalBoolean(manifest?.innerAO, "innerAO");
   const bytes = await readFile(resolve(root, "block", contentAddress));
-  return decodeBlockCatalog(bytes);
+  return Object.freeze({ contentAddress, resetCounter, innerAO, catalog: decodeBlockCatalog(bytes) });
+}
+
+function optionalResetCounter(value) {
+  if (value === undefined) return null;
+  if (!Number.isSafeInteger(value) || value < 0 || value > 0xffffffff) throw new Error("World manifest resetCounter must be a uint32");
+  return value;
+}
+
+function optionalBoolean(value, field) {
+  if (value === undefined) return null;
+  if (typeof value !== "boolean") throw new Error(`World manifest ${field} must be a boolean`);
+  return value;
 }

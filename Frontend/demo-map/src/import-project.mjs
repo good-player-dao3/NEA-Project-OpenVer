@@ -41,7 +41,16 @@ async function prepareImport(source, options) {
     uiState: source.ui,
     storageScope: { groupId: source.manifest.runtime.groupId },
     projectIdentity: { projectName: source.manifest.display.name },
-    worldConfig: { entityLimit: source.manifest.world.entityLimit },
+    worldConfig: {
+      entityLimit: source.manifest.world.entityLimit,
+      ...(source.physics.airFriction === undefined ? {} : {
+        gravity: source.physics.gravity,
+        airFriction: source.physics.airFriction,
+      }),
+    },
+    worldSpawnEvidence: source.manifest.world.spawn,
+    playerBodyEvidence: source.physics.playerBody,
+    environmentEvidence: source.environment,
   });
   return { source, terrain, serverModules, clientModules, assets, clientScript, capabilityManifest };
 }
@@ -53,6 +62,7 @@ async function writeProjectPackage(destination, prepared) {
     world: join(destination, "world", "world.json"),
     terrain: join(destination, "world", "terrain.json"),
     entities: join(destination, "world", "entities.json"),
+    environment: join(destination, "world", "environment.json"),
     physics: join(destination, "world", "physics.json"),
     assets: join(destination, "assets", "index.json"),
     scripts: join(destination, "scripts", "manifest.json"),
@@ -84,6 +94,7 @@ async function writeProjectPackage(destination, prepared) {
     entityLimit: source.manifest.world.entityLimit,
     entities: "world/entities.json",
     terrain: "world/terrain.json",
+    environment: source.environment === null ? null : "world/environment.json",
     physics: "world/physics.json",
   });
   await writeJson(files.terrain, {
@@ -97,6 +108,7 @@ async function writeProjectPackage(destination, prepared) {
       mesh: entity.mesh,
     })),
   });
+  if (source.environment !== null) await writeJson(files.environment, source.environment);
   await writeJson(files.physics, source.physics);
   await writeJson(files.assets, {
     format: "nea-project-assets",
@@ -125,6 +137,7 @@ function createImportResult(source, destination, prepared) {
     outputRoot: destination,
     manifest: source.manifest,
     physics: source.physics,
+    environment: source.environment,
     voxelCount: terrain.length,
     entityCount: source.entities.length,
     assetCount: assets.length,

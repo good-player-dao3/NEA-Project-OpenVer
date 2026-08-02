@@ -12,6 +12,8 @@ test("client script creates status UI and handles pointer-lock input through Rem
 
   assert.equal(fixture.status.parent, fixture.ui);
   assert.match(fixture.status.textContent, /NEA Client Runtime: active/);
+  assert.match(fixture.status.textContent, /RemoteChannel directed \+ broadcast delivery/);
+  assert.match(fixture.status.textContent, /deferred: historical physics, chat ingress, group storage/);
   assert.deepEqual(fixture.sent, [{ type: "nea-demo:ready", runtimeApiVersion: "0.1.0" }]);
 
   fixture.pointerLockEvents.emit("pointerlockchange", { isLocked: true });

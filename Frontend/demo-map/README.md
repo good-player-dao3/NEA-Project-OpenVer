@@ -22,6 +22,8 @@ npm start
 
 The Demo starts the historical Player on `4322` and a random-token, loopback-only Script Runtime control bridge on `4323`. Set `NEA_DEMO_CONTROL_PORT` to move the bridge or `NEA_DEMO_CONTROL_TOKEN` only for deterministic local testing. `NEA_DEMO_CONTROL_REQUEST_TIMEOUT_MS` accepts a positive integer in milliseconds and defaults to `2000`; it applies to short control operations such as chat, sound, entity/state updates, GUI commands, and remote events. `NEA_DEMO_STATE_SYNC_INTERVAL_MS` accepts a positive integer in milliseconds and defaults to `50`; overlapping state syncs are still skipped. `NEA_DEMO_STATE_SYNC_WARNING_INTERVAL_MS` accepts a positive integer in milliseconds and defaults to `5000`; repeated state-sync failures with the same session and error message are throttled. `NEA_DEMO_BACKEND_SHUTDOWN_TIMEOUT_MS` accepts a positive integer in milliseconds and defaults to `5000`; the Demo sends `SIGTERM` first and escalates to `SIGKILL` only if the Player backend does not exit in time. Dialog completion remains user-driven and is cancelled only when the Demo stops.
 
+When running multiple Demo instances concurrently, set `NEA_DEMO_BUILD_ROOT` to a distinct package directory for each instance so Windows package replacement stays isolated.
+
 `npm run test:control-bridge` starts the checked-in local Player backend with an ephemeral game port and a dedicated loopback control port. It verifies authentication, required session input, unknown-route handling, and JSON error responses without contacting MuDB or a browser. If the Player process cannot spawn, `src/server.mjs` reports the startup error separately from a normal backend exit.
 
 ## MuDB build

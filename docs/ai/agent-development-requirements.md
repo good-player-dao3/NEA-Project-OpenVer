@@ -31,9 +31,10 @@ Read the applicable `AGENTS.md` files first, then read these files before meanin
 8. `preservation-dump/README.md`
 9. `Docs/repository-layout.md`
 10. `Docs/runtime-architecture.md`
-11. `Docs/open-version.md`
-12. `Docs/ai/project-context.md`
-13. One task-specific file under `Docs/ai/`, when applicable.
+11. `Docs/architecture-governance.md`
+12. `Docs/open-version.md`
+13. `Docs/ai/project-context.md`
+14. One task-specific file under `Docs/ai/`, when applicable.
 
 Then inspect:
 
@@ -42,7 +43,7 @@ Then inspect:
 - current ABI reports and conformance declarations
 - the latest ignored `script-abi-usage.json` under `dump/private/live-captures/`, when ABI prioritization requires it
 
-The private usage report may be inspected locally only. Never copy private script text, map identity, payloads, or private paths into tracked files.
+Private usage reports and capture inputs may be inspected locally when the task explicitly declares them as evidence. Use the minimum required input, keep the inspection output bounded, and derive only anonymous facts such as counts, schemas, capability classifications, or non-secret hashes. Never copy private script text, map identity, payloads, credentials, token-bearing URLs, browser state, or private paths into tracked files, logs, prompts, screenshots, or user-facing output.
 
 ## 3. Evidence Rules
 
@@ -93,7 +94,7 @@ Dynamic entity projection must accept only captured and validated mesh names. Un
 
 ## 5. Privacy and Publication Rules
 
-Never modify, stage, commit, publish, copy into tracked files, or expose:
+Local reading is permitted for a declared audit or implementation task. The following remain non-publishable and non-modifiable:
 
 - `NEA-Project.7z`
 - `dump/private/`
@@ -105,7 +106,7 @@ Never modify, stage, commit, publish, copy into tracked files, or expose:
 - cookies, OAuth data, tokens, credentials, session state, or token-bearing URLs
 - private capture payloads or identifiable work names
 
-Tracked reports may include sanitized counts, API names, classifications, non-secret hashes, and generalized findings only.
+Tracked reports may include sanitized counts, API names, classifications, non-secret hashes, and generalized findings only. A report must state its source class, redaction status, public/private status, and reproducibility limits without naming private paths or identities.
 
 Before publishing to OpenVer, inspect changed paths and diffs for secrets and private references. OpenVer must contain only vetted publishable material.
 

@@ -22,6 +22,7 @@ import { raycastWorld, RuntimeRaycastResult } from "./game-raycast.mjs";
 import { searchRuntimeEntities } from "./entity-bounds.mjs";
 import { entityLookAtQuaternion, rotateEntityLocal, scaleEntityLocal } from "./entity-look-at.mjs";
 import { matchesGameSelector } from "./game-selector.mjs";
+import { EntityBackendBridge } from "./entity-backend-bridge.mjs";
 
 const EMPTY_PLAYER_TAGS = Object.freeze(new Set());
 const GUI_CAPABILITY_MEMBERS = new Set(["init", "show", "remove", "getAttribute", "setAttribute", "onMessage", "ui"]);
@@ -101,9 +102,10 @@ export class ScriptRuntime {
   #chatFifo;
   #outboundEvents = [];
   #collisionFilters = new Map();
-  #validatedMeshNames = new Set();
+  #entityBackendBridge;
   #world;
   #worldPhysicsSnapshot;
+  #initialWorldPhysics;
   #now;
   #prevTickMS;
   #signals = {
@@ -156,6 +158,7 @@ export class ScriptRuntime {
     this.entityLimit = requireEntityLimit(options.entityLimit ?? 3400);
     this.#now = options.now ?? Date.now;
     this.#prevTickMS = this.#now();
+    this.#initialWorldPhysics = normalizeInitialWorldPhysics(options.physics);
     this.playerBodyProfile = options.physics?.playerBody;
     if (!this.playerBodyProfile) throw new Error("Runtime requires an explicit player body profile");
     this.sendClientEvent = options.sendClientEvent ?? (() => {});
@@ -165,10 +168,13 @@ export class ScriptRuntime {
     this.#chatFifo = new HistoricalChatFifo(options.chatMessagesPerTick ?? null);
     this.writePlayerState = options.writePlayerState ?? (() => {});
     this.writeDamageState = options.writeDamageState ?? (() => {});
-    this.createEntity = options.createEntity ?? (() => null);
-    this.writeEntityState = options.writeEntityState ?? (() => {});
-    this.destroyEntity = options.destroyEntity ?? (() => {});
-    this.#validatedMeshNames = new Set(options.validatedMeshNames ?? []);
+    this.#entityBackendBridge = new EntityBackendBridge({
+      validatedMeshNames: options.validatedMeshNames,
+      createEntity: options.createEntity ?? (() => null),
+      writeEntityState: options.writeEntityState ?? (() => {}),
+      destroyEntity: options.destroyEntity ?? (() => {}),
+      reportError: (source, error) => this.#reportError(source, error),
+    });
     this.showDialog = options.showDialog ?? (() => Promise.reject(new Error("Dialog transport is not configured")));
     this.cancelDialogs = options.cancelDialogs ?? (() => false);
     this.collisionWorld = new VoxelCollisionWorld({
@@ -628,6 +634,11 @@ export class ScriptRuntime {
     };
     const world = Object.defineProperties(new GameWorld(), Object.getOwnPropertyDescriptors(worldProperties));
     Object.defineProperty(world, "projectName", { value: this.projectName, enumerable: true, writable: false, configurable: false });
+    if (this.#initialWorldPhysics !== null) {
+      world.gravity = this.#initialWorldPhysics.gravity;
+      world.airFriction = this.#initialWorldPhysics.airFriction;
+      this.physics.setDaoWorldPhysics(world.gravity, world.airFriction, this.tickRate);
+    }
     this.#world = world;
     this.#worldPhysicsSnapshot = Object.freeze({ gravity: world.gravity, airFriction: world.airFriction });
     const guardedWorld = createCapabilityFacade(world, () => this.#require("server.world.config"), WORLD_CONFIG_CAPABILITY_MEMBERS);
@@ -987,7 +998,7 @@ export class ScriptRuntime {
     entity._signals.destroy.emit(event, error => this.#reportError("entityDestroy", error));
     this.#signals.entityDestroy.emit(event, error => this.#reportError("entityDestroy", error));
     if (Number.isSafeInteger(entity._backendEntityId) && entity._backendEntityId > 0) {
-      Promise.resolve(this.destroyEntity(entity._backendEntityId)).catch(error => this.#reportError("entity-destroy", error));
+      this.#entityBackendBridge.destroy(entity);
     }
   }
 
@@ -1008,45 +1019,25 @@ export class ScriptRuntime {
   }
 
   #projectEntity(entity) {
-    if (typeof entity.mesh !== "string" || entity.mesh.length === 0 || !this.#validatedMeshNames.has(entity.mesh)) return;
-    Promise.resolve(this.createEntity(runtimeEntityProjectionPayload(entity))).then(result => {
-      const entityId = result?.entityId;
-      if (!Number.isSafeInteger(entityId) || entityId < 1) throw new Error("Backend entity projection returned an invalid entity id");
-      entity._backendEntityId = entityId;
-      if (entity.destroyed) {
-        return this.destroyEntity(entityId);
-      }
-      this.#queueEntityStateWrite(entity);
-      this.#queueDamageStateWrite(entity);
-      return undefined;
-    }).catch(error => this.#reportError("entity-create", error));
+    this.#entityBackendBridge.project(entity, projected => this.#queueDamageStateWrite(projected));
   }
 
   _entityTransformChanged(entity) {
-    this.#queueEntityStateWrite(entity);
+    this.#entityBackendBridge.queueStateWrite(entity);
   }
 
   _entityPhysicsChanged(entity) {
-    this.#queueEntityStateWrite(entity);
+    this.#entityBackendBridge.queueStateWrite(entity);
   }
+}
 
-  #queueEntityStateWrite(entity) {
-    if (!Number.isSafeInteger(entity._backendEntityId) || entity._backendEntityId < 1) return;
-    const state = {
-      position: entity.position.toArray(),
-      velocity: entity.velocity.toArray(),
-      orientation: quaternionArray(entity.meshOrientation),
-      collides: Boolean(entity.collides),
-      fixed: Boolean(entity.fixed),
-      gravity: Boolean(entity.gravity),
-      mass: Number(entity.mass),
-      friction: Number(entity.friction),
-      restitution: Number(entity.restitution),
-      nameplate: runtimeEntityNameplatePayload(entity),
-      model: runtimeEntityModelPayload(entity),
-    };
-    Promise.resolve(this.writeEntityState(entity._backendEntityId, state)).catch(error => this.#reportError("entity-state-write", error));
+function normalizeInitialWorldPhysics(physics) {
+  const hasAirFriction = physics?.airFriction !== undefined;
+  if (!hasAirFriction) return null;
+  if (!Number.isFinite(physics.gravity) || !Number.isFinite(physics.airFriction)) {
+    throw new Error("Runtime world physics must include finite gravity and airFriction values together");
   }
+  return Object.freeze({ gravity: physics.gravity, airFriction: physics.airFriction });
 }
 
 function createCapabilityFacade(target, requireCapability, guardedMembers = null) {
@@ -1067,40 +1058,11 @@ function createCapabilityFacade(target, requireCapability, guardedMembers = null
   });
 }
 
-function runtimeEntityProjectionPayload(entity) {
-  return {
-    position: entity.position.toArray(),
-    velocity: entity.velocity.toArray(),
-    name: entity.name,
-    tags: [...entity.tags],
-    mesh: entity.mesh,
-    bounds: entity.bounds.toArray(),
-    nameplate: runtimeEntityNameplatePayload(entity),
-    collides: entity.collides,
-    fixed: entity.fixed,
-    gravity: entity.gravity,
-    mass: entity.mass,
-    friction: entity.friction,
-    restitution: entity.restitution,
-    meshScale: entity.meshScale.toArray(),
-    meshOrientation: quaternionArray(entity.meshOrientation),
-    meshInvisible: entity.meshInvisible,
-    meshMetalness: entity.meshMetalness,
-    meshEmissive: entity.meshEmissive,
-    meshShininess: entity.meshShininess,
-    enableInteract: entity.enableInteract,
-  };
-}
-
 function quaternionFrom(value) {
   if (value instanceof GameQuaternion) return value.clone();
   if (Array.isArray(value) && value.length === 4) return new GameQuaternion(value[0], value[1], value[2], value[3]);
   if (value && typeof value === "object") return new GameQuaternion(value.w, value.x, value.y, value.z);
   throw new TypeError("Expected a GameQuaternion-compatible value");
-}
-
-function quaternionArray(value) {
-  return [value.w, value.x, value.y, value.z];
 }
 
 export function createRuntimeEntity(input, runtime = null) {
@@ -1524,22 +1486,6 @@ function requireRgbaColor(value, name) {
   return new GameRGBAColor(...components);
 }
 
-function runtimeEntityNameplatePayload(entity) {
-  if (!entity.showEntityName) return null;
-  return { text: entity.customName, radius: entity.nameRadius, color: [entity.nameColor.r, entity.nameColor.g, entity.nameColor.b] };
-}
-
-function runtimeEntityModelPayload(entity) {
-  return {
-    invisible: entity.meshInvisible,
-    color: [entity.meshColor.r, entity.meshColor.g, entity.meshColor.b, entity.meshColor.a].map(component => Math.round(component * 255)),
-    scale: entity.meshScale.toArray(),
-    offset: entity.meshOffset.toArray(),
-    emissive: entity.meshEmissive,
-    shininess: entity.meshShininess,
-    metalness: entity.meshMetalness,
-  };
-}
 
 export class RuntimeVoxelContactEvent {
   constructor({ tick, entity, x, y, z, voxel, axis, force, player, collider, normal, compatibility }) {

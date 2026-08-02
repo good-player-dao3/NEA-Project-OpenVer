@@ -10,6 +10,8 @@ NEA Project OpenVer is a source-available preservation and compatibility project
 | --- | --- |
 | Understand the repository | [Repository layout](Docs/repository-layout.md) |
 | See current work and priorities | [Project progress](Docs/project-progress.md) |
+| Plan an evidence-backed contribution | [Development backlog](Docs/development-backlog.md) |
+| Understand architecture governance | [Architecture governance](Docs/architecture-governance.md) |
 | Understand the cleanup plan | [Repository cleanup plan](Docs/repository-cleanup-plan.md) |
 | Understand the runtime boundaries | [Runtime architecture](Docs/runtime-architecture.md) |
 | Work with the open version safely | [Open version policy](Docs/open-version.md) |

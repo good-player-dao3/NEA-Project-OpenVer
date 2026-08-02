@@ -42,3 +42,16 @@ test("rejects captured metadata whose bounds disagree with the project node", ()
     bootstrapMeshHashes: [],
   }), /bounds do not match/);
 });
+
+test("rejects coerced or oversized required entity bounds", () => {
+  const options = {
+    packageId: "fixture",
+    entities: [{ kind: "entity", position: [0, 0, 0], tags: ["id-1"] }],
+    entityNodes: [{ id: "1", value: { mesh: "mesh/a.vb", bounds: [1, 2, 3] } }],
+    meshAssets: { "mesh/a.vb": { hash: "A".repeat(43) } },
+    modelMetadataByHash: new Map([["A".repeat(43), { bounds: [1, 2, 3] }]]),
+    bootstrapMeshHashes: [],
+  };
+  assert.throws(() => buildEditorRuntimeProjection({ ...options, entityNodes: [{ id: "1", value: { mesh: "mesh/a.vb", bounds: ["1", 2, 3] } }] }), /Invalid entity bounds/);
+  assert.throws(() => buildEditorRuntimeProjection({ ...options, modelMetadataByHash: new Map([["A".repeat(43), { bounds: [1, 2, 3, 4] }]]) }), /Invalid model metadata bounds/);
+});

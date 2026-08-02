@@ -3,11 +3,23 @@ import { cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { basename, join, resolve } from "node:path";
 
 import { buildRepositoryProjectCapabilityManifest, loadRepositoryRuntimeCompatibility, publicRuntimeCapabilities } from "../Frontend/demo-map/src/project-capability.mjs";
+import { normalizeWorldSpawnWithinShape } from "../Frontend/demo-map/src/world-spawn.mjs";
+import { verifyClientRuntimeAssets } from "../Frontend/demo-map/src/client-runtime-integrity.mjs";
+import { verifyProjectBootstrapFile } from "../Frontend/demo-map/src/bootstrap-integrity.mjs";
+import { loadPreservedBlockCatalogMetadata } from "../Backend/local-player/src/block-info.mjs";
+import { normalizeRecoveredEntityPlacement } from "../Frontend/demo-map/src/recovered-entity-placement.mjs";
+import { preserveRecoveredEnvironment } from "../Frontend/demo-map/src/recovered-environment-adapter.mjs";
+import { preserveRecoveredFeatures } from "../Frontend/demo-map/src/recovered-features-adapter.mjs";
+import { preflightRecoveredProject } from "../Frontend/demo-map/src/recovered-project-preflight.mjs";
+import { preflightRecoveredUiTree } from "../Frontend/demo-map/src/recovered-ui-tree-preflight.mjs";
+import { validateUiSource, validateUiTreeBinding } from "../Frontend/demo-map/src/format.mjs";
 import { buildEditorRuntimeProjection } from "./editor-runtime-projection.mjs";
+import { assertNativePlayerTerrainShape, assertTerrainBlockIdsInCatalog, convertRecoveredVoxelChunks } from "../Middleware/runtime-compat/src/recovered-terrain-converter.mjs";
+import { preflightRecoveredTerrainOrder } from "../Middleware/runtime-compat/src/recovered-terrain-order-preflight.mjs";
 const SERVER_CAPABILITIES = Object.freeze(["server.world.events", "server.world.chat", "server.world.entities", "server.world.voxels", "server.world.config", "server.gui", "server.storage", "server.player", "server.player.write", "server.remote-channel"]);
-const [workRootArg, captureRootArg, outputRootArg, templateArchiveArg, templateProjectIdArg, templateWorldManifestArg] = process.argv.slice(2);
+const [workRootArg, captureRootArg, outputRootArg, templateArchiveArg, templateProjectIdArg, templateWorldManifestArg, orderProofPathArg, maxVoxelCountArg] = process.argv.slice(2);
 if (!workRootArg || !captureRootArg || !outputRootArg) {
-  throw new Error("Usage: node build-editor-runtime-package.mjs <work-root> <capture-root> <output-root> [template-archive] [template-project-id] [template-world-manifest]");
+  throw new Error("Usage: node build-editor-runtime-package.mjs <work-root> <capture-root> <output-root> [template-archive] [template-project-id] [template-world-manifest] [order-proof-json] [max-voxels]");
 }
 
 const workRoot = resolve(workRootArg);
@@ -17,14 +29,42 @@ const templateArchive = resolve(templateArchiveArg ?? new URL("../Backend/local-
 const projectSourceRoot = join(workRoot, "manual-cdp", "project");
 const sourceRoot = join(workRoot, "manual-cdp", "source");
 const project = JSON.parse(await readFile(join(projectSourceRoot, "project.json"), "utf8"));
+const projectPreflight = preflightRecoveredProject(project);
+if (projectPreflight.status === "evidence-blocked") {
+  const error = new Error("Recovered project package build is blocked by missing or incompatible project fields");
+  error.code = "evidence-blocked";
+  error.diagnostics = projectPreflight.diagnostics;
+  throw error;
+}
+const uiTreePreflight = preflightRecoveredUiTree(project.uiTree);
+if (uiTreePreflight.status === "evidence-blocked") {
+  const error = new Error("Recovered project package build is blocked by malformed UI tree structure");
+  error.code = "evidence-blocked";
+  error.diagnostics = uiTreePreflight.diagnostics;
+  throw error;
+}
+const recoveredUiState = validateUiTreeBinding(project.defaultScreenId, project.uiTree);
+const recoveredEnvironment = preserveRecoveredEnvironment(project.environment);
+const recoveredFeatures = preserveRecoveredFeatures(project.features);
 const extraProjectInfo = JSON.parse(await readFile(join(projectSourceRoot, "extra-project-info.json"), "utf8"));
 const publish = JSON.parse(await readFile(join(projectSourceRoot, "publish.json"), "utf8"));
 const runtimeCompatibility = await loadRepositoryRuntimeCompatibility();
 const clientCapabilities = publicRuntimeCapabilities(runtimeCompatibility.currentRuntime, "client");
 const runtimeTemplate = await discoverRuntimeTemplate(templateArchive, templateProjectIdArg, templateWorldManifestArg);
 const templateWorld = runtimeTemplate.world;
+const templateBlockCatalog = await loadPreservedBlockCatalogMetadata(templateArchive, runtimeTemplate.worldManifest);
 const packageId = `captured-${publish.gameId}`;
 const projectDisplayName = `Captured ${publish.gameId}`;
+const orderProof = orderProofPathArg ? JSON.parse(await readFile(resolve(orderProofPathArg), "utf8")) : undefined;
+const maxVoxels = parseMaxVoxels(maxVoxelCountArg) ?? voxelCapacity(project.voxels.shape);
+const terrainPreflight = preflightRecoveredTerrainOrder(project.voxels, orderProof);
+if (!terrainPreflight.canProceedWithOrder) {
+  const error = new Error("Recovered terrain package build is blocked by missing or incompatible order evidence");
+  error.code = "evidence-blocked";
+  error.diagnostics = terrainPreflight.diagnostics;
+  throw error;
+}
+assertNativePlayerTerrainShape(project.voxels.shape);
 const archiveRoot = join(outputRoot, "archive");
 const packageRoot = join(outputRoot, "project");
 const archiveProjectRoot = join(archiveRoot, "project", packageId);
@@ -51,14 +91,18 @@ for (const row of responseRows) {
 }
 
 const decodedByCid = new Map();
+const chunkBytesByCid = new Map();
 for (const cid of new Set(project.voxels.chunks)) {
   const destination = join(archiveRoot, "block", cid);
   try {
-    decodedByCid.set(cid, decodeVoxelChunk(await readFile(destination)));
+    const bytes = await readFile(destination);
+    chunkBytesByCid.set(cid, bytes);
+    decodedByCid.set(cid, decodeVoxelChunk(bytes));
   } catch (error) {
     if (!bodyByCid.has(cid)) throw new Error(`Missing captured block response for ${cid}`, { cause: error });
     const bytes = await readFile(bodyByCid.get(cid));
     await writeFile(destination, bytes);
+    chunkBytesByCid.set(cid, bytes);
     decodedByCid.set(cid, decodeVoxelChunk(bytes));
   }
 }
@@ -68,29 +112,21 @@ const capturedPictures = await packageCapturedPictureAssets({ project, engineMod
 
 const shape = vector(project.voxels.shape);
 const chunkShape = shape.map(value => value / 32);
-const terrain = [];
+const terrain = convertRecoveredVoxelChunks({
+  voxels: project.voxels,
+  chunkBodies: project.voxels.chunks.map(cid => chunkBytesByCid.get(cid)),
+  orderProof,
+  maxVoxels,
+}).voxels;
+assertTerrainBlockIdsInCatalog(terrain, templateBlockCatalog.catalog);
 const chunkEntries = [];
 for (let index = 0; index < project.voxels.chunks.length; index += 1) {
   const cid = project.voxels.chunks[index];
   const decoded = decodedByCid.get(cid);
-  const chunkX = index % chunkShape[0];
-  const chunkY = Math.floor(index / chunkShape[0]) % chunkShape[1];
-  const chunkZ = Math.floor(index / (chunkShape[0] * chunkShape[1]));
-  for (const box of decoded.boxes) {
-    const blockId = box.block & 4095;
-    const rotation = box.block >>> 14;
-    for (let z = box.minZ; z < box.maxZ; z += 1) {
-      for (let y = box.minY; y < box.maxY; y += 1) {
-        for (let x = box.minX; x < box.maxX; x += 1) {
-          terrain.push({ position: [chunkX * 32 + x, chunkY * 32 + y, chunkZ * 32 + z], blockId, rotation });
-        }
-      }
-    }
-  }
   chunkEntries.push({ index, hash: cid, boxes: decoded.boxes.length, bytes: decoded.bytes, source: "captured-content" });
 }
 
-const spawn = vector(project.player.initialPosition);
+const spawn = normalizeWorldSpawnWithinShape(project.player.initialPosition, shape);
 const worldManifestName = `world-${packageId}.json`;
 await writeJson(join(archiveRoot, worldManifestName), {
   format: "nea-recovered-world",
@@ -115,6 +151,7 @@ await writeJson(join(archiveRoot, worldManifestName), {
 });
 
 const serverFiles = await javascriptFiles(join(sourceRoot, "server"));
+assertRecoveredServerScriptEntry(project.scriptIndex, serverFiles);
 const serverModules = [];
 for (const name of serverFiles) {
   const destination = join(packageRoot, "scripts", name);
@@ -136,22 +173,25 @@ const clientManifestName = `project/${packageId}/client-scripts/manifest.json`;
 await writeJson(join(archiveRoot, clientManifestName), {
   format: "nea-recovered-client-scripts",
   version: 1,
+  contract: { side: "client", id: "dao3-client-runtime/v1", apiVersion: "0.1.0" },
   capabilities: clientCapabilities,
   sourceMessage: "gameNet.syncClientScriptModules",
   files: clientManifestFiles,
 });
 
 const capturedPictureAssets = capturedPictures.uiAssets;
+assertUiPictureAssetsPackaged(capturedPictureAssets, capturedPictures.packageAssets);
 const clientUiManifestName = `project/${packageId}/client-ui/manifest.json`;
-await writeJson(join(archiveRoot, clientUiManifestName), {
+const validatedUiState = validateUiSource({
   format: "nea-recovered-client-ui",
   version: 1,
   sourceMessage: "gameUI.reset",
   running: true,
-  defaultScreenId: project.defaultScreenId,
+  defaultScreenId: recoveredUiState.defaultScreenId,
   pictureAssets: capturedPictureAssets,
-  uiTree: project.uiTree,
+  uiTree: recoveredUiState.uiTree,
 });
+await writeJson(join(archiveRoot, clientUiManifestName), validatedUiState);
 
 const runtimeManifestPath = join(archiveRoot, clientRuntimeManifestName);
 const runtimeManifest = JSON.parse(await readFile(runtimeManifestPath, "utf8"));
@@ -168,7 +208,7 @@ const entities = entityNodes.map(node => {
   const packageTags = [...new Set([`id-${node.id}`, ...sourceTags.filter(tag => projectPackageTagPattern.test(tag))])].sort();
   return {
     kind: "entity",
-    position: vector(node.value.position),
+    position: normalizeRecoveredEntityPlacement(node.value.position),
     tags: packageTags,
     source: {
       name: node.value.name ?? node.name ?? "",
@@ -184,17 +224,13 @@ const modelMetadataByHash = new Map();
 const copiedModelHashes = new Set();
 await mkdir(join(archiveRoot, "engine", "m"), { recursive: true });
 for (const asset of Object.values(extraProjectInfo.meshAssets ?? {})) {
-  const metadataPath = asset?.hash ? engineModelBodyByHash.get(asset.hash) : undefined;
-  if (!metadataPath) continue;
-  const metadataBytes = await readFile(metadataPath);
-  const metadata = JSON.parse(metadataBytes.toString("utf8"));
-  const dataPath = typeof metadata.dataHash === "string" ? engineModelBodyByHash.get(metadata.dataHash) : undefined;
-  if (!dataPath) continue;
-  modelMetadataByHash.set(asset.hash, metadata);
-  for (const [hash, sourcePath] of [[asset.hash, metadataPath], [metadata.dataHash, dataPath]]) {
+  const model = await verifyCapturedEngineModel(asset?.hash, engineModelBodyByHash);
+  if (!model) continue;
+  modelMetadataByHash.set(model.metadataHash, model.metadata);
+  for (const [hash, bytes] of [[model.metadataHash, model.metadataBytes], [model.dataHash, model.dataBytes]]) {
     if (copiedModelHashes.has(hash)) continue;
     copiedModelHashes.add(hash);
-    await writeFile(join(archiveRoot, "engine", "m", hash), await readFile(sourcePath));
+    await writeFile(join(archiveRoot, "engine", "m", hash), bytes);
   }
 }
 const bootstrapPath = join(archiveProjectRoot, "bootstrap", "bootstrap.json");
@@ -232,6 +268,9 @@ const capabilityAssets = [
   ...capturedAudio.capabilityAssets,
   ...capturedPictures.capabilityAssets,
 ];
+const packageAssets = [...capturedAudio.packageAssets, ...capturedPictures.packageAssets];
+assertUniquePackageAssetLogicalPaths(packageAssets);
+assertContentAddressedCapabilityAssetsPackaged(capabilityAssets, packageAssets);
 const capabilityManifest = await buildRepositoryProjectCapabilityManifest({
   apiVersion: "0.1.0",
   contracts: { client: "dao3-client-runtime/v1", server: "nea-server-runtime/v1" },
@@ -242,7 +281,20 @@ const capabilityManifest = await buildRepositoryProjectCapabilityManifest({
   runtimeCompatibility,
   assets: capabilityAssets,
   entities: entities.map((entity, index) => ({ id: entityNodes[index]?.id, kind: entity.kind, mesh: entity.source?.mesh ?? "" })),
-  uiState: { defaultScreenId: project.defaultScreenId, uiTree: project.uiTree },
+  environmentEvidence: recoveredEnvironment,
+  featuresEvidence: recoveredFeatures,
+  playerEvidence: project.player,
+  worldConfig: { gravity: project.physics.gravity, airFriction: project.physics.velocityDamping },
+  worldSpawnEvidence: spawn,
+  playerBodyEvidence: {
+    profileId: "historical-player-default-v1",
+    origin: "body-center",
+    originStatus: "confirmed",
+    sizeStatus: "confirmed",
+    boundsHalfExtents: [0.45, 1.1, 0.45],
+    shapeHalfExtents: [0.45, 1.1, 0.45],
+  },
+  uiState: validatedUiState,
   projectIdentity: { projectName: projectDisplayName },
 });
 await writeJson(join(packageRoot, "capabilities", "manifest.json"), capabilityManifest);
@@ -263,12 +315,15 @@ await writeJson(join(packageRoot, "dao3.project.json"), {
   scripts: "scripts/manifest.json",
   capabilities: "capabilities/manifest.json",
 });
-await writeJson(join(packageRoot, "world", "world.json"), { shape, spawn, entities: "world/entities.json", terrain: "world/terrain.json", physics: "world/physics.json" });
+await writeJson(join(packageRoot, "world", "world.json"), { shape, spawn, entities: "world/entities.json", terrain: "world/terrain.json", environment: "world/environment.json", features: "world/features.json", physics: "world/physics.json" });
 await writeJson(join(packageRoot, "world", "terrain.json"), { voxels: terrain });
+await writeJson(join(packageRoot, "world", "environment.json"), recoveredEnvironment);
+await writeJson(join(packageRoot, "world", "features.json"), recoveredFeatures);
 await writeJson(join(packageRoot, "world", "entities.json"), { entities });
 await writeJson(join(packageRoot, "world", "physics.json"), {
   formatVersion: "nea-physics/v1",
   gravity: project.physics.gravity,
+  airFriction: project.physics.velocityDamping,
   playerBody: {
     profileId: "historical-player-default-v1",
     origin: "body-center",
@@ -281,7 +336,7 @@ await writeJson(join(packageRoot, "world", "physics.json"), {
   colliders: [],
   triggers: [],
 });
-await writeJson(join(packageRoot, "assets", "index.json"), { assets: [...capturedAudio.packageAssets, ...capturedPictures.packageAssets] });
+await writeJson(join(packageRoot, "assets", "index.json"), { assets: packageAssets });
 await writeJson(join(packageRoot, "scripts", "manifest.json"), {
   entry: `scripts/${project.scriptIndex}`,
   modules: serverModules,
@@ -312,6 +367,12 @@ const summary = {
   clientModules: clientManifestFiles.length,
   clientCapabilities: clientCapabilities.length,
   clientUiNodes: Object.keys(project.uiTree ?? {}).length,
+  environmentCompatibility: recoveredEnvironment.compatibility,
+  featuresCompatibility: recoveredFeatures.compatibility,
+  physicsCompatibility: "partial",
+  deferredPhysicsFields: ["useOBB"],
+  deferredProjectFields: [{ name: "defaultSkinName", status: "evidence-deferred", reason: "No public mapping links the recovered default skin name to bootstrap avatar hashes or initial Player state" }],
+  recoveredProjectFields: projectPreflight.fields.map(field => ({ name: field.name, status: field.status })),
   clientUiPictureAssets: Object.keys(capturedPictureAssets).length,
   declaredPictureAssets: Object.keys(project.pictureAssets ?? {}).length,
   packagedPictureAssets: Object.keys(capturedPictureAssets).length,
@@ -330,6 +391,39 @@ async function javascriptFiles(root) {
   return entries.filter(entry => entry.isFile() && entry.name.endsWith(".js") && basename(entry.name) === entry.name).map(entry => entry.name).sort();
 }
 
+async function verifyCapturedEngineModel(metadataHash, engineModelBodyByHash) {
+  if (typeof metadataHash !== "string" || !/^[A-Za-z0-9_-]{43}$/.test(metadataHash)) return null;
+  const metadataPath = engineModelBodyByHash.get(metadataHash);
+  if (!metadataPath) return null;
+  const metadataBytes = await readFile(metadataPath);
+  if (contentAddress(metadataBytes) !== metadataHash) {
+    throw new Error(`Captured engine model metadata does not match its content address: ${metadataHash}`);
+  }
+  const metadata = JSON.parse(metadataBytes.toString("utf8"));
+  const dataHash = metadata?.dataHash;
+  if (typeof dataHash !== "string" || !/^[A-Za-z0-9_-]{43}$/.test(dataHash)) return null;
+  const dataPath = engineModelBodyByHash.get(dataHash);
+  if (!dataPath) return null;
+  const dataBytes = await readFile(dataPath);
+  if (contentAddress(dataBytes) !== dataHash) {
+    throw new Error(`Captured engine model data does not match its content address: ${dataHash}`);
+  }
+  return Object.freeze({ metadataHash, metadata, metadataBytes, dataHash, dataBytes });
+}
+
+function contentAddress(bytes) {
+  return createHash("sha256").update(bytes).digest("base64url");
+}
+
+function assertRecoveredServerScriptEntry(scriptIndex, serverFiles) {
+  if (typeof scriptIndex !== "string" || scriptIndex.length === 0) {
+    throw new Error("Recovered server script entry is invalid");
+  }
+  if (!serverFiles.includes(scriptIndex)) {
+    throw new Error(`Recovered server script entry is not packaged: ${scriptIndex}`);
+  }
+}
+
 async function discoverRuntimeTemplate(archiveRoot, requestedProjectId, requestedWorldManifest) {
   const projectRoot = join(archiveRoot, "project");
   const projectEntries = (await readdir(projectRoot, { withFileTypes: true })).filter(entry => entry.isDirectory());
@@ -341,8 +435,11 @@ async function discoverRuntimeTemplate(archiveRoot, requestedProjectId, requeste
       const clientRuntime = JSON.parse(await readFile(join(candidateRoot, "client-runtime", "manifest.json"), "utf8"));
       const bootstrapManifest = JSON.parse(await readFile(join(candidateRoot, "bootstrap", "manifest.json"), "utf8"));
       if (clientRuntime.format !== "nea-recovered-client-runtime" || clientRuntime.version !== 1) continue;
+      await verifyClientRuntimeAssets(join(candidateRoot, "client-runtime"), clientRuntime);
       if (bootstrapManifest.format !== "nea-recovered-project-bootstrap-manifest" || bootstrapManifest.version !== 1) continue;
-      const bootstrap = JSON.parse(await readFile(join(candidateRoot, "bootstrap", bootstrapManifest.file.name), "utf8"));
+      const bootstrapBytes = await readFile(join(candidateRoot, "bootstrap", bootstrapManifest.file.name));
+      verifyProjectBootstrapFile(bootstrapManifest, bootstrapBytes);
+      const bootstrap = JSON.parse(bootstrapBytes.toString("utf8"));
       candidates.push({ projectId: entry.name, clientRuntimeRoot: join(candidateRoot, "client-runtime"), bootstrap });
     } catch (error) {
       if (error?.code !== "ENOENT") throw error;
@@ -473,6 +570,40 @@ function detectImage(bytes) {
   return null;
 }
 
+function assertUiPictureAssetsPackaged(pictureAssets, packageAssets) {
+  const packagedHashes = new Set((packageAssets ?? []).map(asset => asset.logicalPath?.match(/^picture\/([A-Za-z0-9_-]{43})\./)?.[1]).filter(Boolean));
+  for (const [name, asset] of Object.entries(pictureAssets ?? {})) {
+    if (!packagedHashes.has(asset?.metadataHash) || !packagedHashes.has(asset?.hash)) {
+      throw new Error(`Recovered UI picture asset is not bound to packaged content: ${name}`);
+    }
+  }
+}
+
+function assertUniquePackageAssetLogicalPaths(packageAssets) {
+  const logicalPaths = new Set();
+  for (const asset of packageAssets ?? []) {
+    const logicalPath = asset?.logicalPath;
+    if (typeof logicalPath !== "string" || logicalPath.length === 0) {
+      throw new Error("Package asset index contains an invalid logical path");
+    }
+    if (logicalPaths.has(logicalPath)) {
+      throw new Error(`Package asset index contains duplicate logical path: ${logicalPath}`);
+    }
+    logicalPaths.add(logicalPath);
+  }
+}
+
+function assertContentAddressedCapabilityAssetsPackaged(capabilityAssets, packageAssets) {
+  const logicalPaths = new Set((packageAssets ?? []).map(asset => asset.logicalPath));
+  for (const asset of capabilityAssets ?? []) {
+    if (typeof asset?.contentAddress !== "string" || asset.contentAddress.length === 0) continue;
+    const prefix = asset.kind === "audio" ? "audio" : asset.kind === "image" ? "picture" : null;
+    if (prefix === null || ![...logicalPaths].some(path => typeof path === "string" && path.startsWith(`${prefix}/${asset.contentAddress}.`))) {
+      throw new Error(`Content-addressed capability asset is not bound to package asset index: ${asset.name}`);
+    }
+  }
+}
+
 function cidV0(bytes) {
   const alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
   const multihash = Buffer.concat([Buffer.from([0x12, 0x20]), createHash("sha256").update(bytes).digest()]);
@@ -493,6 +624,21 @@ function cidV0(bytes) {
 function vector(value) {
   if (Array.isArray(value)) return value.slice(0, 3).map(Number);
   return [Number(value?.[0] ?? value?.x), Number(value?.[1] ?? value?.y), Number(value?.[2] ?? value?.z)];
+}
+
+function parseMaxVoxels(value) {
+  if (value === undefined) return undefined;
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed) || parsed < 0) throw new RangeError("max-voxels must be a non-negative safe integer");
+  return parsed;
+}
+
+function voxelCapacity(shape) {
+  const capacity = shape?.x * shape?.y * shape?.z;
+  if (!Number.isSafeInteger(capacity) || capacity < 0) {
+    throw new RangeError("Recovered voxel shape cannot provide a safe default max-voxels limit");
+  }
+  return capacity;
 }
 
 function decodeVoxelChunk(bytes) {
