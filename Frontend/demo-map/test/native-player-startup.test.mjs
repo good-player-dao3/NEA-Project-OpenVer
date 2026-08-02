@@ -41,6 +41,41 @@ test("native Player starts from an isolated build root and serves the client scr
   }
 });
 
+test("native Player derives the launcher route from an imported Showcase id", { timeout: 30_000 }, async () => {
+  const playerPort = await freePort();
+  const controlPort = await freePort();
+  const buildRoot = await mkdtemp(join(tmpdir(), "nea-showcase-player-"));
+  const sourceRoot = join(process.cwd(), "Frontend", "demo-map", "showcase");
+  const child = spawn(process.execPath, ["src/server.mjs"], {
+    cwd: join(process.cwd(), "Frontend", "demo-map"),
+    env: {
+      ...process.env,
+      NEA_DEMO_PORT: String(playerPort),
+      NEA_DEMO_CONTROL_PORT: String(controlPort),
+      NEA_DEMO_BUILD_ROOT: buildRoot,
+      NEA_DEMO_SOURCE_ROOT: sourceRoot,
+    },
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  let output = "";
+  child.stdout.on("data", chunk => { output += chunk; });
+  child.stderr.on("data", chunk => { output += chunk; });
+  try {
+    const status = await waitForStatus(playerPort);
+    assert.equal(status.localClient.pagePath, "/p/local-bedwars");
+    const page = await fetch(`http://127.0.0.1:${playerPort}/play/nea-capability-showcase?contentId=100110008`);
+    assert.equal(page.status, 200);
+    assert.match(await page.text(), /id="GameIframe"/);
+    assert.match(output, /Player: http:\/\/127\.0\.0\.1:\d+\/play\/nea-capability-showcase\?contentId=100110008/);
+  } catch (error) {
+    error.message += `\n${output.slice(-4000)}`;
+    throw error;
+  } finally {
+    stopProcessTree(child);
+    await rm(buildRoot, { recursive: true, force: true });
+  }
+});
+
 async function waitForStatus(port) {
   for (let attempt = 0; attempt < 60; attempt += 1) {
     try {
