@@ -40,7 +40,7 @@ process.on("unhandledRejection", error => {
 
 const demoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const repositoryRoot = resolve(demoRoot, "..", "..");
-const sourceRoot = resolve(demoRoot, "project");
+const sourceRoot = resolve(process.env.NEA_DEMO_SOURCE_ROOT ?? resolve(demoRoot, "project"));
 const defaultBuildRoot = resolve(process.env.NEA_DEMO_BUILD_ROOT ?? resolve(demoRoot, "build", "project"));
 const defaultAssetRoot = resolve(repositoryRoot, "Backend/local-player", "archive");
 const backendPath = resolve(repositoryRoot, "Backend/local-player", "backend", "box3-server.cjs");
@@ -249,7 +249,7 @@ if (spawnCollision.solidOverlap) {
 }
 await runtime.start();
 if (imported) console.log(`[demo] ${formatImportSummary(imported)}`);
-console.log(`[demo] startup config: playerPort=${port} controlPort=${controlPort} shortControlTimeoutMS=${shortControlRequestTimeoutMS} stateSyncIntervalMS=${stateSyncIntervalMS} stateSyncWarningIntervalMS=${stateSyncWarningIntervalMS} backendShutdownTimeoutMS=${backendShutdownTimeoutMS} runtime=${runtimeLabel}`);
+console.log(`[demo] startup config: sourceRoot=${sourceRoot} playerPort=${port} controlPort=${controlPort} shortControlTimeoutMS=${shortControlRequestTimeoutMS} stateSyncIntervalMS=${stateSyncIntervalMS} stateSyncWarningIntervalMS=${stateSyncWarningIntervalMS} backendShutdownTimeoutMS=${backendShutdownTimeoutMS} runtime=${runtimeLabel}`);
 console.log(`[demo] Script Runtime started for ${runtimeLabel}`);
 
 const child = spawn(process.execPath, [backendPath], {

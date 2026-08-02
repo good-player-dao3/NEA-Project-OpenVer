@@ -50,6 +50,20 @@ Open `http://127.0.0.1:4322/play/nea-script-lab?contentId=100110008`.
 
 The editable sample is under `project/`. Generated compatibility output is under `build/project/`.
 
+## Capability Showcase
+
+The second editable source under `showcase/` keeps the compact map intact and provides a 256 x 64 x 256 capability gallery through the same importer, Script Runtime, local Player backend, and browser client. It exposes verified, partial, and evidence-deferred behavior in the in-game dashboard rather than presenting unresolved behavior as complete.
+
+```powershell
+npm run validate:showcase
+npm run build:showcase
+$env:NEA_DEMO_PLAYER_PORT = "4422"
+$env:NEA_DEMO_CONTROL_PORT = "4423"
+npm run start:showcase
+```
+
+Open `http://127.0.0.1:4422/play/nea-capability-showcase?contentId=100110008` when running on alternate ports. The dashboard probes world events, raycast result members, data/group storage, mutable gravity and air friction, Player movement writes, directed and broadcast RemoteChannel events, and the guarded HTTP path. Inbound chat, posture variants, and complete historical contact-force semantics remain explicitly evidence-deferred.
+
 ## Verified flow
 
 - The importer expands the sample to 11,592 non-air voxels.
