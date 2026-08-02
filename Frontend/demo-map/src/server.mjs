@@ -5,7 +5,8 @@ import { dirname, resolve } from "node:path";
 import { createInterface } from "node:readline";
 import { fileURLToPath } from "node:url";
 import { formatImportSummary, importMapProject, publishClientScript, publishClientUiState } from "./import-project.mjs";
-import { assertProjectCapabilities, verifyProjectCapabilityAssetFiles, verifyProjectCapabilityAssetInput, verifyProjectCapabilityEntityInput, verifyProjectCapabilityGrants, verifyProjectCapabilityModuleInputs, verifyProjectCapabilityProjectIdentityInput, verifyProjectCapabilityRuntimeAbiInput, verifyProjectCapabilityStorageScopeInput, verifyProjectCapabilityUiInput, verifyProjectCapabilityWorldConfigInput } from "./capability-launch-gate.mjs";
+import { assertProjectCapabilities, verifyProjectCapabilityAssetFiles, verifyProjectCapabilityAssetInput, verifyProjectCapabilityEntityInput, verifyProjectCapabilityGrants, verifyProjectCapabilityModuleInputs, verifyProjectCapabilityPlayerBodyInput, verifyProjectCapabilityProjectIdentityInput, verifyProjectCapabilityRuntimeAbiInput, verifyProjectCapabilityStorageScopeInput, verifyProjectCapabilityUiInput, verifyProjectCapabilityWorldConfigInput, verifyProjectCapabilityWorldSpawnInput } from "./capability-launch-gate.mjs";
+import { normalizeWorldSpawnWithinShape } from "./world-spawn.mjs";
 import { loadRepositoryRuntimeCompatibility } from "./project-capability.mjs";
 import { parseBackendEvent } from "./backend-events.mjs";
 import { createBackendEventBridge } from "./backend-event-bridge.mjs";
@@ -20,7 +21,18 @@ import { DEFAULT_CONTROL_RETRY_ATTEMPTS, DEFAULT_CONTROL_RETRY_DELAY_MS, retryCo
 import { readPortEnv, readPositiveIntegerEnv } from "./environment.mjs";
 import { createStateSyncWarningLogger, DEFAULT_STATE_SYNC_WARNING_INTERVAL_MS } from "./state-sync-warnings.mjs";
 import { DEFAULT_BACKEND_SHUTDOWN_TIMEOUT_MS, stopBackendProcess } from "./backend-shutdown.mjs";
-import { loadPreservedBlockCatalog } from "../../../Backend/local-player/src/block-info.mjs";
+import { loadPreservedBlockCatalogMetadata } from "../../../Backend/local-player/src/block-info.mjs";
+import { verifyProjectBootstrapFile, verifyProjectBootstrapProtocol } from "./bootstrap-integrity.mjs";
+import { verifyBootstrapAvatarAssets, verifyBootstrapMeshAssets, verifyBootstrapSoundAssets } from "./bootstrap-mesh-integrity.mjs";
+import { verifyRuntimePackageIdentity } from "./runtime-package-identity.mjs";
+import { diagnoseSpawnCollision } from "./spawn-collision-diagnostic.mjs";
+import { verifyClientScriptAssets } from "./client-script-integrity.mjs";
+import { verifyClientUiPictureAssets } from "./client-ui-picture-integrity.mjs";
+import { verifyPlayerBlockAudioAssets } from "./player-block-audio-integrity.mjs";
+import { verifyPlayerProjectionPackageIdentity } from "./player-projection-identity.mjs";
+import { verifyServerScriptModules } from "./server-script-integrity.mjs";
+import { verifyClientScriptContractIdentity, verifyServerScriptContractIdentity } from "./script-contract-identity.mjs";
+import { validateUiSource } from "./format.mjs";
 
 process.on("unhandledRejection", error => {
   console.error(`[demo] unhandled script rejection: ${formatDiagnostic(error, [controlToken])}`);
@@ -29,7 +41,7 @@ process.on("unhandledRejection", error => {
 const demoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const repositoryRoot = resolve(demoRoot, "..", "..");
 const sourceRoot = resolve(demoRoot, "project");
-const defaultBuildRoot = resolve(demoRoot, "build", "project");
+const defaultBuildRoot = resolve(process.env.NEA_DEMO_BUILD_ROOT ?? resolve(demoRoot, "build", "project"));
 const defaultAssetRoot = resolve(repositoryRoot, "Backend/local-player", "archive");
 const backendPath = resolve(repositoryRoot, "Backend/local-player", "backend", "box3-server.cjs");
 const port = readPortEnv(process.env, "NEA_DEMO_PORT", 4322);
@@ -76,10 +88,24 @@ if (runtimePackagePath) {
   clientUiManifest = runtimePackage.clientUiManifest;
   clientRuntimeManifest = runtimePackage.clientRuntimeManifest;
   projectBootstrapManifest = runtimePackage.projectBootstrapManifest;
+  const bootstrapManifestPath = await resolveRegularFileWithin(assetRoot, projectBootstrapManifest, "project bootstrap manifest");
+  const bootstrapManifest = await readJsonFile(bootstrapManifestPath, "project bootstrap manifest");
+  const bootstrapFilePath = await resolveRegularFileWithin(assetRoot, `${dirname(projectBootstrapManifest)}/${bootstrapManifest.file?.name ?? ""}`, "project bootstrap file");
+  const bootstrapBytes = await readFile(bootstrapFilePath);
+  verifyProjectBootstrapFile(bootstrapManifest, bootstrapBytes);
+  verifyProjectBootstrapProtocol(bootstrapBytes);
+  await verifyBootstrapMeshAssets(assetRoot, bootstrapBytes);
+  await verifyBootstrapAvatarAssets(assetRoot, bootstrapBytes);
+  await verifyBootstrapSoundAssets(assetRoot, bootstrapBytes);
   playerProjectionDescriptor = runtimePackage.playerProjectionDescriptor;
   playerRoute = `${runtimePackage.route}?contentId=${runtimePackage.contentId}`;
   runtimeLabel = `${runtimePackage.packageId} (${runtimePackage.contentId})`;
   const projectManifest = await readJsonFile(await assertRegularFile(resolve(buildRoot, "dao3.project.json"), "project manifest"), "project manifest");
+  if (playerProjectionDescriptor !== null) {
+    await verifyPlayerProjectionPackageIdentity({ buildRoot, descriptorPath: playerProjectionDescriptor, projectManifest });
+  }
+  const clientRuntimeManifestValue = await readJsonFile(await resolveRegularFileWithin(assetRoot, clientRuntimeManifest, "client runtime manifest"), "client runtime manifest");
+  verifyRuntimePackageIdentity({ runtimePackage, projectManifest, clientRuntimeManifest: clientRuntimeManifestValue });
   if (typeof projectManifest.capabilities !== "string") throw new Error("Runtime package predates the required project capability manifest; rebuild it with the current importer");
   capabilityManifest = await readJsonFile(await resolveRegularFileWithin(buildRoot, projectManifest.capabilities, "project capability manifest"), "project capability manifest");
   assertProjectCapabilities(capabilityManifest, {
@@ -96,13 +122,23 @@ if (runtimePackagePath) {
   verifyProjectCapabilityUiInput(capabilityManifest, await readRuntimePackageUiState(assetRoot, clientUiManifest));
   const packageEvidenceInputs = await readRuntimePackageEvidenceInputs(buildRoot, projectManifest);
   await verifyProjectCapabilityAssetFiles(packageEvidenceInputs.assets, async (_asset, source) => readFile(await resolveRegularFileWithin(buildRoot, source, `project asset ${source}`)));
+  await verifyPlayerBlockAudioAssets({ buildRoot, assetRoot, assets: packageEvidenceInputs.assets });
   verifyProjectCapabilityAssetInput(capabilityManifest, packageEvidenceInputs.assets);
   verifyProjectCapabilityEntityInput(capabilityManifest, packageEvidenceInputs.entities);
   const world = await readJsonFile(await resolveRegularFileWithin(buildRoot, projectManifest.world, "project world manifest"), "project world manifest");
-  worldConfig = { entityLimit: world.entityLimit ?? 3400 };
-  verifyProjectCapabilityWorldConfigInput(capabilityManifest, worldConfig);
   const physics = world.physics ? await readJsonFile(await resolveRegularFileWithin(buildRoot, world.physics, "project physics manifest"), "project physics manifest") : {};
-  spawnPoint = world.spawn;
+  worldConfig = {
+    entityLimit: world.entityLimit ?? 3400,
+    ...(physics.airFriction === undefined ? {} : {
+      gravity: physics.gravity,
+      airFriction: physics.airFriction,
+    }),
+  };
+  verifyProjectCapabilityWorldConfigInput(capabilityManifest, worldConfig);
+  const normalizedSpawn = normalizeWorldSpawnWithinShape(world.spawn, world.shape);
+  verifyProjectCapabilityWorldSpawnInput(capabilityManifest, normalizedSpawn);
+  verifyProjectCapabilityPlayerBodyInput(capabilityManifest, physics.playerBody);
+  spawnPoint = normalizedSpawn;
   playerBodyProfile = physics.playerBody;
 } else {
   imported = await importMapProject(sourceRoot, buildRoot, { runtimeCompatibility });
@@ -115,8 +151,17 @@ if (runtimePackagePath) {
   storageScope = { groupId: imported.manifest.runtime.groupId };
   verifyProjectCapabilityStorageScopeInput(capabilityManifest, storageScope);
   verifyProjectCapabilityProjectIdentityInput(capabilityManifest, { projectName: imported.manifest.display.name });
-  worldConfig = { entityLimit: imported.manifest.world.entityLimit };
+  worldConfig = {
+    entityLimit: imported.manifest.world.entityLimit,
+    ...(imported.physics.airFriction === undefined ? {} : {
+      gravity: imported.physics.gravity,
+      airFriction: imported.physics.airFriction,
+    }),
+  };
   verifyProjectCapabilityWorldConfigInput(capabilityManifest, worldConfig);
+  const normalizedSpawn = normalizeWorldSpawnWithinShape(imported.manifest.world.spawn, imported.manifest.world.shape);
+  verifyProjectCapabilityWorldSpawnInput(capabilityManifest, normalizedSpawn);
+  verifyProjectCapabilityPlayerBodyInput(capabilityManifest, imported.physics.playerBody);
   verifyProjectCapabilityModuleInputs(capabilityManifest, [
     ...imported.serverModules.map(module => ({ side: "server", name: module.name, bytes: module.bytes })),
     ...imported.clientModules.map(module => ({ side: "client", name: module.name, bytes: module.bytes })),
@@ -131,10 +176,11 @@ if (runtimePackagePath) {
   verifyProjectCapabilityEntityInput(capabilityManifest, imported.entities);
   clientManifest = await publishClientScript(imported, assetRoot);
   clientUiManifest = await publishClientUiState(imported, assetRoot);
-  spawnPoint = imported.manifest.world.spawn;
+  spawnPoint = normalizedSpawn;
   playerBodyProfile = imported.physics.playerBody;
 }
-const blockCatalog = await loadPreservedBlockCatalog(assetRoot, worldManifestName);
+const blockCatalogMetadata = await loadPreservedBlockCatalogMetadata(assetRoot, worldManifestName);
+const blockCatalog = blockCatalogMetadata.catalog;
 const runtime = await ScriptRuntime.load(buildRoot, {
   logger: runtimeLogger(),
   blockCatalog,
@@ -197,6 +243,10 @@ const runtime = await ScriptRuntime.load(buildRoot, {
     await queueEntityStateToBackend({ port: controlPort, token: controlToken, entityId, state, ...shortControlRequestOptions });
   },
 });
+const spawnCollision = diagnoseSpawnCollision(runtime.collisionWorld, spawnPoint, playerBodyProfile);
+if (spawnCollision.solidOverlap) {
+  console.warn(`[demo] spawn collision diagnostic: origin=${spawnCollision.origin ?? "unknown"} contacts=${spawnCollision.contactIds.join(",")}`);
+}
 await runtime.start();
 if (imported) console.log(`[demo] ${formatImportSummary(imported)}`);
 console.log(`[demo] startup config: playerPort=${port} controlPort=${controlPort} shortControlTimeoutMS=${shortControlRequestTimeoutMS} stateSyncIntervalMS=${stateSyncIntervalMS} stateSyncWarningIntervalMS=${stateSyncWarningIntervalMS} backendShutdownTimeoutMS=${backendShutdownTimeoutMS} runtime=${runtimeLabel}`);
@@ -212,6 +262,9 @@ const child = spawn(process.execPath, [backendPath], {
     BOX3_WORLD_MANIFEST: worldManifestName,
     ...(clientRuntimeManifest === null ? {} : { BOX3_CLIENT_RUNTIME_MANIFEST: clientRuntimeManifest }),
     ...(projectBootstrapManifest === null ? {} : { BOX3_PROJECT_BOOTSTRAP_MANIFEST: projectBootstrapManifest }),
+    BOX3_PROJECT_BLOCK_INFO: blockCatalogMetadata.contentAddress,
+    ...(blockCatalogMetadata.resetCounter === null ? {} : { BOX3_PROJECT_RESET_COUNTER: String(blockCatalogMetadata.resetCounter) }),
+    ...(blockCatalogMetadata.innerAO === null ? {} : { BOX3_PROJECT_INNER_AO: String(blockCatalogMetadata.innerAO) }),
     BOX3_LOG_REMOTE_EVENTS: "1",
     BOX3_LOG_NET_EVENTS: "1",
     BOX3_LOG_SCRIPT_INPUT_EVENTS: "1",
@@ -351,20 +404,12 @@ function vectorTuple(value) {
 async function readRuntimePackageScriptInputs({ buildRoot, assetRoot, projectManifest, clientManifest }) {
   const scriptManifestPath = await resolveRegularFileWithin(buildRoot, projectManifest.scripts, "project script manifest");
   const scriptManifest = await readJsonFile(scriptManifestPath, "project script manifest");
-  if (!Array.isArray(scriptManifest.modules)) throw new Error("Project script manifest modules are missing or invalid");
-  const server = await Promise.all(scriptManifest.modules.map(async name => ({
-    side: "server",
-    name,
-    bytes: await readFile(await resolveRegularFileWithin(buildRoot, name, `server module ${String(name)}`)),
-  })));
+  verifyServerScriptContractIdentity({ projectManifest, capabilityManifest, serverScriptManifest: scriptManifest });
+  const server = await verifyServerScriptModules(buildRoot, scriptManifest);
   const clientManifestPath = await resolveRegularFileWithin(assetRoot, clientManifest, "client script manifest");
   const clientScriptManifest = await readJsonFile(clientManifestPath, "client script manifest");
-  if (!Array.isArray(clientScriptManifest.files)) throw new Error("Client script manifest files are missing or invalid");
-  const clientRoot = dirname(clientManifestPath);
-  const client = await Promise.all(clientScriptManifest.files.map(async entry => {
-    if (!entry || typeof entry.name !== "string") throw new Error("Client script manifest entry is invalid");
-    return { side: "client", name: entry.name, bytes: await readFile(await resolveRegularFileWithin(clientRoot, entry.name, `client module ${entry.name}`)) };
-  }));
+  verifyClientScriptContractIdentity({ projectManifest, capabilityManifest, clientScriptManifest });
+  const client = await verifyClientScriptAssets(clientManifestPath, clientScriptManifest);
   return {
     modules: [...server, ...client],
     capabilities: { server: scriptManifest.capabilities, client: clientScriptManifest.capabilities },
@@ -373,7 +418,9 @@ async function readRuntimePackageScriptInputs({ buildRoot, assetRoot, projectMan
 
 async function readRuntimePackageUiState(assetRoot, clientUiManifest) {
   if (clientUiManifest === null || clientUiManifest === undefined) return null;
-  return readJsonFile(await resolveRegularFileWithin(assetRoot, clientUiManifest, "client UI manifest"), "client UI manifest");
+  const uiState = validateUiSource(await readJsonFile(await resolveRegularFileWithin(assetRoot, clientUiManifest, "client UI manifest"), "client UI manifest"));
+  await verifyClientUiPictureAssets(assetRoot, uiState);
+  return uiState;
 }
 
 async function readRuntimePackageEvidenceInputs(buildRoot, projectManifest) {

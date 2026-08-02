@@ -1,11 +1,10 @@
 {
   "format": "nea-capability-gate-audit",
   "version": 1,
-  "generatedAt": "2026-07-31T09:27:03.091Z",
   "inputs": {
-    "corpus": "runtime-compat/generated/script-corpus-gap-report.json",
-    "matrix": "runtime-compat/abi/compatibility-matrix.json",
-    "currentRuntime": "runtime-compat/abi/current-runtime.json"
+    "corpus": "Middleware/runtime-compat/generated/script-corpus-gap-report.json",
+    "matrix": "Middleware/runtime-compat/abi/compatibility-matrix.json",
+    "currentRuntime": "Middleware/runtime-compat/abi/current-runtime.json"
   },
   "summary": {
     "requirements": 74,

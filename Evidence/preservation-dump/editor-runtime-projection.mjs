@@ -87,8 +87,8 @@ function compactObject(record) {
 }
 
 function vector(value, label) {
-  const result = Array.isArray(value) ? value.slice(0, 3).map(Number) : [Number(value?.[0] ?? value?.x), Number(value?.[1] ?? value?.y), Number(value?.[2] ?? value?.z)];
-  if (result.length !== 3 || result.some(component => !Number.isFinite(component))) throw new Error(`Invalid ${label}`);
+  const result = Array.isArray(value) ? value : [value?.[0] ?? value?.x, value?.[1] ?? value?.y, value?.[2] ?? value?.z];
+  if (result.length !== 3 || result.some(component => typeof component !== "number" || !Number.isFinite(component))) throw new Error(`Invalid ${label}`);
   return Object.freeze(result);
 }
 

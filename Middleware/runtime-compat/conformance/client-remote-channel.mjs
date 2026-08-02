@@ -14,6 +14,14 @@ function encodeHistoricalRemoteEvent(tick, event) {
 }
 
 export function decodeHistoricalClientEvent(packet) {
+  return decodeHistoricalEvent(packet);
+}
+
+export function decodeHistoricalServerEvent(packet) {
+  return decodeHistoricalEvent(packet);
+}
+
+function decodeHistoricalEvent(packet) {
   if (!packet || typeof packet.args !== "string") return null;
   try {
     return Object.freeze({
@@ -22,6 +30,42 @@ export function decodeHistoricalClientEvent(packet) {
     });
   } catch {
     return null;
+  }
+}
+
+export class HistoricalServerRemoteChannelFixture {
+  #listeners = new Set();
+  #getTick;
+  #sendPacket;
+
+  constructor(options = {}) {
+    this.#getTick = options.getTick ?? (() => 0);
+    this.#sendPacket = options.sendPacket ?? (() => {});
+  }
+
+  sendClientEvent(event) {
+    this.#sendPacket(encodeHistoricalServerEvent(this.#getTick(), event));
+  }
+
+  receivePacket(packet) {
+    const decoded = decodeHistoricalServerEvent(packet);
+    if (!decoded) return false;
+    for (const listener of [...this.#listeners]) listener(decoded);
+    return true;
+  }
+
+  onServerEvent(listener) {
+    if (typeof listener !== "function") throw new TypeError("RemoteChannel listener must be a function");
+    this.#listeners.add(listener);
+    return listener;
+  }
+
+  removeServerEventListener(listener) {
+    this.#listeners.delete(listener);
+  }
+
+  diagnostics() {
+    return Object.freeze({ listeners: this.#listeners.size });
   }
 }
 

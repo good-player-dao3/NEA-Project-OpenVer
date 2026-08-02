@@ -17,12 +17,25 @@ const playerMovementApiFields = Object.freeze([
   "walkAcceleration",
 ]);
 
+const verifiedCapabilities = Object.freeze([
+  "P0: Native Player project-package admission",
+  "P0: client/server Script Runtimes",
+  "P0: RemoteChannel directed + broadcast delivery",
+  "P0: client-owned UI + pointer-lock ingress",
+  "P1: persistent local GameStorage",
+  "P1: guarded server GameHttpAPI.fetch",
+]);
+
+const evidenceBoundary = "deferred: historical physics, chat ingress, group storage";
+
 const runtimeStatus = UiText.create();
 runtimeStatus.name = "NeaRuntimeStatus";
 runtimeStatus.textContent = [
   "NEA Client Runtime: active",
   "contract: dao3-client-runtime/v1",
   "server: connecting",
+  ...verifiedCapabilities,
+  evidenceBoundary,
 ].join("\n");
 runtimeStatus.textFontSize = 16;
 runtimeStatus.textColor.copy(Vec3.create({ r: 255, g: 255, b: 255 }));
@@ -33,7 +46,7 @@ runtimeStatus.textYAlignment = "Top";
 runtimeStatus.autoWordWrap = false;
 runtimeStatus.anchor.copy(Vec2.create({ x: 0, y: 0 }));
 runtimeStatus.position.offset.copy(Vec2.create({ x: 20, y: 20 }));
-runtimeStatus.size.offset.copy(Vec2.create({ x: 560, y: 150 }));
+runtimeStatus.size.offset.copy(Vec2.create({ x: 760, y: 310 }));
 runtimeStatus.parent = ui;
 
 let lastServerStatus = "server: connecting";
@@ -44,6 +57,8 @@ function updateRuntimeStatus(lines) {
   runtimeStatus.textContent = [
     "NEA Client Runtime: active",
     ...lines,
+    ...verifiedCapabilities,
+    evidenceBoundary,
     lastMovementStatus,
     lastHttpStatus,
   ].join("\n");
@@ -105,11 +120,6 @@ function applyPlayerMovementSync(event) {
   lastMovementStatus = `movement: ${fields.map(field => `${field}=${patch[field]}`).join(", ")}; local candidates updated=${applied}`;
   console.log(`[NEA Demo] Player movement API synchronized: ${JSON.stringify(patch)}; local candidates updated=${applied}`);
 }
-
-remoteChannel.sendServerEvent({
-  type: "nea-demo:ready",
-  runtimeApiVersion: "0.1.0"
-});
 
 input.pointerLockEvents.add("pointerlockchange", ({ isLocked }) => {
   const pointerStatus = isLocked ? "pointer: locked" : "pointer: unlocked";
@@ -193,4 +203,9 @@ remoteChannel.events.on("client", event => {
       lastHttpStatus,
     ]);
   }
+});
+
+remoteChannel.sendServerEvent({
+  type: "nea-demo:ready",
+  runtimeApiVersion: "0.1.0"
 });

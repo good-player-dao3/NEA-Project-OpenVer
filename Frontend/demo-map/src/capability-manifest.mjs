@@ -1,8 +1,9 @@
 import { createHash } from "node:crypto";
 import { digestCapabilityJson } from "./capability-input-digest.mjs";
-import { normalizeCapabilityAssets, normalizeCapabilityEntities, normalizeCapabilityProjectIdentity, normalizeCapabilityRuntimeAbi, normalizeCapabilityStorageScope, normalizeCapabilityWorldConfig } from "./capability-input-normalize.mjs";
+import { normalizeCapabilityAssets, normalizeCapabilityEntities, normalizeCapabilityPlayerBody, normalizeCapabilityProjectIdentity, normalizeCapabilityRuntimeAbi, normalizeCapabilityStorageScope, normalizeCapabilityWorldConfig } from "./capability-input-normalize.mjs";
 import { refinePlayerLifecycleRequirement } from "./lifecycle-event-refinement.mjs";
 import { isEvidenceBackedRecoveredCanonical } from "./recovered-canonical-evidence.mjs";
+import { normalizeWorldSpawn } from "./world-spawn.mjs";
 
 const ROOT_OWNERS = Object.freeze({
   server: Object.freeze({ world: "GameWorld", voxels: "GameVoxels", storage: "GameStorage", gui: "GameGUI", http: "GameHttpAPI", remoteChannel: "remoteChannel", GameBounds3: "GameBounds3", GameQuaternion: "GameQuaternion", GameRGBColor: "GameRGBColor", GameRGBAColor: "GameRGBAColor" }),
@@ -153,6 +154,11 @@ export function buildProjectCapabilityManifest(options) {
       storageScope: digestCapabilityJson(storageScope),
       projectIdentity: digestCapabilityJson(projectIdentity),
       worldConfig: digestCapabilityJson(worldConfig),
+      environment: digestCapabilityJson(options.environmentEvidence ?? null),
+      features: digestCapabilityJson(options.featuresEvidence ?? null),
+      player: digestCapabilityJson(options.playerEvidence ?? null),
+      worldSpawn: digestCapabilityJson(options.worldSpawnEvidence === undefined ? null : normalizeWorldSpawn(options.worldSpawnEvidence)),
+      playerBody: digestCapabilityJson(options.playerBodyEvidence === undefined ? null : normalizeCapabilityPlayerBody(options.playerBodyEvidence)),
       runtimeAbi: digestCapabilityJson(normalizeCapabilityRuntimeAbi({ currentRuntime: options.currentRuntime, compatibilityMatrix: options.compatibilityMatrix, runtimeContracts: options.runtimeContracts })),
     }),
     status: blocked.length + blockedModules.length + blockedResources.length + blockedEntities.length + blockedUi.length + blockingDiagnostics.length + blockedDependencies.length > 0 ? "blocked" : partial.length + partialResources.length + partialEntities.length + partialUi.length + partialDependencies.length + partialDiagnostics.length > 0 ? "partial" : "ready",

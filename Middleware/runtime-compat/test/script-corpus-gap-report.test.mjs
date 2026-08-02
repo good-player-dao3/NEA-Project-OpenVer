@@ -27,6 +27,7 @@ test("script corpus report separates native ABI gaps from assignment-proven exte
   const report = JSON.parse(await readFile(resolve(root, "generated", "script-corpus-gap-report.json"), "utf8"));
   const byName = new Map(report.requirements.map(item => [`${item.side}:${item.name}`, item]));
   assert.equal(report.version, 2);
+  assert.equal(Object.hasOwn(report, "generatedAt"), false);
   assert.equal(report.evidence.input, "Middleware/runtime-compat/evidence/script-corpus-usage.json");
   assert.equal(report.evidence.sourceClass, "approved-local-private-inspection");
   assert.equal(report.evidence.redactionStatus, "anonymous-aggregate");

@@ -1,7 +1,5 @@
 # Script Corpus Compatibility Gap Report
 
-Generated: 2026-07-31T16:20:17.097Z
-
 Private source paths, work identities, and event type names are excluded. Samples only prioritize unified ABI work.
 
 A custom extension is reported only when the corpus contains a direct member assignment and the native ABI catalogs contain no matching declaration.

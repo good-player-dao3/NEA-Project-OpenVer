@@ -56,6 +56,16 @@ The capture contains request/response bodies, WebSocket frames in both direction
 
 Authorization and Cookie values are redacted in generated reports. The retained browser profile remains private. Both paths are already ignored by Git and must never be uploaded.
 
+## Publish a sanitized evidence package
+
+Use the sanitizer only after reviewing the capture scope. It reads private JSON metadata locally and writes a public-safe package containing anonymous file metadata, JSON schemas, and redacted descriptor values. It skips scripts, network bodies, websocket frames, manual CDP data, browser profiles, and oversized JSON files.
+
+```powershell
+node Evidence/preservation-dump/sanitize-private-capture.mjs --capture dump/private/live-captures/<capture> --output Evidence/dump/sanitized-capture
+```
+
+Review the generated package and run the focused test before tracking it. The output must not be treated as proof of historical values that were redacted; use its schemas to define migration fields and retain `partial` or `evidence-blocked` classifications where values remain unavailable.
+
 ## Direct editor export
 
 When an authorized editor is already open through the live capture, export scripts and project state without clicking through the editor UI:

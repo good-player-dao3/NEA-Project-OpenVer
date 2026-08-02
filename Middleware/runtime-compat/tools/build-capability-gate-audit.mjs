@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { isEvidenceBackedRecoveredCanonical } from "../../Frontend/demo-map/src/recovered-canonical-evidence.mjs";
+import { isEvidenceBackedRecoveredCanonical } from "../../../Frontend/demo-map/src/recovered-canonical-evidence.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const corpus = await readJson("generated/script-corpus-gap-report.json");
@@ -76,7 +76,6 @@ const gated = requirements.filter(requirement => requirement.launchState !== "sc
 const report = Object.freeze({
   format: "nea-capability-gate-audit",
   version: 1,
-  generatedAt: new Date().toISOString(),
   inputs: Object.freeze({
     corpus: "Middleware/runtime-compat/generated/script-corpus-gap-report.json",
     matrix: "Middleware/runtime-compat/abi/compatibility-matrix.json",

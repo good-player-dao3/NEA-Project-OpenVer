@@ -11,7 +11,7 @@ This repository contains executable compatibility code alongside historical pres
 | `Backend/local-player/` | Recovered Player hosting, compatibility backend, launchers, Player-side adapters | `npm --prefix local-player test` when applicable |
 | `Evidence/preservation-dump/` | Live capture and editor export tools | Individual `node --check` and self-tests |
 | `Evidence/works/` | Local catalog for recovered works and import-development fixtures | Private work contents remain ignored |
-| `Docs/` | Repository-wide layout, architecture, cold-start guide, open-version policy, progress, cleanup, and AI context | Documentation review |
+| `Docs/` | Repository-wide layout, architecture, architecture governance, cold-start guide, open-version policy, progress, development backlog, cleanup, and AI context | Documentation review |
 | `tools/` | Small Windows-safe maintenance helpers | Tool-specific checks |
 
 New executable behavior should normally belong to one of these directories. Do not create another runtime or Player implementation at the repository root.
@@ -64,6 +64,8 @@ It also skips `Frontend/demo-map/` or `Backend/local-player/` when an active pro
 ## Project management
 
 - Use `Docs/project-progress.md` as the active task board.
+- Use `Docs/development-backlog.md` for the evidence-backed public work order; do not treat it as a live ownership board.
+- Use `Docs/architecture-governance.md` as the source of truth for module boundaries, architecture review classes, and multi-model collaboration.
 - Use `Docs/repository-cleanup-plan.md` before proposing any directory move.
 - Use `Docs/ai/project-context.md` and `Docs/ai/task-template.md` for bounded AI-assisted work.
 - Use `Docs/ai/token-efficiency.md` and `tools/summarize-output.ps1` to keep AI context and diagnostics small.

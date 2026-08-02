@@ -16,6 +16,7 @@ test("capability gate audit classifies every anonymous corpus requirement conser
   const currentEntries = new Map(current.entries.map(entry => [entry.id, entry]));
   assert.equal(audit.format, "nea-capability-gate-audit");
   assert.equal(audit.version, 1);
+  assert.equal(Object.hasOwn(audit, "generatedAt"), false);
   assert.equal(audit.requirements.length, audit.summary.requirements);
   assert.equal(audit.summary.ready + audit.summary.partial + audit.summary.blocked, audit.summary.gatedRequirements);
   assert.equal(audit.summary.gatedRequirements + audit.summary.scriptOwned, audit.summary.requirements);

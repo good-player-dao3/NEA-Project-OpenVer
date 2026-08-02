@@ -1,7 +1,6 @@
 {
   "format": "nea-script-corpus-compatibility-gap-report",
   "version": 2,
-  "generatedAt": "2026-07-31T16:20:17.097Z",
   "evidence": {
     "input": "Middleware/runtime-compat/evidence/script-corpus-usage.json",
     "sourceClass": "approved-local-private-inspection",

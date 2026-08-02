@@ -66,7 +66,6 @@ const requirements = [...aggregated.values()].map(item => {
 const report = {
   format: "nea-script-corpus-compatibility-gap-report",
   version: 2,
-  generatedAt: new Date().toISOString(),
   evidence: {
     input: "Middleware/runtime-compat/evidence/script-corpus-usage.json",
     ...evidenceBoundary,
@@ -131,7 +130,7 @@ function readEvidenceBoundary(value) {
 
 function renderMarkdown(value) {
   const lines = [
-    "# Script Corpus Compatibility Gap Report", "", `Generated: ${value.generatedAt}`, "",
+    "# Script Corpus Compatibility Gap Report", "",
     "Private source paths, work identities, and event type names are excluded. Samples only prioritize unified ABI work.", "",
     "A custom extension is reported only when the corpus contains a direct member assignment and the native ABI catalogs contain no matching declaration.", "",
     "## Evidence Boundaries", "", `- Source class: ${value.evidence.sourceClass}`, `- Redaction: ${value.evidence.redactionStatus}`,

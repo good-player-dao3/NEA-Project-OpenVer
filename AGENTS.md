@@ -18,7 +18,8 @@ Build an evidence-first, self-hostable DAO3 / dao3.fun compatibility path that c
 
 ## Safety and evidence
 
-- Never publish or modify private captures, credentials, browser state, token-bearing URLs, private maps, ignored reference worktrees, `Evidence/dump/private/`, `Evidence/works/private/`, `.workspace/`, or `NEA-Project.7z`.
+- Private evidence may be read locally for a declared audit or implementation task. It must never be modified, copied into tracked files, staged, committed, published, or exposed in command output, logs, reports, screenshots, or prompts. This includes credentials, browser state, token-bearing URLs, private maps, ignored reference worktrees, `Evidence/dump/private/`, `Evidence/works/private/`, `.workspace/`, and `NEA-Project.7z`.
+- Local private inspection must use the minimum required files and produce only anonymous, redacted derived data such as counts, schemas, capability classifications, or non-secret hashes. Keep the private source path out of tracked artifacts and user-facing diagnostics.
 - Do not invent historical behavior. Use `compatible`, `partial`, `recovered-only`, `declared-only`, or evidence-deferred classifications.
 - Keep evidence, generated reports, and executable implementation separate.
 - Do not use names, paths, imports, or runtime dependencies belonging to external bypass/外挂 projects in scripts or implementation code.
@@ -38,7 +39,7 @@ Build an evidence-first, self-hostable DAO3 / dao3.fun compatibility path that c
 - After implementation approval, all file edits must use `D:\Projects\Gaming\NEA-Project\tools\apply_patch.ps1`.
 - Do not edit files with `Set-Content`, `Out-File`, `Add-Content`, direct redirection, ad hoc Python/Node rewrites, or shell replacement commands.
 - The patch wrapper preserves UTF-8 input through a temporary UTF-8 file before invoking Python; do not bypass it on Windows.
-- Before applying a patch, confirm approval, allowed write scope, and exclusion of private/generated/forbidden paths.
+- Before applying a patch, confirm approval, allowed write scope, and exclusion of private/generated/forbidden paths. Reading a private source for a declared audit is allowed; writing to it or publishing derived sensitive content is not.
 - After applying a patch, inspect `git diff --check`, `git diff --stat`, and only the changed regions required for verification.
 - Analysis-only tasks must not call the patch tool.
 
@@ -67,6 +68,21 @@ Build an evidence-first, self-hostable DAO3 / dao3.fun compatibility path that c
 
 The project prioritizes maintainability over one-off execution. These rules are mandatory for new or substantially modified implementation code.
 
+## Code Formatting and Syntax
+
+These rules apply unless an existing package formatter or local package convention is stricter:
+
+- Use spaces, never tabs. Use two spaces per indentation level; increase indentation consistently for nested blocks and continuation lines.
+- Put opening braces on the same line as the declaration or control statement. Put the closing brace on its own line, except for short object literals and single-line callbacks that remain readable.
+- Keep `else`, `catch`, and `finally` on the same line as the preceding closing brace: `} else {`, `} catch (error) {`.
+- Do not put spaces immediately inside parentheses, brackets, or braces: `if (ready)`, `items[index]`, and `{ name, value }`.
+- Use semicolons in JavaScript and TypeScript where the surrounding package uses semicolons. Do not mix semicolon styles within one file.
+- Use trailing commas in multiline arrays, objects, argument lists, and parameter lists when the surrounding package supports them.
+- Keep one statement per line. Split chained calls, long conditions, and object literals when they become difficult to review; do not use formatting to hide complex control flow.
+- Use `camelCase` for variables and functions, `PascalCase` for classes and types, and `UPPER_SNAKE_CASE` only for true constants.
+- Match the existing package formatter and line-ending policy before applying broad formatting. Do not reformat unrelated lines in a feature patch.
+- Code identifiers, diagnostics, and implementation comments must remain in English unless a user-facing product requirement requires another language.
+
 - Keep interface, application/service, evidence/data access, and utility concerns separated. Do not place protocol parsing, business decisions, filesystem access, and HTTP/Player orchestration in one function.
 - Keep ordinary business functions at or below 80 lines and utility functions at or below 50 lines. Split longer functions unless the file is generated or a compatibility adapter requires a documented exception.
 - Keep ordinary implementation files at or below 500 lines. Generated catalogs, manifests, minified bundles, and archived evidence are exempt but must not be edited as hand-written source.
@@ -79,6 +95,21 @@ The project prioritizes maintainability over one-off execution. These rules are 
 - New dependencies require a short justification, a version/compatibility check, and confirmation that the standard library or an existing dependency is insufficient.
 - Add focused tests for new behavior and regression tests for fixed failures. Do not mark a task complete based only on a successful happy path.
 - Do not use the maintainability limits to justify speculative over-abstraction. Prefer small cohesive modules and a clear seam over a framework.
+
+## Current Development Queue
+
+The detailed, evidence-backed queue is maintained in `Docs/development-backlog.md`; the active ownership board is `Docs/project-progress.md`. The current order is:
+
+1. `[RT-001]` Generate a sanitized real-map compatibility gap report.
+2. `[IMP-001]` Map core recovered `project.json` fields into the public import format.
+3. `[QA-001]` Add a sanitized end-to-end real-map smoke fixture.
+4. `[RT-002]` Select one client remote-channel or UI slice after the real-map report.
+5. `[RT-003]` Add bidirectional remote-channel conformance fixtures.
+6. `[RT-004]` Add directed and broadcast server-to-client event coverage.
+7. `[UI-001]` Prove client-script-owned UI creation and input handling.
+8. `[MT-001]` Extract one cohesive boundary helper from the local Player backend, without a wholesale rewrite.
+
+Do not start a queue item without claiming its task ID, write scope, acceptance criteria, and validation command. Full physics, historical API completion, speculative posture behavior, and a Player rewrite remain blocked or deferred until stronger evidence exists.
 
 ## Evidence migration gate
 
@@ -103,7 +134,15 @@ Before reporting completion, check:
 
 ## Current priority
 
-Make the real-map client/server runtime loop work before broad physics coverage, full API completion, or frontend polish.
+Make the real-map client/server runtime loop work through the preserved Player browser client before broad physics coverage, full API completion, frontend polish, or Demo-only gameplay work.
+
+## Native Player integration guardrail
+
+- The target is not a replacement game client or a standalone Demo. The target is a local backend and compatibility path that let the preserved Player consume a recovered project package, bootstrap data, resources, client/server scripts, and runtime transport with the smallest evidence-backed adaptation.
+- Every runtime, importer, backend, or Player task must name the integration edge it advances: `project package -> Script Runtimes`, `Script Runtimes -> MuDB`, `MuDB -> authoritative runtime`, or `authoritative runtime -> preserved Player`.
+- A Demo-only feature is lower priority unless it supplies a focused fixture or conformance test for one of those integration edges. Do not treat a Player shell launch, a custom map, or a custom script as proof that a recovered map is natively importable.
+- When a recovered field or protocol value encoding is unknown, add a preflight, inventory, or explicit `evidence-blocked` result before adding a substitute format. Do not silently replace the preserved client contract with a new frontend contract.
+- Read `Docs/native-player-integration-goal.md` before planning migration, Player backend, importer, or Script Runtime work.
 
 ## Language requirement
 

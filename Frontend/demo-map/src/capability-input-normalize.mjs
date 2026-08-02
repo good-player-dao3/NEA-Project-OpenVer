@@ -48,9 +48,33 @@ export function normalizeCapabilityProjectIdentity(projectIdentity) {
 export function normalizeCapabilityWorldConfig(worldConfig) {
   if (worldConfig === undefined || worldConfig === null) return { entityLimit: 3400 };
   if (!worldConfig || typeof worldConfig !== "object" || Array.isArray(worldConfig)) throw new Error("Capability world config input is invalid");
-  const entityLimit = worldConfig.entityLimit;
+  const entityLimit = worldConfig.entityLimit ?? 3400;
   if (!Number.isSafeInteger(entityLimit) || entityLimit < 0 || entityLimit > 1000000) throw new Error("Capability world entityLimit is invalid");
-  return { entityLimit };
+  const hasGravity = worldConfig.gravity !== undefined;
+  const hasAirFriction = worldConfig.airFriction !== undefined;
+  if (hasGravity !== hasAirFriction) throw new Error("Capability world physics inputs must include gravity and airFriction together");
+  if (!hasGravity) return { entityLimit };
+  if (!Number.isFinite(worldConfig.gravity)) throw new Error("Capability world gravity is invalid");
+  if (!Number.isFinite(worldConfig.airFriction)) throw new Error("Capability world airFriction is invalid");
+  return { entityLimit, gravity: worldConfig.gravity, airFriction: worldConfig.airFriction };
+}
+
+export function normalizeCapabilityPlayerBody(playerBody) {
+  if (!playerBody || typeof playerBody !== "object" || Array.isArray(playerBody)) throw new Error("Capability player body input is missing or invalid");
+  const legacyHalfExtents = playerBody.halfExtents;
+  const boundsHalfExtents = normalizePositiveBodyVector(playerBody.boundsHalfExtents ?? legacyHalfExtents, "boundsHalfExtents");
+  const shapeHalfExtents = normalizePositiveBodyVector(playerBody.shapeHalfExtents ?? legacyHalfExtents, "shapeHalfExtents");
+  if (shapeHalfExtents.some((component, index) => component > boundsHalfExtents[index])) throw new Error("Capability player body shapeHalfExtents must fit inside boundsHalfExtents");
+  if (playerBody.origin !== "body-center") throw new Error("Capability player body origin must be body-center");
+  return {
+    profileId: requireNonEmptyText(playerBody.profileId, "profileId"),
+    origin: playerBody.origin,
+    originStatus: requireNonEmptyText(playerBody.originStatus, "originStatus"),
+    sizeStatus: requireNonEmptyText(playerBody.sizeStatus, "sizeStatus"),
+    boundsHalfExtents,
+    shapeHalfExtents,
+    evidence: typeof playerBody.evidence === "string" ? playerBody.evidence : null,
+  };
 }
 
 export function normalizeCapabilityRuntimeAbi(runtimeCompatibility) {
@@ -66,4 +90,15 @@ function withoutGeneratedAt(value) {
   if (Array.isArray(value)) return value.map(withoutGeneratedAt);
   if (!value || typeof value !== "object") return value;
   return Object.fromEntries(Object.keys(value).filter(key => key !== "generatedAt").sort().map(key => [key, withoutGeneratedAt(value[key])]));
+}
+
+function normalizePositiveBodyVector(value, name) {
+  const components = Array.isArray(value) ? value : [value?.x, value?.y, value?.z];
+  if (components.length !== 3 || components.some(component => !Number.isFinite(component) || component <= 0 || component > 4)) throw new Error(`Capability player body ${name} is invalid`);
+  return [components[0], components[1], components[2]];
+}
+
+function requireNonEmptyText(value, name) {
+  if (typeof value !== "string" || value.length === 0) throw new Error(`Capability player body ${name} is invalid`);
+  return value;
 }

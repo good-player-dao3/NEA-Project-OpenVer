@@ -12,7 +12,7 @@ test("all tracked project package builders publish the shared capability manifes
     "capabilities/manifest.json",
     "capabilities: \"capabilities/manifest.json\"",
     "runtimeBinding: \"validated-mesh\"",
-    "uiState: { defaultScreenId: project.defaultScreenId, uiTree: project.uiTree }",
+    "uiState: validatedUiState",
     "clientRuntimeManifest: clientRuntimeManifestName",
     "projectBootstrapManifest: projectBootstrapManifestName",
     "packageCapturedAudioAssets",
@@ -58,6 +58,23 @@ test("captured package capability analysis remains generic and evidence-gated", 
     clientCapabilities: ["client.ui"],
     assets: [{ name: "captured-mesh", runtimeBinding: "validated-mesh" }],
     entities: [{ id: "captured-entity", kind: "entity", mesh: "captured-mesh" }],
+    environmentEvidence: {
+      formatVersion: "nea-recovered-environment/v1",
+      compatibility: "partial",
+      source: "recovered-project",
+      fields: { drawDistance: 128 },
+      diagnostics: [{ code: "runtime-consumption-unverified" }],
+    },
+    featuresEvidence: {
+      formatVersion: "nea-recovered-features/v1",
+      compatibility: "partial",
+      source: "recovered-project",
+      fields: { enableTriggerAPI: true },
+      diagnostics: [{ code: "runtime-consumption-unverified" }],
+    },
+    playerEvidence: { initialPosition: { x: 1, y: 2, z: 3 }, cameraType: "first-person" },
+    worldSpawnEvidence: [1, 2, 3],
+    playerBodyEvidence: { profileId: "demo", origin: "body-center", originStatus: "confirmed", sizeStatus: "confirmed", boundsHalfExtents: [0.45, 1.1, 0.45], shapeHalfExtents: [0.45, 1.1, 0.45] },
     uiState: null,
   });
 
@@ -65,4 +82,15 @@ test("captured package capability analysis remains generic and evidence-gated", 
   assert.equal(manifest.summary.blockedEntities, 0);
   assert.ok(manifest.entities.every(entity => entity.state !== "blocked"));
   assert.ok(manifest.requirements.every(requirement => requirement.module === "server.js" || requirement.module === "client.js"));
+  assert.equal(manifest.inputs.environment.present, true);
+  assert.equal(manifest.inputs.environment.bytes > 0, true);
+  assert.match(manifest.inputs.environment.sha256, /^[a-f0-9]{64}$/);
+  assert.equal(manifest.inputs.features.present, true);
+  assert.match(manifest.inputs.features.sha256, /^[a-f0-9]{64}$/);
+  assert.equal(manifest.inputs.player.present, true);
+  assert.match(manifest.inputs.player.sha256, /^[a-f0-9]{64}$/);
+  assert.equal(manifest.inputs.worldSpawn.present, true);
+  assert.match(manifest.inputs.worldSpawn.sha256, /^[a-f0-9]{64}$/);
+  assert.equal(manifest.inputs.playerBody.present, true);
+  assert.match(manifest.inputs.playerBody.sha256, /^[a-f0-9]{64}$/);
 });

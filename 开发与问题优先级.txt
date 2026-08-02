@@ -1,0 +1,110 @@
+开发优先级
+P0：保持主线可运行
+Frontend/demo-map client/server Runtime loop
+项目导入、能力清单、启动门禁
+client ↔ server RemoteChannel
+server → Player 的 directed/broadcast 事件
+storage、GUI、实体创建等真实脚本边界
+
+P1：完成核心运行时闭环
+RT-005 已完成：脚本 storage 跨 Runtime 重启持久化
+下一步优先补：client remote-channel → server
+server remote-channel → client
+directed event
+broadcast event
+client script 创建/更新 UI 并接收输入
+
+每个切片都必须有 demo-map 可见行为和 focused conformance test。
+
+P2：高频 partial 行为
+按当前 sanitized corpus 使用频率：
+world.onChat
+world.onTick
+world.raycast
+storage.getDataStorage
+world.onVoxelContact
+world.onClick
+world.onFluidEnter
+world.addCollisionFilter
+world.addZone
+world.onEntityContact
+world.onPlayerPurchaseSuccess
+
+P3：维护性
+从 Backend/local-player/backend/box3-server.cjs 提取一个明确边界 helper
+从 script-runtime.mjs 或 capability-manifest.mjs 提取一个纯边界模块
+只能在能降低具体耦合或阻塞核心功能时进行，不能大规模重构。
+
+问题优先级
+P0：必须先解决
+Evidence provenance blocker
+Issue #100 / EVID-001
+生成的 evidence coverage 仍含非中性外部来源标识和路径。
+不能通过修改测试期望或手工改生成文件解决。
+需要批准一个公开、中性、可复现的 evidence source mapping，然后修改 generator 并重新生成所有报告。
+当前 runtime-compat 结果为 246/248，剩余两个失败都属于这个问题。
+
+实时 client/server loop
+这是项目当前真正的上线阻塞项。
+必须证明：client → server 消息
+server → client 消息
+directed delivery
+broadcast delivery
+client UI/input
+demo-map 中的可见结果
+
+
+P1：高优先级功能缺口
+world.onChat / world.onTick
+使用频率最高。
+目前已有部分实现和测试，需要补齐真实脚本流程中的边界行为。
+不应直接升级 compatibility，除非有对应行为证据。
+
+world.raycast
+已有返回字段和基础几何测试。
+仍需明确实体命中、voxel 命中、边界和结果对象语义。
+
+storage.getDataStorage / getGroupStorage
+RT-005 已修复 VM 跨 realm JSON 对象问题，并验证跨 Runtime 持久化。
+仍保持 partial，因为历史远程存储后端语义未完全恢复。
+
+world.onVoxelContact
+事件类型和参数传播已覆盖。
+当前仍是 partial，接触对象复用和 authoritative physics 仍缺证据。
+
+P2：核心闭环之后处理
+world.onClick
+world.onFluidEnter / onFluidLeave
+world.onEntityContact
+world.addCollisionFilter
+world.addZone
+world.airFriction
+world.onPlayerPurchaseSuccess
+GUI 创建、更新、输入处理的完整客户端路径
+P3：暂不投入
+完整历史 API 补齐
+全量物理兼容
+crouch/flying posture 历史 collider
+GameEntity.contactForce 聚合
+per-contact impulse solver 接入
+Player backend 大重写
+仓库目录大规模搬迁
+私有真实地图直接作为公共 fixture
+当前任务板建议
+EVID-001：批准并完成中性 provenance migration。
+RT-006：补 client → server remote-channel 真实脚本闭环。
+RT-007：补 server → client directed event。
+RT-008：补 server → client broadcast event。
+UI-002：补 client-script-owned UI 创建和输入。
+RT-009：补 real-map sanitized smoke fixture。
+P2-001：选择一个高频 partial 行为继续推进，优先 world.onChat 或 world.raycast。
+当前质量状态
+Frontend/demo-map：227/227 通过。
+Middleware/runtime-compat：246/248 通过。
+失败项全部集中在 EVID-001 的 evidence provenance schema。
+最近已合并：QA-008
+QA-009
+QA-010
+QA-011
+QA-012
+RT-005
