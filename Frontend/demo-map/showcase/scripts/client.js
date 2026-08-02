@@ -66,6 +66,8 @@ remoteChannel.events.on("client", event => {
   if (event?.type === "showcase:fluid") lines.push(`fluid: ${event.phase} voxel=${event.voxel} (${event.buoyancy})`);
   if (event?.type === "showcase:interact") lines.push(`interact: ${event.scope} target=${event.targetId} (${event.targetBinding})`);
   if (event?.type === "showcase:lifecycle") lines.push(`lifecycle: ${event.phase} entity=${event.entityId}`);
+  if (event?.type === "showcase:damage") lines.push(`damage: ${event.damage} type=${event.damageType} (${event.status})`);
+  if (event?.type === "showcase:death") lines.push(`death: type=${event.damageType} (${event.status})`);
   render();
 });
 

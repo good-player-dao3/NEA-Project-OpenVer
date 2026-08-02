@@ -74,6 +74,7 @@ world.onVoxelContact(({ player, voxel, axis }) => {
 world.onTriggerEnter(({ player, trigger }) => {
   const status = trigger.tags.includes("checkpoint") ? "verified" : "partial";
   send(player, { type: "showcase:trigger", phase: "enter", triggerId: trigger.id, status });
+  if (trigger.tags.includes("hazard")) player.damage(10);
 });
 
 world.onTriggerLeave(({ player, trigger }) => {
@@ -113,6 +114,16 @@ world.onEntityCreate(({ entity }) => {
 world.onEntityDestroy(({ entity }) => {
   if (!entity.isPlayer) return;
   console.log(`[NEA Showcase] player lifecycle destroy entity=${entity.id}`);
+});
+
+world.onTakeDamage(({ entity, attacker, damage, damageType }) => {
+  if (!entity.isPlayer) return;
+  send(entity, { type: "showcase:damage", damage, damageType, attackerId: attacker?.id ?? null, status: "partial" });
+});
+
+world.onDie(({ entity, attacker, damageType }) => {
+  if (!entity.isPlayer) return;
+  send(entity, { type: "showcase:death", damageType, attackerId: attacker?.id ?? null, status: "partial" });
 });
 
 const coreZone = world.addZone({
