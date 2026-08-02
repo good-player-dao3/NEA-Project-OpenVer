@@ -64,6 +64,7 @@ remoteChannel.events.on("client", event => {
   if (event?.type === "showcase:zone") lines.push(`zone: ${event.phase} ${event.zone}`);
   if (event?.type === "showcase:input") lines.push(`input: ${event.phase} ${event.button} pressed=${event.pressed}`);
   if (event?.type === "showcase:fluid") lines.push(`fluid: ${event.phase} voxel=${event.voxel} (${event.buoyancy})`);
+  if (event?.type === "showcase:interact") lines.push(`interact: ${event.scope} target=${event.targetId} (${event.targetBinding})`);
   render();
 });
 

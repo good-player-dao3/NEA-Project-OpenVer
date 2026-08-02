@@ -96,7 +96,14 @@ for (const lab of world.querySelectorAll(".api-lab")) {
   lab.onClick(({ clicker, entity, button }) => {
     send(clicker, { type: "showcase:click", scope: "entity", targetId: entity.id, button, status: "verified" });
   });
+  lab.onInteract(({ entity, targetEntity }) => {
+    send(entity, { type: "showcase:interact", scope: "entity", targetId: targetEntity.id, status: "partial", targetBinding: "authoritative-mapped" });
+  });
 }
+
+world.onInteract(({ entity, targetEntity }) => {
+  send(entity, { type: "showcase:interact", scope: "world", targetId: targetEntity.id, status: "partial", targetBinding: "authoritative-mapped" });
+});
 
 const coreZone = world.addZone({
   selector: "player",
