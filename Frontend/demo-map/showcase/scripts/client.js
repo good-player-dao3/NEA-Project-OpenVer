@@ -50,6 +50,7 @@ remoteChannel.events.on("client", event => {
     lastStatus = `${event.serverContract} / ${event.map.shape.join("x")}`;
     lines.push(`welcome: ${event.capabilities.length} capability records`);
   }
+  if (event?.type === "showcase:search-box") lines.push(`searchBox: ${event.entityCount} entities (${event.obb})`);
   if (event?.type === "showcase:physics") {
     lastPhysics = { gravity: event.gravity, airFriction: event.airFriction };
     lines.push(`physics applied: gravity=${event.gravity}, airFriction=${event.airFriction}`);

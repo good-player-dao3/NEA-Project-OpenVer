@@ -62,6 +62,8 @@ world.onPlayerJoin(({ player }) => {
     physics: DEFAULT_PHYSICS,
     capabilities: capabilityMatrix,
   });
+  const labEntities = world.searchBox({ lo: [20, 2, 20], hi: [236, 10, 236] });
+  send(player, { type: "showcase:search-box", entityCount: labEntities.length, entityIds: labEntities.map(entity => entity.id), status: "partial", obb: "evidence-deferred" });
   sendPhysics(player);
 });
 

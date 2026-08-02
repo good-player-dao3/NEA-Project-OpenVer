@@ -50,4 +50,6 @@ test("showcase imports through the same transactional package path", async t => 
   assert.match(serverScript, /world\.onTakeDamage/);
   assert.match(serverScript, /world\.onDie/);
   assert.match(serverScript, /player\.damage\(10\)/);
+  assert.match(serverScript, /world\.searchBox/);
+  assert.match(serverScript, /obb: \"evidence-deferred\"/);
 });
