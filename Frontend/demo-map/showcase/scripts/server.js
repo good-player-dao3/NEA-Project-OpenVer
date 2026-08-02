@@ -64,6 +64,8 @@ world.onPlayerJoin(({ player }) => {
   });
   const labEntities = world.searchBox({ lo: [20, 2, 20], hi: [236, 10, 236] });
   send(player, { type: "showcase:search-box", entityCount: labEntities.length, entityIds: labEntities.map(entity => entity.id), status: "partial", obb: "evidence-deferred" });
+  world.addCollisionFilter("player", ".api-lab");
+  send(player, { type: "showcase:collision-filter", filters: world.collisionFilters(), status: "partial", solver: "evidence-deferred" });
   sendPhysics(player);
 });
 

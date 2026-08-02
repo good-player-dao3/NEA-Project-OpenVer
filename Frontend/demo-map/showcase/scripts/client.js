@@ -51,6 +51,7 @@ remoteChannel.events.on("client", event => {
     lines.push(`welcome: ${event.capabilities.length} capability records`);
   }
   if (event?.type === "showcase:search-box") lines.push(`searchBox: ${event.entityCount} entities (${event.obb})`);
+  if (event?.type === "showcase:collision-filter") lines.push(`collisionFilter: ${event.filters.length} registered (${event.solver})`);
   if (event?.type === "showcase:physics") {
     lastPhysics = { gravity: event.gravity, airFriction: event.airFriction };
     lines.push(`physics applied: gravity=${event.gravity}, airFriction=${event.airFriction}`);
