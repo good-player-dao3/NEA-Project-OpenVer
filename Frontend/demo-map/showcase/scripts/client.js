@@ -62,6 +62,7 @@ remoteChannel.events.on("client", event => {
   if (event?.type === "showcase:contact") lines.push(`contact: ${event.kind} (${event.forceStatus})`);
   if (event?.type === "showcase:click") lines.push(`click: ${event.scope} target=${event.targetId} button=${event.button}`);
   if (event?.type === "showcase:zone") lines.push(`zone: ${event.phase} ${event.zone}`);
+  if (event?.type === "showcase:input") lines.push(`input: ${event.phase} ${event.button} pressed=${event.pressed}`);
   render();
 });
 

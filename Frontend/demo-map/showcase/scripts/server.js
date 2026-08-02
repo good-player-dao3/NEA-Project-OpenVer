@@ -105,6 +105,9 @@ const coreZone = world.addZone({
 coreZone.onEnter(({ entity }) => send(entity, { type: "showcase:zone", phase: "enter", zone: "showcase-core", status: "verified" }));
 coreZone.onLeave(({ entity }) => send(entity, { type: "showcase:zone", phase: "leave", zone: "showcase-core", status: "verified" }));
 
+world.onPress(({ entity, button, pressed }) => send(entity, { type: "showcase:input", phase: "press", button, pressed, status: "verified" }));
+world.onRelease(({ entity, button, pressed }) => send(entity, { type: "showcase:input", phase: "release", button, pressed, status: "verified" }));
+
 world.onTick(({ tick }) => {
   if (tick % 100 === 0) {
     for (const player of world.querySelectorAll("player")) send(player, { type: "showcase:tick", currentTick: tick, physics: { gravity: world.gravity, airFriction: world.airFriction } });
