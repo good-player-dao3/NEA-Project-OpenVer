@@ -45,4 +45,6 @@ test("showcase imports through the same transactional package path", async t => 
   assert.match(serverScript, /lab\.onInteract/);
   assert.match(serverScript, /world\.onInteract/);
   assert.match(serverScript, /targetBinding: \"authoritative-mapped\"/);
+  assert.match(serverScript, /world\.onEntityCreate/);
+  assert.match(serverScript, /world\.onEntityDestroy/);
 });

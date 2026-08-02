@@ -105,6 +105,16 @@ world.onInteract(({ entity, targetEntity }) => {
   send(entity, { type: "showcase:interact", scope: "world", targetId: targetEntity.id, status: "partial", targetBinding: "authoritative-mapped" });
 });
 
+world.onEntityCreate(({ entity }) => {
+  if (!entity.isPlayer) return;
+  send(entity, { type: "showcase:lifecycle", phase: "create", entityId: entity.id, status: "verified" });
+});
+
+world.onEntityDestroy(({ entity }) => {
+  if (!entity.isPlayer) return;
+  console.log(`[NEA Showcase] player lifecycle destroy entity=${entity.id}`);
+});
+
 const coreZone = world.addZone({
   selector: "player",
   bounds: { lo: [116, 7, 116], hi: [140, 15, 140] },
