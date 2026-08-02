@@ -23,11 +23,16 @@ test("server remote event updates client UI and client input returns through the
 
   let runtime;
   let player;
+  const pendingClientEvents = [];
   const clientRemoteChannel = new HistoricalClientRemoteChannelFixture({
     getTick: () => runtime.currentTick,
     sendPacket: packet => {
       const decoded = decodeHistoricalClientEvent(packet);
       assert.ok(decoded);
+      if (!player) {
+        pendingClientEvents.push(decoded.event);
+        return;
+      }
       assert.equal(runtime.dispatchClientEvent(player.id, decoded.event), true);
     },
   });
@@ -37,18 +42,20 @@ test("server remote event updates client UI and client input returns through the
     sendClientEvent: (_playerId, event) => clientRemoteChannel.receivePacket(encodeHistoricalServerEvent(runtime.currentTick, event)),
   });
   await runtime.start();
-  player = runtime.addPlayer({ id: "remote-ui-player", name: "Guest", position: [32, 9, 38] });
 
   const fixture = createClientRuntimeFixture(clientRemoteChannel);
   vm.runInNewContext(clientScript, fixture.context, { filename: "client.js" });
   clientRemoteChannel.start();
+  player = runtime.addPlayer({ id: "remote-ui-player", name: "Guest", position: [32, 9, 38] });
+  for (const event of pendingClientEvents.splice(0)) assert.equal(runtime.dispatchClientEvent(player.id, event), true);
 
-  assert.match(fixture.status.textContent, /server: nea-server-runtime\/v1 @ tick/);
+  assert.ok(fixture.logs.some(message => message.includes("welcome received at server tick")));
+  assert.match(fixture.status.textContent, /server: client ready acknowledged/);
   assert.ok(fixture.sent.some(event => event.type === "nea-demo:ready"));
   assert.ok(fixture.logs.some(message => message.includes("server runtime received client ready")));
 
   fixture.pointerLockEvents.emit("pointerlockchange", { isLocked: true });
-  assert.match(fixture.status.textContent, /pointer: locked/);
+  assert.match(fixture.status.textContent, /input: pointer locked/);
   assert.deepEqual(fixture.sent.at(-1), { type: "nea-demo:pointer-lock", isLocked: true });
   runtime.stop();
 });
