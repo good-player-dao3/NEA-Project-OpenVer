@@ -1,6 +1,6 @@
 # Architecture Governance
 
-**Status:** Project-wide source of truth for architecture decisions  
+**Status:** Project-wide source of truth for architecture decisions
 **Updated:** 2026-07-31
 
 This document prevents parallel contributors and AI agents from creating incompatible runtime designs. It complements `Docs/runtime-architecture.md`: the runtime document describes the system; this document defines who may change that system and how competing proposals are resolved.
