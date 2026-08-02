@@ -5,7 +5,8 @@ const PHYSICS_LIMITS = Object.freeze({ gravity: [-40, -1], airFriction: [0, 0.25
 const MOVEMENT_PROFILE = Object.freeze({ walkSpeed: 0.7, runSpeed: 5, jumpPower: 0.98, stepHeight: 1.25 });
 
 const capabilityMatrix = Object.freeze([
-  { id: "server.world.events", status: "verified", note: "tick, join, voxel contact, and trigger events" },
+  { id: "server.world.events", status: "verified", note: "tick, join, leave, voxel contact, and trigger events" },
+  { id: "server.world.onTick", status: "partial", note: "tick, prevTick, elapsedTimeMS, and skip are delivered; delayed catch-up remains partial" },
   { id: "server.world.onPlayerLeave", status: "verified", note: "backend disconnect ingress dispatches before player cleanup" },
   { id: "server.world.raycast", status: "verified", note: "result entity, voxel, position, normal, and distance" },
   { id: "server.storage", status: "verified", note: "data and group storage through the packaged scope" },
@@ -147,9 +148,18 @@ world.onRelease(({ entity, button, pressed }) => send(entity, { type: "showcase:
 world.onFluidEnter(({ entity, voxel }) => send(entity, { type: "showcase:fluid", phase: "enter", voxel, status: "partial", buoyancy: "evidence-deferred" }));
 world.onFluidLeave(({ entity, voxel }) => send(entity, { type: "showcase:fluid", phase: "leave", voxel, status: "partial", buoyancy: "evidence-deferred" }));
 
-world.onTick(({ tick }) => {
+world.onTick(({ tick, prevTick, elapsedTimeMS, skip }) => {
   if (tick % 100 === 0) {
-    for (const player of world.querySelectorAll("player")) send(player, { type: "showcase:tick", currentTick: tick, physics: { gravity: world.gravity, airFriction: world.airFriction } });
+    for (const player of world.querySelectorAll("player")) {
+      send(player, {
+        type: "showcase:tick",
+        tick,
+        prevTick,
+        elapsedTimeMS,
+        skip,
+        physics: { gravity: world.gravity, airFriction: world.airFriction },
+      });
+    }
   }
 });
 

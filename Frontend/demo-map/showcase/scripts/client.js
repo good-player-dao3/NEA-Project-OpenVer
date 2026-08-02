@@ -61,6 +61,7 @@ remoteChannel.events.on("client", event => {
   if (event?.type === "showcase:http") lines.push(`http: ${event.ok ? "allowlisted response" : "guarded failure"}`);
   if (event?.type === "showcase:broadcast") lines.push("broadcast: received");
   if (event?.type === "showcase:deferred") lines.push(`deferred: ${event.items.map(item => item.id).join(", ")}`);
+  if (event?.type === "showcase:tick") lines.push(`tick: ${event.tick} prev=${event.prevTick} elapsed=${event.elapsedTimeMS}ms skip=${event.skip}`);
   if (event?.type === "showcase:contact") lines.push(`contact: ${event.kind} (${event.forceStatus})`);
   if (event?.type === "showcase:click") lines.push(`click: ${event.scope} target=${event.targetId} button=${event.button}`);
   if (event?.type === "showcase:zone") lines.push(`zone: ${event.phase} ${event.zone}`);
