@@ -134,7 +134,22 @@ Outcome: deterministic reports, sanitized fixtures, documented limitations, and 
 
 ## Next
 
-- Select the next active runtime compatibility slice from the completed queue without widening the recovered-field admission contract.
+### [API-002] Publish the local GameHttpAPI ABI boundary - complete
+
+**Owner:** current agent; completed 2026-08-02
+**Scope:** expose the local `GameHttpAPI.fetch` and `GameHttpFetchResponse` surfaces in generated Server Runtime ABI analysis and adapter maps without upgrading historical compatibility beyond the evidence.
+**Evidence:** `Frontend/demo-map/src/runtime/game-http.mjs` provides the local implementation; the recovered documentation request/response pages and focused HTTP tests provide the declared boundary; origin network policy and complete response error semantics remain unrecovered.
+**Validation:** local analysis, current ABI/catalog composition, gap report generation, catalog conformance, and HTTP runtime tests passed; PR #124 merged as `01ba8a4b44c32f4554484f8a572828a095269fc5`.
+**Known limitation:** the surface remains `partial`; allowlisting, timeout, redirect, and response-size behavior are local safeguards rather than claims of historical network equivalence.
+
+### [QA-002] Stabilize Demo integration test evidence - complete
+
+**Owner:** current agent; completed 2026-08-02
+**Scope:** make public archive fixture paths independent of the process working directory and ensure RemoteChannel UI tests observe welcome events before later acknowledgement updates.
+**Validation:** explicit serial Demo test run passed 310/310; Control Bridge passed; PR #125 merged as `483f9f31a4b35fb74e0c8326c93446be2f3b14d5`.
+**Known limitation:** direct `npm test` under Node 24 on Windows can still trigger a native child-process async assertion; the explicit serial file-glob command and GitHub Ubuntu/Windows CI remain green.
+
+- Continue with the next evidence-backed runtime compatibility slice without widening the recovered-field admission contract.
 
 ## Blocked / deferred
 
