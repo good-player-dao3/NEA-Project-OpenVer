@@ -176,6 +176,16 @@ test("local Server Runtime adapter map distinguishes compatible and partial beha
   assert.ok(implementedEntries.some(entry => entry.id === "server.world.onChat"));
   assert.equal(analysis.adapters.find(adapter => adapter.localId === "server.GameHttpAPI.fetch")?.status, "partial");
   assert.ok(analysis.entries.find(entry => entry.id === "server.GameHttpAPI.fetch")?.evidence.some(item => item.path.endsWith("game-http.mjs")));
+  for (const id of [
+    "server.GameHttpFetchResponse.ok",
+    "server.GameHttpFetchResponse.status",
+    "server.GameHttpFetchResponse.statusText",
+    "server.GameHttpFetchResponse.headers",
+    "server.GameHttpFetchResponse.json",
+    "server.GameHttpFetchResponse.text",
+    "server.GameHttpFetchResponse.arrayBuffer",
+    "server.GameHttpFetchResponse.close",
+  ]) assert.equal(analysis.adapters.find(adapter => adapter.localId === id)?.status, "partial", id);
   assert.equal(analysis.adapters.find(adapter => adapter.localId === "server.world.raycast")?.canonicalId, "server.GameWorld.raycast");
   assert.equal(analysis.adapters.find(adapter => adapter.localId === "server.world.onChat")?.canonicalId, "server.GameWorld.onChat");
   const token = analysis.entries.find(entry => entry.id === "server.object.GameEventHandlerToken");

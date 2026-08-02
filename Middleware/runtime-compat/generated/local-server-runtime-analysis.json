@@ -1,7 +1,7 @@
 {
   "format": "nea-local-server-runtime-analysis",
   "version": 1,
-  "generatedAt": "2026-08-02T05:17:32.375Z",
+  "generatedAt": "2026-08-02T05:52:09.198Z",
   "source": {
     "path": "Frontend/demo-map/src/runtime/script-runtime.mjs",
     "bytes": 82311,
@@ -17266,6 +17266,70 @@
       ]
     },
     {
+      "localId": "server.GameHttpFetchResponse.ok",
+      "canonicalId": "server.GameHttpFetchResponse.ok",
+      "status": "partial",
+      "gaps": [
+        "The local response preserves the boolean status projection; historical response construction and network error semantics remain unrecovered."
+      ]
+    },
+    {
+      "localId": "server.GameHttpFetchResponse.status",
+      "canonicalId": "server.GameHttpFetchResponse.status",
+      "status": "partial",
+      "gaps": [
+        "The local response preserves the numeric HTTP status; historical response construction and network error semantics remain unrecovered."
+      ]
+    },
+    {
+      "localId": "server.GameHttpFetchResponse.statusText",
+      "canonicalId": "server.GameHttpFetchResponse.statusText",
+      "status": "partial",
+      "gaps": [
+        "The local response preserves the status text returned by the configured fetch implementation; historical normalization remains unrecovered."
+      ]
+    },
+    {
+      "localId": "server.GameHttpFetchResponse.headers",
+      "canonicalId": "server.GameHttpFetchResponse.headers",
+      "status": "partial",
+      "gaps": [
+        "The local response collects lowercase headers and repeated values; historical header ordering and wrapper semantics remain unrecovered."
+      ]
+    },
+    {
+      "localId": "server.GameHttpFetchResponse.json",
+      "canonicalId": "server.GameHttpFetchResponse.json",
+      "status": "partial",
+      "gaps": [
+        "The local response decodes JSON from the bounded body buffer; historical parse errors and stream lifecycle semantics remain unrecovered."
+      ]
+    },
+    {
+      "localId": "server.GameHttpFetchResponse.text",
+      "canonicalId": "server.GameHttpFetchResponse.text",
+      "status": "partial",
+      "gaps": [
+        "The local response decodes text from the bounded body buffer; historical encoding and stream lifecycle semantics remain unrecovered."
+      ]
+    },
+    {
+      "localId": "server.GameHttpFetchResponse.arrayBuffer",
+      "canonicalId": "server.GameHttpFetchResponse.arrayBuffer",
+      "status": "partial",
+      "gaps": [
+        "The local response exposes bounded bytes as an ArrayBuffer; historical stream lifecycle semantics remain unrecovered."
+      ]
+    },
+    {
+      "localId": "server.GameHttpFetchResponse.close",
+      "canonicalId": "server.GameHttpFetchResponse.close",
+      "status": "partial",
+      "gaps": [
+        "The local response releases its buffered body; historical close idempotency and transport cancellation semantics remain unrecovered."
+      ]
+    },
+    {
       "localId": "server.GameStorage.getDataStorage",
       "canonicalId": "server.GameStorage.getDataStorage",
       "status": "partial",
@@ -17389,7 +17453,7 @@
   "summary": {
     "localEntries": 395,
     "compatibleAdapters": 43,
-    "partialAdapters": 111,
-    "extensions": 241
+    "partialAdapters": 119,
+    "extensions": 233
   }
 }
