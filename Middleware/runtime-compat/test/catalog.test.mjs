@@ -187,6 +187,19 @@ test("local Server Runtime adapter map distinguishes compatible and partial beha
     "server.GameHttpFetchResponse.close",
   ]) assert.equal(analysis.adapters.find(adapter => adapter.localId === id)?.status, "partial", id);
   for (const id of [
+    "server.RuntimeVoxelContactEvent.tick",
+    "server.RuntimeVoxelContactEvent.entity",
+    "server.RuntimeVoxelContactEvent.x",
+    "server.RuntimeVoxelContactEvent.y",
+    "server.RuntimeVoxelContactEvent.z",
+    "server.RuntimeVoxelContactEvent.voxel",
+    "server.RuntimeVoxelContactEvent.axis",
+    "server.RuntimeVoxelContactEvent.force",
+    "server.RuntimeFluidContactEvent.tick",
+    "server.RuntimeFluidContactEvent.entity",
+    "server.RuntimeFluidContactEvent.voxel",
+  ]) assert.equal(analysis.adapters.find(adapter => adapter.localId === id)?.status, "partial", id);
+  for (const id of [
     "server.RuntimeRaycastResult.hit",
     "server.RuntimeRaycastResult.hitEntity",
     "server.RuntimeRaycastResult.hitVoxel",
