@@ -34,4 +34,7 @@ test("showcase imports through the same transactional package path", async t => 
   assert.match(serverScript, /evidence-deferred/);
   assert.match(serverScript, /world\.onClick/);
   assert.match(serverScript, /lab\.onClick/);
+  assert.match(serverScript, /world\.addZone/);
+  assert.match(serverScript, /coreZone\.onEnter/);
+  assert.match(serverScript, /coreZone\.onLeave/);
 });
