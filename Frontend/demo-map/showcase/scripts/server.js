@@ -10,7 +10,7 @@ const capabilityMatrix = Object.freeze([
   { id: "server.world.onPlayerLeave", status: "verified", note: "backend disconnect ingress dispatches before player cleanup" },
   { id: "server.world.onChat", status: "evidence-deferred", note: "historical chat event shape is known; no recovered Player/browser chat producer reaches the Server Script Runtime" },
   { id: "server.world.raycast", status: "verified", note: "result entity, voxel, position, normal, and distance" },
-  { id: "server.storage", status: "verified", note: "data and group storage through the packaged scope" },
+  { id: "server.storage", status: "partial", note: "data storage is local and persistent; group storage uses the launch-verified scope, while cloud/distributed semantics remain evidence-deferred" },
   { id: "server.world.config", status: "verified", note: "gravity and airFriction are mutable at runtime" },
   { id: "server.player.write", status: "partial", note: "movement fields are synchronized; full historical surface is not claimed" },
   { id: "server.remote-channel", status: "verified", note: "directed server-to-client and client-to-server events" },

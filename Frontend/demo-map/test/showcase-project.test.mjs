@@ -54,6 +54,7 @@ test("showcase imports through the same transactional package path", async t => 
   assert.match(serverScript, /skip/);
   assert.match(serverScript, /server\.world\.onChat/);
   assert.match(serverScript, /no recovered Player\/browser chat producer/);
+  assert.match(serverScript, /cloud\/distributed semantics remain evidence-deferred/);
   assert.match(serverScript, /world\.onTakeDamage/);
   assert.match(serverScript, /world\.onDie/);
   assert.match(serverScript, /player\.damage\(10\)/);
