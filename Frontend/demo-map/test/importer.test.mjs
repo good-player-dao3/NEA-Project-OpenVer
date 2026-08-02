@@ -42,6 +42,7 @@ test("imports the Demo into dao3-project/v1", async () => {
     "server.player",
     "server.player.write",
     "server.remote-channel",
+    "server.http",
   ]);
   assert.deepEqual(result.manifest.scripts.clientCapabilities, ["client.core", "client.ui", "client.remote-channel"]);
   const capabilities = JSON.parse(await readFile(join(output, "capabilities", "manifest.json"), "utf8"));

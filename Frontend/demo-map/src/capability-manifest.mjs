@@ -5,7 +5,7 @@ import { refinePlayerLifecycleRequirement } from "./lifecycle-event-refinement.m
 import { isEvidenceBackedRecoveredCanonical } from "./recovered-canonical-evidence.mjs";
 
 const ROOT_OWNERS = Object.freeze({
-  server: Object.freeze({ world: "GameWorld", voxels: "GameVoxels", storage: "GameStorage", gui: "GameGUI", remoteChannel: "remoteChannel", GameBounds3: "GameBounds3", GameQuaternion: "GameQuaternion", GameRGBColor: "GameRGBColor", GameRGBAColor: "GameRGBAColor" }),
+  server: Object.freeze({ world: "GameWorld", voxels: "GameVoxels", storage: "GameStorage", gui: "GameGUI", http: "GameHttpAPI", remoteChannel: "remoteChannel", GameBounds3: "GameBounds3", GameQuaternion: "GameQuaternion", GameRGBColor: "GameRGBColor", GameRGBAColor: "GameRGBAColor" }),
   client: Object.freeze({ input: "ClientInput", screen: "ClientScreen", ui: "UiNode", remoteChannel: "remoteChannel", GameQuaternion: "GameQuaternion", GameRGBColor: "GameRGBColor", GameRGBAColor: "GameRGBAColor" }),
 });
 

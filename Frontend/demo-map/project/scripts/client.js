@@ -38,12 +38,14 @@ runtimeStatus.parent = ui;
 
 let lastServerStatus = "server: connecting";
 let lastMovementStatus = "movement: waiting for server values";
+let lastHttpStatus = "http: idle";
 
 function updateRuntimeStatus(lines) {
   runtimeStatus.textContent = [
     "NEA Client Runtime: active",
     ...lines,
     lastMovementStatus,
+    lastHttpStatus,
   ].join("\n");
 }
 
@@ -172,5 +174,23 @@ remoteChannel.events.on("client", event => {
   }
   if (event?.type === "nea-demo:hazard-clear") {
     console.log(`[NEA Demo] left hazard ${event.hazardId}`);
+  }
+  if (event?.type === "nea-demo:http-result") {
+    lastHttpStatus = `http: ${event.status} ${event.statusText} (${event.bodyLength} bytes)`;
+    console.log(`[NEA Demo] server HTTP fetch: ${lastHttpStatus} content-type=${event.contentType}`);
+    updateRuntimeStatus([
+      "client: dao3-client-runtime/v1",
+      lastServerStatus,
+      lastHttpStatus,
+    ]);
+  }
+  if (event?.type === "nea-demo:http-error") {
+    lastHttpStatus = `http: failed - ${event.message}`;
+    console.log(`[NEA Demo] server HTTP fetch failed: ${event.message}`);
+    updateRuntimeStatus([
+      "client: dao3-client-runtime/v1",
+      lastServerStatus,
+      lastHttpStatus,
+    ]);
   }
 });
