@@ -9,6 +9,7 @@ const capabilityMatrix = Object.freeze([
   { id: "server.world.onTick", status: "partial", note: "tick, prevTick, elapsedTimeMS, and skip are delivered; delayed catch-up remains partial" },
   { id: "server.world.onPlayerLeave", status: "verified", note: "backend disconnect ingress dispatches before player cleanup" },
   { id: "server.world.onChat", status: "evidence-deferred", note: "historical chat event shape is known; no recovered Player/browser chat producer reaches the Server Script Runtime" },
+  { id: "server.world.onEntityContact", status: "evidence-deferred", note: "contact schema is recovered, but ContactBinding and active entity-contact aggregation are unavailable" },
   { id: "server.world.raycast", status: "verified", note: "result entity, voxel, position, normal, and distance" },
   { id: "server.storage", status: "partial", note: "data storage is local and persistent; group storage uses the launch-verified scope, while cloud/distributed semantics remain evidence-deferred" },
   { id: "server.world.config", status: "verified", note: "gravity and airFriction are mutable at runtime" },
