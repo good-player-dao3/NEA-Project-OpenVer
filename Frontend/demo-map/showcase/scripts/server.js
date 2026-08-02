@@ -8,6 +8,7 @@ const capabilityMatrix = Object.freeze([
   { id: "server.world.events", status: "verified", note: "tick, join, leave, voxel contact, and trigger events" },
   { id: "server.world.onTick", status: "partial", note: "tick, prevTick, elapsedTimeMS, and skip are delivered; delayed catch-up remains partial" },
   { id: "server.world.onPlayerLeave", status: "verified", note: "backend disconnect ingress dispatches before player cleanup" },
+  { id: "server.world.onChat", status: "evidence-deferred", note: "historical chat event shape is known; no recovered Player/browser chat producer reaches the Server Script Runtime" },
   { id: "server.world.raycast", status: "verified", note: "result entity, voxel, position, normal, and distance" },
   { id: "server.storage", status: "verified", note: "data and group storage through the packaged scope" },
   { id: "server.world.config", status: "verified", note: "gravity and airFriction are mutable at runtime" },
