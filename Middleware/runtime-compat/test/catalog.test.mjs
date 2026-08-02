@@ -186,6 +186,17 @@ test("local Server Runtime adapter map distinguishes compatible and partial beha
     "server.GameHttpFetchResponse.arrayBuffer",
     "server.GameHttpFetchResponse.close",
   ]) assert.equal(analysis.adapters.find(adapter => adapter.localId === id)?.status, "partial", id);
+  for (const id of [
+    "server.RuntimeRaycastResult.hit",
+    "server.RuntimeRaycastResult.hitEntity",
+    "server.RuntimeRaycastResult.hitVoxel",
+    "server.RuntimeRaycastResult.origin",
+    "server.RuntimeRaycastResult.direction",
+    "server.RuntimeRaycastResult.distance",
+    "server.RuntimeRaycastResult.hitPosition",
+    "server.RuntimeRaycastResult.normal",
+    "server.RuntimeRaycastResult.voxelIndex",
+  ]) assert.equal(analysis.adapters.find(adapter => adapter.localId === id)?.status, "partial", id);
   assert.equal(analysis.adapters.find(adapter => adapter.localId === "server.world.raycast")?.canonicalId, "server.GameWorld.raycast");
   assert.equal(analysis.adapters.find(adapter => adapter.localId === "server.world.onChat")?.canonicalId, "server.GameWorld.onChat");
   const token = analysis.entries.find(entry => entry.id === "server.object.GameEventHandlerToken");
