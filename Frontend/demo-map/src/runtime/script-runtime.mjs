@@ -261,7 +261,7 @@ export class ScriptRuntime {
       showDialog: options.showDialog,
       cancelDialogs: options.cancelDialogs,
       physics: { ...physicsSnapshot, ...options.physics },
-      storageScope: options.storageScope,
+      storageScope: options.storageScope ?? project.storage,
       httpOptions: options.httpOptions,
     });
   }
