@@ -30,4 +30,3 @@ async function verifyAudioAsset({ buildRoot, assetRoot, asset }) {
     throw new Error(`Player block audio archive bytes do not match the content address: ${asset.logicalPath}`);
   }
 }
-

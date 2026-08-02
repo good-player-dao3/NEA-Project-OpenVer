@@ -136,4 +136,3 @@ Do not open a public issue for credentials, browser profiles, cookies, OAuth dat
 ## Maintainer Notes
 
 Maintainers should keep `Docs/project-progress.md` limited to active work and update `Docs/development-backlog.md` only after a task outcome or evidence classification is verified. Keep public integration changes auditable against the OpenVer policy before merging or releasing.
-
