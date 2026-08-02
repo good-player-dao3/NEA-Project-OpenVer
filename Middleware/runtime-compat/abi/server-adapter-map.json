@@ -1,7 +1,7 @@
 {
   "format": "nea-server-adapter-map",
   "version": 1,
-  "generatedAt": "2026-08-02T06:01:42.430Z",
+  "generatedAt": "2026-08-02T06:05:08.493Z",
   "contract": "nea-server-runtime/v1",
   "adapters": [
     {
@@ -441,6 +441,94 @@
       "status": "partial",
       "gaps": [
         "The local result exposes the voxel index for voxel hits and preserves the documented no-hit zero vector."
+      ]
+    },
+    {
+      "localId": "server.RuntimeVoxelContactEvent.tick",
+      "canonicalId": "server.GameVoxelContactEvent.tick",
+      "status": "partial",
+      "gaps": [
+        "The local event preserves the dispatch tick; contact producer coverage remains limited to the local collider path."
+      ]
+    },
+    {
+      "localId": "server.RuntimeVoxelContactEvent.entity",
+      "canonicalId": "server.GameVoxelContactEvent.entity",
+      "status": "partial",
+      "gaps": [
+        "The local event exposes the contacting RuntimeEntity or RuntimePlayer; historical engine identity semantics remain unrecovered."
+      ]
+    },
+    {
+      "localId": "server.RuntimeVoxelContactEvent.x",
+      "canonicalId": "server.GameVoxelContactEvent.x",
+      "status": "partial",
+      "gaps": [
+        "The local event exposes the contacted voxel x coordinate from local collision resolution."
+      ]
+    },
+    {
+      "localId": "server.RuntimeVoxelContactEvent.y",
+      "canonicalId": "server.GameVoxelContactEvent.y",
+      "status": "partial",
+      "gaps": [
+        "The local event exposes the contacted voxel y coordinate from local collision resolution."
+      ]
+    },
+    {
+      "localId": "server.RuntimeVoxelContactEvent.z",
+      "canonicalId": "server.GameVoxelContactEvent.z",
+      "status": "partial",
+      "gaps": [
+        "The local event exposes the contacted voxel z coordinate from local collision resolution."
+      ]
+    },
+    {
+      "localId": "server.RuntimeVoxelContactEvent.voxel",
+      "canonicalId": "server.GameVoxelContactEvent.voxel",
+      "status": "partial",
+      "gaps": [
+        "The local event exposes the contacted voxel id; engine material and contact timing semantics remain unrecovered."
+      ]
+    },
+    {
+      "localId": "server.RuntimeVoxelContactEvent.axis",
+      "canonicalId": "server.GameVoxelContactEvent.axis",
+      "status": "partial",
+      "gaps": [
+        "The local event exposes the resolved local collision axis; historical solver orientation behavior remains unrecovered."
+      ]
+    },
+    {
+      "localId": "server.RuntimeVoxelContactEvent.force",
+      "canonicalId": "server.GameVoxelContactEvent.force",
+      "status": "partial",
+      "gaps": [
+        "The local event exposes the impulse-derived force vector; per-contact solver force integration remains evidence-deferred."
+      ]
+    },
+    {
+      "localId": "server.RuntimeFluidContactEvent.tick",
+      "canonicalId": "server.GameFluidContactEvent.tick",
+      "status": "partial",
+      "gaps": [
+        "The local event preserves the dispatch tick; fluid producer coverage remains limited to local voxel classification."
+      ]
+    },
+    {
+      "localId": "server.RuntimeFluidContactEvent.entity",
+      "canonicalId": "server.GameFluidContactEvent.entity",
+      "status": "partial",
+      "gaps": [
+        "The local event exposes the entering RuntimeEntity or RuntimePlayer; historical engine identity semantics remain unrecovered."
+      ]
+    },
+    {
+      "localId": "server.RuntimeFluidContactEvent.voxel",
+      "canonicalId": "server.GameFluidContactEvent.voxel",
+      "status": "partial",
+      "gaps": [
+        "The local event exposes the local fluid voxel id; historical fluid simulation semantics remain unrecovered."
       ]
     },
     {
